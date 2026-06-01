@@ -1,0 +1,1312 @@
+/* Custom styles can go here */
+// =============================================================================
+// MSmart — Global Stylesheet (Dark Mode Only)
+// -----------------------------------------------------------------------------
+// Sections:
+//   1. Design Tokens (variables)
+//   2. Mixins & Helpers
+//   3. Reset & Base
+//   4. Typography
+//   5. Layout Primitives
+//   6. RSuite Overrides (Navbar, Button, Input, Panel, Carousel, Nav)
+//   7. Components
+//        7.1  Header
+//        7.2  Footer
+//        7.3  HeroCarousel
+//        7.4  ContentCarousel + ItemCard
+//        7.5  ContentCard
+//        7.6  Spinner
+//   8. Pages
+//        8.1  HomePage
+//        8.2  OverviewPage
+//   9. Utilities
+//   10. Scrollbar
+//   11. Responsive Breakpoints
+// =============================================================================
+
+
+// 1. Design Tokens ============================================================
+
+:root {
+    // Surfaces
+    --bg-0: #07070b; // app background
+    --bg-1: #0d0d14; // raised surfaces (cards, panels)
+    --bg-2: #14141d; // hover surfaces
+    --bg-3: #1c1c28; // active surfaces / inputs
+    --bg-elevated: #181822;
+
+    // Borders
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.18);
+
+    // Text
+    --text-primary: #f5f5f7;
+    --text-secondary: rgba(245, 245, 247, 0.72);
+    --text-tertiary: rgba(245, 245, 247, 0.5);
+    --text-muted: rgba(245, 245, 247, 0.32);
+    --text-disabled: rgba(245, 245, 247, 0.2);
+
+    // Brand / Accent
+    --accent: #ff6a00;
+    --accent-hover: #ff8224;
+    --accent-active: #d45500;
+    --accent-soft: rgba(255, 106, 0, 0.12);
+
+    // States
+    --success: #2ecc71;
+    --warning: #f5a623;
+    --danger: #ff4d4f;
+
+    // Overlays
+    --overlay-strong: rgba(0, 0, 0, 0.85);
+    --overlay-medium: rgba(0, 0, 0, 0.55);
+    --overlay-soft: rgba(0, 0, 0, 0.3);
+
+    // Radii
+    --radius-0: 0px;
+    --radius-1: 2px;
+    --radius-pill: 999px;
+
+    // Spacing scale (4px base)
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    // Typography
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --fs-xs: 11px;
+    --fs-sm: 13px;
+    --fs-base: 14px;
+    --fs-md: 15px;
+    --fs-lg: 17px;
+    --fs-xl: 20px;
+    --fs-2xl: 24px;
+    --fs-3xl: 32px;
+    --fs-4xl: 40px;
+    --fs-hero: 48px;
+
+    // Shadows
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 24px rgba(255, 106, 0, 0.35);
+
+    // Motion
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-fast: 140ms;
+    --dur-base: 220ms;
+    --dur-slow: 380ms;
+
+    // Z-index scale
+    --z-base: 1;
+    --z-sticky: 100;
+    --z-header: 500;
+    --z-modal: 1000;
+    --z-spinner: 9999;
+}
+
+
+// 2. Mixins & Helpers =========================================================
+
+@mixin gradient-overlay-bottom($from: 0.9, $mid: 0.2) {
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, $from) 0%,
+            rgba(0, 0, 0, $mid) 55%,
+            transparent 100%);
+}
+
+@mixin truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@mixin focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 1px var(--accent);
+}
+
+@mixin smooth($props: all, $dur: var(--dur-base)) {
+    transition: $props $dur var(--ease);
+}
+
+
+// 3. Reset & Base =============================================================
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: var(--bg-0);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.rs-navbar,
+.rs-nav,
+.rs-btn,
+.rs-input,
+.rs-dropdown,
+.rs-panel {
+    font-family: var(--font-sans) !important;
+}
+
+body {
+    overflow-x: hidden;
+    color-scheme: dark;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    user-select: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    @include smooth(color);
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+
+
+// 4. Typography ===============================================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+h1 {
+    font-size: var(--fs-hero);
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: var(--fs-3xl);
+    line-height: 1.15;
+}
+
+h3 {
+    font-size: var(--fs-2xl);
+    line-height: 1.2;
+    margin-bottom: var(--space-4);
+}
+
+h4 {
+    font-size: var(--fs-xl);
+    line-height: 1.25;
+}
+
+h5 {
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+}
+
+h6 {
+    font-size: var(--fs-md);
+    line-height: 1.4;
+}
+
+p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+
+// 5. Layout Primitives ========================================================
+
+main {
+    flex: 1;
+    display: block;
+    background-color: var(--bg-0);
+}
+
+.flex {
+    display: flex;
+
+    &.flex-col {
+        flex-direction: column;
+    }
+
+    &.flex-1 {
+        flex: 1 1 0%;
+    }
+}
+
+.min-h-screen {
+    min-height: 100vh;
+}
+
+
+// 6. RSuite Overrides =========================================================
+
+// --- Navbar ------------------------------------------------------------------
+.custom-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: var(--z-header) !important;
+    padding: 0 var(--space-8) !important;
+    width: 100% !important;
+    height: 72px !important;
+    display: flex !important;
+    align-items: center !important;
+    background-color: rgba(7, 7, 11, 0) !important;
+    border-bottom: none !important;
+    transition: background-color 0.4s ease, box-shadow 0.4s ease !important;
+
+    // Pseudo-element gradient for hardware-accelerated, flicker-free hover transitions!
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+        opacity: 1;
+        z-index: -1;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    &:hover {
+        background-color: #07070b !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
+
+        &::before {
+            opacity: 0; // Fades out the gradient perfectly
+        }
+    }
+
+    .rs-navbar-brand {
+        color: var(--accent) !important;
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.02em !important;
+        padding: var(--space-4) var(--space-3) !important;
+        background: transparent !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        @include smooth(color);
+
+        &:hover,
+        &:focus {
+            color: var(--accent-hover) !important;
+            text-decoration: none !important;
+            background: transparent !important;
+        }
+    }
+
+    .rs-navbar-content {
+        display: flex;
+        align-items: center;
+        background: transparent !important;
+        height: 100% !important;
+    }
+}
+
+// Sleek expanding animated search overlay style
+.animated-search-container {
+    background: rgba(24, 24, 35, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 25px;
+    height: 50px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    z-index: 1001;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+
+    &.centered-search {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.35) !important;
+        background: rgba(28, 28, 40, 0.96) !important;
+    }
+
+    &:focus-within {
+        border-color: var(--accent) !important;
+        background: rgba(30, 30, 42, 0.98) !important;
+        box-shadow: 0 0 25px rgba(255, 106, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .search-accent-icon {
+        color: var(--accent) !important;
+        flex-shrink: 0;
+    }
+
+    .search-animated-input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #ffffff;
+        font-size: 15px;
+        font-family: var(--font-sans);
+        font-weight: 500;
+        width: 100%;
+        padding: 4px 0;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    .search-animated-close {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        transition: background-color 0.2s, color 0.2s, transform 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+    }
+}
+
+// --- Nav ---------------------------------------------------------------------
+.rs-nav {
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+
+    a,
+    .rs-nav-item,
+    .rs-nav-item-content,
+    .nav-link,
+    span,
+    svg {
+        color: #ffffff !important;
+        text-decoration: none !important;
+        font-family: var(--font-sans) !important;
+        font-weight: 600 !important;
+        font-size: 18px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        background: transparent !important;
+        @include smooth(color);
+    }
+
+    .rs-nav-item {
+        padding: var(--space-4) 20px !important; // Add spacious padding
+        height: 100% !important;
+    }
+
+    .rs-nav-item:hover,
+    .rs-nav-item:focus,
+    .rs-nav-item-content:hover,
+    .rs-nav-item-content:focus,
+    a:hover,
+    a:focus,
+    .nav-link:hover,
+    .nav-link:focus {
+        color: var(--accent) !important;
+        background: transparent !important;
+
+        span,
+        svg {
+            color: var(--accent) !important;
+        }
+    }
+
+    // Active state
+    .rs-nav-item-active,
+    .rs-nav-item-active span,
+    .rs-nav-item-active svg {
+        color: var(--accent) !important;
+        background: transparent !important;
+    }
+
+    .rs-nav-item.rs-nav-item-active {
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: var(--accent) !important;
+            border-radius: 2px;
+        }
+    }
+}
+
+// Header custom buttons
+.search-btn {
+    color: #ffffff !important;
+    background-color: transparent !important;
+    border: none !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s !important;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+    }
+}
+
+.paket-btn {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--accent) !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    padding: 10px 22px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.2) !important;
+    transition: transform 0.2s, background-color 0.2s !important;
+
+    &:hover {
+        background-color: var(--accent-hover) !important;
+        border-color: var(--accent-hover) !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 16px rgba(255, 106, 0, 0.35) !important;
+    }
+
+    &:active {
+        transform: translateY(0) !important;
+    }
+}
+
+.giris-btn {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border: 1.5px solid #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    padding: 9px 22px !important;
+    transition: background-color 0.2s, color 0.2s !important;
+
+    &:hover {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #ffffff !important;
+    }
+}
+
+// --- Button ------------------------------------------------------------------
+.rs-btn {
+    border-radius: var(--radius-0);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    @include smooth(background-color color border-color transform, var(--dur-fast));
+
+    &:focus-visible {
+        @include focus-ring;
+    }
+
+    &.rs-btn-primary {
+        background-color: var(--accent);
+        color: #fff;
+        border: 1px solid var(--accent);
+
+        &:hover,
+        &:focus {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: #fff;
+        }
+
+        &:active {
+            background-color: var(--accent-active);
+            border-color: var(--accent-active);
+        }
+    }
+
+    &.rs-btn-ghost {
+        background-color: transparent;
+        border: 1px solid var(--border-strong);
+        color: var(--text-primary);
+
+        &:hover,
+        &:focus {
+            background-color: var(--bg-2);
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+    }
+
+    &.rs-btn-subtle {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+
+        &:hover,
+        &:focus {
+            background-color: var(--bg-2);
+            color: var(--text-primary);
+        }
+    }
+
+    &.rs-btn-lg {
+        padding: var(--space-3) var(--space-6);
+        font-size: var(--fs-md);
+    }
+}
+
+// Custom dots styling for RSuite Carousel
+.rs-carousel-indicator {
+    z-index: 20 !important;
+
+    &.rs-carousel-indicator-shape-dot {
+        li {
+            button {
+                width: 8px !important;
+                height: 8px !important;
+                border-radius: 50% !important;
+                background-color: rgba(255, 255, 255, 0.4) !important;
+                transition: background-color 0.2s, transform 0.2s !important;
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.8) !important;
+                    transform: scale(1.2) !important;
+                }
+            }
+
+            &.rs-carousel-indicator-active {
+                button {
+                    background-color: var(--accent) !important;
+                    transform: scale(1.3) !important;
+                    box-shadow: 0 0 8px var(--accent) !important;
+                }
+            }
+        }
+    }
+}
+
+.btn-play {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    padding: 12px 36px !important;
+    height: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
+
+    .play-icon {
+        color: var(--accent) !important;
+        margin-right: 10px;
+        font-size: 1.25em;
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+
+    &:hover,
+    &:focus {
+        background-color: #ffffff !important;
+        border-color: #ffffff !important;
+        color: #000000 !important;
+        transform: translateY(-3px) scale(1.08) !important;
+        box-shadow: 0 12px 30px rgba(255, 106, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+        .play-icon {
+            transform: scale(1.25);
+        }
+    }
+
+    &:active {
+        background-color: #e5e5e7 !important;
+        border-color: #e5e5e7 !important;
+        transform: translateY(-1px) scale(0.98) !important;
+    }
+}
+
+// --- Input -------------------------------------------------------------------
+.rs-input {
+    background-color: var(--bg-3);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-0);
+    padding: var(--space-2) var(--space-3);
+    @include smooth(border-color background-color, var(--dur-fast));
+
+    &::placeholder {
+        color: var(--text-muted);
+    }
+
+    &:hover {
+        border-color: var(--border-strong);
+    }
+
+    &:focus {
+        border-color: var(--accent);
+        background-color: var(--bg-2);
+        outline: none;
+        box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+}
+
+// --- Panel -------------------------------------------------------------------
+.rs-panel {
+    background-color: var(--bg-1);
+    border-radius: var(--radius-0);
+    color: var(--text-primary);
+
+    &.rs-panel-bordered {
+        border: 1px solid var(--border-subtle);
+    }
+
+    .rs-panel-body {
+        padding: var(--space-3);
+    }
+}
+
+// --- Carousel ----------------------------------------------------------------
+.rs-carousel {
+    background-color: transparent;
+    border-radius: var(--radius-0);
+    overflow: hidden;
+
+    .rs-carousel-slider-item {
+        background-color: var(--bg-0);
+    }
+
+    // Indicators (bar shape)
+    .rs-carousel-toolbar {
+        .rs-carousel-label-wrapper {
+            input:checked+label {
+                background-color: var(--accent);
+            }
+
+            label {
+                background-color: rgba(255, 255, 255, 0.3);
+                border-radius: var(--radius-0);
+                @include smooth(background-color);
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.55);
+                }
+            }
+        }
+    }
+}
+
+// --- Stack -------------------------------------------------------------------
+.rs-stack {
+    align-items: center;
+}
+
+
+// 7. Components ===============================================================
+
+// 7.1 Header ------------------------------------------------------------------
+// Mostly handled via .rs-navbar overrides above.
+// Search input expand animation:
+.rs-navbar .rs-input[type='search'] {
+    animation: searchExpand var(--dur-base) var(--ease-out);
+}
+
+@keyframes searchExpand {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+
+    to {
+        width: 180px;
+        opacity: 1;
+    }
+}
+
+// 7.2 Footer ------------------------------------------------------------------
+.rs-footer {
+    background-color: var(--bg-0);
+    border-top: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.05em;
+
+    p {
+        margin: 0;
+        color: inherit;
+    }
+}
+
+// 7.3 HeroCarousel ------------------------------------------------------------
+.hero-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+
+    .hero-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer;
+        z-index: 15;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: background-color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: #ffffff !important;
+            transform: translateY(-50%) scale(1.1) !important;
+            box-shadow: 0 0 20px rgba(255, 106, 0, 0.4) !important;
+        }
+
+        &:active {
+            transform: translateY(-50%) scale(0.95) !important;
+        }
+
+        &.prev {
+            left: 24px;
+        }
+
+        &.next {
+            right: 24px;
+        }
+    }
+
+    .hero-bottom-fade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 160px;
+        background: linear-gradient(to top, var(--bg-0) 0%, rgba(7, 7, 11, 0.8) 25%, rgba(7, 7, 11, 0.3) 60%, transparent 100%) !important;
+        pointer-events: none;
+        z-index: 10;
+    }
+}
+
+.hero-slide {
+    position: relative;
+
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        @include gradient-overlay-bottom(0.85, 0.2);
+    }
+
+    .hero-info {
+        position: absolute;
+        bottom: 120px;
+        left: 40px;
+        color: #fff;
+        max-width: 600px;
+        z-index: 12;
+
+        h1 {
+            font-size: clamp(28px, 4vw, var(--fs-hero));
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-meta {
+            margin: 8px 0 4px;
+            opacity: 0.8;
+            font-size: var(--fs-sm);
+            color: rgba(255, 255, 255, 0.92);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-overview {
+            margin: 8px 0 16px;
+            opacity: 0.9;
+            font-size: var(--fs-md);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.92);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+        }
+    }
+}
+
+// 7.4 ContentCarousel + ItemCard ----------------------------------------------
+.content-carousel {
+    margin-bottom: var(--space-8);
+
+    .cc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-4);
+        padding-right: var(--space-2);
+
+        h3 {
+            color: var(--text-primary);
+            font-size: var(--fs-xl);
+            font-weight: 700;
+            margin: 0;
+            padding-left: var(--space-1);
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 6px;
+                bottom: 6px;
+                width: 3px;
+                background: var(--accent);
+            }
+        }
+
+        .cc-header__nav {
+            display: flex;
+            gap: var(--space-2);
+
+            .cc-nav-btn {
+                background: var(--bg-1);
+                border: 1px solid var(--border-subtle);
+                color: var(--text-secondary);
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+
+                &:hover {
+                    background: var(--accent);
+                    color: #ffffff;
+                    border-color: var(--accent);
+                    transform: scale(1.1);
+                    box-shadow: 0 0 12px rgba(255, 106, 0, 0.35);
+                }
+
+                &:active {
+                    transform: scale(0.95);
+                }
+            }
+        }
+    }
+
+    // Hide RSuite's default indicators below the content carousel
+    .rs-carousel-indicator {
+        display: none !important;
+    }
+}
+
+.cc-slide {
+    display: flex;
+    overflow: hidden;
+}
+
+.cc-item {
+    flex-shrink: 1;
+    flex-basis: 0;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--bg-1);
+    border-right: 1px solid var(--bg-0);
+    cursor: pointer;
+
+    &:last-child {
+        border-right: none;
+    }
+
+    img {
+        width: 100%;
+        height: 25vw;
+        object-fit: cover;
+        display: block;
+        @include smooth(filter, var(--dur-slow));
+    }
+
+    &:hover img {
+        filter: brightness(1.06);
+    }
+}
+
+.cc-item__title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 28px 10px 8px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92), transparent);
+    color: #fff;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.22s ease;
+}
+
+// 7.5 ContentCard -------------------------------------------------------------
+// Wraps inside an <a> with Panel
+a>.rs-panel {
+    background-color: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    @include smooth(transform border-color box-shadow, var(--dur-base));
+
+    &:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .rs-panel-body {
+        padding: 0;
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    >div,
+    .rs-panel-body>div {
+        padding: var(--space-3);
+
+        strong {
+            display: block;
+            font-size: var(--fs-md);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+            @include truncate;
+        }
+
+        p {
+            margin: 2px 0;
+            font-size: var(--fs-sm);
+            color: var(--text-tertiary);
+
+            &:first-of-type {
+                color: var(--warning);
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+// 7.6 Spinner -----------------------------------------------------------------
+// Component uses inline styles + injected keyframes; we leave them intact.
+// Optional: theme alignment if you later add a className.
+
+
+// 8. Pages ====================================================================
+
+// 8.1 HomePage ----------------------------------------------------------------
+.home-content {
+    padding: var(--space-8) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+// 8.2 OverviewPage ------------------------------------------------------------
+.overview-hero {
+    position: relative;
+    width: 100%;
+
+    img {
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+        display: block;
+    }
+
+    .overview-hero__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+    }
+
+    .overview-hero__info {
+        position: absolute;
+        bottom: 100px;
+        left: 40px;
+        color: #fff;
+        max-width: 600px;
+
+        h1 {
+            font-size: clamp(28px, 4vw, var(--fs-hero));
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+            margin-bottom: var(--space-2);
+        }
+
+        .overview-meta {
+            margin: 8px 0 4px;
+            opacity: 0.8;
+            font-size: var(--fs-sm);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .overview-text {
+            margin: 8px 0;
+            opacity: 0.9;
+            font-size: var(--fs-md);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .overview-crew,
+        .overview-cast {
+            font-size: var(--fs-sm);
+            opacity: 0.75;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .overview-cast {
+            margin-bottom: var(--space-4);
+        }
+
+        strong {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .rs-btn-primary {
+            box-shadow: var(--shadow-md);
+
+            &:hover {
+                box-shadow: var(--shadow-glow);
+            }
+        }
+    }
+}
+
+.overview-similar {
+    padding: var(--space-8) var(--space-6);
+}
+
+
+// 8.3 WorkInProgressPage ------------------------------------------------------
+.wip-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--bg-0);
+    color: var(--text-primary);
+    padding: var(--space-6);
+    text-align: center;
+    font-family: var(--font-sans);
+}
+
+.wip-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: var(--space-6);
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+}
+
+.wip-icon {
+    margin-right: 8px;
+    color: var(--accent) !important;
+}
+
+
+// 9. Utilities ================================================================
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.py-4 {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+}
+
+.py-6 {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
+}
+
+.text-xs {
+    font-size: var(--fs-xs);
+}
+
+.text-sm {
+    font-size: var(--fs-sm);
+}
+
+.text-gray-400 {
+    color: var(--text-tertiary);
+}
+
+.border-t {
+    border-top: 1px solid var(--border-subtle);
+}
+
+
+// 10. Scrollbar ===============================================================
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-0);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-3);
+    border: 2px solid var(--bg-0);
+    border-radius: var(--radius-0);
+    @include smooth(background-color);
+
+    &:hover {
+        background: var(--border-strong);
+    }
+}
+
+// Firefox
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-3) var(--bg-0);
+}
+
+
+// 11. Responsive Breakpoints ==================================================
+
+@media (max-width: 1024px) {
+    :root {
+        --fs-hero: 36px;
+        --fs-4xl: 32px;
+        --fs-3xl: 26px;
+    }
+
+    .rs-navbar {
+        padding: 0 var(--space-4);
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --fs-hero: 28px;
+        --fs-3xl: 22px;
+        --fs-2xl: 20px;
+    }
+
+    .home-content {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .hero-info,
+    .overview-hero__info {
+        bottom: 40px;
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .rs-navbar .rs-input[type='search'] {
+        width: 140px !important;
+    }
+
+    .cc-item:nth-child(n + 5) {
+        display: none;
+    }
+}

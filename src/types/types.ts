@@ -41,3 +41,38 @@ export interface TMDBResponse<T> {
 export type SearchResult =
     | (Movie & { media_type: 'movie' })
     | (TVShow & { media_type: 'tv' })
+
+export interface Genre {
+    id: number
+    name: string
+}
+
+export interface CastMember {
+    id: number
+    name: string
+    character: string
+    profile_path: string | null
+}
+
+export interface Credits {
+    cast: CastMember[]
+    crew: Array<{ id: number; name: string; job: string; department: string }>
+}
+
+export interface MovieDetail extends Movie {
+    genres: Genre[]
+    runtime: number | null
+    tagline: string
+    status: string
+    credits?: Credits
+}
+
+export interface TVShowDetail extends TVShow {
+    genres: Genre[]
+    episode_run_time: number[]
+    tagline: string
+    status: string
+    number_of_seasons: number
+    number_of_episodes: number
+    credits?: Credits
+}

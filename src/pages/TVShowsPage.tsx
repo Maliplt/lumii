@@ -7,7 +7,7 @@ export default function TVShowsPage() {
       <Header />
       <main className="flex-1 flex items-center justify-center">
         <p style={{ color: '#888', fontSize: '1.25rem', letterSpacing: '0.05em' }}>
-          🚧 Work in Progress
+          Work in Progress
         </p>
       </main>
       <Footer />

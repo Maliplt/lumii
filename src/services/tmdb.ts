@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Movie, TVShow, TMDBResponse, SearchResult } from '../types/types'
+import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail } from '../types/types'
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 
@@ -33,4 +33,16 @@ export const tmdbApi = {
 
     search: (query: string, page = 1): Promise<TMDBResponse<SearchResult>> =>
         tmdbFetch<TMDBResponse<SearchResult>>('/search/multi', { query, page }),
+
+    getMovieDetail: (id: number): Promise<MovieDetail> =>
+        tmdbFetch<MovieDetail>(`/movie/${id}`, { append_to_response: 'credits' }),
+
+    getTVShowDetail: (id: number): Promise<TVShowDetail> =>
+        tmdbFetch<TVShowDetail>(`/tv/${id}`, { append_to_response: 'credits' }),
+
+    getSimilarMovies: (id: number): Promise<TMDBResponse<Movie>> =>
+        tmdbFetch<TMDBResponse<Movie>>(`/movie/${id}/similar`),
+
+    getSimilarTVShows: (id: number): Promise<TMDBResponse<TVShow>> =>
+        tmdbFetch<TMDBResponse<TVShow>>(`/tv/${id}/similar`),
 }
