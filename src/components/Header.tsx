@@ -15,9 +15,16 @@ export default function Header() {
   const navigate = useNavigate()
   const [showSearch, setShowSearch] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const searchWrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { setMobileMenuOpen(false) }, [location.pathname])
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 30)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     if (showSearch && searchWrapperRef.current) {
@@ -52,7 +59,7 @@ export default function Header() {
 
   return (
     <>
-      <Navbar className="custom-header">
+      <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}`}>
         <Navbar.Content className="header-left">
           <Navbar.Brand href="/" className="header-brand-link">
             MSmart

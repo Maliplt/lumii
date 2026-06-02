@@ -36,7 +36,10 @@ function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }
     if (ref.current) animate(ref.current, { flexGrow: 1, duration: 260, ease: 'outQuart' })
   }
 
-  const onEnter = () => { timer.current = setTimeout(doExpand, 500) }
+  const onEnter = () => {
+    if (window.matchMedia('(hover: none)').matches) return
+    timer.current = setTimeout(doExpand, 500)
+  }
   const onLeave = () => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null }
     if (expanded.current) doCollapse()
