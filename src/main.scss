@@ -626,8 +626,9 @@ main {
 }
 
 // Custom dots styling for RSuite Carousel
-.rs-carousel-indicator {
-    z-index: 20 !important;
+.rs-carousel-indicator,
+.rs-carousel-toolbar {
+    z-index: 50 !important;
 
     &.rs-carousel-indicator-shape-dot {
         li {
@@ -942,41 +943,93 @@ main {
             }
         }
 
-        .cc-header__nav {
+        .cc-header__indicators {
             display: flex;
-            gap: var(--space-2);
+            align-items: center;
+            gap: 6px;
 
-            .cc-nav-btn {
-                background: var(--bg-1);
-                border: 1px solid var(--border-subtle);
-                color: var(--text-secondary);
-                width: 34px;
-                height: 34px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            .cc-indicator-dot {
+                width: 12px;
+                height: 4px;
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
                 cursor: pointer;
-                transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+                transition: background-color 0.25s ease, width 0.25s ease;
 
-                &:hover {
-                    background: var(--accent);
-                    color: #ffffff;
-                    border-color: var(--accent);
-                    transform: scale(1.1);
-                    box-shadow: 0 0 12px rgba(255, 106, 0, 0.35);
+                &.active {
+                    background-color: var(--accent);
+                    width: 20px;
                 }
 
-                &:active {
-                    transform: scale(0.95);
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.4);
+
+                    &.active {
+                        background-color: var(--accent);
+                    }
                 }
             }
         }
     }
 
-    // Hide RSuite's default indicators below the content carousel
+    // Hide RSuite's default indicators and toolbar below the content carousel
+    .rs-carousel-toolbar,
     .rs-carousel-indicator {
         display: none !important;
+    }
+}
+
+.cc-carousel-wrapper {
+    position: relative;
+    width: 100%;
+
+    .rs-carousel {
+        height: 25vw !important;
+    }
+}
+
+.cc-nav-arrow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    background: rgba(7, 7, 11, 0.7);
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    cursor: pointer;
+    transition: background-color 0.25s, color 0.25s, opacity 0.25s;
+    opacity: 0;
+
+    &.prev {
+        left: 0;
+        background: linear-gradient(to right, rgba(7, 7, 11, 0.95) 0%, transparent 100%);
+    }
+
+    &.next {
+        right: 0;
+        background: linear-gradient(to left, rgba(7, 7, 11, 0.95) 0%, transparent 100%);
+    }
+
+    &:hover {
+        color: var(--accent) !important;
+        
+        &.prev {
+            background: linear-gradient(to right, rgba(7, 7, 11, 0.98) 0%, rgba(7, 7, 11, 0.3) 100%);
+        }
+        
+        &.next {
+            background: linear-gradient(to left, rgba(7, 7, 11, 0.98) 0%, rgba(7, 7, 11, 0.3) 100%);
+        }
+    }
+}
+
+.cc-carousel-wrapper:hover {
+    .cc-nav-arrow {
+        opacity: 1;
     }
 }
 
@@ -998,10 +1051,15 @@ main {
         border-right: none;
     }
 
+    a {
+        display: block !important;
+    }
+
     img {
         width: 100%;
         height: 25vw;
         object-fit: cover;
+        object-position: center 15% !important;
         display: block;
         @include smooth(filter, var(--dur-slow));
     }
@@ -1011,21 +1069,112 @@ main {
     }
 }
 
-.cc-item__title {
+.cc-item__overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 28px 10px 8px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.92), transparent);
-    color: #fff;
-    font-size: var(--fs-sm);
-    font-weight: 600;
+    padding: 40px var(--space-3) var(--space-3);
+    background: linear-gradient(to top, rgba(7, 7, 11, 0.98) 0%, rgba(7, 7, 11, 0.8) 60%, transparent 100%);
+    color: #ffffff;
     pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    &.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.cc-item__details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.cc-item__name {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: opacity 0.22s ease;
+    letter-spacing: 0.01em;
+}
+
+.cc-item__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--text-secondary);
+
+    .cc-item__rating {
+        color: #ffb800 !important; // beautiful golden star
+    }
+
+    .cc-item__year {
+        color: #ffffff !important;
+    }
+
+    .cc-item__type {
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        font-size: 11px !important;
+    }
+
+    .cc-item__divider {
+        color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+.cc-item__overview-container {
+    width: 100%;
+    height: 48px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cc-item__overview {
+    display: block;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin: 4px 0 0 0 !important;
+    font-weight: 500;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.cc-item:hover {
+    .cc-item__overview {
+        animation: marqueeTextVertical 18s linear infinite;
+        animation-delay: 1.5s;
+    }
+}
+
+@keyframes marqueeTextVertical {
+    0% {
+        transform: translateY(0);
+    }
+    10% {
+        transform: translateY(0);
+    }
+    85% {
+        transform: translateY(-55%);
+    }
+    100% {
+        transform: translateY(-55%);
+    }
 }
 
 // 7.5 ContentCard -------------------------------------------------------------
@@ -1082,9 +1231,155 @@ a>.rs-panel {
 // Optional: theme alignment if you later add a className.
 
 
+// 7.7 GameCarousel -------------------------------------------------------------
+.game-carousel {
+    margin-bottom: var(--space-8);
+    padding: 0 var(--space-2);
+
+    .gc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-4);
+
+        h3 {
+            color: var(--text-primary);
+            font-size: var(--fs-xl);
+            font-weight: 700;
+            margin: 0;
+            padding-left: var(--space-1);
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 6px;
+                bottom: 6px;
+                width: 3px;
+                background: var(--accent);
+            }
+        }
+    }
+}
+
+.gc-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none; // hide scrollbar firefox
+    &::-webkit-scrollbar {
+        display: none; // hide scrollbar chrome/safari
+    }
+}
+
+.gc-track {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-2) 0 var(--space-4);
+}
+
+.gc-item {
+    flex-shrink: 0;
+}
+
+.gc-card {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: var(--bg-1);
+    border: 2px solid var(--border-subtle);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+
+    .gc-card__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .gc-card__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(7, 7, 11, 0.95) 0%, rgba(7, 7, 11, 0.6) 60%, transparent 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: var(--space-3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .gc-card__details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .gc-card__name {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        margin: 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gc-card__desc {
+        font-size: 11px !important;
+        color: var(--text-secondary) !important;
+        margin: 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gc-card__badge {
+        align-self: flex-start;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        background-color: var(--accent) !important;
+        padding: 2px 8px !important;
+        border-radius: 4px !important;
+        margin-top: 4px;
+        letter-spacing: 0.5px;
+    }
+
+    &:hover {
+        transform: translateY(-5px) scale(1.05);
+        border-color: var(--accent);
+        box-shadow: 0 10px 25px rgba(255, 106, 0, 0.3), var(--shadow-glow);
+
+        .gc-card__image {
+            transform: scale(1.08);
+            filter: brightness(0.85);
+        }
+
+        .gc-card__overlay {
+            opacity: 1;
+        }
+    }
+}
+
+
 // 8. Pages ====================================================================
 
 // 8.1 HomePage ----------------------------------------------------------------
+.home-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.home-main {
+    flex: 1;
+}
+
 .home-content {
     padding: var(--space-8) var(--space-6);
     display: flex;
@@ -1093,6 +1388,22 @@ a>.rs-panel {
 }
 
 // 8.2 OverviewPage ------------------------------------------------------------
+.overview-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.overview-main {
+    flex: 1;
+}
+
+.overview-loading-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .overview-hero {
     position: relative;
     width: 100%;
@@ -1197,7 +1508,220 @@ a>.rs-panel {
 }
 
 
-// 9. Utilities ================================================================
+// 8.4 PlayGamePage -------------------------------------------------------------
+.play-game-page {
+    min-height: 100vh;
+    background-color: #07070b;
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+
+    .pg-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-4) var(--space-6);
+        background-color: rgba(13, 13, 20, 0.95);
+        border-bottom: 1.5px solid var(--border-subtle);
+        z-index: 10;
+    }
+
+    .pg-back-btn {
+        background-color: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 8px 18px !important;
+
+        svg {
+            color: var(--accent) !important;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            border-color: #ffffff !important;
+        }
+    }
+
+    .pg-score-card {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: rgba(255, 106, 0, 0.12);
+        border: 1.5px solid rgba(255, 106, 0, 0.3);
+        border-radius: 30px;
+        padding: 6px 18px;
+        font-size: 14px;
+        color: var(--text-primary);
+
+        .pg-score-icon {
+            color: #ffb800 !important;
+        }
+
+        strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+    }
+
+    .pg-main-content {
+        flex: 1;
+        width: 100%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pg-error {
+        margin: auto;
+        font-size: var(--fs-lg);
+        color: var(--text-secondary);
+        font-family: var(--font-sans);
+        font-weight: 600;
+    }
+
+    .pg-back-icon {
+        margin-right: var(--space-2);
+        color: var(--accent) !important;
+    }
+}
+
+
+// 8.5 PlayPage ----------------------------------------------------------------
+.play-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.play-main {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+}
+
+.play-content {
+    width: 100%;
+    padding: var(--space-10) var(--space-8);
+}
+
+.play-title {
+    font-size: var(--fs-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-8);
+    position: relative;
+    padding-left: var(--space-3);
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 6px;
+        bottom: 6px;
+        width: 3px;
+        background: var(--accent);
+    }
+}
+
+.play-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.play-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    @include smooth(border-color transform box-shadow);
+
+    &:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(255, 106, 0, 0.2);
+
+        .play-card__image-wrap img {
+            transform: scale(1.06);
+        }
+    }
+
+    .play-card__image-wrap {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background-color: var(--bg-3);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            @include smooth(transform);
+        }
+    }
+
+    .play-card__body {
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .play-card__name {
+        font-size: var(--fs-xl);
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .play-card__desc {
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .play-card__cta {
+        display: inline-block;
+        margin-top: var(--space-2);
+        padding: 8px 20px;
+        background-color: var(--accent);
+        color: #ffffff;
+        font-size: var(--fs-sm);
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border-radius: 6px;
+        align-self: flex-start;
+        @include smooth(background-color);
+
+        &:hover {
+            background-color: #ff8533;
+        }
+    }
+}
+
+
+// 8.6 ExplorePage / TVShowsPage ------------------------------------------------
+.explore-page,
+.tvshows-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.explore-main,
+.tvshows-main {
+    flex: 1;
+}
+
+
+
 
 .text-center {
     text-align: center;
@@ -1308,5 +1832,338 @@ a>.rs-panel {
 
     .cc-item:nth-child(n + 5) {
         display: none;
+    }
+}
+
+// 12. TV Season & Episode Selector --------------------------------------------
+.overview-seasons-section {
+    padding: var(--space-8) 60px;
+    background-color: var(--bg-1);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+
+    .seasons-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-6);
+        flex-wrap: wrap;
+        gap: var(--space-4);
+
+        .seasons-title {
+            color: var(--text-primary);
+            font-size: var(--fs-2xl);
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            padding-left: var(--space-1);
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 6px;
+                bottom: 6px;
+                width: 3px;
+                background: var(--accent);
+            }
+        }
+    }
+
+    .season-select-wrapper {
+        position: relative;
+        display: inline-block;
+
+        .season-select {
+            background-color: var(--bg-3);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            padding: 10px 32px 10px 18px;
+            font-size: var(--fs-sm);
+            font-family: var(--font-sans);
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            @include smooth(border-color background-color box-shadow);
+
+            &:hover {
+                border-color: var(--accent);
+                background-color: var(--bg-2);
+            }
+
+            &:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.25);
+            }
+        }
+
+        &::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+            pointer-events: none;
+        }
+    }
+
+    .seasons-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
+    }
+
+    .seasons-empty,
+    .seasons-empty-text {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: var(--fs-md);
+        padding: var(--space-8) 0;
+    }
+
+    .episodes-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .episode-card {
+        display: flex;
+        background-color: var(--bg-0);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        overflow: hidden;
+        @include smooth(border-color transform box-shadow);
+
+        &:hover {
+            border-color: rgba(255, 106, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+            .episode-card__media img {
+                transform: scale(1.05);
+            }
+
+            .episode-card__media-overlay {
+                opacity: 1;
+            }
+        }
+
+        .episode-card__media {
+            position: relative;
+            width: 220px;
+            min-width: 220px;
+            height: 124px;
+            overflow: hidden;
+            background-color: var(--bg-3);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .episode-card__media-overlay {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                @include smooth(opacity);
+
+                .play-icon-mini {
+                    width: 36px;
+                    height: 36px;
+                    background: var(--accent);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.3);
+                    @include smooth(transform background-color);
+
+                    &:hover {
+                        background: #ff8533;
+                        transform: scale(1.1);
+                    }
+                }
+            }
+        }
+
+        .episode-card__info {
+            padding: var(--space-4) var(--space-5);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            .episode-card__title-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                margin-bottom: var(--space-2);
+                flex-wrap: wrap;
+                gap: var(--space-2);
+
+                .episode-card__title {
+                    color: var(--text-primary);
+                    font-size: var(--fs-md);
+                    font-weight: 700;
+                    margin: 0;
+                    font-family: var(--font-sans);
+                }
+
+                .episode-airdate {
+                    color: var(--text-tertiary);
+                    font-size: var(--fs-xs);
+                    font-weight: 500;
+                }
+            }
+
+            .episode-overview {
+                color: var(--text-muted);
+                font-size: var(--fs-sm);
+                line-height: 1.6;
+                margin: 0;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+    }
+}
+
+// Media Query override for Seasons responsive layouts
+@media (max-width: 1024px) {
+    .overview-seasons-section {
+        padding: var(--space-6) var(--space-4);
+    }
+}
+
+@media (max-width: 768px) {
+    .overview-seasons-section {
+        .episode-card {
+            flex-direction: column;
+
+            .episode-card__media {
+                width: 100%;
+                min-width: 100%;
+                height: 180px;
+            }
+
+            .episode-card__info {
+                padding: var(--space-4);
+            }
+        }
+    }
+}
+
+.explore-main {
+    position: relative;
+}
+
+.explore-content {
+    padding: var(--space-8) 60px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    background-color: var(--bg-1);
+    position: relative;
+    z-index: 10;
+}
+
+.cc-item__actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: var(--space-2) 0 var(--space-3);
+    width: 100%;
+}
+
+.cc-item__actions-left {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.cc-item__action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    padding: 0;
+    @include smooth(transform background-color border-color box-shadow);
+
+    &.play {
+        background-color: #ffffff;
+        color: #000000;
+
+        &:hover {
+            background-color: #ffffff;
+            color: #000000;
+            transform: scale(1.18);
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    &.outline {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1.5px solid rgba(255, 255, 255, 0.45);
+        color: #ffffff;
+
+        &:hover {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.18);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+}
+
+.cc-item__custom-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-top: var(--space-1);
+    display: inline-block;
+}
+
+@media (max-width: 1024px) {
+    .explore-content {
+        padding: var(--space-6) 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .explore-content {
+        padding: var(--space-4);
     }
 }

@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Carousel } from 'rsuite'
 import { Link } from 'react-router-dom'
 import { animate } from 'animejs'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { getImageUrl } from '../services/tmdb'
+import { ChevronLeft, ChevronRight, Play, Plus, ThumbsUp, ChevronDown } from 'lucide-react'
+import { getImageUrl, tmdbApi } from '../services/tmdb'
 import type { Movie, TVShow } from '../types/types'
 
 interface ContentCarouselProps {
@@ -13,14 +13,30 @@ interface ContentCarouselProps {
 }
 
 const VISIBLE = 6
-const CAROUSEL_H = '25vw'
 
 function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }) {
   const ref = useRef<HTMLDivElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const expanded = useRef(false)
   const [showTitle, setShowTitle] = useState(false)
+  const [seasons, setSeasons] = useState<number | null>(null)
   const name = (item as Movie).title ?? (item as TVShow).name
+
+  const year = ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(0, 4) ?? ''
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A'
+  const overviewSnippet = item.overview || ''
+
+  useEffect(() => {
+    if (type === 'tv' && showTitle && seasons === null) {
+      tmdbApi.getTVShowDetail(item.id)
+        .then((res) => {
+          if (res && typeof res.number_of_seasons === 'number') {
+            setSeasons(res.number_of_seasons)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [type, showTitle, item.id, seasons])
 
   const doExpand = () => {
     expanded.current = true
@@ -48,15 +64,51 @@ function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <Link to={`/${type}/${item.id}`} style={{ display: 'block' }}>
+      <Link to={`/${type}/${item.id}`}>
         <img
           src={getImageUrl(item.poster_path, 'w300')}
           alt={name}
           loading="lazy"
         />
       </Link>
-      <div className="cc-item__title" style={{ opacity: showTitle ? 1 : 0 }}>
-        {name}
+      <div className={`cc-item__overlay ${showTitle ? 'active' : ''}`}>
+        <div className="cc-item__details">
+          <div className="cc-item__actions-row">
+            <div className="cc-item__actions-left">
+              <button className="cc-item__action-btn play" type="button">
+                <Play size={12} fill="currentColor" />
+              </button>
+              <button className="cc-item__action-btn outline" type="button">
+                <Plus size={12} />
+              </button>
+              <button className="cc-item__action-btn outline" type="button">
+                <ThumbsUp size={12} />
+              </button>
+            </div>
+            <button className="cc-item__action-btn outline detail-trigger" type="button">
+              <ChevronDown size={12} />
+            </button>
+          </div>
+          <h4 className="cc-item__name">{name}</h4>
+          <div className="cc-item__meta">
+            {type === 'movie' ? (
+              <>
+                <span className="cc-item__year">{year}</span>
+                <span className="cc-item__divider">•</span>
+                <span className="cc-item__rating">{rating} Puan</span>
+              </>
+            ) : (
+              <span className="cc-item__custom-subtitle">
+                S1 : B1 &quot;Aşkın Coşkusu&quot;
+              </span>
+            )}
+          </div>
+          {overviewSnippet && (
+            <div className="cc-item__overview-container">
+              <p className="cc-item__overview">{overviewSnippet}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -86,31 +138,47 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
           <h3>{title}</h3>
         </div>
         {slides.length > 1 && (
-          <div className="cc-header__nav">
-            <button className="cc-nav-btn" onClick={handlePrev} aria-label="Previous items">
-              <ChevronLeft size={18} />
-            </button>
-            <button className="cc-nav-btn" onClick={handleNext} aria-label="Next items">
-              <ChevronRight size={18} />
-            </button>
+          <div className="cc-header__indicators">
+            {slides.map((_, index) => (
+              <span 
+                key={index} 
+                className={`cc-indicator-dot ${index === activeIndex ? 'active' : ''}`}
+                onClick={() => setActiveIndex(index)}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      <Carousel
-        placement="bottom"
-        style={{ height: CAROUSEL_H }}
-        activeIndex={activeIndex}
-        onSelect={(index) => setActiveIndex(index)}
-      >
-        {slides.map((slide, si) => (
-          <div key={si} className="cc-slide">
-            {slide.map((item) => (
-              <ItemCard key={item.id} item={item} type={type} />
-            ))}
-          </div>
-        ))}
-      </Carousel>
+      <div className="cc-carousel-wrapper">
+        {/* Left Arrow Button (State-controlled: visible only when activeIndex > 0) */}
+        {slides.length > 1 && activeIndex > 0 && (
+          <button className="cc-nav-arrow prev" onClick={handlePrev} aria-label="Previous slide">
+            <ChevronLeft size={30} />
+          </button>
+        )}
+
+        {/* Right Arrow Button (State-controlled: visible only when activeIndex < slides.length - 1) */}
+        {slides.length > 1 && activeIndex < slides.length - 1 && (
+          <button className="cc-nav-arrow next" onClick={handleNext} aria-label="Next slide">
+            <ChevronRight size={30} />
+          </button>
+        )}
+
+        <Carousel
+          placement="bottom"
+          activeIndex={activeIndex}
+          onSelect={(index) => setActiveIndex(index)}
+        >
+          {slides.map((slide, si) => (
+            <div key={si} className="cc-slide">
+              {slide.map((item) => (
+                <ItemCard key={item.id} item={item} type={type} />
+              ))}
+            </div>
+          ))}
+        </Carousel>
+      </div>
     </div>
   )
 }

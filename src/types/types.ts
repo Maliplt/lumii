@@ -76,3 +76,23 @@ export interface TVShowDetail extends TVShow {
     number_of_episodes: number
     credits?: Credits
 }
+
+export interface Episode {
+    id: number
+    name: string
+    overview: string
+    episode_number: number
+    air_date: string | null
+    still_path: string | null
+    runtime: number | null
+}
+
+export interface TVSeasonDetail {
+    id: number
+    name: string
+    season_number: number
+    overview: string
+    air_date: string | null
+    poster_path: string | null
+    episodes: Episode[]
+}

@@ -44,7 +44,7 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
               <p className="hero-overview">
                 {movie.overview?.slice(0, 180)}{(movie.overview?.length ?? 0) > 180 ? '…' : ''}
               </p>
-              <Button className="btn-play" size="lg" onClick={() => navigate('/play')}>
+              <Button className="btn-play" size="lg" onClick={() => navigate('/work-in-progress')}>
                 <span className="play-icon">▶</span> Oynat
               </Button>
             </div>

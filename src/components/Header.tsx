@@ -52,7 +52,7 @@ export default function Header() {
               <span>Anasayfa</span>
             </Stack>
           </Nav.Item>
-          <Nav.Item as={Link} to="/movies" eventKey="/movies" className="nav-link">
+          <Nav.Item as={Link} to="/explore" eventKey="/explore" className="nav-link">
             <Stack spacing={8}>
               <Film size={18} />
               <span>Seç İzle</span>
