@@ -431,82 +431,6 @@ interface SudokuGame {
     solution: number[][];
 }
 
-function generateSudoku(difficulty: string): { puzzle: number[][]; solution: number[][] } {
-    const base = 3, side = base * base;
-    const rng = () => Math.random();
-
-    function shuffle<T>(arr: T[]): T[] {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(rng() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
-
-    function pattern(r: number, c: number): number {
-        return (base * (r % base) + Math.floor(r / base) + c) % side;
-    }
-
-    const rows = [...Array(base).keys()].flatMap(g =>
-        shuffle([...Array(base).keys()].map(r => g * base + r))
-    );
-    const cols = [...Array(base).keys()].flatMap(g =>
-        shuffle([...Array(base).keys()].map(c => g * base + c))
-    );
-    const nums = shuffle([...Array(side).keys()].map(n => n + 1));
-
-    const board = rows.flatMap(r => cols.map(c => nums[pattern(r, c)]));
-    const grid = Array.from({ length: 9 }, (_, r) => board.slice(r * 9, r * 9 + 9));
-
-    const removals: Record<string, number> = { kolay: 35, orta: 45, zor: 55 };
-    const toRemove = removals[difficulty] || 45;
-
-    const puzzle = grid.map(r => [...r]);
-    let removed = 0;
-    const cells = shuffle([...Array(81).keys()]);
-
-    for (const idx of cells) {
-        if (removed >= toRemove) break;
-        const r = Math.floor(idx / 9), c = idx % 9;
-        const val = puzzle[r][c];
-        puzzle[r][c] = 0;
-        if (hasUniqueSolution(puzzle)) {
-            removed++;
-        } else {
-            puzzle[r][c] = val;
-        }
-    }
-
-    return { puzzle, solution: grid };
-}
-
-function hasUniqueSolution(grid: number[][]): boolean {
-    const board = grid.map(r => [...r]);
-    let count = 0;
-
-    function solve() {
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < 9; j++) {
-                if (board[i][j] === 0) {
-                    for (let n = 1; n <= 9; n++) {
-                        if (isValid(board, i, j, n)) {
-                            board[i][j] = n;
-                            solve();
-                            board[i][j] = 0;
-                            if (count > 1) return;
-                        }
-                    }
-                    return;
-                }
-            }
-        }
-        count++;
-    }
-
-    solve();
-    return count === 1;
-}
-
 function isValid(board: number[][], row: number, col: number, num: number): boolean {
     for (let i = 0; i < 9; i++) {
         if (board[row][i] === num) return false;
@@ -517,6 +441,92 @@ function isValid(board: number[][], row: number, col: number, num: number): bool
         for (let j = 0; j < 3; j++)
             if (board[br + i][bc + j] === num) return false;
     return true;
+}
+
+function fillGrid(grid: number[][]): boolean {
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            if (grid[r][c] === 0) {
+                const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                for (let i = 0; i < 9; i++) {
+                    const j = Math.floor(Math.random() * 9);
+                    const temp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = temp;
+                }
+                for (const n of nums) {
+                    if (isValid(grid, r, c, n)) {
+                        grid[r][c] = n;
+                        if (fillGrid(grid)) return true;
+                        grid[r][c] = 0;
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function hasUniqueSolution(grid: number[][]): boolean {
+    const board = grid.map(r => [...r]);
+    let count = 0;
+
+    function solve(): boolean {
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (board[i][j] === 0) {
+                    for (let n = 1; n <= 9; n++) {
+                        if (isValid(board, i, j, n)) {
+                            board[i][j] = n;
+                            if (solve()) return true;
+                            board[i][j] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        count++;
+        return count > 1;
+    }
+
+    solve();
+    return count === 1;
+}
+
+function generateSudoku(difficulty: string): { puzzle: number[][]; solution: number[][] } {
+    const grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+    fillGrid(grid);
+
+    const puzzle = grid.map(r => [...r]);
+    const removals: Record<string, number> = { kolay: 35, orta: 45, zor: 55 };
+    const toRemove = removals[difficulty] || 45;
+
+    const cells: number[] = [];
+    for (let i = 0; i < 81; i++) cells.push(i);
+    for (let i = 80; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = cells[i];
+        cells[i] = cells[j];
+        cells[j] = temp;
+    }
+
+    let removed = 0;
+    for (const idx of cells) {
+        if (removed >= toRemove) break;
+        const r = Math.floor(idx / 9);
+        const c = idx % 9;
+        const val = puzzle[r][c];
+        puzzle[r][c] = 0;
+        if (hasUniqueSolution(puzzle)) {
+            removed++;
+        } else {
+            puzzle[r][c] = val;
+        }
+    }
+
+    return { puzzle, solution: grid };
 }
 
 function useTimer() {
@@ -538,8 +548,6 @@ export default function SudokuApp() {
     const [game, setGame] = useState<SudokuGame | null>(null);
     const [board, setBoard] = useState<SudokuCell[][]>([]);
     const [selected, setSelected] = useState<{ r: number; c: number } | null>(null);
-    const [pencilMode, setPencilMode] = useState<boolean>(false);
-    const [pencilMarks, setPencilMarks] = useState<Record<string, Set<number>>>({});
     const [mistakes, setMistakes] = useState<number>(0);
     const [won, setWon] = useState<boolean>(false);
     const { time, fmt, start, stop, reset } = useTimer();
@@ -555,7 +563,6 @@ export default function SudokuApp() {
         setGame({ solution });
         setBoard(b);
         setSelected(null);
-        setPencilMarks({});
         setMistakes(0);
         setWon(false);
         reset();
@@ -573,18 +580,6 @@ export default function SudokuApp() {
         const { r, c } = selected;
         if (board[r][c].given || board[r][c].hint) return;
 
-        if (pencilMode) {
-            const key = `${r}-${c}`;
-            setPencilMarks(pm => {
-                const cur = pm[key] || new Set<number>();
-                const next = new Set<number>(cur);
-                if (next.has(num)) next.delete(num);
-                else next.add(num);
-                return { ...pm, [key]: next };
-            });
-            return;
-        }
-
         const newBoard = board.map(row => row.map(cell => ({ ...cell })));
         if (num === 0) {
             newBoard[r][c].value = 0;
@@ -597,12 +592,6 @@ export default function SudokuApp() {
                 setMistakes(m => m + 1);
             }
         }
-
-        setPencilMarks(pm => {
-            const next = { ...pm };
-            delete next[`${r}-${c}`];
-            return next;
-        });
 
         setBoard(newBoard);
 
@@ -617,7 +606,7 @@ export default function SudokuApp() {
                 localStorage.setItem('sudoku_best_time', String(time));
             }
         }
-    }, [selected, board, game, pencilMode, won, stop, time]);
+    }, [selected, board, game, won, stop, time]);
 
     const handleHint = () => {
         if (!selected || !game || won) return;
@@ -638,7 +627,6 @@ export default function SudokuApp() {
         newBoard[r][c].value = 0;
         newBoard[r][c].error = false;
         setBoard(newBoard);
-        setPencilMarks(pm => { const n = { ...pm }; delete n[`${r}-${c}`]; return n; });
     };
 
     useEffect(() => {
@@ -650,10 +638,6 @@ export default function SudokuApp() {
             }
             if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') {
                 handleNumber(0);
-                processed = true;
-            }
-            if (e.key === 'p' || e.key === 'P') {
-                setPencilMode(m => !m);
                 processed = true;
             }
             if (selected) {
@@ -685,7 +669,6 @@ export default function SudokuApp() {
     const renderCell = (cell: SudokuCell, r: number, c: number) => {
         const hl = getHighlightType(r, c);
         const key = `${r}-${c}`;
-        const marks = pencilMarks[key];
 
         let className = 'cell';
         if (cell.given) className += ' given';
@@ -699,15 +682,7 @@ export default function SudokuApp() {
 
         return (
             <div key={key} className={className} onClick={() => handleCellClick(r, c)}>
-                {cell.value !== 0 ? cell.value : (
-                    marks && marks.size > 0 ? (
-                        <div className="pencil-marks">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-                                <div key={n} className="pencil-mark">{marks.has(n) ? n : ''}</div>
-                            ))}
-                        </div>
-                    ) : ''
-                )}
+                {cell.value !== 0 ? cell.value : ''}
             </div>
         );
     };
@@ -768,9 +743,6 @@ export default function SudokuApp() {
                             ))}
                         </div>
                         <div className="tools-row">
-                            <button className={`tool-btn${pencilMode ? ' active-tool' : ''}`} onClick={() => setPencilMode(m => !m)}>
-                                ✏ Kalem
-                            </button>
                             <button className="tool-btn" onClick={handleErase}>⌫ Sil</button>
                             <button className="tool-btn" onClick={handleHint}>💡 İpucu</button>
                             <button className="tool-btn" onClick={() => startGame(difficulty)}>↺ Yenile</button>

@@ -21,21 +21,24 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
     setActiveIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1))
   }
 
+  if (movies.length === 0) return null
+
   return (
-    <div className="hero-carousel-wrapper" style={{ position: 'relative' }}>
-      <Carousel 
-        placement="bottom" 
-        shape="dot" 
+    <div className="hero-carousel-wrapper">
+      <Carousel
+        placement="bottom"
+        shape="dot"
         activeIndex={activeIndex}
         onSelect={(index) => setActiveIndex(index)}
-        style={{ height: '80vh' }}
+        className="hero-carousel-inner"
       >
-        {movies.map((movie) => (
+        {movies.map((movie, index) => (
           <div key={movie.id} className="hero-slide">
             <img
               src={getImageUrl(movie.backdrop_path, 'original')}
               alt={movie.title}
-              loading="lazy"
+              loading={index === 0 ? 'eager' : 'lazy'}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
             />
             <div className="hero-overlay" />
             <div className="hero-info">
@@ -52,15 +55,13 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
         ))}
       </Carousel>
 
-      {/* Chevron Navigation Buttons */}
-      <button className="hero-nav-btn prev" onClick={handlePrev} aria-label="Previous Slide">
+      <button className="hero-nav-btn prev" onClick={handlePrev} aria-label="Önceki slayt">
         <ChevronLeft size={36} />
       </button>
-      <button className="hero-nav-btn next" onClick={handleNext} aria-label="Next Slide">
+      <button className="hero-nav-btn next" onClick={handleNext} aria-label="Sonraki slayt">
         <ChevronRight size={36} />
       </button>
 
-      {/* Smooth Bottom Fade Overlay */}
       <div className="hero-bottom-fade" />
     </div>
   )

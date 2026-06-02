@@ -32,6 +32,9 @@ export default function OverviewPage() {
         ]).then(([det, sim]) => {
             setDetail(det as MovieDetail | TVShowDetail)
             setSimilar(sim.results.filter((item) => item.poster_path) as Movie[] | TVShow[])
+        }).catch(() => {
+            // API hatası — boş içerikle devam et
+        }).finally(() => {
             setLoading(false)
         })
     }, [type, id])

@@ -9,31 +9,55 @@ const MinesweeperApp = lazy(() => import('../games/minesweep'))
 const Game2048 = lazy(() => import('../games/Game2048'))
 const KelimeZinciri = lazy(() => import('../games/KelimeZinciri'))
 
+const SCORE_KEYS: Record<string, string> = {
+    sudoku: 'sudoku_best_time',
+    minesweeper: 'minesweeper_best_time',
+    '2048': 'game2048_best_score',
+    kelimezinciri: 'kelimezinciri_best',
+}
+
+const SCORE_LABELS: Record<string, string> = {
+    sudoku: 'En İyi Süre',
+    minesweeper: 'En İyi Süre',
+    '2048': 'En İyi Skor',
+    kelimezinciri: 'En İyi Skor',
+}
+
+const IS_SCORE = new Set(['2048', 'kelimezinciri'])
+
+function readBestScore(gameId: string): string {
+    const key = SCORE_KEYS[gameId]
+    if (!key) return ''
+    const raw = localStorage.getItem(key)
+    if (!raw) return 'Henüz skor yok'
+    const val = parseInt(raw, 10)
+    return IS_SCORE.has(gameId)
+        ? `${val.toLocaleString('tr-TR')} puan`
+        : `${raw} saniye`
+}
+
 export default function PlayGamePage() {
     const { gameId } = useParams<{ gameId: string }>()
     const navigate = useNavigate()
-    const [bestScore, setBestScore] = useState<string | null>(null)
+    const [bestScore, setBestScore] = useState(() => readBestScore(gameId ?? ''))
 
     useEffect(() => {
-        const updateScore = () => {
-            if (gameId === 'sudoku') {
-                const score = localStorage.getItem('sudoku_best_time')
-                setBestScore(score ? `${score} saniye` : 'Henüz skor yok')
-            } else if (gameId === 'minesweeper') {
-                const score = localStorage.getItem('minesweeper_best_time')
-                setBestScore(score ? `${score} saniye` : 'Henüz skor yok')
-            } else if (gameId === '2048') {
-                const score = localStorage.getItem('game2048_best_score')
-                setBestScore(score ? `${parseInt(score, 10).toLocaleString('tr-TR')} puan` : 'Henüz skor yok')
-            } else if (gameId === 'kelimezinciri') {
-                const score = localStorage.getItem('kelimezinciri_best')
-                setBestScore(score ? `${parseInt(score, 10).toLocaleString('tr-TR')} puan` : 'Henüz skor yok')
-            }
+        setBestScore(readBestScore(gameId ?? ''))
+
+        const interval = setInterval(() => {
+            setBestScore(readBestScore(gameId ?? ''))
+        }, 2000)
+
+        const handleStorage = () => setBestScore(readBestScore(gameId ?? ''))
+        window.addEventListener('storage', handleStorage)
+
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('storage', handleStorage)
         }
-        updateScore()
-        const interval = setInterval(updateScore, 1000)
-        return () => clearInterval(interval)
     }, [gameId])
+
+    const scoreLabel = SCORE_LABELS[gameId ?? ''] ?? 'En İyi Skor'
 
     return (
         <div className="play-game-page">
@@ -44,7 +68,7 @@ export default function PlayGamePage() {
                 </Button>
                 <div className="pg-score-card">
                     <Trophy size={18} className="pg-score-icon" />
-                    <span>{['2048', 'kelimezinciri'].includes(gameId ?? '') ? 'En İyi Skor' : 'En İyi Süre'}: <strong>{bestScore}</strong></span>
+                    <span>{scoreLabel}: <strong>{bestScore}</strong></span>
                 </div>
             </header>
             <main className="pg-main-content">

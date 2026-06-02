@@ -54,9 +54,16 @@ export interface CastMember {
     profile_path: string | null
 }
 
+export interface CrewMember {
+    id: number
+    name: string
+    job: string
+    department: string
+}
+
 export interface Credits {
     cast: CastMember[]
-    crew: Array<{ id: number; name: string; job: string; department: string }>
+    crew: CrewMember[]
 }
 
 export interface MovieDetail extends Movie {

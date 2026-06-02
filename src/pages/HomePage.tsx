@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import HeroCarousel from '../components/HeroCarousel'
@@ -6,23 +6,23 @@ import ContentCarousel from '../components/ContentCarousel'
 import GameCarousel from '../components/GameCarousel'
 import Spinner from '../components/Spinner'
 import { tmdbApi } from '../services/tmdb'
+import { useAsyncData } from '../hooks/useAsyncData'
 import type { Movie, TVShow } from '../types/types'
 
 export default function HomePage() {
-    const [movies, setMovies] = useState<Movie[]>([])
-    const [tvShows, setTvShows] = useState<TVShow[]>([])
-    const [loading, setLoading] = useState(true)
+    const { data, loading } = useAsyncData(() =>
+        Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getPopularTVShows()])
+    )
 
-    useEffect(() => {
-        Promise.all([
-            tmdbApi.getPopularMovies(),
-            tmdbApi.getPopularTVShows(),
-        ]).then(([moviesRes, tvRes]) => {
-            setMovies(moviesRes.results.filter((m) => m.poster_path && m.backdrop_path))
-            setTvShows(tvRes.results.filter((tv) => tv.poster_path))
-            setLoading(false)
-        })
-    }, [])
+    const movies = useMemo(
+        () => (data?.[0].results.filter((m) => m.poster_path && m.backdrop_path) ?? []) as Movie[],
+        [data]
+    )
+
+    const tvShows = useMemo(
+        () => (data?.[1].results.filter((tv) => tv.poster_path) ?? []) as TVShow[],
+        [data]
+    )
 
     return (
         <div className="home-page">

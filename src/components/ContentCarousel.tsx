@@ -1,9 +1,10 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { Carousel } from 'rsuite'
 import { Link } from 'react-router-dom'
 import { animate } from 'animejs'
 import { ChevronLeft, ChevronRight, Play, Plus, ThumbsUp, ChevronDown } from 'lucide-react'
-import { getImageUrl, tmdbApi } from '../services/tmdb'
+import { getImageUrl } from '../services/tmdb'
+import { useVisibleCount } from '../hooks/useVisibleCount'
 import type { Movie, TVShow } from '../types/types'
 
 interface ContentCarouselProps {
@@ -12,31 +13,16 @@ interface ContentCarouselProps {
   items: Movie[] | TVShow[]
 }
 
-const VISIBLE = 6
-
 function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }) {
   const ref = useRef<HTMLDivElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const expanded = useRef(false)
   const [showTitle, setShowTitle] = useState(false)
-  const [seasons, setSeasons] = useState<number | null>(null)
-  const name = (item as Movie).title ?? (item as TVShow).name
 
+  const name = (item as Movie).title ?? (item as TVShow).name
   const year = ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(0, 4) ?? ''
   const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A'
   const overviewSnippet = item.overview || ''
-
-  useEffect(() => {
-    if (type === 'tv' && showTitle && seasons === null) {
-      tmdbApi.getTVShowDetail(item.id)
-        .then((res) => {
-          if (res && typeof res.number_of_seasons === 'number') {
-            setSeasons(res.number_of_seasons)
-          }
-        })
-        .catch(() => {})
-    }
-  }, [type, showTitle, item.id, seasons])
 
   const doExpand = () => {
     expanded.current = true
@@ -91,17 +77,9 @@ function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }
           </div>
           <h4 className="cc-item__name">{name}</h4>
           <div className="cc-item__meta">
-            {type === 'movie' ? (
-              <>
-                <span className="cc-item__year">{year}</span>
-                <span className="cc-item__divider">•</span>
-                <span className="cc-item__rating">{rating} Puan</span>
-              </>
-            ) : (
-              <span className="cc-item__custom-subtitle">
-                S1 : B1 &quot;Aşkın Coşkusu&quot;
-              </span>
-            )}
+            <span className="cc-item__year">{year}</span>
+            <span className="cc-item__divider">•</span>
+            <span className="cc-item__rating">{rating} Puan</span>
           </div>
           {overviewSnippet && (
             <div className="cc-item__overview-container">
@@ -116,10 +94,21 @@ function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }
 
 export default function ContentCarousel({ type, title, items }: ContentCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const slides: Array<(Movie | TVShow)[]> = []
-  for (let i = 0; i < items.length; i += VISIBLE) {
-    slides.push(items.slice(i, i + VISIBLE) as (Movie | TVShow)[])
-  }
+  const visible = useVisibleCount()
+
+  const slides = useMemo(() => {
+    const result: Array<(Movie | TVShow)[]> = []
+    for (let i = 0; i < items.length; i += visible) {
+      result.push(items.slice(i, i + visible) as (Movie | TVShow)[])
+    }
+    return result
+  }, [items, visible])
+
+  useEffect(() => {
+    if (slides.length > 0 && activeIndex >= slides.length) {
+      setActiveIndex(slides.length - 1)
+    }
+  }, [slides.length, activeIndex])
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1))
@@ -140,8 +129,8 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
         {slides.length > 1 && (
           <div className="cc-header__indicators">
             {slides.map((_, index) => (
-              <span 
-                key={index} 
+              <span
+                key={index}
                 className={`cc-indicator-dot ${index === activeIndex ? 'active' : ''}`}
                 onClick={() => setActiveIndex(index)}
               />
@@ -151,16 +140,14 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
       </div>
 
       <div className="cc-carousel-wrapper">
-        {/* Left Arrow Button (State-controlled: visible only when activeIndex > 0) */}
         {slides.length > 1 && activeIndex > 0 && (
-          <button className="cc-nav-arrow prev" onClick={handlePrev} aria-label="Previous slide">
+          <button className="cc-nav-arrow prev" onClick={handlePrev} aria-label="Önceki slayt">
             <ChevronLeft size={30} />
           </button>
         )}
 
-        {/* Right Arrow Button (State-controlled: visible only when activeIndex < slides.length - 1) */}
         {slides.length > 1 && activeIndex < slides.length - 1 && (
-          <button className="cc-nav-arrow next" onClick={handleNext} aria-label="Next slide">
+          <button className="cc-nav-arrow next" onClick={handleNext} aria-label="Sonraki slayt">
             <ChevronRight size={30} />
           </button>
         )}

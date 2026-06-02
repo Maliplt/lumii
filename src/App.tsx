@@ -15,6 +15,7 @@ function App() {
                 <Route path="/play/:gameId" element={<PlayGamePage />} />
                 <Route path="/work-in-progress" element={<WorkInProgressPage />} />
                 <Route path="/:type/:id" element={<OverviewPage />} />
+                <Route path="*" element={<WorkInProgressPage />} />
             </Routes>
         </BrowserRouter>
     )
