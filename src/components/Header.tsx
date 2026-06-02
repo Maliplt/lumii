@@ -22,7 +22,7 @@ export default function Header() {
   useEffect(() => {
     if (showSearch && searchWrapperRef.current) {
       const targetWidth = window.innerWidth <= 768
-        ? `${window.innerWidth - 80}px`
+        ? `${window.innerWidth - 16}px`
         : '520px'
       animate(searchWrapperRef.current, {
         width: ['0px', targetWidth],
@@ -36,7 +36,7 @@ export default function Header() {
   const handleCloseSearch = () => {
     if (searchWrapperRef.current) {
       const fromWidth = window.innerWidth <= 768
-        ? `${window.innerWidth - 80}px`
+        ? `${window.innerWidth - 16}px`
         : '520px'
       animate(searchWrapperRef.current, {
         width: [fromWidth, '0px'],

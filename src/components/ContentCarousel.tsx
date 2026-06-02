@@ -95,6 +95,7 @@ function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }
 export default function ContentCarousel({ type, title, items }: ContentCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const visible = useVisibleCount()
+  const touchStartX = useRef<number | null>(null)
 
   const slides = useMemo(() => {
     const result: Array<(Movie | TVShow)[]> = []
@@ -139,7 +140,16 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
         )}
       </div>
 
-      <div className="cc-carousel-wrapper">
+      <div
+        className="cc-carousel-wrapper"
+        onTouchStart={(e) => { touchStartX.current = e.touches[0]?.clientX ?? null }}
+        onTouchEnd={(e) => {
+          if (touchStartX.current === null) return
+          const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current
+          touchStartX.current = null
+          if (Math.abs(dx) > 50) dx < 0 ? handleNext() : handlePrev()
+        }}
+      >
         {slides.length > 1 && activeIndex > 0 && (
           <button className="cc-nav-arrow prev" onClick={handlePrev} aria-label="Önceki slayt">
             <ChevronLeft size={30} />

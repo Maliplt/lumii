@@ -417,7 +417,32 @@ body { background: #f5ede0; }
   position: relative; top: 0;
 }
 
-.win-btn:active { box-shadow: 0 0px 0 #3a2010; top: 3px; }
+.win-btn:active { box-sizing: border-box; box-shadow: 0 0px 0 #3a2010; top: 3px; }
+
+@media (max-width: 540px) {
+  .sudoku-app { padding: 12px 8px 32px; }
+  .board-wrap { padding: 8px; }
+  .cell {
+    width: calc((100vw - 36px) / 9);
+    height: calc((100vw - 36px) / 9);
+    font-size: clamp(11px, calc((100vw - 36px) / 9 * 0.38), 20px);
+  }
+  .pencil-mark { font-size: 7px; }
+  .num-btn {
+    width: calc((100vw - 40px) / 9 - 4px);
+    height: calc((100vw - 40px) / 9 - 2px);
+    font-size: clamp(13px, calc((100vw - 40px) / 9 * 0.44), 22px);
+  }
+  .numpad-row { gap: 3px; }
+  .tools-row { gap: 4px; }
+  .tool-btn { font-size: 10px; padding: 6px 10px; }
+  .title-main { font-size: 30px; }
+  .status-bar { padding: 8px 12px; gap: 16px; }
+  .status-value { font-size: 16px; }
+  .win-card { padding: 24px 20px; }
+  .win-title { font-size: 26px; }
+  .win-stats { gap: 20px; }
+}
 `;
 
 interface SudokuCell {

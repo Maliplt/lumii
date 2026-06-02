@@ -473,11 +473,12 @@ export default function Game2048() {
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
     if (Math.abs(dx) > Math.abs(dy)) doMove(dx > 0 ? "right" : "left");
     else doMove(dy > 0 ? "down" : "up");
-    touchStart.current = null;
   };
+  const onTouchCancel = () => { touchStart.current = null; };
 
   const rippleStyle = (dir: Dir): React.CSSProperties => {
     const b: React.CSSProperties = { width: "46%", height: "46%" };
@@ -608,7 +609,7 @@ export default function Game2048() {
               </div>
             )}
 
-            <div style={{ position: "absolute", inset: 0, zIndex: 5 }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} />
+            <div style={{ position: "absolute", inset: 0, zIndex: 5 }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={onTouchCancel} />
           </div>
 
           <div className="g2-hint">
