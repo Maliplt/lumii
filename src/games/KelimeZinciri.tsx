@@ -307,6 +307,7 @@ const STYLES = `
 .ach.on { background: rgba(255,225,107,0.25); border-color: rgba(255,225,107,0.6); }
 .ach.off { filter: grayscale(1); opacity: 0.4; }
 .ach:active::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: 800; background: #2a1840; color: #fff; padding: 5px 9px; border-radius: 8px; z-index: 5; }
+.wc-win-streak { color: #ffd84d; font-weight: 800; font-size: 13.5px; margin-top: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.25); }
 `;
 
 type Owner = "player" | "ai";
@@ -322,7 +323,10 @@ export default function WordChainApp() {
     const saved = localStorage.getItem("kelimezinciri_best");
     return saved ? parseInt(saved, 10) : 0;
   });
-  const [winStreak, setWinStreak] = useState(0);
+  const [winStreak, setWinStreak] = useState(() => {
+    const saved = localStorage.getItem("kelimezinciri_winstreak");
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [achievements, setAchievements] = useState<Set<string>>(() => {
     const saved = localStorage.getItem("kelimezinciri_achievements");
     return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -335,6 +339,10 @@ export default function WordChainApp() {
   useEffect(() => {
     localStorage.setItem("kelimezinciri_best", best.toString());
   }, [best]);
+
+  useEffect(() => {
+    localStorage.setItem("kelimezinciri_winstreak", winStreak.toString());
+  }, [winStreak]);
 
   useEffect(() => {
     localStorage.setItem("kelimezinciri_achievements", JSON.stringify(Array.from(achievements)));
@@ -355,7 +363,6 @@ export default function WordChainApp() {
   const [lives, setLives] = useState(1);
   const [combo, setCombo] = useState(0);
   const [comboBump, setComboBump] = useState(false);
-  const [fastStreak, setFastStreak] = useState(0);
   const [didWin, setDidWin] = useState(false);
   const [loseReason, setLoseReason] = useState("");
   const [newWordIdx, setNewWordIdx] = useState<number | null>(null);
@@ -363,6 +370,7 @@ export default function WordChainApp() {
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const fastStreakRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const turnStartRef = useRef<number>(Date.now());
   const chainRef = useRef<ChainItem[]>([]);
@@ -412,7 +420,7 @@ export default function WordChainApp() {
     setScorePop(null);
     setLives(mode === "duel" ? 3 : mode === "endless" ? 1 : 99);
     setCombo(0);
-    setFastStreak(0);
+    fastStreakRef.current = 0;
     setDidWin(false);
     setLoseReason("");
     setNewWordIdx(0);
@@ -469,7 +477,7 @@ export default function WordChainApp() {
 
   const loseLife = useCallback((reason: string) => {
     setCombo(0);
-    setFastStreak(0);
+    fastStreakRef.current = 0;
     setLives((prev) => {
       const rem = prev - 1;
       if (rem <= 0) { endGame(false, reason); return 0; }
@@ -523,7 +531,9 @@ export default function WordChainApp() {
 
     const elapsed = (Date.now() - turnStartRef.current) / 1000;
     const isFast = mode !== "zen" && elapsed < 4;
-    setFastStreak((fs) => { const nf = isFast ? fs + 1 : 0; if (nf >= 5) unlock("speed5"); return nf; });
+    const nf = isFast ? fastStreakRef.current + 1 : 0;
+    fastStreakRef.current = nf;
+    if (nf >= 5) unlock("speed5");
 
     const nextCombo = combo + 1;
     setCombo(nextCombo);
@@ -735,6 +745,9 @@ export default function WordChainApp() {
               <div className="start-hero-title">Hazır <span>mısın?</span></div>
               <div className="start-hero-mode">{MODES[mode].emoji} {MODES[mode].label}</div>
               <div className="start-hero-desc">{MODES[mode].desc}</div>
+              {mode === "duel" && winStreak > 0 && (
+                <div className="wc-win-streak">🔥 {winStreak} Galibiyet Serisi!</div>
+              )}
               <button className="big-start" onClick={beginCountdown}>BAŞLA</button>
               <div className="ach-row">
                 {ACHIEVEMENTS.map((a) => (

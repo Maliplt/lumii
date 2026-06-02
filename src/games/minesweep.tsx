@@ -418,10 +418,18 @@ const CONFIGS = {
     uzman: { rows: 20, cols: 30, mines: 145 },
 };
 
-const NUM_COLORS = ['', '#2196F3', '#4CAF50', '#F44336', '#9C27B0', '#FF5722', '#009688', '#212121', '#757575'];
+interface Cell {
+    mine: boolean;
+    revealed: boolean;
+    flagged: boolean;
+    count: number;
+    justRevealed: boolean;
+}
 
-function createBoard(rows, cols, mines, firstR, firstC) {
-    const forbidden = new Set();
+
+
+function createBoard(rows: number, cols: number, mines: number, firstR: number, firstC: number): Cell[][] {
+    const forbidden = new Set<number>();
     for (let dr = -1; dr <= 1; dr++)
         for (let dc = -1; dc <= 1; dc++) {
             const nr = firstR + dr, nc = firstC + dc;
@@ -430,7 +438,7 @@ function createBoard(rows, cols, mines, firstR, firstC) {
         }
 
     const allCells = [...Array(rows * cols).keys()].filter(i => !forbidden.has(i));
-    const mineSet = new Set();
+    const mineSet = new Set<number>();
     while (mineSet.size < Math.min(mines, allCells.length)) {
         mineSet.add(allCells[Math.floor(Math.random() * allCells.length)]);
     }
@@ -460,7 +468,7 @@ function createBoard(rows, cols, mines, firstR, firstC) {
     return board;
 }
 
-function floodReveal(board, r, c, rows, cols, toReveal = []) {
+function floodReveal(board: Cell[][], r: number, c: number, rows: number, cols: number, toReveal: [number, number][] = []): [number, number][] {
     if (r < 0 || r >= rows || c < 0 || c >= cols) return toReveal;
     const cell = board[r][c];
     if (cell.revealed || cell.flagged || cell.mine) return toReveal;
@@ -476,9 +484,9 @@ function floodReveal(board, r, c, rows, cols, toReveal = []) {
 }
 
 function useTimer() {
-    const [time, setTime] = useState(0);
-    const [running, setRunning] = useState(false);
-    const ref = useRef(null);
+    const [time, setTime] = useState<number>(0);
+    const [running, setRunning] = useState<boolean>(false);
+    const ref = useRef<any>(null);
 
     useEffect(() => {
         if (running) {
@@ -491,7 +499,7 @@ function useTimer() {
 
     return {
         time,
-        fmt: t => String(Math.min(t, 999)).padStart(3, '0'),
+        fmt: (t: number) => String(Math.min(t, 999)).padStart(3, '0'),
         start: () => setRunning(true),
         stop: () => setRunning(false),
         reset: () => { setRunning(false); setTime(0); },
@@ -527,18 +535,18 @@ const DoodleBg = () => (
 );
 
 export default function MinesweeperApp() {
-    const [difficulty, setDifficulty] = useState('kolay');
-    const [board, setBoard] = useState(null);
-    const [status, setStatus] = useState('idle');
-    const [flagMode, setFlagMode] = useState(false);
-    const [flagCount, setFlagCount] = useState(0);
-    const [revealedCount, setRevealedCount] = useState(0);
-    const [justRevealedCells, setJustRevealedCells] = useState(new Set());
+    const [difficulty, setDifficulty] = useState<string>('kolay');
+    const [board, setBoard] = useState<Cell[][] | null>(null);
+    const [status, setStatus] = useState<string>('idle');
+    const [flagMode, setFlagMode] = useState<boolean>(false);
+    const [flagCount, setFlagCount] = useState<number>(0);
+    const [revealedCount, setRevealedCount] = useState<number>(0);
+    const [justRevealedCells, setJustRevealedCells] = useState<Set<string>>(new Set());
     const { time, fmt, start, stop, reset } = useTimer();
 
-    const cfg = CONFIGS[difficulty];
+    const cfg = CONFIGS[difficulty as keyof typeof CONFIGS];
 
-    const initBoard = useCallback((diff) => {
+    const initBoard = useCallback(() => {
         setBoard(null);
         setStatus('idle');
         setFlagCount(0);
@@ -547,9 +555,9 @@ export default function MinesweeperApp() {
         reset();
     }, [reset]);
 
-    useEffect(() => { initBoard(difficulty); }, []);
+    useEffect(() => { initBoard(); }, [initBoard]);
 
-    const handleClick = (r, c) => {
+    const handleClick = (r: number, c: number) => {
         if (status === 'win' || status === 'lose') return;
 
         if (!board) {
@@ -570,7 +578,7 @@ export default function MinesweeperApp() {
         if (cell.revealed || cell.flagged) return;
 
         if (flagMode) {
-            const newBoard = board.map(row => row.map(c => ({ ...c })));
+            const newBoard = board.map(row => row.map(cell => ({ ...cell })));
             newBoard[r][c].flagged = !newBoard[r][c].flagged;
             setFlagCount(fc => newBoard[r][c].flagged ? fc + 1 : fc - 1);
             setBoard(newBoard);
@@ -578,7 +586,7 @@ export default function MinesweeperApp() {
         }
 
         if (cell.mine) {
-            const newBoard = board.map(row => row.map(c => ({ ...c })));
+            const newBoard = board.map(row => row.map(cell => ({ ...cell })));
             newBoard[r][c].revealed = true;
             setBoard(newBoard);
             setStatus('lose');
@@ -586,7 +594,7 @@ export default function MinesweeperApp() {
             return;
         }
 
-        const newBoard = board.map(row => row.map(c => ({ ...c })));
+        const newBoard = board.map(row => row.map(cell => ({ ...cell })));
         const revealed = floodReveal(newBoard, r, c, cfg.rows, cfg.cols);
         const revSet = new Set(revealed.map(([rr, cc]) => `${rr}-${cc}`));
         setJustRevealedCells(revSet);
@@ -606,18 +614,18 @@ export default function MinesweeperApp() {
         }
     };
 
-    const handleRightClick = (e, r, c) => {
+    const handleRightClick = (e: React.MouseEvent, r: number, c: number) => {
         e.preventDefault();
         if (!board || status === 'win' || status === 'lose') return;
         const cell = board[r][c];
         if (cell.revealed) return;
-        const newBoard = board.map(row => row.map(c => ({ ...c })));
+        const newBoard = board.map(row => row.map(cell => ({ ...cell })));
         newBoard[r][c].flagged = !newBoard[r][c].flagged;
         setFlagCount(fc => newBoard[r][c].flagged ? fc + 1 : fc - 1);
         setBoard(newBoard);
     };
 
-    const renderCell = (cell, r, c) => {
+    const renderCell = (cell: Cell, r: number, c: number) => {
         const key = `${r}-${c}`;
         let cls = 'ms-cell';
         let content = null;

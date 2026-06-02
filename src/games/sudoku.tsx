@@ -420,11 +420,22 @@ body { background: #f5ede0; }
 .win-btn:active { box-shadow: 0 0px 0 #3a2010; top: 3px; }
 `;
 
-function generateSudoku(difficulty) {
+interface SudokuCell {
+    value: number;
+    given: boolean;
+    error: boolean;
+    hint: boolean;
+}
+
+interface SudokuGame {
+    solution: number[][];
+}
+
+function generateSudoku(difficulty: string): { puzzle: number[][]; solution: number[][] } {
     const base = 3, side = base * base;
     const rng = () => Math.random();
 
-    function shuffle(arr) {
+    function shuffle<T>(arr: T[]): T[] {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(rng() * (i + 1));
             [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -432,7 +443,7 @@ function generateSudoku(difficulty) {
         return arr;
     }
 
-    function pattern(r, c) {
+    function pattern(r: number, c: number): number {
         return (base * (r % base) + Math.floor(r / base) + c) % side;
     }
 
@@ -447,7 +458,7 @@ function generateSudoku(difficulty) {
     const board = rows.flatMap(r => cols.map(c => nums[pattern(r, c)]));
     const grid = Array.from({ length: 9 }, (_, r) => board.slice(r * 9, r * 9 + 9));
 
-    const removals = { kolay: 35, orta: 45, zor: 55 };
+    const removals: Record<string, number> = { kolay: 35, orta: 45, zor: 55 };
     const toRemove = removals[difficulty] || 45;
 
     const puzzle = grid.map(r => [...r]);
@@ -469,7 +480,7 @@ function generateSudoku(difficulty) {
     return { puzzle, solution: grid };
 }
 
-function hasUniqueSolution(grid) {
+function hasUniqueSolution(grid: number[][]): boolean {
     const board = grid.map(r => [...r]);
     let count = 0;
 
@@ -496,7 +507,7 @@ function hasUniqueSolution(grid) {
     return count === 1;
 }
 
-function isValid(board, row, col, num) {
+function isValid(board: number[][], row: number, col: number, num: number): boolean {
     for (let i = 0; i < 9; i++) {
         if (board[row][i] === num) return false;
         if (board[i][col] === num) return false;
@@ -509,8 +520,8 @@ function isValid(board, row, col, num) {
 }
 
 function useTimer() {
-    const [time, setTime] = useState(0);
-    const [running, setRunning] = useState(false);
+    const [time, setTime] = useState<number>(0);
+    const [running, setRunning] = useState<boolean>(false);
 
     useEffect(() => {
         if (!running) return;
@@ -518,24 +529,24 @@ function useTimer() {
         return () => clearInterval(id);
     }, [running]);
 
-    const fmt = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+    const fmt = (t: number): string => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
     return { time, fmt, start: () => setRunning(true), stop: () => setRunning(false), reset: () => { setTime(0); setRunning(false); } };
 }
 
 export default function SudokuApp() {
-    const [difficulty, setDifficulty] = useState('orta');
-    const [game, setGame] = useState(null);
-    const [board, setBoard] = useState([]);
-    const [selected, setSelected] = useState(null);
-    const [pencilMode, setPencilMode] = useState(false);
-    const [pencilMarks, setPencilMarks] = useState({});
-    const [mistakes, setMistakes] = useState(0);
-    const [won, setWon] = useState(false);
+    const [difficulty, setDifficulty] = useState<string>('orta');
+    const [game, setGame] = useState<SudokuGame | null>(null);
+    const [board, setBoard] = useState<SudokuCell[][]>([]);
+    const [selected, setSelected] = useState<{ r: number; c: number } | null>(null);
+    const [pencilMode, setPencilMode] = useState<boolean>(false);
+    const [pencilMarks, setPencilMarks] = useState<Record<string, Set<number>>>({});
+    const [mistakes, setMistakes] = useState<number>(0);
+    const [won, setWon] = useState<boolean>(false);
     const { time, fmt, start, stop, reset } = useTimer();
 
-    const startGame = useCallback((diff) => {
+    const startGame = useCallback((diff: string) => {
         const { puzzle, solution } = generateSudoku(diff);
-        const b = puzzle.map(r => r.map(v => ({
+        const b: SudokuCell[][] = puzzle.map(r => r.map(v => ({
             value: v,
             given: v !== 0,
             error: false,
@@ -553,20 +564,20 @@ export default function SudokuApp() {
 
     useEffect(() => { startGame('orta'); }, []);
 
-    const handleCellClick = (r, c) => {
+    const handleCellClick = (r: number, c: number) => {
         setSelected({ r, c });
     };
 
-    const handleNumber = useCallback((num) => {
-        if (!selected || won) return;
+    const handleNumber = useCallback((num: number) => {
+        if (!selected || won || !game) return;
         const { r, c } = selected;
         if (board[r][c].given || board[r][c].hint) return;
 
         if (pencilMode) {
             const key = `${r}-${c}`;
             setPencilMarks(pm => {
-                const cur = pm[key] || new Set();
-                const next = new Set(cur);
+                const cur = pm[key] || new Set<number>();
+                const next = new Set<number>(cur);
                 if (next.has(num)) next.delete(num);
                 else next.add(num);
                 return { ...pm, [key]: next };
@@ -598,15 +609,15 @@ export default function SudokuApp() {
         const solved = newBoard.every((row, ri) =>
             row.every((cell, ci) => cell.value === game.solution[ri][ci])
         );
-        if (solved) { 
-            setWon(true); 
-            stop(); 
+        if (solved) {
+            setWon(true);
+            stop();
             const best = localStorage.getItem('sudoku_best_time');
             if (!best || time < Number(best)) {
                 localStorage.setItem('sudoku_best_time', String(time));
             }
         }
-    }, [selected, board, game, pencilMode, won, stop]);
+    }, [selected, board, game, pencilMode, won, stop, time]);
 
     const handleHint = () => {
         if (!selected || !game || won) return;
@@ -631,7 +642,7 @@ export default function SudokuApp() {
     };
 
     useEffect(() => {
-        const handler = (e) => {
+        const handler = (e: KeyboardEvent) => {
             let processed = false;
             if (e.key >= '1' && e.key <= '9') {
                 handleNumber(parseInt(e.key));
@@ -660,18 +671,18 @@ export default function SudokuApp() {
         return () => window.removeEventListener('keydown', handler);
     }, [handleNumber, selected]);
 
-    const getHighlightType = (r, c) => {
+    const getHighlightType = (r: number, c: number): 'selected' | 'same-num' | 'highlight' | null => {
         if (!selected) return null;
         const { r: sr, c: sc } = selected;
         if (r === sr && c === sc) return 'selected';
-        const selVal = board[sr][sc]?.value;
-        if (selVal && selVal !== 0 && board[r][c]?.value === selVal) return 'same-num';
+        const selVal = board[sr]?.[sc]?.value;
+        if (selVal && selVal !== 0 && board[r]?.[c]?.value === selVal) return 'same-num';
         if (r === sr || c === sc) return 'highlight';
         if (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)) return 'highlight';
         return null;
     };
 
-    const renderCell = (cell, r, c) => {
+    const renderCell = (cell: SudokuCell, r: number, c: number) => {
         const hl = getHighlightType(r, c);
         const key = `${r}-${c}`;
         const marks = pencilMarks[key];
