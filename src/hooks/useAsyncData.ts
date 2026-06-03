@@ -20,7 +20,7 @@ export function useAsyncData<T>(
       .then((data) => { if (!cancelled) setState({ data, loading: false, error: false }) })
       .catch(() => { if (!cancelled) setState({ data: null, loading: false, error: true }) })
     return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, deps)
 
   return state
