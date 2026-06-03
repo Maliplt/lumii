@@ -6,7 +6,7 @@ import { tmdbApi } from '../services/tmdb'
 import { useAsyncData } from '../hooks/useAsyncData'
 import type { Movie } from '../types/types'
 
-// TMDB genre ids — https://developer.themoviedb.org/reference/genre-movie-list
+// tür bilgileri
 const GENRE = {
     kidsAndFamily: '16,10751',
     action: 28,

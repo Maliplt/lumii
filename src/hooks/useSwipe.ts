@@ -2,10 +2,7 @@ import { useRef } from 'react'
 
 const SWIPE_THRESHOLD = 50
 
-/**
- * Horizontal touch-swipe detection. Returns handlers to spread onto a
- * touchable element; fires `onLeft`/`onRight` once the swipe passes the threshold.
- */
+/** kaydırma hareketi kontrolü */
 export function useSwipe(onLeft: () => void, onRight: () => void) {
   const startX = useRef<number | null>(null)
 
