@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// ekran genisligine gore gorunur kart sayisi
+// kart sayisi
 function calcCount(width: number): number {
   if (width <= 480) return 2
   if (width <= 768) return 3

@@ -44,7 +44,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
   const [streamError, setStreamError] = useState(false)
   const [centerAction, setCenterAction] = useState<{ type: 'play' | 'pause'; k: number } | null>(null)
 
-  // baslatma
+  // baslat
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -61,7 +61,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
       if (p) p.catch(() => { video.muted = true; setMuted(true); video.play().catch(() => {}) })
     }
 
-    // axios (OPTIONS + GET)
+    // kontrol
     fetchStream(src).catch(() => {})
 
     if (Hls.isSupported()) {
@@ -93,7 +93,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
     return () => { cancelled = true; hls?.destroy(); hlsRef.current = null }
   }, [src, startMuted])
 
-  // video olaylari
+  // olaylar
   useEffect(() => {
     const video = videoRef.current
     if (!video) return

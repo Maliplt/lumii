@@ -12,7 +12,7 @@ export function useAsyncData<T>(
   // state
   const [state, setState] = useState<AsyncState<T>>({ data: null, loading: true, error: false })
 
-  // fetcher ref — her render'da guncel kalsin
+  // ref
   const fetcherRef = useRef(fetcher)
   useEffect(() => { fetcherRef.current = fetcher })
 

@@ -4,7 +4,7 @@ import Header from './Header'
 import Footer from './Footer'
 import Spinner from './Spinner'
 
-// kalici kabuk
+// kabuk
 export default function RootLayout() {
   return (
     <div className="app-shell">

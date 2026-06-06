@@ -126,7 +126,7 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
     return result
   }, [items, visible])
 
-  // Render sirasinda index'i sinirla; effect'te setState gerek kalmaz
+  // aktif index
   const currentIndex = slides.length > 0 ? Math.min(activeIndex, slides.length - 1) : 0
 
   const handlePrev = () => {

@@ -1,11 +1,11 @@
 import Logo from './Logo'
 
 interface SpinnerProps {
-  // icerik-ici
+  // inline
   inline?: boolean
 }
 
-// yukleme animasyonu
+// spinner
 export default function Spinner({ inline = false }: SpinnerProps) {
   return (
     <div className={`spinner-overlay${inline ? ' spinner-overlay--inline' : ''}`}>

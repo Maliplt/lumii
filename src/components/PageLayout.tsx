@@ -8,7 +8,7 @@ interface PageLayoutProps {
   loading?: boolean
 }
 
-// sayfa sarmalayici
+// sarmalayici
 export default function PageLayout({
   children,
   mainClassName,

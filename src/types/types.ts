@@ -106,7 +106,7 @@ export interface TVSeasonDetail {
     episodes: Episode[]
 }
 
-// Type guards
+// tip kontrolu
 export function isMovie(item: Movie | TVShow | SearchResult): item is Movie {
     return 'title' in item
 }
