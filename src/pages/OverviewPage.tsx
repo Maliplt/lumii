@@ -84,11 +84,11 @@ export default function OverviewPage() {
     const tvDetail = detail as TVShowDetail
     const movieDetail = detail as MovieDetail
 
-    const title = isMovie ? movieDetail.title : tvDetail.name
-    const year = isMovie ? movieDetail.release_date?.slice(0, 4) : tvDetail.first_air_date?.slice(0, 4)
+    const title = isMovie ? movieDetail?.title : tvDetail?.name
+    const year = isMovie ? movieDetail?.release_date?.slice(0, 4) : tvDetail?.first_air_date?.slice(0, 4)
     const runtime = isMovie
-        ? movieDetail.runtime ? `${movieDetail.runtime} dk` : null
-        : tvDetail.episode_run_time?.[0] ? `${tvDetail.episode_run_time[0]} dk` : null
+        ? movieDetail?.runtime ? `${movieDetail.runtime} dk` : null
+        : tvDetail?.episode_run_time?.[0] ? `${tvDetail.episode_run_time[0]} dk` : null
     const genres = detail?.genres?.map((g) => g.name).join(' / ')
     const director = isMovie
         ? detail?.credits?.crew?.find((c) => c.job === 'Director')?.name
