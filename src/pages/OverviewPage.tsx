@@ -6,7 +6,8 @@ import PageLayout from '../components/PageLayout'
 import ContentCarousel from '../components/ContentCarousel'
 import Spinner from '../components/Spinner'
 import { tmdbApi, getImageUrl } from '../services/tmdb'
-import type { MovieDetail, TVShowDetail, Movie, TVShow, TVSeasonDetail, Episode } from '../types/types'
+import { useFetch } from '../helpers'
+import type { MovieDetail, TVShowDetail, Movie, TVShow, Episode } from '../types/types'
 
 function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('tr-TR', {
@@ -16,50 +17,40 @@ function formatDate(dateStr: string): string {
     })
 }
 
+// key ile remount
 export default function OverviewPage() {
     const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>()
-    const navigate = useNavigate()
+    if (!type || !id) return null
+    return <OverviewContent key={`${type}-${id}`} type={type} id={id} />
+}
 
-    const [detail, setDetail] = useState<MovieDetail | TVShowDetail | null>(null)
-    const [similar, setSimilar] = useState<Movie[] | TVShow[]>([])
-    const [loading, setLoading] = useState(true)
-    const [selectedSeason, setSelectedSeason] = useState<number>(1)
-    const [seasonData, setSeasonData] = useState<TVSeasonDetail | null>(null)
-    const [episodesLoading, setEpisodesLoading] = useState(false)
+function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
+    const navigate = useNavigate()
+    const [selectedSeason, setSelectedSeason] = useState(1)
     const textClipRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        if (!type || !id) return
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLoading(true)
-        setDetail(null)
-        setSelectedSeason(1)
-        setSeasonData(null)
-        const numId = Number(id)
+    const numId = Number(id)
+    const isMovie = type === 'movie'
+
+    // detay + benzerler
+    const { data, loading } = useFetch(() =>
         Promise.all([
-            type === 'movie' ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
-            type === 'movie' ? tmdbApi.getSimilarMovies(numId) : tmdbApi.getSimilarTVShows(numId),
-        ]).then(([det, sim]) => {
-            setDetail(det as MovieDetail | TVShowDetail)
-            setSimilar(sim.results.filter((item) => item.poster_path) as Movie[] | TVShow[])
-        }).catch(() => {
-        }).finally(() => {
-            setLoading(false)
-        })
-    }, [type, id])
+            isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
+            isMovie ? tmdbApi.getSimilarMovies(numId) : tmdbApi.getSimilarTVShows(numId),
+        ])
+    )
+    const detail = data?.[0] ?? null
+    const similar = (data?.[1].results.filter((item) => item.poster_path) ?? []) as Movie[] | TVShow[]
 
-    useEffect(() => {
-        if (type !== 'tv' || !id || loading || !detail) return
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setEpisodesLoading(true)
-        tmdbApi.getTVSeasonDetails(Number(id), selectedSeason)
-            .then((data) => {
-                setSeasonData(data)
-                setEpisodesLoading(false)
-            })
-            .catch(() => setEpisodesLoading(false))
-    }, [type, id, selectedSeason, loading, detail])
+    // sezon bolumleri
+    const season = useFetch(
+        () => (!isMovie && detail
+            ? tmdbApi.getTVSeasonDetails(numId, selectedSeason)
+            : Promise.resolve(null)),
+        `${detail ? 'hazir' : 'bekliyor'}-${selectedSeason}`
+    )
 
+    // uzun ozet kayar
     useEffect(() => {
         const el = textClipRef.current
         if (!el) return
@@ -80,7 +71,6 @@ export default function OverviewPage() {
         }
     }, [detail])
 
-    const isMovie = type === 'movie'
     const tvDetail = detail as TVShowDetail
     const movieDetail = detail as MovieDetail
 
@@ -143,13 +133,13 @@ export default function OverviewPage() {
                             )}
                         </div>
 
-                        {episodesLoading ? (
+                        {season.loading ? (
                             <div className="seasons-loading">
                                 <Spinner inline />
                             </div>
-                        ) : seasonData?.episodes?.length ? (
+                        ) : season.data?.episodes?.length ? (
                             <div className="episodes-list">
-                                {seasonData.episodes.map((episode: Episode) => (
+                                {season.data.episodes.map((episode: Episode) => (
                                     <div key={episode.id} className="episode-card">
                                         <div className="episode-card__media">
                                             <img
@@ -186,7 +176,7 @@ export default function OverviewPage() {
                 )}
 
                 <div className="overview-similar">
-                    <ContentCarousel type={type!} title="Benzer İçerikler" items={similar} />
+                    <ContentCarousel type={type} title="Benzer İçerikler" items={similar} />
                 </div>
                 </>
             )}

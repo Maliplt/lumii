@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from 'rsuite'
 import { Check, Zap, Crown, Play } from 'lucide-react'
 import { animate } from 'animejs'
 import PageLayout from '../components/PageLayout'
+import { tmdbApi, getImageUrl } from '../services/tmdb'
+import { useFetch } from '../helpers'
 import type { PackageDef } from '../types/types'
 
 const PACKAGES: PackageDef[] = [
@@ -68,6 +70,19 @@ export default function PackagesPage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
 
+  const { data } = useFetch(() =>
+    Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()])
+  )
+
+  // poster duvari
+  const posters = useMemo(() => {
+    if (!data) return []
+    return [...data[0].results, ...data[1].results]
+      .filter((m) => m.poster_path)
+      .slice(0, 30)
+      .map((m) => getImageUrl(m.poster_path, 'w300'))
+  }, [data])
+
   useEffect(() => {
     if (heroRef.current)
       animate(heroRef.current, {
@@ -95,11 +110,20 @@ export default function PackagesPage() {
 
   return (
     <PageLayout className="packages-page" mainClassName="packages-main">
+      <div className="packages-backdrop" aria-hidden="true">
+        <div className="packages-backdrop__grid">
+          {posters.map((src, i) => (
+            <img key={i} src={src} alt="" loading="lazy" />
+          ))}
+        </div>
+        <div className="packages-backdrop__veil" />
+      </div>
+
       <div className="packages-hero" ref={heroRef} style={{ opacity: 0 }}>
         <span className="packages-badge">Planlar &amp; Fiyatlar</span>
-        <h1 className="packages-hero__title">Sizin İçin En Uygun Plan</h1>
+        <h1 className="packages-hero__title">Binlerce Film, Dizi ve Oyun Seni Bekliyor</h1>
         <p className="packages-hero__subtitle">
-          Ücretsiz başlayın, daha fazlası için istediğiniz zaman yükseltin.
+          Reklamsız, 4K kalitede, sınırsız erişim. Ücretsiz başla, istediğin zaman yükselt.
         </p>
       </div>
 

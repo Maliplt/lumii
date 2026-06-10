@@ -1,40 +1,26 @@
-// =============================================================================
-// Lumii â€” Stil DosyasÄ± (Koyu Tema)
-// -----------------------------------------------------------------------------
-// BÃ¶lÃ¼mler:
-//    1. TasarÄ±m DeÄŸiÅŸkenleri      7. Hero Karuseli        13. Responsive
-//    2. YardÄ±mcÄ±lar (mixin)       8. Ä°Ã§erik Karuseli       14. Login SayfasÄ±
-//    3. SÄ±fÄ±rlama & Tipografi     9. Oyun Karuseli         15. Paketler SayfasÄ±
-//    4. Header & Arama           10. Sayfalar              16. Arama SayfasÄ±
-//    5. RSuite Ezmeleri          11. YardÄ±mcÄ± SÄ±nÄ±flar
-//    6. Footer                   12. KaydÄ±rma Ã‡ubuÄŸu
-// =============================================================================
+// lumii stilleri
 
 
-// 1. TasarÄ±m DeÄŸiÅŸkenleri =====================================================
-// â”€â”€ Renk paleti (KAYNAK) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// TemayÄ± deÄŸiÅŸtirmek iÃ§in yalnÄ±zca aÅŸaÄŸÄ±daki seed deÄŸerlerini dÃ¼zenle.
-// MarkayÄ± tek noktadan deÄŸiÅŸtirmek iÃ§in $brand yeterli; soft/glow/gÃ¶lge gibi
-// tÃ¼revler ondan otomatik Ã¼retilir. YÃ¼zey, metin ve durum tonlarÄ± da burada.
+// degiskenler
 $brand:            #ff6a00; // ana marka rengi (accent)
-$brand-hover:      #ff8224; // aÃ§Ä±k ton
+$brand-hover:      #ff8224; // acik ton
 $brand-active:     #d45500; // koyu ton
 
-$surface-0:        #07070b; // uygulama arka planÄ± (en koyu)
+$surface-0:        #07070b; // arka plan
 $surface-1:        #0d0d14; // kart / panel
-$surface-2:        #14141d; // hover yÃ¼zeyi
-$surface-3:        #1c1c28; // input / aktif yÃ¼zey
+$surface-2:        #14141d; // hover yuzeyi
+$surface-3:        #1c1c28; // aktif yuzey
 $surface-elevated: #181822;
 
-$text:             #f5f5f7; // ana metin (tÃ¼revleri alfa ile)
-$paper:            #ffffff; // kenarlÄ±k / parlaklÄ±k tabanÄ±
-$ink:              #000000; // gÃ¶lge / overlay tabanÄ±
+$text:             #f5f5f7; // ana metin
+$paper:            #ffffff; // kenarlik tabani
+$ink:              #000000; // golge tabani
 
 $success:          #2ecc71;
 $warning:          #f5a623;
 $danger:           #ff4d4f;
 
-// Token'lar (yukarÄ±daki seed'lerden tÃ¼retilir; bunlara dokunmaya gerek yok)
+// tokenlar
 :root {
     --bg-0: #{$surface-0};
     --bg-1: #{$surface-1};
@@ -68,6 +54,7 @@ $danger:           #ff4d4f;
 
     --radius-0: 0px;
     --radius-1: 2px;
+    --radius-2: 4px;
     --radius-pill: 999px;
 
     --space-1: 4px;
@@ -81,13 +68,13 @@ $danger:           #ff4d4f;
     --space-12: 48px;
     --space-16: 64px;
 
-    // GÃ¶vde / arayÃ¼z fontu
+    // govde fontu
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
         'Helvetica Neue', Arial, sans-serif;
-    // BaÅŸlÄ±k fontu
+    // baslik fontu
     --font-display: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
         sans-serif;
-    // Logo / marka fontu
+    // logo fontu
     --font-logo: 'Unbounded', 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI',
         sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -121,7 +108,7 @@ $danger:           #ff4d4f;
     --z-spinner: 9999;
 }
 
-// 2. YardÄ±mcÄ±lar (mixin & breakpoint) =========================================
+// mixinler
 @mixin gradient-overlay-bottom($from: 0.9, $mid: 0.2) {
     background: linear-gradient(to top,
             rgba(0, 0, 0, $from) 0%,
@@ -153,7 +140,7 @@ $bp-sm:  480px;
     @media (max-width: $max) { @content; }
 }
 
-// 3. SÄ±fÄ±rlama & Temel Tipografi ==============================================
+// reset & tipografi
 *,
 *::before,
 *::after {
@@ -292,8 +279,8 @@ main {
     min-height: 100vh;
 }
 
-// 4. Header & Arama ===========================================================
-// Lumii kelime-markasÄ± (Header / Footer / Spinner)
+// header & arama
+// logo
 .lumii-logo {
     font-family: var(--font-logo);
     font-weight: 700;
@@ -390,7 +377,7 @@ main {
 .animated-search-container {
     background: rgba(24, 24, 35, 0.94) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
-    border-radius: 25px;
+    border-radius: var(--radius-1);
     height: 50px;
     padding: 0 20px;
     display: flex;
@@ -462,7 +449,8 @@ main {
     }
 }
 
-.rs-nav {
+// header navigasyonu
+.header-main-nav {
     background: transparent !important;
     display: flex !important;
     align-items: center !important;
@@ -554,7 +542,7 @@ main {
     border: 1px solid var(--accent) !important;
     font-weight: 800 !important;
     font-size: 16px !important;
-    border-radius: 8px !important;
+    border-radius: var(--radius-1) !important;
     padding: 10px 22px !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -581,7 +569,7 @@ main {
     border: 1.5px solid #ffffff !important;
     font-weight: 800 !important;
     font-size: 16px !important;
-    border-radius: 8px !important;
+    border-radius: var(--radius-1) !important;
     padding: 9px 22px !important;
     transition: background-color 0.2s, color 0.2s !important;
 
@@ -592,7 +580,47 @@ main {
     }
 }
 
-// 5. RSuite Ezmeleri ==========================================================
+// rsuite ezmeleri
+// turuncu tema
+:root {
+    --rs-primary-50: #fff3e8;
+    --rs-primary-100: #ffe1c7;
+    --rs-primary-200: #ffc89a;
+    --rs-primary-300: #ffaa66;
+    --rs-primary-400: #ff8a38;
+    --rs-primary-500: #ff6a00;
+    --rs-primary-600: #ed5f00;
+    --rs-primary-700: #d45500;
+    --rs-primary-800: #ad4400;
+    --rs-primary-900: #863400;
+
+    --rs-color-blue: #ff6a00;
+
+    --rs-btn-primary-bg: #ff6a00;
+    --rs-btn-primary-hover-bg: #ff8224;
+    --rs-btn-primary-active-bg: #d45500;
+
+    --rs-btn-ghost-text: #ff6a00;
+    --rs-btn-ghost-border: #ff6a00;
+    --rs-btn-ghost-hover-text: #ff8224;
+    --rs-btn-ghost-hover-border: #ff8224;
+    --rs-btn-ghost-active-text: #d45500;
+    --rs-btn-ghost-active-border: #d45500;
+
+    --rs-btn-link-text: #ff6a00;
+    --rs-btn-link-hover-text: #ff8224;
+    --rs-btn-link-active-text: #d45500;
+
+    --rs-input-focus-border: #ff6a00;
+
+    --rs-text-link: #ff6a00;
+    --rs-text-link-hover: #ff8224;
+    --rs-text-link-active: #d45500;
+
+    --rs-toggle-checked-bg: #ff6a00;
+    --rs-toggle-checked-hover-bg: #ff8224;
+}
+
 .rs-btn {
     border-radius: var(--radius-0);
     font-weight: 600;
@@ -693,7 +721,7 @@ main {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: 10px !important;
+    border-radius: var(--radius-1) !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
 
@@ -852,7 +880,7 @@ main {
     color: #ffffff;
     cursor: pointer;
     padding: var(--space-2);
-    border-radius: 8px;
+    border-radius: var(--radius-1);
     transition: background-color 0.2s;
     align-items: center;
     justify-content: center;
@@ -903,7 +931,7 @@ main {
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-4);
-    border-radius: 10px;
+    border-radius: var(--radius-1);
     color: var(--text-secondary);
     font-size: var(--fs-md);
     font-weight: 600;
@@ -932,7 +960,7 @@ main {
     gap: var(--space-3);
 }
 
-// 6. Footer ===================================================================
+// footer
 .site-footer {
     background-color: var(--bg-0);
     border-top: 1px solid var(--border-subtle);
@@ -1074,7 +1102,7 @@ main {
     }
 }
 
-// 7. Hero Karuseli ============================================================
+// hero karuseli
 .hero-carousel-inner {
     height: 80vh !important;
     height: 80dvh !important;
@@ -1200,7 +1228,7 @@ main {
     }
 }
 
-// 8. Ä°Ã§erik Karuseli ==========================================================
+// icerik karuseli
 .content-carousel {
     margin-bottom: var(--space-8);
 
@@ -1395,6 +1423,16 @@ main {
     }
 }
 
+// bos kart
+.cc-item--empty {
+    background: transparent;
+    border-right: none;
+    cursor: default;
+    pointer-events: none;
+
+    &::after { display: none; }
+}
+
 .cc-item__overlay {
     position: absolute;
     bottom: 0;
@@ -1550,8 +1588,7 @@ a>.rs-panel {
     }
 }
 
-// Lumii spinner â€” Ä±ÅŸÄ±k nabzÄ±. Saf CSS (yalnÄ±zca transform/opacity â†’ GPU
-// compositor); sÃ¼rekli JS/rAF dÃ¶ngÃ¼sÃ¼ yok, Ã§ok hafif.
+// spinner
 .spinner-overlay {
     position: fixed;
     inset: 0;
@@ -1566,7 +1603,7 @@ a>.rs-panel {
     gap: 24px;
 }
 
-// Ä°Ã§erik-iÃ§i (inline) varyant: tam ekran kaplamaz, header/footer gÃ¶rÃ¼nÃ¼r kalÄ±r.
+// inline varyant
 .spinner-overlay--inline {
     position: relative;
     inset: auto;
@@ -1642,7 +1679,7 @@ a>.rs-panel {
     50%      { opacity: 0.85; }
 }
 
-// Hareket azaltma tercihi: animasyonlarÄ± durdur
+// hareket azaltma
 @media (prefers-reduced-motion: reduce) {
     .spinner-pulse,
     .spinner-core,
@@ -1655,7 +1692,7 @@ a>.rs-panel {
     }
 }
 
-// 9. Oyun Karuseli ============================================================
+// oyun karuseli
 .game-carousel {
     margin-bottom: var(--space-8);
     padding: 0 var(--space-2);
@@ -1666,7 +1703,7 @@ a>.rs-panel {
         align-items: center;
         margin-bottom: var(--space-4);
 
-        // TSX renders bare <h3>; style by tag (clearly scoped to .gc-header)
+        // baslik
         h3,
         .gc-header__title {
             color: var(--text-primary);
@@ -1712,7 +1749,7 @@ a>.rs-panel {
     position: relative;
     width: 160px;
     height: 160px;
-    border-radius: 16px;
+    border-radius: var(--radius-2);
     overflow: hidden;
     background-color: var(--bg-1);
     border: 2px solid var(--border-subtle);
@@ -1771,7 +1808,7 @@ a>.rs-panel {
         color: #ffffff !important;
         background-color: var(--accent) !important;
         padding: 2px 8px !important;
-        border-radius: 4px !important;
+        border-radius: var(--radius-1) !important;
         margin-top: 4px;
         letter-spacing: 0.5px;
     }
@@ -1792,9 +1829,8 @@ a>.rs-panel {
     }
 }
 
-// 10. Sayfalar (Home / Overview / Oyun / WIP) =================================
-// KalÄ±cÄ± kabuk: Header (fixed) + sayfa + Footer. Sayfa flex:1 ile bÃ¼yÃ¼r,
-// bÃ¶ylece Footer her zaman dibe yapÄ±ÅŸÄ±r.
+// sayfalar
+// kabuk
 .app-shell {
     display: flex;
     flex-direction: column;
@@ -1807,6 +1843,8 @@ a>.rs-panel {
 .app-shell > .search-page,
 .app-shell > .packages-page,
 .app-shell > .tv-page,
+.app-shell > .legal-page,
+.app-shell > .account-page,
 .app-shell > .wip-page {
     flex: 1;
     min-height: 0;
@@ -1836,6 +1874,74 @@ a>.rs-panel {
     background-color: var(--bg-1);
     position: relative;
     z-index: 10;
+}
+
+// kategori filtre
+.explore-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.explore-dropdown {
+    .rs-dropdown-toggle.rs-btn,
+    .rs-dropdown-toggle {
+        min-width: 150px;
+        text-align: left;
+        background: var(--bg-2) !important;
+        border: 1px solid var(--border-default) !important;
+        color: var(--text-primary) !important;
+        border-radius: var(--radius-1) !important;
+        font-weight: 700 !important;
+        padding: 11px 44px 11px 16px !important;
+        @include smooth(background-color border-color, var(--dur-fast));
+
+        &:hover,
+        &:focus,
+        &:active {
+            background: var(--bg-3) !important;
+            border-color: var(--accent) !important;
+            color: var(--text-primary) !important;
+        }
+    }
+
+    .rs-dropdown-toggle-caret {
+        color: var(--accent) !important;
+        right: 16px !important;
+    }
+
+    .rs-dropdown-menu {
+        margin-top: 6px;
+        min-width: 150px;
+        padding: 6px !important;
+        background: #0d0d14 !important;
+        border: 1px solid var(--border-default) !important;
+        border-radius: var(--radius-1) !important;
+        box-shadow: var(--shadow-lg) !important;
+    }
+
+    .rs-dropdown-item {
+        padding: 9px 14px !important;
+        border-radius: var(--radius-1) !important;
+        color: var(--text-secondary) !important;
+        font-weight: 600 !important;
+        @include smooth(background-color color, var(--dur-fast));
+
+        &:hover,
+        &:focus,
+        &[data-focus='true'] {
+            background: var(--bg-2) !important;
+            color: var(--text-primary) !important;
+        }
+
+        // secili tur
+        &.rs-dropdown-item-active,
+        &[data-active='true'] {
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+            font-weight: 700 !important;
+        }
+    }
 }
 
 .overview-page {
@@ -2001,7 +2107,7 @@ a>.rs-panel {
         background-color: transparent !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         color: #ffffff !important;
-        border-radius: 8px !important;
+        border-radius: var(--radius-1) !important;
         font-weight: 700 !important;
         font-size: 14px !important;
         padding: 8px 18px !important;
@@ -2022,7 +2128,7 @@ a>.rs-panel {
         gap: var(--space-2);
         background: rgba(255, 106, 0, 0.12);
         border: 1.5px solid rgba(255, 106, 0, 0.3);
-        border-radius: 30px;
+        border-radius: var(--radius-1);
         padding: 6px 18px;
         font-size: 14px;
         color: var(--text-primary);
@@ -2059,179 +2165,18 @@ a>.rs-panel {
     }
 }
 
-// ORPHAN: .play-page, .play-main, .play-content, .play-title, .play-grid, .play-card
-// These were written for a games-list page that is not yet implemented in TSX.
-// Keep until that page is built; remove if never used.
-.play-page {
+.explore-page {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-.play-main {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-}
-
-.play-content {
-    width: 100%;
-    padding: calc(72px + var(--space-10)) var(--space-8) var(--space-10);
-}
-
-.play-title {
-    font-size: var(--fs-3xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--space-8);
-    position: relative;
-    padding-left: var(--space-3);
-
-    &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 6px;
-        bottom: 6px;
-        width: 3px;
-        background: var(--accent);
-    }
-}
-
-.play-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-6);
-}
-
-.play-card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--bg-1);
-    border: 1px solid var(--border-subtle);
-    border-radius: 16px;
-    overflow: hidden;
-    text-decoration: none;
-    @include smooth(border-color transform box-shadow);
-
-    &:hover {
-        border-color: var(--accent);
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(255, 106, 0, 0.2);
-
-        .play-card__image-wrap img {
-            transform: scale(1.06);
-        }
-    }
-
-    .play-card__image-wrap {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        overflow: hidden;
-        background-color: var(--bg-3);
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            @include smooth(transform);
-        }
-    }
-
-    .play-card__body {
-        padding: var(--space-5);
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-2);
-    }
-
-    .play-card__name {
-        font-size: var(--fs-xl);
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-    }
-
-    .play-card__desc {
-        font-size: var(--fs-sm);
-        color: var(--text-muted);
-        margin: 0;
-    }
-
-    .play-card__cta {
-        display: inline-block;
-        margin-top: var(--space-2);
-        padding: 8px 20px;
-        background-color: var(--accent);
-        color: #ffffff;
-        font-size: var(--fs-sm);
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        border-radius: 6px;
-        align-self: flex-start;
-        @include smooth(background-color);
-
-        &:hover {
-            background-color: #ff8533;
-        }
-    }
-}
-
-.explore-page,
-.tvshows-page /* ORPHAN: .tvshows-page not yet in TSX */ {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.explore-main,
-.tvshows-main /* ORPHAN: .tvshows-main not yet in TSX */ {
+.explore-main {
     flex: 1;
 }
 
-// 11. YardÄ±mcÄ± SÄ±nÄ±flar =======================================================
-.text-center {
-    text-align: center;
-}
-
-.text-muted {
-    color: var(--text-muted);
-}
-
-.text-secondary {
-    color: var(--text-secondary);
-}
-
-.py-4 {
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-4);
-}
-
-.py-6 {
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-6);
-}
-
-.text-xs {
-    font-size: var(--fs-xs);
-}
-
-.text-sm {
-    font-size: var(--fs-sm);
-}
-
-.text-gray-400 {
-    color: var(--text-tertiary);
-}
-
-.border-t {
-    border-top: 1px solid var(--border-subtle);
-}
-
-// 12. KaydÄ±rma Ã‡ubuÄŸu =========================================================
-// TarayÄ±cÄ±nÄ±n kendi (native) scrollbar'Ä± CSS ile boyanÄ±r; ekstra bileÅŸen gerekmez.
-// WebKit (Chrome/Edge/Safari) iÃ§in ::-webkit-scrollbar, Firefox iÃ§in scrollbar-*.
+// kaydirma cubugu
+// native scrollbar
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
@@ -2267,7 +2212,7 @@ a>.rs-panel {
 }
 
 
-// 13. Responsive ==============================================================
+// responsive
 @media (max-width: 1200px) {
     .custom-header {
         padding: 0 var(--space-6) !important;
@@ -2411,6 +2356,24 @@ a>.rs-panel {
         gap: var(--space-6);
     }
 
+    .explore-filter {
+        justify-content: space-between;
+    }
+
+    .explore-dropdown {
+        flex: 1;
+
+        .rs-dropdown-toggle.rs-btn,
+        .rs-dropdown-toggle {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .rs-dropdown-menu {
+            width: 100%;
+        }
+    }
+
     .overview-text-clip {
         max-height: none;
         overflow: visible;
@@ -2504,10 +2467,6 @@ a>.rs-panel {
         padding: var(--space-3) var(--space-4);
         flex-wrap: wrap;
         gap: var(--space-2);
-    }
-
-    .play-content {
-        padding: calc(60px + var(--space-6)) var(--space-5) var(--space-6);
     }
 
     .wip-container {
@@ -2614,6 +2573,11 @@ a>.rs-panel {
     .explore-content {
         padding: var(--space-5) var(--space-4);
         gap: var(--space-5);
+    }
+
+    .explore-dropdown .rs-dropdown-toggle.rs-btn,
+    .explore-dropdown .rs-dropdown-toggle {
+        padding: 9px 40px 9px 14px !important;
     }
 
     .site-footer {
@@ -2768,7 +2732,7 @@ a>.rs-panel {
             font-size: var(--fs-sm);
             font-family: var(--font-sans);
             font-weight: 700;
-            border-radius: 8px;
+            border-radius: var(--radius-1);
             cursor: pointer;
             outline: none;
             appearance: none;
@@ -2824,7 +2788,7 @@ a>.rs-panel {
         display: flex;
         background-color: var(--bg-0);
         border: 1px solid var(--border-subtle);
-        border-radius: 12px;
+        border-radius: var(--radius-2);
         overflow: hidden;
         @include smooth(border-color transform box-shadow);
 
@@ -2998,16 +2962,8 @@ a>.rs-panel {
     }
 }
 
-.cc-item__custom-subtitle {
-    color: var(--text-secondary);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    margin-top: var(--space-1);
-    display: inline-block;
-}
 
-// 14. Login SayfasÄ± ===========================================================
+// login sayfasi
 .login-page {
     position: relative;
     display: flex;
@@ -3079,7 +3035,7 @@ a>.rs-panel {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     padding: 4px 14px;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-1);
     margin-bottom: var(--space-3);
 }
 
@@ -3104,23 +3060,34 @@ a>.rs-panel {
     overflow: hidden;
 }
 
+// serbest kart
 .login-formwrap {
     flex: 0 0 clamp(380px, 40%, 540px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: clamp(72px, 10vh, 120px) clamp(28px, 4vw, 64px) var(--space-8);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(to right,
-        rgba(7, 7, 11, 0.05) 0%,
-        rgba(7, 7, 11, 0.32) 42%,
-        rgba(7, 7, 11, 0.46) 100%);
 }
 
 .login-card {
     width: 100%;
-    max-width: 400px;
-    background: transparent;
+    max-width: 420px;
+    background: rgba(10, 10, 16, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border-default);
+    border-top: 2px solid var(--accent);
+    border-radius: var(--radius-1);
+    padding: var(--space-8) var(--space-6);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+    // autofill duzeltmesi
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 50px #ffffff inset;
+        -webkit-text-fill-color: #14141d;
+    }
 }
 
 .login-card__head {
@@ -3163,71 +3130,6 @@ a>.rs-panel {
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 
-.login-field__control {
-    position: relative;
-}
-
-.login-input {
-    width: 100%;
-    height: 48px;
-    padding: 0 16px;
-    font-size: var(--fs-md);
-    font-family: inherit;
-    color: #14141d;
-    background: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    border-radius: var(--radius-1);
-    outline: none;
-    @include smooth(border-color box-shadow background-color, var(--dur-fast));
-
-    &::placeholder {
-        color: rgba(0, 0, 0, 0.38);
-    }
-
-    &:hover {
-        border-color: #ffffff;
-    }
-
-    &:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-}
-
-.login-input--padded {
-    padding-right: 46px;
-}
-
-.login-input--error {
-    background: #fff1f1;
-    border-color: var(--danger);
-
-    &:focus {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.22);
-    }
-}
-
-.login-pw-toggle {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: rgba(0, 0, 0, 0.42);
-    cursor: pointer;
-    display: flex;
-    padding: 6px;
-    border-radius: var(--radius-1);
-    @include smooth(color background-color, var(--dur-fast));
-
-    &:hover {
-        color: rgba(0, 0, 0, 0.7);
-        background: rgba(0, 0, 0, 0.05);
-    }
-}
-
 .login-field__error {
     display: inline-flex;
     align-items: center;
@@ -3238,51 +3140,30 @@ a>.rs-panel {
     font-weight: 500;
 }
 
+.login-forgot {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.65);
+    @include smooth(color, var(--dur-fast));
+
+    &:hover { color: var(--accent); }
+}
+
+.login-forgot-msg {
+    margin: 0;
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+}
+
 .login-actions {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
     margin-top: var(--space-3);
-}
-
-.login-btn {
-    height: 50px;
-    width: 100%;
-    font-size: var(--fs-md);
-    font-weight: 700;
-    font-family: inherit;
-    border-radius: var(--radius-1);
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    @include smooth(background-color border-color color box-shadow transform, var(--dur-fast));
-}
-
-.login-btn--primary {
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-
-    &:hover {
-        background: var(--accent-hover);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(255, 106, 0, 0.4);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
-
-.login-btn--ghost {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1.5px solid rgba(255, 255, 255, 0.22);
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(255, 255, 255, 0.45);
-        color: #ffffff;
-    }
 }
 
 .login-page > .site-footer {
@@ -3294,7 +3175,7 @@ a>.rs-panel {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-// Login responsive (base kurallardan SONRA gelmeli ki override calissin)
+// login responsive
 @media (max-width: 900px) {
     .login-intro { flex-basis: 42%; }
     .login-formwrap { flex-basis: clamp(340px, 52%, 460px); }
@@ -3312,7 +3193,310 @@ a>.rs-panel {
     .login-card { max-width: 100%; }
 }
 
-// 15. Paketler Sayfası =========================================================
+// login inputlari
+.login-card {
+    .rs-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: var(--fs-md);
+        color: #14141d;
+        background: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: var(--radius-1);
+
+        &::placeholder { color: rgba(0, 0, 0, 0.38); }
+        &:hover { border-color: #ffffff; background: #ffffff; }
+        &:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+    }
+
+    .rs-input-group {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: var(--radius-1);
+        background: #ffffff;
+        overflow: hidden;
+
+        &:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .rs-input {
+            border: none;
+            height: 46px;
+            &:focus { box-shadow: none; }
+        }
+
+        .rs-input-group-btn {
+            background: transparent;
+            color: rgba(0, 0, 0, 0.42);
+            &:hover, &:focus { background: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.7); }
+        }
+    }
+
+    .login-submit,
+    .login-register {
+        height: 50px !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 700 !important;
+        border-radius: var(--radius-1) !important;
+    }
+}
+
+.login-form__error {
+    margin-top: 0;
+    color: #ff9a9a;
+}
+
+// izleme listesi / begeni aktif
+.cc-item__action-btn.outline.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+
+    &:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+    }
+}
+
+// hesap menusu
+.account-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--accent-active));
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    @include smooth(transform box-shadow);
+
+    &:hover { transform: scale(1.05); box-shadow: var(--shadow-glow); }
+}
+
+.account-dropdown {
+    .rs-dropdown-menu {
+        margin-top: 4px;
+        min-width: 220px;
+        padding: 6px !important;
+        background: var(--bg-1) !important;
+        border: 1px solid var(--border-strong) !important;
+        border-top: 2px solid var(--accent) !important;
+        border-radius: var(--radius-1) !important;
+        box-shadow: var(--shadow-lg) !important;
+    }
+
+    // metin rengi
+    .rs-text {
+        color: inherit !important;
+    }
+
+    .rs-dropdown-item {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px !important;
+        border-radius: var(--radius-1) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: var(--fs-base) !important;
+
+        svg { color: var(--accent); flex-shrink: 0; }
+
+        &:hover,
+        &:focus,
+        &[data-focus='true'] {
+            background: var(--bg-3) !important;
+            color: #ffffff !important;
+        }
+    }
+
+    // isim / eposta
+    .account-menu-head {
+        display: flex !important;
+        flex-direction: column;
+        gap: 2px;
+        padding: 10px 14px 8px !important;
+
+        strong {
+            color: #ffffff;
+            font-size: var(--fs-base);
+        }
+
+        span {
+            color: var(--text-tertiary);
+            font-size: var(--fs-xs);
+        }
+
+        &:hover { background: transparent !important; }
+    }
+
+    .rs-dropdown-item-divider {
+        margin: 4px 6px !important;
+        border-color: var(--border-subtle) !important;
+        background: var(--border-subtle) !important;
+    }
+
+    .account-menu-logout:hover,
+    .account-menu-logout[data-focus='true'] {
+        color: var(--danger) !important;
+
+        svg { color: var(--danger); }
+    }
+}
+
+// hesap sayfasi
+.account-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.account-main {
+    flex: 1;
+    padding: calc(72px + var(--space-8)) var(--space-6) var(--space-12);
+
+    @include bp($bp-md) { padding: calc(60px + var(--space-6)) var(--space-4) var(--space-8); }
+}
+
+.account-layout {
+    max-width: 1280px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: var(--space-8);
+
+    @include bp($bp-md) { grid-template-columns: 1fr; gap: var(--space-5); }
+}
+
+.account-sidenav {
+    width: 100% !important;
+    background: var(--bg-1) !important;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-1);
+    overflow: hidden;
+    height: fit-content;
+
+    // kaydirinca yerinde kalsin
+    position: sticky;
+    top: calc(72px + var(--space-4));
+    align-self: start;
+
+    @include bp($bp-md) { position: static; }
+
+    .rs-sidenav-body, .rs-nav { width: 100%; }
+
+    .rs-nav-item,
+    .rs-sidenav-item {
+        color: var(--text-secondary) !important;
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 16px !important;
+        font-weight: 600;
+        @include smooth(background-color color);
+
+        svg { flex-shrink: 0; }
+
+        &:hover, &:focus {
+            background: var(--bg-2) !important;
+            color: var(--text-primary) !important;
+        }
+    }
+
+    // aktif oge
+    .rs-nav-item[data-active='true'],
+    .rs-sidenav-item[data-active='true'],
+    .rs-nav-item-active,
+    .rs-sidenav-item-active {
+        background: var(--accent-soft) !important;
+        color: var(--accent) !important;
+        box-shadow: inset 3px 0 0 var(--accent);
+    }
+}
+
+.account-content {
+    min-width: 0;
+
+    h2 {
+        font-size: var(--fs-2xl);
+        font-weight: 700;
+        margin-bottom: var(--space-5);
+    }
+}
+
+.account-empty {
+    color: var(--text-tertiary);
+    font-size: var(--fs-md);
+    padding: var(--space-4) 0 var(--space-2);
+}
+
+// bolumler
+.account-profile,
+.account-section {
+    margin-bottom: var(--space-12);
+    scroll-margin-top: calc(72px + var(--space-5));
+}
+
+.account-profile {
+    .account-profile__row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+        padding: var(--space-5);
+        background: var(--bg-1);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-1);
+    }
+
+    .account-avatar-lg {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-active));
+        color: #ffffff;
+        font-size: 30px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .account-profile__info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        min-width: 0;
+    }
+
+    .account-info-row {
+        display: flex;
+        gap: var(--space-3);
+
+        span {
+            color: var(--text-tertiary);
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        strong {
+            color: var(--text-primary);
+            @include truncate;
+        }
+    }
+}
+
+// paketler sayfasi
 .packages-page {
     display: flex;
     flex-direction: column;
@@ -3321,13 +3505,63 @@ a>.rs-panel {
 
 .packages-main {
     flex: 1;
+    position: relative;
+    overflow: hidden;
     padding: calc(72px + var(--space-12)) var(--space-10) var(--space-16);
 
     @include bp($bp-lg) { padding: calc(72px + var(--space-8)) var(--space-6) var(--space-10); }
     @include bp($bp-md) { padding: calc(60px + var(--space-6)) var(--space-4) var(--space-8); }
 }
 
+// poster duvari
+.packages-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.packages-backdrop__grid {
+    position: absolute;
+    top: -6%;
+    left: -8%;
+    width: 116%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    transform: rotate(-5deg) scale(1.12);
+    transform-origin: top center;
+    opacity: 0.32;
+    filter: blur(1px);
+
+    img {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        border-radius: var(--radius-1);
+    }
+
+    @include bp($bp-md) {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 8px;
+        opacity: 0.24;
+    }
+}
+
+.packages-backdrop__veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(110% 70% at 50% 0%, rgba(255, 106, 0, 0.14) 0%, transparent 55%),
+        linear-gradient(to bottom,
+            rgba(7, 7, 11, 0.78) 0%,
+            rgba(7, 7, 11, 0.9) 40%,
+            var(--bg-0) 78%);
+}
+
 .packages-hero {
+    position: relative;
+    z-index: 1;
     text-align: center;
     margin-bottom: var(--space-12);
 
@@ -3343,7 +3577,7 @@ a>.rs-panel {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         padding: 5px 16px;
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-1);
         margin-bottom: var(--space-4);
     }
 
@@ -3365,6 +3599,8 @@ a>.rs-panel {
 }
 
 .packages-grid {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-6);
@@ -3376,7 +3612,8 @@ a>.rs-panel {
 }
 
 .package-card {
-    background: var(--bg-1);
+    background: rgba(13, 13, 20, 0.86);
+    backdrop-filter: blur(10px);
     border: 1.5px solid var(--border-default);
     border-radius: var(--radius-1);
     padding: var(--space-8) var(--space-6);
@@ -3384,6 +3621,7 @@ a>.rs-panel {
     flex-direction: column;
     gap: var(--space-4);
     position: relative;
+    box-shadow: var(--shadow-md);
     @include smooth(transform border-color box-shadow);
 
     &:hover {
@@ -3413,7 +3651,7 @@ a>.rs-panel {
         letter-spacing: 0.1em;
         text-transform: uppercase;
         padding: 4px 18px;
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-1);
         white-space: nowrap;
     }
 
@@ -3477,6 +3715,21 @@ a>.rs-panel {
         font-weight: 700 !important;
         border-radius: var(--radius-1) !important;
 
+        // ghost buton
+        &:not(.pkg-cta-accent) {
+            background-color: transparent !important;
+            border: 1.5px solid var(--border-strong) !important;
+            color: var(--text-primary) !important;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: rgba(255, 255, 255, 0.08) !important;
+                border-color: #ffffff !important;
+                color: #ffffff !important;
+            }
+        }
+
         &.pkg-cta-accent {
             background-color: var(--accent) !important;
             border-color: var(--accent) !important;
@@ -3491,7 +3744,111 @@ a>.rs-panel {
 }
 
 
-// 16. Arama SayfasÄ± ===========================================================
+// yasal sayfa
+.legal-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.legal-main {
+    flex: 1;
+    padding: calc(72px + var(--space-10)) var(--space-6) var(--space-12);
+
+    @include bp($bp-md) {
+        padding: calc(60px + var(--space-6)) var(--space-4) var(--space-8);
+    }
+}
+
+.legal-container {
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.legal-title {
+    font-size: clamp(26px, 4vw, var(--fs-3xl));
+    font-weight: 800;
+    margin-bottom: var(--space-6);
+    position: relative;
+    padding-left: var(--space-3);
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 6px;
+        bottom: 6px;
+        width: 3px;
+        background: var(--accent);
+    }
+}
+
+.legal-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.legal-tab {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px !important;
+    border-radius: var(--radius-1);
+    border: 1px solid var(--border-default);
+    background: var(--bg-2) !important;
+    color: var(--text-secondary) !important;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    @include smooth(background-color color border-color, var(--dur-fast));
+
+    svg { flex-shrink: 0; }
+
+    // rsuite cizgisi kapali
+    &::before { display: none !important; }
+
+    &:hover,
+    &:focus {
+        background: var(--bg-3) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-strong);
+    }
+
+    // secili sekme
+    &.rs-nav-item-active,
+    &[data-active='true'] {
+        background: var(--accent) !important;
+        border-color: var(--accent);
+        color: #fff !important;
+    }
+}
+
+.legal-content {
+    h2 {
+        font-size: var(--fs-2xl);
+        font-weight: 700;
+        margin-bottom: var(--space-5);
+        color: var(--text-primary);
+    }
+
+    p {
+        font-size: var(--fs-md);
+        line-height: 1.75;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-4);
+    }
+
+    .legal-updated {
+        margin-top: var(--space-6);
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+    }
+}
+
+// arama sayfasi
 .search-page {
     display: flex;
     flex-direction: column;
@@ -3514,7 +3871,7 @@ a>.rs-panel {
     gap: var(--space-4);
     margin-bottom: var(--space-6);
 
-    // TSX renders bare <h2>; style by tag (clearly scoped to .search-results-header)
+    // baslik
     h2,
     .search-results-header__title {
         font-size: var(--fs-2xl);
@@ -3593,7 +3950,7 @@ a>.rs-panel {
         align-items: center;
         gap: 3px;
         padding: 2px 7px;
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-1);
         background: var(--overlay-strong);
         backdrop-filter: blur(4px);
         font-size: var(--fs-xs);
@@ -3659,35 +4016,7 @@ a>.rs-panel {
     }
 }
 
-.app-error-boundary {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: var(--space-4);
-    min-height: 100vh;
-    padding: var(--space-8) var(--space-4);
-
-    // TSX renders bare <h1> and <p>; style by tag (clearly scoped to .app-error-boundary)
-    h1,
-    .app-error-boundary__title {
-        font-size: var(--fs-3xl);
-        font-weight: 800;
-        color: var(--text-primary);
-        margin: 0;
-    }
-
-    p,
-    .app-error-boundary__desc {
-        font-size: var(--fs-md);
-        color: var(--text-tertiary);
-        margin: 0;
-        max-width: 420px;
-    }
-}
-
-// 17. Player SayfasÄ± ===========================================================
+// player
 .player-container {
     position: fixed;
     inset: 0;
@@ -3740,7 +4069,7 @@ a>.rs-panel {
     z-index: 5;
     color: var(--text-primary);
 
-    // TSX renders bare <p> and <button> inside these containers
+    // icerik
     p,
     .player-message {
         font-size: var(--fs-lg);
@@ -3755,7 +4084,7 @@ a>.rs-panel {
         background: var(--accent);
         color: #fff;
         border: none;
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-1);
         font-size: var(--fs-base);
         font-weight: 600;
         cursor: pointer;
@@ -3881,7 +4210,7 @@ a>.rs-panel {
     right: 0;
     background: rgba(13,13,20,0.96);
     border: 1px solid var(--border-default);
-    border-radius: 12px;
+    border-radius: var(--radius-2);
     padding: var(--space-2);
     min-width: 210px;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
@@ -3906,7 +4235,7 @@ a>.rs-panel {
         background: transparent;
         color: var(--text-secondary);
         font-size: var(--fs-sm);
-        border-radius: 6px;
+        border-radius: var(--radius-1);
         cursor: pointer;
         @include smooth(background, color);
 
@@ -3992,7 +4321,7 @@ a>.rs-panel {
     padding: 0 2px;
 }
 
-// Ses kontrol â€” her zaman gÃ¶rÃ¼nÃ¼r bar
+// ses kontrol
 .player-volume {
     display: flex;
     align-items: center;
@@ -4054,7 +4383,7 @@ a>.rs-panel {
     font-variant-numeric: tabular-nums;
 }
 
-// 18. TV İzle Sayfası ==========================================================
+// tv sayfasi
 .tv-page {
     background: var(--bg-0);
 }
@@ -4141,7 +4470,7 @@ a>.rs-panel {
         justify-content: center;
         flex-shrink: 0;
         background: var(--bg-3);
-        border-radius: 5px;
+        border-radius: var(--radius-1);
         overflow: hidden;
         padding: 3px;
 
@@ -4180,14 +4509,14 @@ a>.rs-panel {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-radius: 16px;
+    border-radius: var(--radius-2);
     min-height: 0;
 
     &__player {
         flex: 1;
         position: relative;
         background: #000;
-        border-radius: 16px;
+        border-radius: var(--radius-2);
         overflow: hidden;
         border: 1px solid var(--border-subtle);
         min-height: 0;
@@ -4222,7 +4551,7 @@ a>.rs-panel {
         align-items: center;
         gap: var(--space-2);
         padding: var(--space-1) var(--space-3);
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-1);
         background: var(--danger);
         color: #fff;
         font-size: var(--fs-xs);
@@ -4256,7 +4585,7 @@ a>.rs-panel {
     50% { opacity: 0.3; }
 }
 
-// Video oynat/duraklat tıklama katmanı
+// tiklama katmani
 .player-click-zone {
     position: absolute;
     inset: 0;
@@ -4264,7 +4593,7 @@ a>.rs-panel {
     cursor: pointer;
 }
 
-// Ortada beliren play/pause ikonu (tıklayınca)
+// orta ikon
 .player-center-action {
     position: absolute;
     top: 50%;
@@ -4290,7 +4619,7 @@ a>.rs-panel {
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
 }
 
-// Canlı rozeti (MediaPlayer)
+// canli rozeti
 .player-live-badge {
     position: absolute;
     top: var(--space-4);
@@ -4299,7 +4628,7 @@ a>.rs-panel {
     align-items: center;
     gap: var(--space-2);
     padding: 4px var(--space-3);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-1);
     background: var(--danger);
     color: #fff;
     font-size: var(--fs-xs);
@@ -4315,4 +4644,306 @@ a>.rs-panel {
     border-radius: 50%;
     background: #fff;
     animation: livePulse 1.5s ease-in-out infinite;
+}
+
+// player mobil
+@media (max-width: 768px) {
+    .player-controls__top {
+        padding: var(--space-4);
+    }
+
+    .player-controls__bottom {
+        padding: 0 var(--space-4) var(--space-4);
+        gap: var(--space-2);
+    }
+
+    .player-controls__title {
+        font-size: var(--fs-base);
+    }
+
+    .player-controls__left,
+    .player-controls__right {
+        gap: 2px;
+    }
+
+    .player-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .player-btn--play {
+        width: 46px;
+        height: 46px;
+    }
+
+    // mobilde cihaz sesi
+    .player-volume-bar-wrap,
+    .player-volume-pct,
+    .player-quality-badge {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-controls__top {
+        padding: var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .player-controls__bottom {
+        padding: 0 var(--space-3) var(--space-3);
+    }
+
+    .player-btn {
+        width: 34px;
+        height: 34px;
+
+        svg { width: 18px; height: 18px; }
+    }
+
+    .player-btn--play {
+        width: 44px;
+        height: 44px;
+    }
+
+    .player-time {
+        font-size: 10px;
+    }
+
+    .player-center-action {
+        width: 72px;
+        height: 72px;
+    }
+
+    .player-settings-menu {
+        min-width: 170px;
+    }
+}
+
+// ── explore filtre dropdown ─────────────────────────────────────
+.explore-filter {
+    padding: var(--space-3) var(--space-6);
+}
+
+.explore-dropdown {
+    display: inline-block;
+
+    // tetikleyici buton
+    .rs-dropdown-toggle,
+    .rs-btn {
+        background-color: $surface-2 !important;
+        border: 1px solid var(--border-default) !important;
+        border-radius: var(--radius-0) !important;
+        color: #ffffff !important;
+        font-family: var(--font-sans) !important;
+        font-weight: 600 !important;
+        font-size: var(--fs-sm) !important;
+        padding: 6px 12px !important;
+        min-width: 130px !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        @include smooth(border-color background-color, var(--dur-fast));
+
+        &:hover,
+        &:focus {
+            border-color: var(--accent) !important;
+            background-color: $surface-3 !important;
+            color: #ffffff !important;
+        }
+
+        // ok ikonu
+        .rs-dropdown-toggle-caret {
+            color: var(--accent) !important;
+            font-size: 12px !important;
+        }
+    }
+}
+
+// dropdown menu (portal olarak body'ye render edilir)
+.rs-dropdown-menu {
+    background-color: $surface-1 !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-0) !important;
+    padding: var(--space-1) 0 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+    min-width: 130px !important;
+    width: 130px !important;
+
+    .rs-dropdown-item,
+    .rs-dropdown-item > .rs-dropdown-item-content,
+    .rs-dropdown-item a,
+    .rs-dropdown-item span {
+        color: #ffffff !important;
+        font-family: var(--font-sans) !important;
+        font-weight: 500 !important;
+        font-size: var(--fs-sm) !important;
+        padding: 5px 12px !important;
+        background: transparent !important;
+        @include smooth(background-color color, var(--dur-fast));
+
+        &:hover,
+        &:focus,
+        &.rs-dropdown-item-focus {
+            background-color: $surface-3 !important;
+            color: #ffffff !important;
+        }
+
+        &.rs-dropdown-item-active,
+        &[aria-checked="true"] {
+            background-color: rgba($brand, 0.12) !important;
+            color: var(--accent) !important;
+            font-weight: 700 !important;
+        }
+    }
+
+    // aktif öge iç elemanları da turuncu
+    .rs-dropdown-item-active > .rs-dropdown-item-content,
+    .rs-dropdown-item-active a,
+    .rs-dropdown-item-active span,
+    .rs-dropdown-item[aria-checked="true"] > .rs-dropdown-item-content,
+    .rs-dropdown-item[aria-checked="true"] a,
+    .rs-dropdown-item[aria-checked="true"] span {
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+    }
+}
+
+
+// ── toaster / bildirim ──────────────────────────────────────────
+.rs-toast-container {
+    z-index: var(--z-spinner) !important;
+}
+
+.rs-toast {
+    filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.65));
+    margin-bottom: var(--space-3) !important;
+}
+
+// rsuite message tamamen ezilir
+.rs-message {
+    // rsuite ic renk degiskenleri tamamen ezilir
+    --rs-message-success-bg: #{$surface-1} !important;
+    --rs-message-success-icon: #{$brand} !important;
+    --rs-message-success-text: #ffffff !important;
+    --rs-message-success-border: #{$brand} !important;
+    --rs-message-info-bg: #{$surface-1} !important;
+    --rs-message-info-icon: #{$brand} !important;
+    --rs-message-info-text: #ffffff !important;
+    --rs-message-info-border: #{$brand} !important;
+    --rs-message-warning-bg: #{$surface-1} !important;
+    --rs-message-warning-icon: #{$brand} !important;
+    --rs-message-warning-text: #ffffff !important;
+    --rs-message-warning-border: #{$brand} !important;
+    --rs-message-error-bg: #{$surface-1} !important;
+    --rs-message-error-icon: #{$brand} !important;
+    --rs-message-error-text: #ffffff !important;
+    --rs-message-error-border: #{$brand} !important;
+
+    border-radius: var(--radius-0) !important;
+    border: none !important;
+    border-left: 4px solid $brand !important;
+    background: $surface-1 !important;
+    background-color: $surface-1 !important;
+    color: #ffffff !important;
+    font-family: var(--font-sans) !important;
+    min-width: 340px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+
+    // ic container
+    .rs-message-container {
+        background: transparent !important;
+        background-color: transparent !important;
+        padding: var(--space-4) var(--space-5) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: var(--space-3) !important;
+    }
+
+    // ikon alani
+    .rs-message-icon-wrapper {
+        align-self: center !important;
+        flex-shrink: 0 !important;
+
+        .rs-icon {
+            color: $brand !important;
+            font-size: 20px !important;
+            width: 20px !important;
+            height: 20px !important;
+            fill: $brand !important;
+        }
+
+        svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+    }
+
+    // metin
+    .rs-message-content {
+        color: #ffffff !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 600 !important;
+        font-family: var(--font-sans) !important;
+        letter-spacing: 0.01em !important;
+        line-height: 1.4 !important;
+        flex: 1 !important;
+    }
+
+    // body (metin sarici)
+    .rs-message-body {
+        color: #ffffff !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 600 !important;
+        font-family: var(--font-sans) !important;
+    }
+
+    // kapatma butonu
+    .rs-message-btn-close,
+    .rs-btn-close {
+        color: rgba(255, 255, 255, 0.4) !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        @include smooth(color, var(--dur-fast));
+
+        &:hover {
+            color: #ffffff !important;
+            background: transparent !important;
+        }
+    }
+
+    // tum tipler ayni turuncu renk
+    &.rs-message-success,
+    &.rs-message-info,
+    &.rs-message-warning,
+    &.rs-message-error {
+        background: $surface-1 !important;
+        background-color: $surface-1 !important;
+        border-left-color: $brand !important;
+
+        .rs-message-icon-wrapper .rs-icon,
+        .rs-message-icon-wrapper svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+
+        .rs-message-container {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .rs-message-content,
+        .rs-message-body {
+            color: #ffffff !important;
+        }
+    }
+
+    // header (varsa)
+    .rs-message-header {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: var(--fs-lg) !important;
+        font-family: var(--font-sans) !important;
+        margin-bottom: var(--space-1) !important;
+    }
 }

@@ -8,6 +8,7 @@ const SIZE = 4;
 const GAP = 2.6;
 const CELL = (100 - (SIZE - 1) * GAP) / SIZE;
 const cellPos = (i: number) => i * (CELL + GAP);
+const SWIPE_MIN = 18;
 
 const STYLES = `
 @import url('${FONT_URL}');
@@ -23,7 +24,6 @@ const STYLES = `
   display: flex; flex-direction: column; align-items: center;
   padding: 24px 16px 44px;
   position: relative; overflow: hidden;
-  touch-action: none;
 }
 
 .g2-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; opacity: 0.5; }
@@ -80,6 +80,7 @@ const STYLES = `
   position: relative; background: #e4d9f6; border-radius: 22px; padding: ${GAP}%;
   box-shadow: 0 12px 32px rgba(139,111,208,0.22), inset 0 2px 8px rgba(255,255,255,0.7);
   width: 100%; max-width: 440px; aspect-ratio: 1;
+  touch-action: none;
 }
 .board-shell.bump-left   { animation: bumpLeft 0.4s cubic-bezier(0.36,0,0.2,1); }
 .board-shell.bump-right  { animation: bumpRight 0.4s cubic-bezier(0.36,0,0.2,1); }
@@ -322,6 +323,7 @@ export default function Game2048() {
 
   const lockRef = useRef(false);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const swipedRef = useRef(false);
   const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const tier = comboTier(combo);
@@ -455,21 +457,24 @@ export default function Game2048() {
     return () => window.removeEventListener("keydown", handler);
   }, [doMove, undo]);
 
+  // dokunma
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
+    swipedRef.current = false;
   };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStart.current) return;
-    const t = e.changedTouches[0];
+  // kaydir
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart.current || swipedRef.current) return;
+    const t = e.touches[0];
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
-    touchStart.current = null;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_MIN) return;
+    swipedRef.current = true;
     if (Math.abs(dx) > Math.abs(dy)) doMove(dx > 0 ? "right" : "left");
     else doMove(dy > 0 ? "down" : "up");
   };
-  const onTouchCancel = () => { touchStart.current = null; };
+  const onTouchEnd = () => { touchStart.current = null; };
 
   const rippleStyle = (dir: Dir): React.CSSProperties => {
     const b: React.CSSProperties = { width: "46%", height: "46%" };
@@ -524,7 +529,13 @@ export default function Game2048() {
             <button className="g2-btn primary" onClick={restart}>⟳ Yeni Oyun</button>
           </div>
 
-          <div className={`board-shell${bump ? ` bump-${bump}` : ""}`}>
+          <div
+            className={`board-shell${bump ? ` bump-${bump}` : ""}`}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onTouchCancel={onTouchEnd}
+          >
             <div className="grid-bg">
               {Array.from({ length: SIZE * SIZE }).map((_, i) => {
                 const r = Math.floor(i / SIZE), c = i % SIZE;
@@ -599,8 +610,6 @@ export default function Game2048() {
                 </div>
               </div>
             )}
-
-            <div style={{ position: "absolute", inset: 0, zIndex: 5 }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={onTouchCancel} />
           </div>
 
           <div className="g2-hint">

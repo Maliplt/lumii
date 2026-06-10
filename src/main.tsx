@@ -1,11 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
+import { CustomProvider } from 'rsuite'
+import { store } from './store/store'
 import './index.css'
 import './main.scss'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Provider store={store}>
+      <CustomProvider>
+        <App />
+      </CustomProvider>
+    </Provider>
   </StrictMode>,
 )

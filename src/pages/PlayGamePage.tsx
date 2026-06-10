@@ -41,20 +41,14 @@ export default function PlayGamePage() {
     const navigate = useNavigate()
     const [bestScore, setBestScore] = useState(() => readBestScore(gameId ?? ''))
 
+    // skoru tazele
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setBestScore(readBestScore(gameId ?? ''))
-
-        const interval = setInterval(() => {
-            setBestScore(readBestScore(gameId ?? ''))
-        }, 2000)
-
-        const handleStorage = () => setBestScore(readBestScore(gameId ?? ''))
-        window.addEventListener('storage', handleStorage)
-
+        const update = () => setBestScore(readBestScore(gameId ?? ''))
+        const interval = setInterval(update, 2000)
+        window.addEventListener('storage', update)
         return () => {
             clearInterval(interval)
-            window.removeEventListener('storage', handleStorage)
+            window.removeEventListener('storage', update)
         }
     }, [gameId])
 

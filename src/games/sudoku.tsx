@@ -605,10 +605,24 @@ function useTimer() {
     return { time, fmt, start: () => setRunning(true), stop: () => setRunning(false), reset: () => { setTime(0); setRunning(false); } };
 }
 
+// yeni bulmaca uret
+function newBoard(diff: string) {
+    const { puzzle, solution } = generateSudoku(diff);
+    const board: SudokuCell[][] = puzzle.map(r => r.map(v => ({
+        value: v,
+        given: v !== 0,
+        error: false,
+        hint: false,
+    })));
+    return { game: { solution }, board };
+}
+
 export default function SudokuApp() {
+    // ilk bulmaca hazir baslar
+    const [initial] = useState(() => newBoard('orta'));
     const [difficulty, setDifficulty] = useState<string>('orta');
-    const [game, setGame] = useState<SudokuGame | null>(null);
-    const [board, setBoard] = useState<SudokuCell[][]>([]);
+    const [game, setGame] = useState<SudokuGame | null>(initial.game);
+    const [board, setBoard] = useState<SudokuCell[][]>(initial.board);
     const [selected, setSelected] = useState<{ r: number; c: number } | null>(null);
     const [mistakes, setMistakes] = useState<number>(0);
     const [won, setWon] = useState<boolean>(false);
@@ -616,15 +630,9 @@ export default function SudokuApp() {
     const { time, fmt, start, stop, reset } = useTimer();
 
     const startGame = useCallback((diff: string) => {
-        const { puzzle, solution } = generateSudoku(diff);
-        const b: SudokuCell[][] = puzzle.map(r => r.map(v => ({
-            value: v,
-            given: v !== 0,
-            error: false,
-            hint: false,
-        })));
-        setGame({ solution });
-        setBoard(b);
+        const next = newBoard(diff);
+        setGame(next.game);
+        setBoard(next.board);
         setSelected(null);
         setMistakes(0);
         setWon(false);
@@ -632,8 +640,11 @@ export default function SudokuApp() {
         setTimeout(start, 100);
     }, [reset, start]);
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-    useEffect(() => { startGame('orta'); }, []);
+    // acilista sayaci baslat
+    useEffect(() => {
+        const t = setTimeout(start, 100);
+        return () => clearTimeout(t);
+    }, [start]);
 
     const handleCellClick = (r: number, c: number) => {
         setSelected({ r, c });

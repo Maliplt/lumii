@@ -6,20 +6,6 @@ import kelimezinciriImg from '../images/kelimezinciri.svg'
 
 const GAMES = [
   {
-    id: 'sudoku',
-    name: 'Sudoku',
-    path: '/play/sudoku',
-    image: sudokuImg,
-    description: 'Zeka ve Mantık Oyunu'
-  },
-  {
-    id: 'minesweeper',
-    name: 'Mayın Tarlası',
-    path: '/play/minesweeper',
-    image: minesweepImg,
-    description: 'Klasik Mayın Bulma Oyunu'
-  },
-  {
     id: '2048',
     name: '2048',
     path: '/play/2048',
@@ -32,6 +18,20 @@ const GAMES = [
     path: '/play/kelimezinciri',
     image: kelimezinciriImg,
     description: 'Zeka ve Hafıza Oyunu'
+  },
+  {
+    id: 'sudoku',
+    name: 'Sudoku',
+    path: '/play/sudoku',
+    image: sudokuImg,
+    description: 'Zeka ve Mantık Oyunu'
+  },
+  {
+    id: 'minesweeper',
+    name: 'Mayın Tarlası',
+    path: '/play/minesweeper',
+    image: minesweepImg,
+    description: 'Klasik Mayın Bulma Oyunu'
   }
 ]
 

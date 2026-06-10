@@ -28,6 +28,7 @@ Lumii is a modern, responsive streaming and gaming platform dashboard built usin
 - **Core**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS v4, Sass / SCSS
 - **Routing**: React Router DOM v7
+- **State**: Redux Toolkit
 - **APIs & Data**: Axios, TMDB (The Movie Database) API
 - **Utilities & Icons**: Lucide React, RSuite, HLS.js, Anime.js
 

@@ -1,42 +1,20 @@
-import axios, { type AxiosError } from 'axios'
-import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail } from '../types/types'
+import axios from 'axios'
+import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Genre } from '../types/types'
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
-
-const apiKey = import.meta.env.VITE_TMDB_API_KEY as string | undefined
-if (!apiKey) {
-    console.error('[tmdb] VITE_TMDB_API_KEY is not set. API calls will fail.')
-}
-
-export class TMDBError extends Error {
-    readonly status: number
-    readonly endpoint: string
-    constructor(message: string, status: number, endpoint: string) {
-        super(message)
-        this.name = 'TMDBError'
-        this.status = status
-        this.endpoint = endpoint
-    }
-}
 
 const tmdbClient = axios.create({
     baseURL: 'https://api.themoviedb.org/3',
     params: {
-        api_key: apiKey,
+        api_key: import.meta.env.VITE_TMDB_API_KEY,
         language: 'tr-TR',
     },
 })
 
+// istek
 async function tmdbFetch<T>(endpoint: string, params: Record<string, string | number> = {}): Promise<T> {
-    try {
-        const response = await tmdbClient.get<T>(endpoint, { params })
-        return response.data
-    } catch (err) {
-        const axiosErr = err as AxiosError<{ status_message?: string }>
-        const status = axiosErr.response?.status ?? 0
-        const message = axiosErr.response?.data?.status_message ?? axiosErr.message ?? 'Unknown TMDB error'
-        throw new TMDBError(message, status, endpoint)
-    }
+    const response = await tmdbClient.get<T>(endpoint, { params })
+    return response.data
 }
 
 export const getImageUrl = (
@@ -77,4 +55,7 @@ export const tmdbApi = {
 
     getMoviesByGenre: (genreId: number | string, page = 1): Promise<TMDBResponse<Movie>> =>
         tmdbFetch<TMDBResponse<Movie>>('/discover/movie', { with_genres: genreId, page }),
+
+    getMovieGenres: (): Promise<{ genres: Genre[] }> =>
+        tmdbFetch<{ genres: Genre[] }>('/genre/movie/list'),
 }

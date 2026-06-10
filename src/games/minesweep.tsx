@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const FONT_URL = "https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap";
 
@@ -546,17 +546,15 @@ export default function MinesweeperApp() {
 
     const cfg = CONFIGS[difficulty as keyof typeof CONFIGS];
 
-    const initBoard = useCallback(() => {
+    // tahtayi sifirla
+    const newGame = () => {
         setBoard(null);
         setStatus('idle');
         setFlagCount(0);
         setRevealedCount(0);
         setJustRevealedCells(new Set());
         reset();
-    }, [reset]);
-
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-        useEffect(() => { initBoard(); }, [initBoard]);
+    };
 
     const handleClick = (r: number, c: number) => {
         if (status === 'win' || status === 'lose') return;
@@ -694,7 +692,7 @@ export default function MinesweeperApp() {
                             <button
                                 key={d}
                                 className={`ms-diff-btn${difficulty === d ? ` active-${d}` : ''}`}
-                                onClick={() => { setDifficulty(d); setBoard(null); setStatus('idle'); setFlagCount(0); setRevealedCount(0); reset(); }}
+                                onClick={() => { setDifficulty(d); newGame(); }}
                             >
                                 {d === 'kolay' ? '😊 Kolay' : d === 'orta' ? '🤔 Orta' : d === 'zor' ? '😰 Zor' : '💀 Uzman'}
                             </button>
@@ -757,7 +755,7 @@ export default function MinesweeperApp() {
                         </button>
                         <button
                             className="ms-btn ms-btn-new"
-                            onClick={() => { setDifficulty(d => d); setBoard(null); setStatus('idle'); setFlagCount(0); setRevealedCount(0); reset(); }}
+                            onClick={newGame}
                         >
                             🔄 Yeni Oyun
                         </button>
@@ -796,7 +794,7 @@ export default function MinesweeperApp() {
                             </div>
                             <button
                                 className={`result-btn ${status === 'win' ? 'win-btn' : 'lose-btn'}`}
-                                onClick={() => { setBoard(null); setStatus('idle'); setFlagCount(0); setRevealedCount(0); reset(); }}
+                                onClick={newGame}
                             >
                                 Tekrar Oyna
                             </button>

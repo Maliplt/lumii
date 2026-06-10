@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { animate, stagger } from 'animejs'
 import { getImageUrl } from '../services/tmdb'
-import { useSwipe } from '../hooks/useSwipe'
+import { useSwipe } from '../helpers'
 import type { Movie } from '../types/types'
 
 interface HeroCarouselProps {

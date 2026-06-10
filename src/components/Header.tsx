@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
-import { Navbar, Nav, Button, Stack } from 'rsuite'
-import { Search, Home, Film, Tv, Crown, X, Menu } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Navbar, Nav, Button, Stack, Dropdown } from 'rsuite'
+import { Search, Home, Film, Tv, Crown, X, Menu, User, LogOut } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { animate } from 'animejs'
-import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import Logo from './Logo'
+import SearchBar from './SearchBar'
+import { useToast } from './Toast'
+import { useAppSelector, useAppDispatch, logout, clearLibrary } from '../store/store'
 
 const NAV_LINKS = [
   { to: '/', label: 'Anasayfa', icon: Home },
@@ -15,31 +16,25 @@ const NAV_LINKS = [
 export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
+  // redux
+  const dispatch = useAppDispatch()
+  const currentUser = useAppSelector((s) => s.auth.currentUser)
 
-  const initialQuery = location.pathname === '/search'
-    ? (new URLSearchParams(location.search).get('q') ?? '')
-    : ''
-  const [showSearch, setShowSearch] = useState(!!initialQuery)
-  const [searchQuery, setSearchQuery] = useState(initialQuery)
+  const hasQuery = location.pathname === '/search'
+    && !!new URLSearchParams(location.search).get('q')
+  const [showSearch, setShowSearch] = useState(hasQuery)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const searchWrapperRef = useRef<HTMLDivElement>(null)
 
-  const debouncedQuery = useDebouncedValue(searchQuery.trim(), 400)
+  const toast = useToast()
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setMobileMenuOpen(false) }, [location.pathname])
-
-  useEffect(() => {
-    if (debouncedQuery) {
-      navigate(`/search?q=${encodeURIComponent(debouncedQuery)}`, {
-        replace: location.pathname === '/search',
-      })
-    } else if (location.pathname === '/search') {
-      navigate('/search', { replace: true })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery])
+  const handleLogout = () => {
+    dispatch(logout())
+    dispatch(clearLibrary())
+    setMobileMenuOpen(false)
+    toast('Çıkış yapıldı.', 'info')
+    navigate('/')
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30)
@@ -47,51 +42,11 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    if (showSearch && searchWrapperRef.current) {
-
-      const contentWidth = document.documentElement.clientWidth
-      const targetWidth = contentWidth <= 768
-        ? `${contentWidth - 16}px`
-        : '520px'
-      animate(searchWrapperRef.current, {
-        width: ['0px', targetWidth],
-        opacity: [0, 1],
-        duration: 450,
-        easing: 'easeOutQuart',
-      })
-    }
-  }, [showSearch])
-
-  const handleCloseSearch = () => {
-    if (searchWrapperRef.current) {
-      const contentWidth = document.documentElement.clientWidth
-      const fromWidth = contentWidth <= 768
-        ? `${contentWidth - 16}px`
-        : '520px'
-      animate(searchWrapperRef.current, {
-        width: [fromWidth, '0px'],
-        opacity: [1, 0],
-        duration: 300,
-        easing: 'easeInQuart',
-        complete: () => { setShowSearch(false); setSearchQuery('') },
-      })
-    } else {
-      setShowSearch(false)
-      setSearchQuery('')
-    }
-  }
-
-  const handleSearchSubmit = () => {
-    const q = searchQuery.trim()
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}`)
-  }
-
   return (
     <>
       <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}`}>
         <Navbar.Content className="header-left">
-          <Navbar.Brand href="/" className="header-brand-link">
+          <Navbar.Brand as={Link} to="/" className="header-brand-link">
             <Logo />
           </Navbar.Brand>
           <Nav activeKey={location.pathname} className="header-main-nav">
@@ -106,27 +61,7 @@ export default function Header() {
           </Nav>
         </Navbar.Content>
 
-        {showSearch && (
-          <div
-            ref={searchWrapperRef}
-            className="animated-search-container centered-search"
-            style={{ overflow: 'hidden', width: '0px', opacity: 0 }}
-          >
-            <Search size={18} className="search-accent-icon" />
-            <input
-              type="text"
-              placeholder="Film veya dizi arayın..."
-              className="search-animated-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleSearchSubmit() }}
-              autoFocus
-            />
-            <button className="search-animated-close" onClick={handleCloseSearch} aria-label="Aramayı kapat">
-              <X size={18} />
-            </button>
-          </div>
-        )}
+        <SearchBar open={showSearch} onClose={() => setShowSearch(false)} />
 
         <Navbar.Content className="header-right">
           <div className="header-desktop-actions">
@@ -141,13 +76,33 @@ export default function Header() {
                 <Crown size={18} />
               </Stack>
             </Button>
-            <Button appearance="ghost" className="giris-btn" onClick={() => navigate('/login')}>
-              Giriş Yap
-            </Button>
+            {currentUser ? (
+              <Dropdown
+                className="account-dropdown"
+                placement="bottomEnd"
+                renderToggle={(props, ref) => (
+                  <button {...props} ref={ref} className="account-avatar" aria-label="Hesap">
+                    {currentUser.name.charAt(0).toUpperCase()}
+                  </button>
+                )}
+              >
+                <Dropdown.Item panel className="account-menu-head">
+                  <strong>{currentUser.name}</strong>
+                  <span>{currentUser.email}</span>
+                </Dropdown.Item>
+                <Dropdown.Separator />
+                <Dropdown.Item onClick={() => navigate('/account')}><User size={16} /> Hesabım</Dropdown.Item>
+                <Dropdown.Item className="account-menu-logout" onClick={handleLogout}><LogOut size={16} /> Çıkış Yap</Dropdown.Item>
+              </Dropdown>
+            ) : (
+              <Button appearance="ghost" className="giris-btn" onClick={() => navigate('/login')}>
+                Giriş Yap
+              </Button>
+            )}
           </div>
 
           <div className="header-mobile-actions">
-            <Button appearance="subtle" className="search-btn" onClick={() => showSearch ? handleCloseSearch() : setShowSearch(true)}>
+            <Button appearance="subtle" className="search-btn" onClick={() => setShowSearch((p) => !p)}>
               <Search size={22} />
             </Button>
             <button
@@ -185,14 +140,30 @@ export default function Header() {
               >
                 <Stack spacing={8}><span>Paket Al</span><Crown size={18} /></Stack>
               </Button>
-              <Button
-                appearance="ghost"
-                className="giris-btn"
-                block
-                onClick={() => { navigate('/login'); setMobileMenuOpen(false) }}
-              >
-                Giriş Yap
-              </Button>
+              {currentUser ? (
+                <>
+                  <Button
+                    appearance="ghost"
+                    className="giris-btn"
+                    block
+                    onClick={() => { navigate('/account'); setMobileMenuOpen(false) }}
+                  >
+                    <Stack spacing={8}><User size={18} /><span>Hesabım</span></Stack>
+                  </Button>
+                  <Button appearance="subtle" className="cikis-btn" block onClick={handleLogout}>
+                    <Stack spacing={8}><LogOut size={18} /><span>Çıkış Yap</span></Stack>
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  appearance="ghost"
+                  className="giris-btn"
+                  block
+                  onClick={() => { navigate('/login'); setMobileMenuOpen(false) }}
+                >
+                  Giriş Yap
+                </Button>
+              )}
             </div>
           </nav>
         </div>

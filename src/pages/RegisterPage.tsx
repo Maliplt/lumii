@@ -7,21 +7,25 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useToast } from '../components/Toast'
 import { tmdbApi, getImageUrl } from '../services/tmdb'
-import { useAppDispatch, useAppSelector, login, clearAuthError } from '../store/store'
+import { useAppDispatch, useAppSelector, register, clearAuthError } from '../store/store'
 import type { Movie } from '../types/types'
 
 const { StringType } = Schema.Types
 
-const loginModel = Schema.Model({
+const registerModel = Schema.Model({
+  name: StringType().isRequired('Ad zorunludur.'),
   email: StringType()
     .isEmail('Geçerli bir e-posta adresi girin.')
     .isRequired('E-posta zorunludur.'),
   password: StringType()
     .minLength(8, 'Şifre en az 8 karakter olmalı.')
     .isRequired('Şifre zorunludur.'),
+  confirm: StringType()
+    .addRule((value, data) => value === data.password, 'Şifreler eşleşmiyor.')
+    .isRequired('Şifre tekrarı zorunludur.'),
 })
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate()
   // redux
   const dispatch = useAppDispatch()
@@ -31,17 +35,16 @@ export default function LoginPage() {
 
   const [movies, setMovies] = useState<Movie[]>([])
   const [bgIdx, setBgIdx] = useState(0)
-  const [formValue, setFormValue] = useState({ email: '', password: '' })
+  const [formValue, setFormValue] = useState({ name: '', email: '', password: '', confirm: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showPw, setShowPw] = useState(false)
-  const [forgotMsg, setForgotMsg] = useState('')
   const toast = useToast()
   const submitted = useRef(false)
 
-  // giris yapildiysa anasayfa
+  // kayit olunca anasayfa
   useEffect(() => {
     if (currentUser) {
-      if (submitted.current) toast(`Hoş geldin ${currentUser.name}!`)
+      if (submitted.current) toast(`Üyeliğin oluşturuldu, hoş geldin ${currentUser.name}!`)
       navigate('/')
     }
   }, [currentUser, navigate, toast])
@@ -76,29 +79,20 @@ export default function LoginPage() {
 
   const currentMovie = movies[bgIdx] ?? null
 
-  const handleLogin = () => {
-    const result = loginModel.check(formValue) as Record<string, { hasError: boolean; errorMessage: string }>
+  const handleRegister = () => {
+    const result = registerModel.check(formValue) as Record<string, { hasError: boolean; errorMessage: string }>
     const errs: Record<string, string> = {}
     Object.entries(result).forEach(([k, v]) => { if (v.hasError) errs[k] = v.errorMessage })
     setErrors(errs)
     if (Object.keys(errs).length) return
     submitted.current = true
-    dispatch(login(formValue))
+    dispatch(register({ name: formValue.name, email: formValue.email, password: formValue.password }))
   }
 
   const setField = (key: keyof typeof formValue) => (value: string) => {
     setFormValue((f) => ({ ...f, [key]: value }))
     if (errors[key]) setErrors((e) => ({ ...e, [key]: '' }))
     if (authError) dispatch(clearAuthError())
-    if (forgotMsg) setForgotMsg('')
-  }
-
-  const handleForgot = () => {
-    if (!formValue.email.includes('@')) {
-      setForgotMsg('Önce e-posta adresini yaz.')
-      return
-    }
-    setForgotMsg(`Sıfırlama bağlantısı ${formValue.email} adresine gönderildi.`)
   }
 
   return (
@@ -130,34 +124,45 @@ export default function LoginPage() {
         <div className="login-formwrap">
           <div className="login-card" ref={cardRef}>
             <div className="login-card__head">
-              <h1 className="login-card__title">Giriş Yap</h1>
-              <p className="login-card__subtitle">Hesabınıza giriş yapın ve izlemeye devam edin.</p>
+              <h1 className="login-card__title">Üye Ol</h1>
+              <p className="login-card__subtitle">Hesabını oluştur ve izlemeye hemen başla.</p>
             </div>
 
-            <form className="login-form" onSubmit={(e) => { e.preventDefault(); handleLogin() }}>
+            <form className="login-form" onSubmit={(e) => { e.preventDefault(); handleRegister() }}>
               <div className="login-field">
-                <label className="login-field__label" htmlFor="login-email">E-posta</label>
+                <label className="login-field__label" htmlFor="reg-name">Ad</label>
                 <Input
-                  id="login-email"
+                  id="reg-name"
+                  placeholder="Adınız"
+                  value={formValue.name}
+                  onChange={setField('name')}
+                />
+                {errors.name && (
+                  <span className="login-field__error"><AlertCircle size={13} /> {errors.name}</span>
+                )}
+              </div>
+
+              <div className="login-field">
+                <label className="login-field__label" htmlFor="reg-email">E-posta</label>
+                <Input
+                  id="reg-email"
                   type="email"
                   placeholder="ornek@mail.com"
                   value={formValue.email}
                   onChange={setField('email')}
                 />
                 {errors.email && (
-                  <span className="login-field__error">
-                    <AlertCircle size={13} /> {errors.email}
-                  </span>
+                  <span className="login-field__error"><AlertCircle size={13} /> {errors.email}</span>
                 )}
               </div>
 
               <div className="login-field">
-                <label className="login-field__label" htmlFor="login-password">Şifre</label>
+                <label className="login-field__label" htmlFor="reg-password">Şifre</label>
                 <InputGroup inside>
                   <Input
-                    id="login-password"
+                    id="reg-password"
                     type={showPw ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="En az 8 karakter"
                     value={formValue.password}
                     onChange={setField('password')}
                   />
@@ -166,16 +171,23 @@ export default function LoginPage() {
                   </InputGroup.Button>
                 </InputGroup>
                 {errors.password && (
-                  <span className="login-field__error">
-                    <AlertCircle size={13} /> {errors.password}
-                  </span>
+                  <span className="login-field__error"><AlertCircle size={13} /> {errors.password}</span>
                 )}
               </div>
 
-              <button type="button" className="login-forgot" onClick={handleForgot}>
-                Şifremi unuttum
-              </button>
-              {forgotMsg && <p className="login-forgot-msg">{forgotMsg}</p>}
+              <div className="login-field">
+                <label className="login-field__label" htmlFor="reg-confirm">Şifre Tekrar</label>
+                <Input
+                  id="reg-confirm"
+                  type="password"
+                  placeholder="••••••••"
+                  value={formValue.confirm}
+                  onChange={setField('confirm')}
+                />
+                {errors.confirm && (
+                  <span className="login-field__error"><AlertCircle size={13} /> {errors.confirm}</span>
+                )}
+              </div>
 
               {authError && (
                 <span className="login-field__error login-form__error">
@@ -184,9 +196,9 @@ export default function LoginPage() {
               )}
 
               <div className="login-actions">
-                <Button appearance="primary" type="submit" block className="login-submit">Giriş Yap</Button>
-                <Button appearance="ghost" block className="login-register" onClick={() => navigate('/register')}>
-                  Üye Olmak İstiyorum
+                <Button appearance="primary" type="submit" block className="login-submit">Üye Ol</Button>
+                <Button appearance="ghost" block className="login-register" onClick={() => navigate('/login')}>
+                  Zaten Hesabım Var
                 </Button>
               </div>
             </form>

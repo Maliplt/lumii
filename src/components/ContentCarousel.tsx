@@ -2,18 +2,39 @@ import { memo, useRef, useState, useMemo, useEffect } from 'react'
 import { Carousel } from 'rsuite'
 import { Link, useNavigate } from 'react-router-dom'
 import { animate, stagger } from 'animejs'
-import { ChevronLeft, ChevronRight, Play, Plus, ThumbsUp, ChevronDown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Plus, Check, ThumbsUp } from 'lucide-react'
 import { getImageUrl } from '../services/tmdb'
-import { useVisibleCount } from '../hooks/useVisibleCount'
-import { useSwipe } from '../hooks/useSwipe'
+import { useToast } from './Toast'
+import { useSwipe } from '../helpers'
+import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, type SavedItem } from '../store/store'
 import type { Movie, TVShow } from '../types/types'
 
 const HOVER_EXPAND_DELAY = 500
 
+// ekrana gore kart sayisi
+function calcCount(width: number): number {
+  if (width <= 480) return 2
+  if (width <= 768) return 3
+  if (width <= 1024) return 4
+  return 6
+}
+
+function useVisibleCount(): number {
+  const [count, setCount] = useState(() => calcCount(window.innerWidth))
+
+  useEffect(() => {
+    const handler = () => setCount(calcCount(window.innerWidth))
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+
+  return count
+}
+
 interface ContentCarouselProps {
   type: 'movie' | 'tv'
   title: string
-  items: Movie[] | TVShow[]
+  items: (Movie | TVShow)[]
 }
 
 const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }) {
@@ -22,6 +43,38 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
   const expanded = useRef(false)
   const [showTitle, setShowTitle] = useState(false)
   const navigate = useNavigate()
+
+  // kartin kendi tipi
+  const cardType = (item as { media_type?: 'movie' | 'tv' }).media_type ?? type
+
+  // redux
+  const dispatch = useAppDispatch()
+  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
+  const inWatchlist = useAppSelector((s) => s.library.watchlist.some((x) => x.id === item.id))
+  const isLiked = useAppSelector((s) => s.library.liked.some((x) => x.id === item.id))
+
+  const toast = useToast()
+  const saved = { ...item, media_type: cardType } as SavedItem
+
+  const onWatchlist = () => {
+    if (!isLoggedIn) {
+      toast('İzleme listesi için önce giriş yap.', 'warning')
+      navigate('/login')
+      return
+    }
+    dispatch(toggleWatchlist(saved))
+    toast(inWatchlist ? 'İzleme listesinden çıkarıldı.' : 'İzleme listesine eklendi.')
+  }
+
+  const onLike = () => {
+    if (!isLoggedIn) {
+      toast('Beğenmek için önce giriş yap.', 'warning')
+      navigate('/login')
+      return
+    }
+    dispatch(toggleLiked(saved))
+    toast(isLiked ? 'Beğeni geri alındı.' : 'Beğenildi.')
+  }
 
   useEffect(() => {
     if (!showTitle) return
@@ -71,7 +124,7 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <Link className="cc-item__link" to={`/${type}/${item.id}`}>
+      <Link className="cc-item__link" to={`/${cardType}/${item.id}`}>
         <img
           className="cc-item__poster"
           src={getImageUrl(item.poster_path, 'w300')}
@@ -83,19 +136,26 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
         <div className="cc-item__details">
           <div className="cc-item__actions-row">
             <div className="cc-item__actions-left">
-              <button className="cc-item__action-btn play" type="button" onClick={() => navigate(`/${type}/${item.id}`)}>
+              <button className="cc-item__action-btn play" type="button" onClick={() => navigate(`/${cardType}/${item.id}`)}>
                 <Play size={12} fill="currentColor" />
               </button>
-              <button className="cc-item__action-btn outline" type="button" aria-label="Listeye ekle">
-                <Plus size={12} />
+              <button
+                className={`cc-item__action-btn outline${inWatchlist ? ' active' : ''}`}
+                type="button"
+                onClick={onWatchlist}
+                aria-label="Listeye ekle"
+              >
+                {inWatchlist ? <Check size={12} /> : <Plus size={12} />}
               </button>
-              <button className="cc-item__action-btn outline" type="button" aria-label="Begen">
-                <ThumbsUp size={12} />
+              <button
+                className={`cc-item__action-btn outline${isLiked ? ' active' : ''}`}
+                type="button"
+                onClick={onLike}
+                aria-label="Begen"
+              >
+                <ThumbsUp size={12} fill={isLiked ? 'currentColor' : 'none'} />
               </button>
             </div>
-            <button className="cc-item__action-btn outline detail-trigger" type="button" aria-label="Detaylar">
-              <ChevronDown size={12} />
-            </button>
           </div>
           <h4 className="cc-item__name">{name}</h4>
           <div className="cc-item__meta">
@@ -187,6 +247,10 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
             <div key={si} className="cc-slide">
               {slide.map((item) => (
                 <ItemCard key={item.id} item={item} type={type} />
+              ))}
+              {/* bos kalan yerler */}
+              {Array.from({ length: visible - slide.length }).map((_, i) => (
+                <div key={`bos-${i}`} className="cc-item cc-item--empty" style={{ flexGrow: 1 }} />
               ))}
             </div>
           ))}

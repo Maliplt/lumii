@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'rsuite/dist/rsuite.min.css';
 
-/* Font rendering enhancements — applied early before main.scss loads */
+/* font ayarlari */
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;

@@ -4,8 +4,6 @@ import {
   ArrowLeft, Play, Pause, Volume2, VolumeX, Volume1,
   Maximize, Minimize, Settings, SkipBack, SkipForward, Wifi,
 } from 'lucide-react'
-import { fetchStream } from '../services/player'
-
 function fmtTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return '0:00'
   const m = Math.floor(s / 60)
@@ -60,9 +58,6 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
       const p = video.play()
       if (p) p.catch(() => { video.muted = true; setMuted(true); video.play().catch(() => {}) })
     }
-
-    // kontrol
-    fetchStream(src).catch(() => {})
 
     if (Hls.isSupported()) {
       hls = new Hls({ enableWorker: true, lowLatencyMode: false, backBufferLength: 90, maxBufferLength: 60, debug: false })

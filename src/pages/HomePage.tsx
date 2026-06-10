@@ -6,13 +6,18 @@ import ContentCarousel from '../components/ContentCarousel'
 import GameCarousel from '../components/GameCarousel'
 import StateView from '../components/StateView'
 import { tmdbApi } from '../services/tmdb'
-import { useAsyncData } from '../hooks/useAsyncData'
+import { useFetch } from '../helpers'
+import { useAppSelector } from '../store/store'
 import type { Movie, TVShow } from '../types/types'
 
 const HERO_COUNT = 5
 
 export default function HomePage() {
-    const { data, loading, error } = useAsyncData(() =>
+    // redux
+    const continueWatching = useAppSelector((s) => s.library.continueWatching)
+    const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
+
+    const { data, loading, error } = useFetch(() =>
         Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getPopularTVShows()])
     )
 
@@ -38,6 +43,9 @@ export default function HomePage() {
                 <>
                     <HeroCarousel movies={movies.slice(0, HERO_COUNT)} />
                     <div className="home-content">
+                        {isLoggedIn && continueWatching.length > 0 && (
+                            <ContentCarousel type="movie" title="İzlemeye Devam Et" items={continueWatching} />
+                        )}
                         <GameCarousel />
                         <ContentCarousel type="movie" title="Popüler Filmler" items={movies} />
                         <ContentCarousel type="tv" title="Popüler Diziler" items={tvShows} />

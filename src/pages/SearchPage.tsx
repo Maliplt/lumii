@@ -6,7 +6,7 @@ import MediaCard from '../components/MediaCard'
 import Spinner from '../components/Spinner'
 import StateView from '../components/StateView'
 import { tmdbApi } from '../services/tmdb'
-import { useAsyncData } from '../hooks/useAsyncData'
+import { useFetch } from '../helpers'
 import type { SearchResult } from '../types/types'
 
 function isPlayable(result: { media_type?: string; poster_path?: string | null }): result is SearchResult {
@@ -17,9 +17,9 @@ export default function SearchPage() {
   const [searchParams] = useSearchParams()
   const query = (searchParams.get('q') ?? '').trim()
 
-  const { data, loading, error } = useAsyncData(
+  const { data, loading, error } = useFetch(
     () => (query ? tmdbApi.search(query) : Promise.resolve(null)),
-    [query]
+    query
   )
 
   const results = useMemo(

@@ -1,11 +1,13 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { Dropdown } from 'rsuite'
 import { AlertTriangle } from 'lucide-react'
 import PageLayout from '../components/PageLayout'
 import HeroCarousel from '../components/HeroCarousel'
 import ContentCarousel from '../components/ContentCarousel'
 import StateView from '../components/StateView'
+import Spinner from '../components/Spinner'
 import { tmdbApi } from '../services/tmdb'
-import { useAsyncData } from '../hooks/useAsyncData'
+import { useFetch } from '../helpers'
 import type { Movie } from '../types/types'
 
 const GENRE = {
@@ -17,10 +19,22 @@ const GENRE = {
 
 const HERO_RANGE = [5, 10] as const
 
+const ALL_CATEGORY = { id: 'all', label: 'Tümü', genre: null as number | null }
+
+const CATEGORIES = [
+    ALL_CATEGORY,
+    { id: '28',    label: 'Aksiyon',      genre: 28 },
+    { id: '35',    label: 'Komedi',       genre: 35 },
+    { id: '27',    label: 'Korku',        genre: 27 },
+    { id: '878',   label: 'Bilim-Kurgu',  genre: 878 },
+]
+
 const withMedia = (list: Movie[]) => list.filter((m) => m.poster_path && m.backdrop_path)
 
 export default function ExplorePage() {
-    const { data, loading, error } = useAsyncData(() =>
+    const [activeCat, setActiveCat] = useState<string>('all')
+
+    const { data, loading, error } = useFetch(() =>
         Promise.all([
             tmdbApi.getTopRatedMovies(),
             tmdbApi.getMoviesByGenre(GENRE.kidsAndFamily),
@@ -28,6 +42,16 @@ export default function ExplorePage() {
             tmdbApi.getMoviesByGenre(GENRE.thriller),
             tmdbApi.getMoviesByGenre(GENRE.horror),
         ])
+    )
+
+    const active = CATEGORIES.find((c) => c.id === activeCat) ?? ALL_CATEGORY
+
+    // secili tur
+    const genre = useFetch<Movie[]>(
+        () => active.genre == null
+            ? Promise.resolve([])
+            : tmdbApi.getMoviesByGenre(active.genre).then((r) => withMedia(r.results)),
+        active.genre ?? 'all'
     )
 
     const sections = useMemo(() => {
@@ -56,11 +80,41 @@ export default function ExplorePage() {
                 <>
                     {sections.hero.length > 0 && <HeroCarousel movies={sections.hero} />}
                     <div className="explore-content">
-                        <ContentCarousel type="movie" title="En İyi Oscar Filmleri" items={sections.oscar} />
-                        <ContentCarousel type="movie" title="Şimdi Çocuk Olmak Vardı" items={sections.kids} />
-                        <ContentCarousel type="movie" title="Aksiyon ve Macera" items={sections.action} />
-                        <ContentCarousel type="movie" title="Gerilim ve Heyecan" items={sections.thriller} />
-                        <ContentCarousel type="movie" title="Korku ve Ürperti" items={sections.horror} />
+                        <div className="explore-filter">
+                            <Dropdown
+                                title={active.label}
+                                className="explore-dropdown"
+                                activeKey={activeCat}
+                                onSelect={(key) => setActiveCat((key as string) ?? 'all')}
+                                placement="bottomStart"
+                            >
+                                {CATEGORIES.map((c) => (
+                                    <Dropdown.Item key={c.id} eventKey={c.id} active={c.id === activeCat}>
+                                        {c.label}
+                                    </Dropdown.Item>
+                                ))}
+                            </Dropdown>
+                        </div>
+
+                        {activeCat === 'all' ? (
+                            <>
+                                <ContentCarousel type="movie" title="En İyi Oscar Filmleri" items={sections.oscar} />
+                                <ContentCarousel type="movie" title="Şimdi Çocuk Olmak Vardı" items={sections.kids} />
+                                <ContentCarousel type="movie" title="Aksiyon ve Macera" items={sections.action} />
+                                <ContentCarousel type="movie" title="Gerilim ve Heyecan" items={sections.thriller} />
+                                <ContentCarousel type="movie" title="Korku ve Ürperti" items={sections.horror} />
+                            </>
+                        ) : genre.loading ? (
+                            <Spinner inline />
+                        ) : genre.error ? (
+                            <StateView
+                                Icon={AlertTriangle}
+                                title="Kategori yüklenemedi"
+                                description="Bu kategori getirilirken bir sorun oluştu. Lütfen tekrar deneyin."
+                            />
+                        ) : (
+                            <ContentCarousel type="movie" title={active.label} items={genre.data ?? []} />
+                        )}
                     </div>
                 </>
             )}

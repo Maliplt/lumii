@@ -354,8 +354,7 @@ export default function WordChainApp() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fastStreakRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // eslint-disable-next-line react-hooks/purity
-  const turnStartRef = useRef<number>(Date.now());
+  const turnStartRef = useRef<number>(0);
   const chainRef = useRef<ChainItem[]>([]);
   const scoreRef = useRef(0);
   useEffect(() => { chainRef.current = chain; }, [chain]);
@@ -467,8 +466,7 @@ export default function WordChainApp() {
       });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, chain, mode]);
+  }, [screen, chain, mode, levelData.baseTime, loseLife]);
 
   const aiChoose = useCallback((letter: string, used: Set<string>): string | null => {
     const cands = wordsStartingWith(letter, used);
