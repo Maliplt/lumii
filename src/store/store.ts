@@ -7,10 +7,25 @@ interface Account {
   name: string
   email: string
   password: string
+  createdAt?: string
+  avatar?: string
+  plan?: string
 }
 
 interface CurrentUser {
   name: string
+  email: string
+  createdAt?: string
+  avatar?: string
+  plan?: string
+}
+
+export interface Receipt {
+  planName: string
+  planId: string
+  amount: string
+  period: string
+  date: string
   email: string
 }
 
@@ -18,12 +33,14 @@ interface AuthState {
   currentUser: CurrentUser | null
   accounts: Account[]
   error: string | null
+  receipt: Receipt | null
 }
 
 const authInitial: AuthState = {
   currentUser: null,
   accounts: [],
   error: null,
+  receipt: null,
 }
 
 const auth = createSlice({
@@ -36,8 +53,9 @@ const auth = createSlice({
         state.error = 'Bu e-posta zaten kayıtlı.'
         return
       }
-      state.accounts.push(action.payload)
-      state.currentUser = { name: action.payload.name, email: action.payload.email }
+      const acc = { ...action.payload, createdAt: new Date().toLocaleDateString('tr-TR') }
+      state.accounts.push(acc)
+      state.currentUser = { name: acc.name, email: acc.email, createdAt: acc.createdAt }
       state.error = null
     },
     login(state, action: PayloadAction<{ email: string; password: string }>) {
@@ -48,8 +66,23 @@ const auth = createSlice({
         state.error = 'E-posta veya şifre hatalı.'
         return
       }
-      state.currentUser = { name: acc.name, email: acc.email }
+      state.currentUser = { name: acc.name, email: acc.email, createdAt: acc.createdAt, avatar: acc.avatar, plan: acc.plan }
       state.error = null
+    },
+    setAvatar(state, action: PayloadAction<string>) {
+      if (!state.currentUser) return
+      state.currentUser.avatar = action.payload
+      const acc = state.accounts.find((a) => a.email === state.currentUser!.email)
+      if (acc) acc.avatar = action.payload
+    },
+    setPlan(state, action: PayloadAction<string>) {
+      if (!state.currentUser) return
+      state.currentUser.plan = action.payload
+      const acc = state.accounts.find((a) => a.email === state.currentUser!.email)
+      if (acc) acc.plan = action.payload
+    },
+    setReceipt(state, action: PayloadAction<Receipt>) {
+      state.receipt = action.payload
     },
     logout(state) {
       state.currentUser = null
@@ -105,12 +138,41 @@ const library = createSlice({
   },
 })
 
+// ayarlar
+interface SettingsState {
+  autoplay: boolean
+  continueRow: boolean
+}
+
+const settingsInitial: SettingsState = {
+  autoplay: true,
+  continueRow: true,
+}
+
+const settings = createSlice({
+  name: 'settings',
+  initialState: settingsInitial,
+  reducers: {
+    setSetting(state, action: PayloadAction<{ key: keyof SettingsState; value: boolean }>) {
+      state[action.payload.key] = action.payload.value
+    },
+  },
+})
+
 // store
-// kayitli oturumu geri yukle
-function loadState(): { auth: AuthState; library: LibraryState } | undefined {
+// kayitli oturumu geri yukle, ayarlardan sadece bilinen anahtarlar alinir
+function loadState(): { auth: AuthState; library: LibraryState; settings: SettingsState } | undefined {
   try {
     const raw = localStorage.getItem('lumii-state')
-    return raw ? JSON.parse(raw) : undefined
+    if (!raw) return undefined
+    const saved = JSON.parse(raw)
+    return {
+      ...saved,
+      settings: {
+        autoplay: saved.settings?.autoplay ?? settingsInitial.autoplay,
+        continueRow: saved.settings?.continueRow ?? settingsInitial.continueRow,
+      },
+    }
   } catch {
     return undefined
   }
@@ -120,6 +182,7 @@ export const store = configureStore({
   reducer: {
     auth: auth.reducer,
     library: library.reducer,
+    settings: settings.reducer,
   },
   preloadedState: loadState(),
 })
@@ -129,8 +192,9 @@ store.subscribe(() => {
   localStorage.setItem('lumii-state', JSON.stringify(store.getState()))
 })
 
-export const { register, login, logout, clearAuthError } = auth.actions
+export const { register, login, logout, clearAuthError, setAvatar, setPlan, setReceipt } = auth.actions
 export const { toggleWatchlist, toggleLiked, startWatching, clearLibrary } = library.actions
+export const { setSetting } = settings.actions
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

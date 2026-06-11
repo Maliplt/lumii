@@ -16,6 +16,7 @@ export default function HomePage() {
     // redux
     const continueWatching = useAppSelector((s) => s.library.continueWatching)
     const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
+    const showContinueRow = useAppSelector((s) => s.settings.continueRow)
 
     const { data, loading, error } = useFetch(() =>
         Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getPopularTVShows()])
@@ -43,7 +44,7 @@ export default function HomePage() {
                 <>
                     <HeroCarousel movies={movies.slice(0, HERO_COUNT)} />
                     <div className="home-content">
-                        {isLoggedIn && continueWatching.length > 0 && (
+                        {isLoggedIn && showContinueRow && continueWatching.length > 0 && (
                             <ContentCarousel type="movie" title="İzlemeye Devam Et" items={continueWatching} />
                         )}
                         <GameCarousel />

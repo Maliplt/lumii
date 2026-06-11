@@ -1,74 +1,24 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from 'rsuite'
-import { Check, Zap, Crown, Play } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { animate } from 'animejs'
 import PageLayout from '../components/PageLayout'
+import { useToast } from '../components/Toast'
 import { tmdbApi, getImageUrl } from '../services/tmdb'
-import { useFetch } from '../helpers'
+import { useFetch, PACKAGES } from '../helpers'
+import { useAppSelector } from '../store/store'
 import type { PackageDef } from '../types/types'
-
-const PACKAGES: PackageDef[] = [
-  {
-    id: 'free',
-    name: 'Ücretsiz',
-    price: '₺0',
-    period: '',
-    Icon: Play,
-    badge: null,
-    accent: false,
-    free: true,
-    features: [
-      'SD Kalite (480p)',
-      'Reklamlı İzleme',
-      'Sınırlı Film & Dizi',
-      '1 Cihaz',
-      'Temel Oyunlar',
-    ],
-    cta: 'Ücretsiz Başla',
-  },
-  {
-    id: 'standard',
-    name: 'Standart',
-    price: '₺49',
-    period: '/ay',
-    Icon: Zap,
-    badge: 'En Popüler',
-    accent: false,
-    free: false,
-    features: [
-      'Full HD Kalite (1080p)',
-      'Reklamsız İzleme',
-      'Tüm Film & Diziler',
-      '2 Cihaz',
-      'Tüm Oyunlar',
-    ],
-    cta: 'Başla',
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: '₺79',
-    period: '/ay',
-    Icon: Crown,
-    badge: null,
-    accent: true,
-    free: false,
-    features: [
-      '4K Ultra HD',
-      'Reklamsız İzleme',
-      'Tüm İçerikler + Özel Yapımlar',
-      '4 Cihaz + İndirme',
-      'Öncelikli Destek',
-    ],
-    cta: 'Başla',
-  },
-]
 
 export default function PackagesPage() {
   const navigate = useNavigate()
+  const toast = useToast()
   const heroRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
+
+  // redux
+  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
+  const currentPlan = useAppSelector((s) => s.auth.currentUser?.plan)
 
   const { data } = useFetch(() =>
     Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()])
@@ -104,8 +54,18 @@ export default function PackagesPage() {
     }
   }, [])
 
+  // ucretsiz uyelige, ucretliler odeme sayfasina
   const handleSelect = (pkg: PackageDef) => {
-    navigate(pkg.free ? '/' : '/work-in-progress')
+    if (pkg.free) {
+      navigate('/register')
+      return
+    }
+    if (!isLoggedIn) {
+      toast('Paket almak için önce giriş yap.', 'warning')
+      navigate('/login')
+      return
+    }
+    navigate(`/checkout/${pkg.id}`)
   }
 
   return (
@@ -128,13 +88,16 @@ export default function PackagesPage() {
       </div>
 
       <div className="packages-grid" ref={gridRef}>
-        {PACKAGES.map((pkg) => (
+        {PACKAGES.map((pkg) => {
+          const isActive = currentPlan === pkg.id
+          return (
           <div
             key={pkg.id}
-            className={`package-card${pkg.accent ? ' package-card--accent' : ''}`}
+            className={`package-card${pkg.accent ? ' package-card--accent' : ''}${isActive ? ' package-card--active' : ''}`}
             style={{ opacity: 0 }}
           >
-            {pkg.badge && <span className="package-badge">{pkg.badge}</span>}
+            {isActive && <span className="package-badge package-badge--active">Mevcut Plan</span>}
+            {!isActive && pkg.badge && <span className="package-badge">{pkg.badge}</span>}
 
             <div className="package-card__header">
               <pkg.Icon
@@ -160,14 +123,16 @@ export default function PackagesPage() {
 
             <Button
               appearance={pkg.accent ? 'primary' : 'ghost'}
-              className={`package-cta${pkg.accent ? ' pkg-cta-accent' : ''}`}
-              onClick={() => handleSelect(pkg)}
+              className={`package-cta${pkg.accent ? ' pkg-cta-accent' : ''}${isActive ? ' package-cta--active' : ''}`}
+              onClick={() => !isActive && handleSelect(pkg)}
+              disabled={isActive}
               block
             >
-              {pkg.cta}
+              {isActive ? 'Mevcut' : pkg.cta}
             </Button>
           </div>
-        ))}
+          )
+        })}
       </div>
     </PageLayout>
   )

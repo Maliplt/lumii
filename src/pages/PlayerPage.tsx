@@ -13,6 +13,7 @@ export default function PlayerPage() {
   // redux
   const dispatch = useAppDispatch()
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
+  const autoplay = useAppSelector((s) => s.settings.autoplay)
 
   const [title, setTitle] = useState((location.state as { title?: string } | null)?.title ?? '')
 
@@ -34,6 +35,7 @@ export default function PlayerPage() {
       <MediaPlayer
         src={getStreamSource(type, id)}
         title={title}
+        autoPlay={autoplay}
         onBack={() => navigate(-1)}
       />
     </div>

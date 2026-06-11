@@ -54,6 +54,24 @@ export default function ExplorePage() {
         active.genre ?? 'all'
     )
 
+    // kategori filtresi
+    const filterDropdown = (
+        <Dropdown
+            title={active.label}
+            className="explore-dropdown"
+            activeKey={activeCat}
+            onSelect={(key) => setActiveCat((key as string) ?? 'all')}
+            placement="bottomStart"
+            size="sm"
+        >
+            {CATEGORIES.map((c) => (
+                <Dropdown.Item key={c.id} eventKey={c.id} active={c.id === activeCat}>
+                    {c.label}
+                </Dropdown.Item>
+            ))}
+        </Dropdown>
+    )
+
     const sections = useMemo(() => {
         if (!data) return null
         const [topRatedRes, kidsRes, actionRes, thrillerRes, horrorRes] = data
@@ -80,40 +98,36 @@ export default function ExplorePage() {
                 <>
                     {sections.hero.length > 0 && <HeroCarousel movies={sections.hero} />}
                     <div className="explore-content">
-                        <div className="explore-filter">
-                            <Dropdown
-                                title={active.label}
-                                className="explore-dropdown"
-                                activeKey={activeCat}
-                                onSelect={(key) => setActiveCat((key as string) ?? 'all')}
-                                placement="bottomStart"
-                            >
-                                {CATEGORIES.map((c) => (
-                                    <Dropdown.Item key={c.id} eventKey={c.id} active={c.id === activeCat}>
-                                        {c.label}
-                                    </Dropdown.Item>
-                                ))}
-                            </Dropdown>
-                        </div>
-
                         {activeCat === 'all' ? (
                             <>
-                                <ContentCarousel type="movie" title="En İyi Oscar Filmleri" items={sections.oscar} />
+                                <ContentCarousel
+                                    type="movie"
+                                    title="En İyi Oscar Filmleri"
+                                    items={sections.oscar}
+                                    headerExtra={filterDropdown}
+                                />
                                 <ContentCarousel type="movie" title="Şimdi Çocuk Olmak Vardı" items={sections.kids} />
                                 <ContentCarousel type="movie" title="Aksiyon ve Macera" items={sections.action} />
                                 <ContentCarousel type="movie" title="Gerilim ve Heyecan" items={sections.thriller} />
                                 <ContentCarousel type="movie" title="Korku ve Ürperti" items={sections.horror} />
                             </>
-                        ) : genre.loading ? (
-                            <Spinner inline />
-                        ) : genre.error ? (
-                            <StateView
-                                Icon={AlertTriangle}
-                                title="Kategori yüklenemedi"
-                                description="Bu kategori getirilirken bir sorun oluştu. Lütfen tekrar deneyin."
-                            />
                         ) : (
-                            <ContentCarousel type="movie" title={active.label} items={genre.data ?? []} />
+                            <>
+                                <ContentCarousel
+                                    type="movie"
+                                    title={active.label}
+                                    items={genre.data ?? []}
+                                    headerExtra={filterDropdown}
+                                />
+                                {genre.loading && <Spinner inline />}
+                                {genre.error && (
+                                    <StateView
+                                        Icon={AlertTriangle}
+                                        title="Kategori yüklenemedi"
+                                        description="Bu kategori getirilirken bir sorun oluştu. Lütfen tekrar deneyin."
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </>

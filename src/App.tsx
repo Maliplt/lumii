@@ -16,6 +16,7 @@ const PackagesPage = lazy(() => import('./pages/PackagesPage'))
 const PlayerPage = lazy(() => import('./pages/PlayerPage'))
 const TvPage = lazy(() => import('./pages/TvPage'))
 const LegalPage = lazy(() => import('./pages/LegalPage'))
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 
 function App() {
     return (
@@ -32,6 +33,7 @@ function App() {
                         <Route path="/legal" element={<LegalPage />} />
                         <Route path="/legal/:section" element={<LegalPage />} />
                         <Route path="/account" element={<AccountPage />} />
+                        <Route path="/checkout/:planId" element={<CheckoutPage />} />
                         <Route path="/work-in-progress" element={<WorkInProgressPage />} />
                         <Route path="/:type/:id" element={<OverviewPage />} />
                         <Route path="*" element={<WorkInProgressPage />} />

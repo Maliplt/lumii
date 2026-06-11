@@ -1,8 +1,9 @@
-import { memo, useRef, useState, useMemo, useEffect } from 'react'
+import { memo, useRef, useState, useMemo, useEffect, type ReactNode } from 'react'
 import { Carousel } from 'rsuite'
 import { Link, useNavigate } from 'react-router-dom'
 import { animate, stagger } from 'animejs'
-import { ChevronLeft, ChevronRight, Play, Plus, Check, ThumbsUp } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { IoPlay, IoAdd, IoCheckmark, IoHeart, IoHeartOutline } from 'react-icons/io5'
 import { getImageUrl } from '../services/tmdb'
 import { useToast } from './Toast'
 import { useSwipe } from '../helpers'
@@ -35,6 +36,7 @@ interface ContentCarouselProps {
   type: 'movie' | 'tv'
   title: string
   items: (Movie | TVShow)[]
+  headerExtra?: ReactNode
 }
 
 const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }) {
@@ -90,10 +92,11 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
     })
   }, [showTitle])
 
+  // bos gelen detaylar gorunmesin
   const name = (item as Movie).title ?? (item as TVShow).name
   const year = ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(0, 4) ?? ''
-  const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A'
-  const overviewSnippet = item.overview || ''
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : ''
+  const overviewSnippet = item.overview?.trim() ?? ''
 
   const doExpand = () => {
     expanded.current = true
@@ -136,33 +139,35 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
         <div className="cc-item__details">
           <div className="cc-item__actions-row">
             <div className="cc-item__actions-left">
-              <button className="cc-item__action-btn play" type="button" onClick={() => navigate(`/${cardType}/${item.id}`)}>
-                <Play size={12} fill="currentColor" />
+              <button className="cc-item__action-btn play" type="button" onClick={() => navigate(`/${cardType}/${item.id}`)} aria-label="Oynat">
+                <IoPlay size={18} />
               </button>
               <button
                 className={`cc-item__action-btn outline${inWatchlist ? ' active' : ''}`}
                 type="button"
                 onClick={onWatchlist}
-                aria-label="Listeye ekle"
+                aria-label={inWatchlist ? 'Listeden çıkar' : 'Listeye ekle'}
               >
-                {inWatchlist ? <Check size={12} /> : <Plus size={12} />}
+                {inWatchlist ? <IoCheckmark size={19} /> : <IoAdd size={20} />}
               </button>
               <button
                 className={`cc-item__action-btn outline${isLiked ? ' active' : ''}`}
                 type="button"
                 onClick={onLike}
-                aria-label="Begen"
+                aria-label={isLiked ? 'Beğeniyi geri al' : 'Beğen'}
               >
-                <ThumbsUp size={12} fill={isLiked ? 'currentColor' : 'none'} />
+                {isLiked ? <IoHeart size={17} /> : <IoHeartOutline size={17} />}
               </button>
             </div>
           </div>
           <h4 className="cc-item__name">{name}</h4>
-          <div className="cc-item__meta">
-            <span className="cc-item__year">{year}</span>
-            <span className="cc-item__divider">•</span>
-            <span className="cc-item__rating">{rating} Puan</span>
-          </div>
+          {(year || rating) && (
+            <div className="cc-item__meta">
+              {year && <span className="cc-item__year">{year}</span>}
+              {year && rating && <span className="cc-item__divider">•</span>}
+              {rating && <span className="cc-item__rating"><Star size={11} fill="currentColor" className="cc-item__star" />{rating}</span>}
+            </div>
+          )}
           {overviewSnippet && (
             <div className="cc-item__overview-container">
               <p className="cc-item__overview">{overviewSnippet}</p>
@@ -174,14 +179,16 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
   )
 })
 
-export default function ContentCarousel({ type, title, items }: ContentCarouselProps) {
+export default function ContentCarousel({ type, title, items, headerExtra }: ContentCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const visible = useVisibleCount()
 
   const slides = useMemo(() => {
+    // posteri veya ozeti olmayanlar listeye girmesin
+    const list = items.filter((it) => it.poster_path && it.overview?.trim())
     const result: Array<(Movie | TVShow)[]> = []
-    for (let i = 0; i < items.length; i += visible) {
-      result.push(items.slice(i, i + visible) as (Movie | TVShow)[])
+    for (let i = 0; i < list.length; i += visible) {
+      result.push(list.slice(i, i + visible))
     }
     return result
   }, [items, visible])
@@ -199,7 +206,7 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
 
   const swipe = useSwipe(handleNext, handlePrev)
 
-  if (slides.length === 0) return null
+  if (slides.length === 0 && !headerExtra) return null
 
   return (
     <div className="content-carousel">
@@ -207,24 +214,28 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
         <div className="cc-header__left">
           <h3 className="cc-header__title">{title}</h3>
         </div>
-        {slides.length > 1 && (
-          <div className="cc-header__indicators">
-            {slides.map((_, index) => (
-              <span
-                key={index}
-                role="button"
-                tabIndex={0}
-                className={`cc-indicator-dot ${index === currentIndex ? 'active' : ''}`}
-                aria-label={`Slayt ${index + 1}`}
-                aria-current={index === currentIndex ? true : undefined}
-                onClick={() => setActiveIndex(index)}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveIndex(index)}
-              />
-            ))}
-          </div>
-        )}
+        <div className="cc-header__right">
+          {headerExtra}
+          {slides.length > 1 && (
+            <div className="cc-header__indicators">
+              {slides.map((_, index) => (
+                <span
+                  key={index}
+                  role="button"
+                  tabIndex={0}
+                  className={`cc-indicator-dot ${index === currentIndex ? 'active' : ''}`}
+                  aria-label={`Slayt ${index + 1}`}
+                  aria-current={index === currentIndex ? true : undefined}
+                  onClick={() => setActiveIndex(index)}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setActiveIndex(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
+      {slides.length > 0 && (
       <div className="cc-carousel-wrapper" {...swipe}>
         {slides.length > 1 && currentIndex > 0 && (
           <button className="cc-nav-arrow prev" onClick={handlePrev} aria-label="Önceki slayt">
@@ -256,6 +267,7 @@ export default function ContentCarousel({ type, title, items }: ContentCarouselP
           ))}
         </Carousel>
       </div>
+      )}
     </div>
   )
 }

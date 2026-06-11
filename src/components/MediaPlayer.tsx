@@ -16,11 +16,12 @@ interface MediaPlayerProps {
   title?: string
   live?: boolean
   startMuted?: boolean
+  autoPlay?: boolean
   onBack?: () => void
   className?: string
 }
 
-export default function MediaPlayer({ src, title = '', live = false, startMuted = false, onBack, className = '' }: MediaPlayerProps) {
+export default function MediaPlayer({ src, title = '', live = false, startMuted = false, autoPlay = true, onBack, className = '' }: MediaPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const hlsRef = useRef<Hls | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -54,7 +55,9 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
     video.muted = startMuted
     setMuted(startMuted)
 
+    // otomatik oynatma kapaliysa hazir bekler
     const tryPlay = () => {
+      if (!autoPlay) return
       const p = video.play()
       if (p) p.catch(() => { video.muted = true; setMuted(true); video.play().catch(() => {}) })
     }
@@ -86,7 +89,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
     }
 
     return () => { cancelled = true; hls?.destroy(); hlsRef.current = null }
-  }, [src, startMuted])
+  }, [src, startMuted, autoPlay])
 
   // olaylar
   useEffect(() => {

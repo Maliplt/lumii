@@ -1,4 +1,71 @@
 import { useState, useEffect, useRef, type TouchEvent } from 'react'
+import { Play, Zap, Crown } from 'lucide-react'
+import a1 from './images/avatars/a1.svg'
+import a2 from './images/avatars/a2.svg'
+import a3 from './images/avatars/a3.svg'
+import a4 from './images/avatars/a4.svg'
+import type { PackageDef } from './types/types'
+
+// profil resimleri
+export const AVATARS: Record<string, string> = { a1, a2, a3, a4 }
+
+// paketler
+export const PACKAGES: PackageDef[] = [
+  {
+    id: 'free',
+    name: 'Ücretsiz',
+    price: '₺0',
+    period: '',
+    Icon: Play,
+    badge: null,
+    accent: false,
+    free: true,
+    features: [
+      'SD Kalite (480p)',
+      'Reklamlı İzleme',
+      'Sınırlı Film & Dizi',
+      '1 Cihaz',
+      'Temel Oyunlar',
+    ],
+    cta: 'Ücretsiz Başla',
+  },
+  {
+    id: 'standard',
+    name: 'Standart',
+    price: '₺49',
+    period: '/ay',
+    Icon: Zap,
+    badge: 'En Popüler',
+    accent: false,
+    free: false,
+    features: [
+      'Full HD Kalite (1080p)',
+      'Reklamsız İzleme',
+      'Tüm Film & Diziler',
+      '2 Cihaz',
+      'Tüm Oyunlar',
+    ],
+    cta: 'Başla',
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    price: '₺79',
+    period: '/ay',
+    Icon: Crown,
+    badge: null,
+    accent: true,
+    free: false,
+    features: [
+      '4K Ultra HD',
+      'Reklamsız İzleme',
+      'Tüm İçerikler + Özel Yapımlar',
+      '4 Cihaz + İndirme',
+      'Öncelikli Destek',
+    ],
+    cta: 'Başla',
+  },
+]
 
 // veri cekme
 export function useFetch<T>(fetcher: () => Promise<T>, key: string | number = 0) {

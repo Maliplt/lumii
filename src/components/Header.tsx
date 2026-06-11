@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
-import { Navbar, Nav, Button, Stack, Dropdown } from 'rsuite'
-import { Search, Home, Film, Tv, Crown, X, Menu, User, LogOut } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Navbar, Nav, Button, Stack } from 'rsuite'
+import { Search, Home, Film, Tv, Crown, X, Menu, User, LogOut, ChevronDown } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
 import { useToast } from './Toast'
+import { AVATARS } from '../helpers'
 import { useAppSelector, useAppDispatch, logout, clearLibrary } from '../store/store'
 
 const NAV_LINKS = [
@@ -24,14 +25,32 @@ export default function Header() {
     && !!new URLSearchParams(location.search).get('q')
   const [showSearch, setShowSearch] = useState(hasQuery)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const toast = useToast()
+
+  // disari tiklayinca veya esc ile kapat
+  useEffect(() => {
+    if (!menuOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
 
   const handleLogout = () => {
     dispatch(logout())
     dispatch(clearLibrary())
     setMobileMenuOpen(false)
+    setMenuOpen(false)
     toast('Çıkış yapıldı.', 'info')
     navigate('/')
   }
@@ -44,7 +63,7 @@ export default function Header() {
 
   return (
     <>
-      <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}`}>
+      <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
         <Navbar.Content className="header-left">
           <Navbar.Brand as={Link} to="/" className="header-brand-link">
             <Logo />
@@ -70,30 +89,50 @@ export default function Header() {
                 <Search size={22} />
               </Button>
             )}
-            <Button appearance="primary" className="paket-btn" onClick={() => navigate('/packages')}>
-              <Stack spacing={8}>
-                <span>Paket Al</span>
-                <Crown size={18} />
-              </Stack>
-            </Button>
+            {!currentUser?.plan && (
+              <Button appearance="primary" className="paket-btn" onClick={() => navigate('/packages')}>
+                <Stack spacing={8}>
+                  <span>Paket Al</span>
+                  <Crown size={18} />
+                </Stack>
+              </Button>
+            )}
             {currentUser ? (
-              <Dropdown
-                className="account-dropdown"
-                placement="bottomEnd"
-                renderToggle={(props, ref) => (
-                  <button {...props} ref={ref} className="account-avatar" aria-label="Hesap">
-                    {currentUser.name.charAt(0).toUpperCase()}
-                  </button>
+              <div className="account-menu" ref={menuRef}>
+                <button
+                  type="button"
+                  className="account-trigger"
+                  aria-expanded={menuOpen}
+                  aria-label="Hesap"
+                  onClick={() => setMenuOpen((p) => !p)}
+                >
+                  <span className="account-avatar">
+                    {currentUser.avatar
+                      ? <img src={AVATARS[currentUser.avatar]} alt="" />
+                      : currentUser.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="account-trigger__name">{currentUser.name}</span>
+                  <ChevronDown size={15} className="account-trigger__caret" />
+                </button>
+
+                {menuOpen && (
+                  <div className="account-menu__panel">
+                    <button
+                      type="button"
+                      className="account-menu__head"
+                      onClick={() => { setMenuOpen(false); navigate('/account') }}
+                    >
+                      <strong>{currentUser.name}</strong>
+                      <span>{currentUser.email}</span>
+                      <em>Hesabı Yönet</em>
+                    </button>
+                    <div className="account-menu__divider" />
+                    <button type="button" className="account-menu__logout" onClick={handleLogout}>
+                      Çıkış Yap <LogOut size={16} />
+                    </button>
+                  </div>
                 )}
-              >
-                <Dropdown.Item panel className="account-menu-head">
-                  <strong>{currentUser.name}</strong>
-                  <span>{currentUser.email}</span>
-                </Dropdown.Item>
-                <Dropdown.Separator />
-                <Dropdown.Item onClick={() => navigate('/account')}><User size={16} /> Hesabım</Dropdown.Item>
-                <Dropdown.Item className="account-menu-logout" onClick={handleLogout}><LogOut size={16} /> Çıkış Yap</Dropdown.Item>
-              </Dropdown>
+              </div>
             ) : (
               <Button appearance="ghost" className="giris-btn" onClick={() => navigate('/login')}>
                 Giriş Yap
@@ -132,14 +171,16 @@ export default function Header() {
             ))}
             <div className="mobile-nav-divider" />
             <div className="mobile-nav-cta">
-              <Button
-                appearance="primary"
-                className="paket-btn"
-                block
-                onClick={() => { navigate('/packages'); setMobileMenuOpen(false) }}
-              >
-                <Stack spacing={8}><span>Paket Al</span><Crown size={18} /></Stack>
-              </Button>
+              {!currentUser?.plan && (
+                <Button
+                  appearance="primary"
+                  className="paket-btn"
+                  block
+                  onClick={() => { navigate('/packages'); setMobileMenuOpen(false) }}
+                >
+                  <Stack spacing={8}><span>Paket Al</span><Crown size={18} /></Stack>
+                </Button>
+              )}
               {currentUser ? (
                 <>
                   <Button

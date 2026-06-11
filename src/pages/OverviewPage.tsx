@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from 'rsuite'
-import { Play } from 'lucide-react'
+import { Play, ChevronDown } from 'lucide-react'
 import PageLayout from '../components/PageLayout'
 import ContentCarousel from '../components/ContentCarousel'
 import Spinner from '../components/Spinner'
@@ -26,7 +26,7 @@ export default function OverviewPage() {
 
 function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
     const navigate = useNavigate()
-    const [selectedSeason, setSelectedSeason] = useState(1)
+    const [openSeason, setOpenSeason] = useState<number>(1)
     const textClipRef = useRef<HTMLDivElement>(null)
 
     const numId = Number(id)
@@ -42,12 +42,10 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
     const detail = data?.[0] ?? null
     const similar = (data?.[1].results.filter((item) => item.poster_path) ?? []) as Movie[] | TVShow[]
 
-    // sezon bolumleri
+    // secili sezonun bolumleri — TV show icin her zaman cekiliyor
     const season = useFetch(
-        () => (!isMovie && detail
-            ? tmdbApi.getTVSeasonDetails(numId, selectedSeason)
-            : Promise.resolve(null)),
-        `${detail ? 'hazir' : 'bekliyor'}-${selectedSeason}`
+        () => (isMovie ? Promise.resolve(null) : tmdbApi.getTVSeasonDetails(numId, openSeason)),
+        isMovie ? 'movie' : `sezon-${openSeason}`
     )
 
     // uzun ozet kayar
@@ -114,23 +112,22 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
                     </div>
                 </div>
 
-                {!isMovie && (
+                {!isMovie && tvDetail.number_of_seasons > 0 && (
                     <div className="overview-seasons-section">
                         <div className="seasons-header-row">
                             <h2 className="seasons-title">Sezonlar & Bölümler</h2>
-                            {tvDetail.number_of_seasons > 0 && (
-                                <div className="season-select-wrapper">
-                                    <select
-                                        className="season-select"
-                                        value={selectedSeason}
-                                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                                    >
-                                        {Array.from({ length: tvDetail.number_of_seasons }, (_, i) => i + 1).map((sNum) => (
-                                            <option key={sNum} value={sNum}>{sNum}. Sezon</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
+                            <div className="season-select-wrap">
+                                <select
+                                    className="season-select"
+                                    value={openSeason}
+                                    onChange={(e) => setOpenSeason(Number(e.target.value))}
+                                >
+                                    {Array.from({ length: tvDetail.number_of_seasons }, (_, i) => i + 1).map((n) => (
+                                        <option key={n} value={n}>{n}. Sezon</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} className="season-select-icon" />
+                            </div>
                         </div>
 
                         {season.loading ? (
