@@ -41,25 +41,25 @@ interface BillingInfo {
   postalCode: string
 }
 
+const EMPTY_BILLING: BillingInfo = {
+  cardName: '',
+  address: '',
+  district: '',
+  city: '',
+  postalCode: '',
+}
+
 function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: string; onSuccess: () => void }) {
   const stripe = useStripe()
   const elements = useElements()
   const toast = useToast()
   const dispatch = useAppDispatch()
-  const [paying, setPaying] = useState(false)
 
-  const [billing, setBilling] = useState<BillingInfo>({
-    cardName: '',
-    address: '',
-    district: '',
-    city: '',
-    postalCode: '',
-  })
+  const [billing, setBilling] = useState<BillingInfo>(EMPTY_BILLING)
+  const [paying, setPaying] = useState(false)
 
   const set = (field: keyof BillingInfo) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setBilling((prev) => ({ ...prev, [field]: e.target.value }))
-
-  const amount = Number(pkg.price.replace(/\D/g, '')) * 100
 
   const handlePay = async () => {
     if (!stripe || !elements) return
@@ -67,8 +67,10 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
       toast('Kart sahibi adını girin.', 'warning')
       return
     }
+
     setPaying(true)
     try {
+      const amount = Number(pkg.price.replace(/\D/g, '')) * 100
       const clientSecret = await createIntent(amount)
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
@@ -85,24 +87,27 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
           },
         },
       })
+
       if (result.error) {
         toast(result.error.message ?? 'Ödeme başarısız.', 'error')
-      } else {
-        dispatch(setPlan(pkg.id))
-        dispatch(setReceipt({
-          planName: pkg.name,
-          planId: pkg.id,
-          amount: pkg.price,
-          period: pkg.period,
-          date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
-          email,
-        }))
-        onSuccess()
+        return
       }
+
+      dispatch(setPlan(pkg.id))
+      dispatch(setReceipt({
+        planName: pkg.name,
+        planId: pkg.id,
+        amount: pkg.price,
+        period: pkg.period,
+        date: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
+        email,
+      }))
+      onSuccess()
     } catch {
       toast('Ödeme başlatılamadı, tekrar dene.', 'error')
+    } finally {
+      setPaying(false)
     }
-    setPaying(false)
   }
 
   return (
@@ -239,15 +244,17 @@ export default function CheckoutPage() {
   const currentUser = useAppSelector((s) => s.auth.currentUser)
   const pkg = PACKAGES.find((p) => p.id === planId && !p.free)
 
+  // korumali sayfa
   useEffect(() => {
     if (!currentUser) navigate('/login')
     else if (!pkg) navigate('/packages')
   }, [currentUser, pkg, navigate])
 
+  // odeme sonrasi hesaba don
   useEffect(() => {
     if (!success) return
-    const t = setTimeout(() => navigate('/account'), 3000)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => navigate('/account'), 3000)
+    return () => clearTimeout(timer)
   }, [success, navigate])
 
   if (!currentUser || !pkg) return null

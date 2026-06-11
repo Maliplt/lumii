@@ -4,6 +4,7 @@ import {
   ArrowLeft, Play, Pause, Volume2, VolumeX, Volume1,
   Maximize, Minimize, Settings, SkipBack, SkipForward, Wifi,
 } from 'lucide-react'
+
 function fmtTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return '0:00'
   const m = Math.floor(s / 60)
@@ -21,10 +22,18 @@ interface MediaPlayerProps {
   className?: string
 }
 
-export default function MediaPlayer({ src, title = '', live = false, startMuted = false, autoPlay = true, onBack, className = '' }: MediaPlayerProps) {
+export default function MediaPlayer({
+  src,
+  title = '',
+  live = false,
+  startMuted = false,
+  autoPlay = true,
+  onBack,
+  className = '',
+}: MediaPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const hlsRef = useRef<Hls | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const hlsRef = useRef<Hls | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -36,30 +45,43 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
   const [buffered, setBuffered] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
+  const [centerAction, setCenterAction] = useState<{ type: 'play' | 'pause'; id: number } | null>(null)
   const [levels, setLevels] = useState<{ height: number; bitrate: number }[]>([])
   const [currentLevel, setCurrentLevel] = useState(-1)
-  const [showSettings, setShowSettings] = useState(false)
   const [streamReady, setStreamReady] = useState(false)
   const [streamError, setStreamError] = useState(false)
-  const [centerAction, setCenterAction] = useState<{ type: 'play' | 'pause'; k: number } | null>(null)
 
   // baslat
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+
     let cancelled = false
     let hls: Hls | null = null
 
-    setStreamReady(false); setStreamError(false); setPlaying(false)
-    setLevels([]); setCurrentLevel(-1); setCurrentTime(0); setDuration(0); setBuffered(0)
+    setStreamReady(false)
+    setStreamError(false)
+    setPlaying(false)
+    setLevels([])
+    setCurrentLevel(-1)
+    setCurrentTime(0)
+    setDuration(0)
+    setBuffered(0)
     video.muted = startMuted
     setMuted(startMuted)
 
-    // otomatik oynatma kapaliysa hazir bekler
+    // engellenirse sessize alip tekrar dene
     const tryPlay = () => {
       if (!autoPlay) return
-      const p = video.play()
-      if (p) p.catch(() => { video.muted = true; setMuted(true); video.play().catch(() => {}) })
+      const playback = video.play()
+      if (playback) {
+        playback.catch(() => {
+          video.muted = true
+          setMuted(true)
+          video.play().catch(() => {})
+        })
+      }
     }
 
     if (Hls.isSupported()) {
@@ -67,6 +89,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
       hlsRef.current = hls
       hls.loadSource(src)
       hls.attachMedia(video)
+
       hls.on(Hls.Events.MANIFEST_PARSED, (_e, data) => {
         if (cancelled) return
         setLevels(data.levels.map((l) => ({ height: l.height, bitrate: l.bitrate })))
@@ -88,39 +111,48 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
       setStreamError(true)
     }
 
-    return () => { cancelled = true; hls?.destroy(); hlsRef.current = null }
+    return () => {
+      cancelled = true
+      hls?.destroy()
+      hlsRef.current = null
+    }
   }, [src, startMuted, autoPlay])
 
   // olaylar
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    const onT = () => { setCurrentTime(video.currentTime); if (video.buffered.length) setBuffered(video.buffered.end(video.buffered.length - 1)) }
-    const onD = () => setDuration(video.duration)
-    const onP = () => setPlaying(true)
-    const onPa = () => setPlaying(false)
-    const onV = () => { setMuted(video.muted); setVolume(video.volume) }
-    const onS = () => hlsRef.current?.startLoad()
-    video.addEventListener('timeupdate', onT)
-    video.addEventListener('durationchange', onD)
-    video.addEventListener('play', onP)
-    video.addEventListener('pause', onPa)
-    video.addEventListener('volumechange', onV)
-    video.addEventListener('stalled', onS)
+
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime)
+      if (video.buffered.length) setBuffered(video.buffered.end(video.buffered.length - 1))
+    }
+    const onDurationChange = () => setDuration(video.duration)
+    const onPlay = () => setPlaying(true)
+    const onPause = () => setPlaying(false)
+    const onVolume = () => { setMuted(video.muted); setVolume(video.volume) }
+    const onStalled = () => hlsRef.current?.startLoad()
+
+    video.addEventListener('timeupdate', onTimeUpdate)
+    video.addEventListener('durationchange', onDurationChange)
+    video.addEventListener('play', onPlay)
+    video.addEventListener('pause', onPause)
+    video.addEventListener('volumechange', onVolume)
+    video.addEventListener('stalled', onStalled)
     return () => {
-      video.removeEventListener('timeupdate', onT)
-      video.removeEventListener('durationchange', onD)
-      video.removeEventListener('play', onP)
-      video.removeEventListener('pause', onPa)
-      video.removeEventListener('volumechange', onV)
-      video.removeEventListener('stalled', onS)
+      video.removeEventListener('timeupdate', onTimeUpdate)
+      video.removeEventListener('durationchange', onDurationChange)
+      video.removeEventListener('play', onPlay)
+      video.removeEventListener('pause', onPause)
+      video.removeEventListener('volumechange', onVolume)
+      video.removeEventListener('stalled', onStalled)
     }
   }, [])
 
   useEffect(() => {
-    const onFS = () => setFullscreen(!!document.fullscreenElement)
-    document.addEventListener('fullscreenchange', onFS)
-    return () => document.removeEventListener('fullscreenchange', onFS)
+    const onChange = () => setFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
   useEffect(() => () => {
@@ -135,50 +167,66 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
   }, [])
 
   const flashCenter = useCallback((type: 'play' | 'pause') => {
-    setCenterAction({ type, k: Date.now() })
+    setCenterAction({ type, id: Date.now() })
     if (flashTimer.current) clearTimeout(flashTimer.current)
     flashTimer.current = setTimeout(() => setCenterAction(null), 600)
   }, [])
 
   const togglePlay = useCallback(() => {
-    const v = videoRef.current
-    if (!v) return
-    if (v.paused) { v.play().catch(() => {}); flashCenter('play') }
-    else { v.pause(); flashCenter('pause') }
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) {
+      video.play().catch(() => {})
+      flashCenter('play')
+    } else {
+      video.pause()
+      flashCenter('pause')
+    }
   }, [flashCenter])
 
-  const toggleMute = () => { const v = videoRef.current; if (v) v.muted = !v.muted }
-  const adjustVolume = (d: number) => {
-    const v = videoRef.current
-    if (!v) return
-    v.volume = Math.max(0, Math.min(1, v.volume + d))
-    v.muted = v.volume === 0
+  const toggleMute = () => {
+    const video = videoRef.current
+    if (video) video.muted = !video.muted
   }
+
+  const adjustVolume = (delta: number) => {
+    const video = videoRef.current
+    if (!video) return
+    video.volume = Math.max(0, Math.min(1, video.volume + delta))
+    video.muted = video.volume === 0
+  }
+
   const onVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = videoRef.current
-    if (!v) return
-    const val = Number(e.target.value)
-    v.volume = val; v.muted = val === 0; setVolume(val)
+    const video = videoRef.current
+    if (!video) return
+    const value = Number(e.target.value)
+    video.volume = value
+    video.muted = value === 0
+    setVolume(value)
   }
+
   const onSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = videoRef.current
-    if (v) v.currentTime = Number(e.target.value)
+    const video = videoRef.current
+    if (video) video.currentTime = Number(e.target.value)
   }
-  const skip = (sec: number) => {
-    const v = videoRef.current
-    if (!v) return
-    v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + sec))
+
+  const skip = (seconds: number) => {
+    const video = videoRef.current
+    if (!video) return
+    video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + seconds))
   }
+
   const toggleFullscreen = () => {
-    const el = containerRef.current
-    if (!el) return
+    const container = containerRef.current
+    if (!container) return
     try {
-      if (!document.fullscreenElement) el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {})
+      if (!document.fullscreenElement) container.requestFullscreen({ navigationUI: 'hide' }).catch(() => {})
       else document.exitFullscreen()
     } catch {
-      (el as HTMLDivElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
+      (container as HTMLDivElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
     }
   }
+
   const selectLevel = (idx: number) => {
     if (hlsRef.current) hlsRef.current.currentLevel = idx
     setCurrentLevel(idx)
@@ -227,7 +275,7 @@ export default function MediaPlayer({ src, title = '', live = false, startMuted 
       {live && <div className="player-live-badge"><span className="player-live-dot" />CANLI</div>}
 
       {centerAction && (
-        <div className="player-center-action" key={centerAction.k}>
+        <div className="player-center-action" key={centerAction.id}>
           {centerAction.type === 'play' ? <Play size={40} fill="currentColor" /> : <Pause size={40} fill="currentColor" />}
         </div>
       )}
