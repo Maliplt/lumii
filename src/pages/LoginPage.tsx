@@ -12,13 +12,15 @@ import type { Movie } from '../types/types'
 
 const { StringType } = Schema.Types
 
+type CheckResult = Record<string, { hasError: boolean; errorMessage: string }>
+
 const loginModel = Schema.Model({
   email: StringType()
-    .isEmail('Geçerli bir e-posta adresi girin.')
-    .isRequired('E-posta zorunludur.'),
+    .isEmail('Lütfen geçerli bir e-posta adresi girin.')
+    .isRequired('Lütfen e-posta adresinizi girin.'),
   password: StringType()
-    .minLength(8, 'Şifre en az 8 karakter olmalı.')
-    .isRequired('Şifre zorunludur.'),
+    .minLength(8, 'Şifreniz en az 8 karakter olmalıdır.')
+    .isRequired('Lütfen şifrenizi girin.'),
 })
 
 export default function LoginPage() {
@@ -70,18 +72,22 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (movies.length <= 1) return
-    const id = setInterval(() => setBgIdx((i) => (i + 1) % movies.length), 5000)
+    const id = setInterval(() => setBgIdx((i) => (i+1) % movies.length), 5000)
     return () => clearInterval(id)
   }, [movies.length])
 
   const currentMovie = movies[bgIdx] ?? null
 
   const handleLogin = () => {
-    const result = loginModel.check(formValue) as Record<string, { hasError: boolean; errorMessage: string }>
+    const result = loginModel.check(formValue) as CheckResult
     const errs: Record<string, string> = {}
-    Object.entries(result).forEach(([k, v]) => { if (v.hasError) errs[k] = v.errorMessage })
+
+    Object.entries(result).forEach(([field, check]) => {
+      if (check.hasError) errs[field] = check.errorMessage
+    })
     setErrors(errs)
     if (Object.keys(errs).length) return
+
     submitted.current = true
     dispatch(login(formValue))
   }
@@ -95,7 +101,7 @@ export default function LoginPage() {
 
   const handleForgot = () => {
     if (!formValue.email.includes('@')) {
-      setForgotMsg('Önce e-posta adresini yaz.')
+      setForgotMsg('Lütfen önce e-posta adresinizi girin.')
       return
     }
     setForgotMsg(`Sıfırlama bağlantısı ${formValue.email} adresine gönderildi.`)

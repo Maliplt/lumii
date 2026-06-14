@@ -15,7 +15,7 @@ function isPlayable(result: { media_type?: string; poster_path?: string | null }
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams()
-  const query = (searchParams.get('q') ?? '').trim()
+  const query = ( searchParams.get('q') ?? '').trim()
 
   const { data, loading, error } = useFetch(
     () => (query ? tmdbApi.search(query) : Promise.resolve(null)),

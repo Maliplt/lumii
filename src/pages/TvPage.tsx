@@ -13,7 +13,7 @@ const CHANNELS: Channel[] = [
   { id: 'k1', name: 'Kanal 1' },
   { id: 'k2', name: 'Kanal 2' },
   { id: 'k3', name: 'Kanal 3' },
-  { id: 'k4', name: 'Kanal 4' },
+  { id: 'k4',  name: 'Kanal 4' },
   { id: 'k5', name: 'Kanal 5' },
 ]
 

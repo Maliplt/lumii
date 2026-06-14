@@ -2,9 +2,9 @@ import { memo, useRef, useState, useMemo, useEffect, type ReactNode } from 'reac
 import { Carousel } from 'rsuite'
 import { Link, useNavigate } from 'react-router-dom'
 import { animate, stagger } from 'animejs'
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Star, Volume2, VolumeX } from 'lucide-react'
 import { IoPlay, IoAdd, IoCheckmark, IoHeart, IoHeartOutline } from 'react-icons/io5'
-import { getImageUrl } from '../services/tmdb'
+import { getImageUrl, tmdbApi, pickTrailer } from '../services/tmdb'
 import { useToast } from './Toast'
 import { useSwipe } from '../helpers'
 import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, type SavedItem } from '../store/store'
@@ -12,10 +12,28 @@ import type { Movie, TVShow } from '../types/types'
 
 const HOVER_EXPAND_DELAY = 500
 
+// youtube oynatici durumlari
+const YT_ENDED = 0
+const YT_PLAYING = 1
+
+// bir kere cektigimiz fragmani tekrar istemeyelim
+const trailerCache = new Map<string, string | null>()
+
+// ayni anda yalnizca tek kart oynasin
+let activeStop: (() => void) | null = null
+let activeToken: object | null = null
+
+// ikona basinca kisa zipla
+function pop(el: HTMLElement) {
+  el.classList.remove('is-pop')
+  void el.offsetWidth
+  el.classList.add('is-pop')
+}
+
 // ekrana gore kart sayisi
 function calcCount(width: number): number {
   if (width <= 480) return 2
-  if (width <= 768) return 3
+  if (width <= 768)  return 3
   if (width <= 1024) return 4
   return 6
 }
@@ -41,13 +59,18 @@ interface ContentCarouselProps {
 
 const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; type: 'movie' | 'tv' }) {
   const ref = useRef<HTMLDivElement>(null)
+  const frameRef = useRef<HTMLIFrameElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const expanded = useRef(false)
+  const token = useRef({})
   const [showTitle, setShowTitle] = useState(false)
+  const [trailerKey, setTrailerKey] = useState<string | null>(null)
+  const [ready, setReady] = useState(false)
+  const [muted, setMuted] = useState(true)
   const navigate = useNavigate()
 
   // kartin kendi tipi
-  const cardType = (item as { media_type?: 'movie' | 'tv' }).media_type ?? type
+  const cardType = (item as SavedItem).media_type ?? type
 
   // redux
   const dispatch = useAppDispatch()
@@ -58,9 +81,10 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
   const toast = useToast()
   const saved = { ...item, media_type: cardType } as SavedItem
 
-  const onWatchlist = () => {
+  const onWatchlist = (e: React.MouseEvent) => {
+    pop(e.currentTarget as HTMLElement)
     if (!isLoggedIn) {
-      toast('İzleme listesi için önce giriş yap.', 'warning')
+      toast('İzleme listeni kullanmak için önce giriş yapmalısın.', 'warning')
       navigate('/login')
       return
     }
@@ -68,9 +92,10 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
     toast(inWatchlist ? 'İzleme listesinden çıkarıldı.' : 'İzleme listesine eklendi.')
   }
 
-  const onLike = () => {
+  const onLike = (e: React.MouseEvent) => {
+    pop(e.currentTarget as HTMLElement)
     if (!isLoggedIn) {
-      toast('Beğenmek için önce giriş yap.', 'warning')
+      toast('İçerikleri beğenmek için önce giriş yapmalısın.', 'warning')
       navigate('/login')
       return
     }
@@ -98,15 +123,41 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
   const rating = item.vote_average ? item.vote_average.toFixed(1) : ''
   const overviewSnippet = item.overview?.trim() ?? ''
 
+  // hover yeterince surduyse fragmani getir, sonucu sakla
+  const loadTrailer = async () => {
+    const cacheKey = `${cardType}-${item.id}`
+    const cached = trailerCache.get(cacheKey)
+    if (cached !== undefined) {
+      setTrailerKey(cached)
+      return
+    }
+    try {
+      const { results } = await tmdbApi.getVideos(cardType, item.id)
+      const key = pickTrailer(results)
+      trailerCache.set(cacheKey, key)
+      if (expanded.current) setTrailerKey(key)
+    } catch {
+      trailerCache.set(cacheKey, null)
+    }
+  }
+
   const doExpand = () => {
+    if (activeStop && activeToken !== token.current) activeStop()
+    activeToken = token.current
+    activeStop = doCollapse
     expanded.current = true
     setShowTitle(true)
+    loadTrailer()
     if (ref.current) animate(ref.current, { flexGrow: 2, duration: 380, ease: 'outQuart' })
   }
 
   const doCollapse = () => {
+    if (activeToken === token.current) { activeToken = null; activeStop = null }
     expanded.current = false
     setShowTitle(false)
+    setTrailerKey(null)
+    setReady(false)
+    setMuted(true)
     if (ref.current) animate(ref.current, { flexGrow: 1, duration: 260, ease: 'outQuart' })
   }
 
@@ -118,6 +169,49 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
     if (timer.current) { clearTimeout(timer.current); timer.current = null }
     if (expanded.current) doCollapse()
   }
+
+  // youtube iframe'ine sessizden sesliye gec komutu yolla
+  const toggleMute = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    pop(e.currentTarget as HTMLElement)
+    const win = frameRef.current?.contentWindow
+    if (!win) return
+    win.postMessage(JSON.stringify({ event: 'command', func: muted ? 'unMute' : 'mute' }), '*')
+    setMuted((prev) => !prev)
+  }
+
+  const trailerSrc = trailerKey
+    ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`
+    : ''
+
+  // iframe yuklenince youtube olaylarini dinlemeye basla
+  const startTrailer = () => {
+    frameRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'listening', channel: 'widget' }), '*'
+    )
+  }
+
+  // posteri yalnizca video oynarken kaldir; durdurma/yukleme/bitis anlarinda
+  // poster geri gelsin ki youtube'un oynat-durdur dugmesi hic gorunmesin
+  useEffect(() => {
+    if (!showTitle || !trailerKey) return
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== 'https://www.youtube.com') return
+      let msg: { info?: { playerState?: number } }
+      try { msg = JSON.parse(e.data) } catch { return }
+      const state = msg.info?.playerState
+      if (state === undefined) return
+      setReady(state === YT_PLAYING)
+      if (state === YT_ENDED) {
+        frameRef.current?.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'playVideo' }), '*'
+        )
+      }
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [showTitle, trailerKey])
 
   return (
     <div
@@ -135,6 +229,27 @@ const ItemCard = memo(function ItemCard({ item, type }: { item: Movie | TVShow; 
           loading="lazy"
         />
       </Link>
+      {showTitle && trailerKey && (
+        <>
+          <div className={`cc-item__trailer ${ready ? 'is-ready' : ''}`}>
+            <iframe
+              ref={frameRef}
+              src={trailerSrc}
+              title={name}
+              allow="autoplay"
+              onLoad={startTrailer}
+            />
+          </div>
+          <button
+            className="cc-item__action-btn cc-item__mute"
+            type="button"
+            onClick={toggleMute}
+            aria-label={muted ? 'Sesi aç' : 'Sesi kapat'}
+          >
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+        </>
+      )}
       <div className={`cc-item__overlay ${showTitle ? 'active' : ''}`}>
         <div className="cc-item__details">
           <div className="cc-item__actions-row">
@@ -188,7 +303,7 @@ export default function ContentCarousel({ type, title, items, headerExtra }: Con
     const list = items.filter((it) => it.poster_path && it.overview?.trim())
     const result: Array<(Movie | TVShow)[]> = []
     for (let i = 0; i < list.length; i += visible) {
-      result.push(list.slice(i, i + visible))
+      result.push(list.slice(i, i+visible))
     }
     return result
   }, [items, visible])

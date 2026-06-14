@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Genre } from '../types/types'
+import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Genre, Video, VideosResponse } from '../types/types'
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 
@@ -23,6 +23,17 @@ export const getImageUrl = (
 ): string => {
     if (!path) return 'https://placehold.co/500x750?text=No+Image'
     return `${IMAGE_BASE_URL}/${size}${path}`
+}
+
+// en uygun youtube fragmani
+export function pickTrailer(videos: Video[]): string | null {
+    const youtube = videos.filter((v) => v.site === 'YouTube')
+    const trailer =
+        youtube.find((v) => v.official && v.type === 'Trailer')
+        ?? youtube.find((v) => v.type === 'Trailer')
+        ?? youtube.find((v) => v.type === 'Teaser')
+        ?? youtube[0]
+    return trailer?.key ?? null
 }
 
 export const tmdbApi = {
@@ -50,11 +61,15 @@ export const tmdbApi = {
     getTVSeasonDetails: (tvId: number, seasonNumber: number): Promise<TVSeasonDetail> =>
         tmdbFetch<TVSeasonDetail>(`/tv/${tvId}/season/${seasonNumber}`),
 
+    // tr-TR fragmanlari cogunlukla bos donuyor, en-US ile cekiyoruz
+    getVideos: (type: 'movie' | 'tv', id: number): Promise<VideosResponse> =>
+        tmdbFetch<VideosResponse>(`/${type}/${id}/videos`, { language: 'en-US' }),
+
     getTopRatedMovies: (page = 1): Promise<TMDBResponse<Movie>> =>
         tmdbFetch<TMDBResponse<Movie>>('/movie/top_rated', { page }),
 
     getMoviesByGenre: (genreId: number | string, page = 1): Promise<TMDBResponse<Movie>> =>
-        tmdbFetch<TMDBResponse<Movie>>('/discover/movie', { with_genres: genreId, page }),
+        tmdbFetch<TMDBResponse<Movie>>('/discover/movie', { with_genres: genreId,  page }),
 
     getMovieGenres: (): Promise<{ genres: Genre[] }> =>
         tmdbFetch<{ genres: Genre[] }>('/genre/movie/list'),

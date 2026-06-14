@@ -25,32 +25,32 @@ export default function Header() {
     && !!new URLSearchParams(location.search).get('q')
   const [showSearch, setShowSearch] = useState(hasQuery)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
 
   const toast = useToast()
 
   // disari tiklayinca veya esc ile kapat
   useEffect(() => {
-    if (!menuOpen) return
+    if (!accountMenuOpen) return
     const onDown = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) setAccountMenuOpen(false)
     }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false) }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape')  setAccountMenuOpen(false) }
     document.addEventListener('mousedown', onDown)
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('mousedown', onDown)
       document.removeEventListener('keydown', onKey)
     }
-  }, [menuOpen])
+  }, [accountMenuOpen])
 
   const handleLogout = () => {
     dispatch(logout())
     dispatch(clearLibrary())
     setMobileMenuOpen(false)
-    setMenuOpen(false)
+    setAccountMenuOpen(false)
     toast('Çıkış yapıldı.', 'info')
     navigate('/')
   }
@@ -63,7 +63,7 @@ export default function Header() {
 
   return (
     <>
-      <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}>
+      <Navbar className={`custom-header${scrolled ? ' scrolled' : ''}${accountMenuOpen ? ' menu-open' : ''}`}>
         <Navbar.Content className="header-left">
           <Navbar.Brand as={Link} to="/" className="header-brand-link">
             <Logo />
@@ -98,13 +98,13 @@ export default function Header() {
               </Button>
             )}
             {currentUser ? (
-              <div className="account-menu" ref={menuRef}>
+              <div className="account-menu" ref={accountMenuRef}>
                 <button
                   type="button"
                   className="account-trigger"
-                  aria-expanded={menuOpen}
+                  aria-expanded={accountMenuOpen}
                   aria-label="Hesap"
-                  onClick={() => setMenuOpen((p) => !p)}
+                  onClick={() => setAccountMenuOpen((p) => !p)}
                 >
                   <span className="account-avatar">
                     {currentUser.avatar
@@ -115,12 +115,12 @@ export default function Header() {
                   <ChevronDown size={15} className="account-trigger__caret" />
                 </button>
 
-                {menuOpen && (
+                {accountMenuOpen && (
                   <div className="account-menu__panel">
                     <button
                       type="button"
                       className="account-menu__head"
-                      onClick={() => { setMenuOpen(false); navigate('/account') }}
+                      onClick={() => { setAccountMenuOpen(false); navigate('/account') }}
                     >
                       <strong>{currentUser.name}</strong>
                       <span>{currentUser.email}</span>

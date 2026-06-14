@@ -19,7 +19,7 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1))
+    setActiveIndex((prev) => (prev === 0 ? movies.length-1 : prev - 1))
   }
 
   const handleNext = () => {

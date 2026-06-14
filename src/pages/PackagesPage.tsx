@@ -49,7 +49,7 @@ export default function PackagesPage() {
         translateY: [32, 0],
         duration: 480,
         easing: 'easeOutQuart',
-        delay: (_el: Element, i: number) => 160 + i * 100,
+        delay: (_el: Element, i: number) => 160 + i*100,
       })
     }
   }, [])
@@ -61,7 +61,7 @@ export default function PackagesPage() {
       return
     }
     if (!isLoggedIn) {
-      toast('Paket almak için önce giriş yap.', 'warning')
+      toast('Paket satın almak için önce giriş yapmalısın.', 'warning')
       navigate('/login')
       return
     }
@@ -102,7 +102,7 @@ export default function PackagesPage() {
             <div className="package-card__header">
               <pkg.Icon
                 size={22}
-                className={pkg.accent ? 'pkg-icon-accent' : 'pkg-icon-default'}
+                className={`package-icon${pkg.accent ? ' package-icon--accent' : ''}`}
               />
               <h3 className="package-name">{pkg.name}</h3>
             </div>
@@ -123,7 +123,7 @@ export default function PackagesPage() {
 
             <Button
               appearance={pkg.accent ? 'primary' : 'ghost'}
-              className={`package-cta${pkg.accent ? ' pkg-cta-accent' : ''}${isActive ? ' package-cta--active' : ''}`}
+              className={`package-cta${pkg.accent ? ' package-cta--accent' : ''}${isActive ? ' package-cta--active' : ''}`}
               onClick={() => !isActive && handleSelect(pkg)}
               disabled={isActive}
               block

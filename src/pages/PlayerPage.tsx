@@ -15,17 +15,18 @@ export default function PlayerPage() {
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
   const autoplay = useAppSelector((s) => s.settings.autoplay)
 
-  const [title, setTitle] = useState((location.state as { title?: string } | null)?.title ?? '')
+  const initialTitle = (location.state as { title?: string } | null)?.title ?? ''
+  const [title, setTitle] = useState(initialTitle)
 
   // baslik + izlemeye devam et kaydi
   useEffect(() => {
     if (!type || !id) return
     const numId = Number(id)
-    const fetcher = type === 'movie' ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId)
-    fetcher.then((d) => {
-      setTitle(type === 'movie' ? (d as MovieDetail).title : (d as TVShowDetail).name)
+    const request = type === 'movie' ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId)
+    request.then((detail) => {
+      setTitle(type === 'movie' ? (detail as MovieDetail).title : (detail as TVShowDetail).name)
       if (isLoggedIn) {
-        dispatch(startWatching({ ...d, media_type: type as 'movie' | 'tv' } as SavedItem))
+        dispatch(startWatching({ ...detail, media_type: type as 'movie' | 'tv' } as SavedItem))
       }
     }).catch(() => {})
   }, [type, id, isLoggedIn, dispatch])

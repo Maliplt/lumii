@@ -5,9 +5,9 @@ import {
   Maximize, Minimize, Settings, SkipBack, SkipForward, Wifi,
 } from 'lucide-react'
 
-function fmtTime(s: number): string {
+function formatTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return '0:00'
-  const m = Math.floor(s / 60)
+  const m = Math.floor(s/60)
   const sec = Math.floor(s % 60)
   return `${m}:${sec.toString().padStart(2, '0')}`
 }
@@ -71,7 +71,7 @@ export default function MediaPlayer({
     video.muted = startMuted
     setMuted(startMuted)
 
-    // engellenirse sessize alip tekrar dene
+    // otomatik oynatma kapaliysa hazir bekler
     const tryPlay = () => {
       if (!autoPlay) return
       const playback = video.play()
@@ -192,7 +192,7 @@ export default function MediaPlayer({
   const adjustVolume = (delta: number) => {
     const video = videoRef.current
     if (!video) return
-    video.volume = Math.max(0, Math.min(1, video.volume + delta))
+    video.volume = Math.max(0, Math.min(1, video.volume+delta))
     video.muted = video.volume === 0
   }
 
@@ -223,7 +223,9 @@ export default function MediaPlayer({
       if (!document.fullscreenElement) container.requestFullscreen({ navigationUI: 'hide' }).catch(() => {})
       else document.exitFullscreen()
     } catch {
-      (container as HTMLDivElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
+      // eski safari
+      const legacy = container as { webkitRequestFullscreen?: () => void }
+      legacy.webkitRequestFullscreen?.()
     }
   }
 
@@ -252,7 +254,7 @@ export default function MediaPlayer({
     return () => document.removeEventListener('keydown', onKey)
   }, [togglePlay, showControlsNow])
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0
+  const progress = duration > 0 ? (currentTime/duration)*100 : 0
   const bufferedPct = duration > 0 ? (buffered / duration) * 100 : 0
   const volPct = (muted ? 0 : volume) * 100
   const currentLevelInfo = currentLevel >= 0 && levels[currentLevel] ? `${levels[currentLevel].height}p` : 'Oto'
@@ -295,7 +297,7 @@ export default function MediaPlayer({
       {streamError && (
         <div className="player-error">
           <Wifi size={48} />
-          <p>Akış yüklenemedi</p>
+          <p>Yayın şu anda oynatılamıyor. Lütfen daha sonra tekrar deneyin.</p>
           {onBack && <button onClick={onBack}>Geri Dön</button>}
         </div>
       )}
@@ -323,8 +325,8 @@ export default function MediaPlayer({
               />
             </div>
             <div className="player-time">
-              <span>{fmtTime(currentTime)}</span>
-              <span>{fmtTime(duration)}</span>
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
 

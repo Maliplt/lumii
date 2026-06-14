@@ -1,11 +1,9 @@
 import Logo from './Logo'
 
 interface SpinnerProps {
-  // inline
   inline?: boolean
 }
 
-// spinner
 export default function Spinner({ inline = false }: SpinnerProps) {
   return (
     <div className={`spinner-overlay${inline ? ' spinner-overlay--inline' : ''}`}>

@@ -90,7 +90,7 @@ export default function AccountPage() {
         if (el && el.getBoundingClientRect().top <= 150) current = key
       }
       // dibe gelindiyse son bolum
-      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 10) {
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight-10) {
         current = refs[refs.length - 1][0]
       }
       setActive(current)
@@ -100,6 +100,8 @@ export default function AccountPage() {
   }, [])
 
   if (!currentUser) return null
+
+  const activePlan = PACKAGES.find((p) => p.id === currentUser.plan)
 
   const refMap: Record<string, RefObject<HTMLElement | HTMLDivElement | null>> = {
     profil: profilRef,
@@ -123,6 +125,12 @@ export default function AccountPage() {
   const removeLiked = (it: SavedItem) => {
     dispatch(toggleLiked(it))
     toast('Beğeni geri alındı.')
+  }
+
+  const selectAvatar = (id: string) => {
+    dispatch(setAvatar(id))
+    setAvatarModal(false)
+    toast('Profil resmi güncellendi.')
   }
 
   const handlePassword = () => {
@@ -185,7 +193,7 @@ export default function AccountPage() {
                       key={id}
                       type="button"
                       className={`avatar-picker__item${currentUser.avatar === id ? ' active' : ''}`}
-                      onClick={() => { dispatch(setAvatar(id)); setAvatarModal(false); toast('Profil resmi güncellendi.') }}
+                      onClick={() => selectAvatar(id)}
                       aria-label={`Avatar ${id}`}
                     >
                       <img src={src} alt="" />
@@ -201,10 +209,10 @@ export default function AccountPage() {
             <div className="account-plan">
               <div className="account-plan__info">
                 <span className="account-plan__badge">
-                  {PACKAGES.find((p) => p.id === currentUser.plan)?.name ?? 'Ücretsiz'} Plan
+                  {activePlan?.name ?? 'Ücretsiz'} Plan
                 </span>
                 <ul>
-                  {(PACKAGES.find((p) => p.id === currentUser.plan)?.features ?? PLAN_FEATURES).map((f) => (
+                  {(activePlan?.features ?? PLAN_FEATURES).map((f) => (
                     <li key={f}><Check size={14} /> {f}</li>
                   ))}
                 </ul>
@@ -217,6 +225,7 @@ export default function AccountPage() {
               </div>
             </div>
           </section>
+
 
           <section className="account-section" ref={makbuzRef}>
             <h2>Makbuzlarım</h2>

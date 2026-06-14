@@ -42,7 +42,7 @@ export default function HomePage() {
                 />
             ) : (
                 <>
-                    <HeroCarousel movies={movies.slice(0, HERO_COUNT)} />
+                    <HeroCarousel movies={movies.slice(0,HERO_COUNT)} />
                     <div className="home-content">
                         {isLoggedIn && showContinueRow && continueWatching.length > 0 && (
                             <ContentCarousel type="movie" title="İzlemeye Devam Et" items={continueWatching} />

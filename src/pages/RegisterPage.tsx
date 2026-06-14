@@ -12,17 +12,19 @@ import type { Movie } from '../types/types'
 
 const { StringType } = Schema.Types
 
+type CheckResult = Record<string, { hasError: boolean; errorMessage: string }>
+
 const registerModel = Schema.Model({
-  name: StringType().isRequired('Ad zorunludur.'),
+  name: StringType().isRequired('Lütfen adınızı girin.'),
   email: StringType()
-    .isEmail('Geçerli bir e-posta adresi girin.')
-    .isRequired('E-posta zorunludur.'),
+    .isEmail('Lütfen geçerli bir e-posta adresi girin.')
+    .isRequired('Lütfen e-posta adresinizi girin.'),
   password: StringType()
-    .minLength(8, 'Şifre en az 8 karakter olmalı.')
-    .isRequired('Şifre zorunludur.'),
+    .minLength(8, 'Şifreniz en az 8 karakter olmalıdır.')
+    .isRequired('Lütfen bir şifre belirleyin.'),
   confirm: StringType()
     .addRule((value, data) => value === data.password, 'Şifreler eşleşmiyor.')
-    .isRequired('Şifre tekrarı zorunludur.'),
+    .isRequired('Lütfen şifrenizi tekrar girin.'),
 })
 
 export default function RegisterPage() {
@@ -73,18 +75,22 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (movies.length <= 1) return
-    const id = setInterval(() => setBgIdx((i) => (i + 1) % movies.length), 5000)
+    const id = setInterval(() => setBgIdx((i) => (i + 1) % movies.length),  5000)
     return () => clearInterval(id)
   }, [movies.length])
 
   const currentMovie = movies[bgIdx] ?? null
 
   const handleRegister = () => {
-    const result = registerModel.check(formValue) as Record<string, { hasError: boolean; errorMessage: string }>
+    const result = registerModel.check(formValue) as CheckResult
     const errs: Record<string, string> = {}
-    Object.entries(result).forEach(([k, v]) => { if (v.hasError) errs[k] = v.errorMessage })
+
+    Object.entries(result).forEach(([field, check]) => {
+      if (check.hasError) errs[field] = check.errorMessage
+    })
     setErrors(errs)
     if (Object.keys(errs).length) return
+
     submitted.current = true
     dispatch(register({ name: formValue.name, email: formValue.email, password: formValue.password }))
   }

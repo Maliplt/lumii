@@ -12,7 +12,7 @@ interface MediaCardProps {
 
 function MediaCard({ item, type, onRemove }: MediaCardProps) {
   const name = (item as Movie).title ?? (item as TVShow).name
-  const year = ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(0, 4) ?? ''
+  const year = ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(0,4) ?? ''
   const rating = item.vote_average ? item.vote_average.toFixed(1) : ''
 
   return (

@@ -169,8 +169,7 @@ body,
 .rs-nav,
 .rs-btn,
 .rs-input,
-.rs-dropdown,
-.rs-panel {
+.rs-dropdown {
     font-family: var(--font-sans) !important;
 }
 
@@ -376,7 +375,7 @@ main {
     }
 }
 
-.animated-search-container {
+.search-bar {
     background: rgba(24, 24, 35, 0.94) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
     border-radius: var(--radius-1);
@@ -391,7 +390,7 @@ main {
     z-index: calc(var(--z-header) + 1); // stays within header stacking tier
     transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 
-    &.centered-search {
+    &--centered {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -409,12 +408,12 @@ main {
         box-shadow: 0 0 25px rgba(255, 106, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     }
 
-    .search-accent-icon {
+    .search-bar__icon {
         color: var(--accent) !important;
         flex-shrink: 0;
     }
 
-    .search-animated-input {
+    .search-bar__input {
         background: transparent;
         border: none;
         outline: none;
@@ -430,7 +429,7 @@ main {
         }
     }
 
-    .search-animated-close {
+    .search-bar__close {
         background: transparent;
         border: none;
         color: rgba(255, 255, 255, 0.5);
@@ -760,6 +759,41 @@ main {
     }
 }
 
+.overview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.btn-trailer {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-weight: 700 !important;
+    font-size: 17px !important;
+    padding: 12px 28px !important;
+    height: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px;
+    border-radius: var(--radius-1) !important;
+    backdrop-filter: blur(6px);
+    @include smooth(transform background-color border-color, var(--dur-fast));
+
+    &:hover,
+    &:focus {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+        transform: translateY(-3px) scale(1.05) !important;
+    }
+
+    &:active {
+        transform: translateY(-1px) scale(0.98) !important;
+    }
+}
+
 .rs-input {
     background-color: var(--bg-3);
     color: var(--text-primary);
@@ -781,20 +815,6 @@ main {
         background-color: var(--bg-2);
         outline: none;
         box-shadow: 0 0 0 1px var(--accent-soft);
-    }
-}
-
-.rs-panel {
-    background-color: var(--bg-1);
-    border-radius: var(--radius-0);
-    color: var(--text-primary);
-
-    &.rs-panel-bordered {
-        border: 1px solid var(--border-subtle);
-    }
-
-    .rs-panel-body {
-        padding: var(--space-3);
     }
 }
 
@@ -1447,6 +1467,50 @@ main {
     }
 }
 
+// hover fragmani — poster yuklenene kadar kalir, hazir olunca videoya gecer
+.cc-item__trailer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    &.is-ready {
+        opacity: 1;
+    }
+
+    iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        transform: translate(-50%, -50%) scale(1.6);
+    }
+}
+
+// ses ikonu — aksiyon butonu cercevesiyle, kosede
+.cc-item__mute {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 6;
+}
+
+@keyframes iconPop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+.cc-item__action-btn.is-pop {
+    animation: iconPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 // bos kart
 .cc-item--empty {
     background: transparent;
@@ -1464,6 +1528,7 @@ main {
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 2;
     padding: 56px var(--space-4) var(--space-4);
     background: linear-gradient(to top, rgba(5, 5, 9, 0.98) 0%, rgba(5, 5, 9, 0.85) 50%, rgba(5, 5, 9, 0.35) 80%, transparent 100%);
     color: #ffffff;
@@ -1574,53 +1639,6 @@ main {
 
     100% {
         transform: translateY(-55%);
-    }
-}
-
-a>.rs-panel {
-    background-color: var(--bg-1);
-    border: 1px solid var(--border-subtle);
-    overflow: hidden;
-    @include smooth(transform border-color box-shadow, var(--dur-base));
-
-    &:hover {
-        border-color: var(--border-strong);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .rs-panel-body {
-        padding: 0;
-    }
-
-    img {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-
-    >div,
-    .rs-panel-body>div {
-        padding: var(--space-3);
-
-        strong {
-            display: block;
-            font-size: var(--fs-md);
-            color: var(--text-primary);
-            margin-bottom: var(--space-2);
-            @include truncate;
-        }
-
-        p {
-            margin: 2px 0;
-            font-size: var(--fs-sm);
-            color: var(--text-tertiary);
-
-            &:first-of-type {
-                color: var(--warning);
-                font-weight: 600;
-            }
-        }
     }
 }
 
@@ -2570,7 +2588,7 @@ a>.rs-panel {
         width: 40px;
     }
 
-    .animated-search-container.centered-search {
+    .search-bar--centered {
         position: fixed !important;
         top: 8px !important;
         right: 8px !important;
@@ -3961,6 +3979,59 @@ a>.rs-panel {
     }
 }
 
+.trailer-modal {
+    .rs-modal-dialog {
+        background: var(--bg-1) !important;
+        border: 1px solid var(--border-strong) !important;
+        border-top: 3px solid var(--accent) !important;
+        border-radius: var(--radius-1) !important;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
+        overflow: hidden;
+    }
+
+    .rs-modal-header {
+        background: var(--bg-2) !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+        padding: 16px 20px !important;
+    }
+
+    .rs-modal-title {
+        color: #ffffff !important;
+        font-family: var(--font-display);
+        font-weight: 700 !important;
+        font-size: var(--fs-lg) !important;
+    }
+
+    .rs-modal-header .rs-btn-close {
+        color: var(--text-tertiary) !important;
+
+        &:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+    }
+
+    .rs-modal-body {
+        background: var(--bg-1) !important;
+        padding: 0 !important;
+    }
+
+    // 16:9 sabit oran
+    .trailer-frame {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%;
+
+        iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    }
+}
+
 // odeme sayfasi
 .checkout-page {
     display: flex;
@@ -4073,18 +4144,6 @@ a>.rs-panel {
 .checkout-field-row {
     display: flex;
     gap: var(--space-4);
-}
-
-.checkout-card-input {
-    background: var(--bg-3);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-1);
-    padding: 13px 14px;
-    @include smooth(border-color);
-
-    &:focus-within {
-        border-color: var(--accent);
-    }
 }
 
 .checkout-pay {
@@ -4536,12 +4595,12 @@ a>.rs-panel {
         align-items: center;
         gap: var(--space-3);
 
-        .pkg-icon-accent {
-            color: var(--accent);
-        }
-
-        .pkg-icon-default {
+        .package-icon {
             color: var(--text-secondary);
+
+            &--accent {
+                color: var(--accent);
+            }
         }
     }
 
@@ -4600,7 +4659,7 @@ a>.rs-panel {
         border-radius: var(--radius-1) !important;
 
         // ghost buton
-        &:not(.pkg-cta-accent) {
+        &:not(.package-cta--accent) {
             background-color: transparent !important;
             border: 1.5px solid var(--border-strong) !important;
             color: var(--text-primary) !important;
@@ -4614,7 +4673,7 @@ a>.rs-panel {
             }
         }
 
-        &.pkg-cta-accent {
+        &.package-cta--accent {
             background-color: var(--accent) !important;
             border-color: var(--accent) !important;
             color: #ffffff !important;

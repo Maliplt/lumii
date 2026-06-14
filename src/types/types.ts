@@ -106,13 +106,28 @@ export interface TVSeasonDetail {
     episodes: Episode[]
 }
 
+export interface Video {
+    key: string
+    site: string
+    type: string
+    name: string
+    official: boolean
+    iso_639_1: string
+    published_at: string
+}
+
+export interface VideosResponse {
+    id: number
+    results: Video[]
+}
+
 // tip kontrolu
 export function isMovie(item: Movie | TVShow | SearchResult): item is Movie {
     return 'title' in item
 }
 
 export function isTVShow(item: Movie | TVShow | SearchResult): item is TVShow {
-    return 'name' in item && !("title" in item)
+    return 'name' in item && !('title' in item)
 }
 
 export function isMovieDetail(detail: MovieDetail | TVShowDetail): detail is MovieDetail {
@@ -120,7 +135,7 @@ export function isMovieDetail(detail: MovieDetail | TVShowDetail): detail is Mov
 }
 
 export function isTVShowDetail(detail: MovieDetail | TVShowDetail): detail is TVShowDetail {
-    return 'name' in detail && !("title" in detail)
+    return 'name' in detail && !('title' in detail)
 }
 
 export interface PackageDef {

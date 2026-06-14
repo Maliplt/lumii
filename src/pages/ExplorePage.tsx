@@ -77,7 +77,7 @@ export default function ExplorePage() {
         const [topRatedRes, kidsRes, actionRes, thrillerRes, horrorRes] = data
         const oscar = withMedia(topRatedRes.results)
         return {
-            hero: oscar.slice(HERO_RANGE[0], HERO_RANGE[1]),
+            hero: oscar.slice(HERO_RANGE[0],HERO_RANGE[1]),
             oscar,
             kids: withMedia(kidsRes.results),
             action: withMedia(actionRes.results),

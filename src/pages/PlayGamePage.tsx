@@ -4,8 +4,8 @@ import { Button } from 'rsuite'
 import { ArrowLeft, Trophy } from 'lucide-react'
 import Spinner from '../components/Spinner'
 
-const SudokuApp = lazy(() => import('../games/sudoku'))
-const MinesweeperApp = lazy(() => import('../games/minesweep'))
+const SudokuApp = lazy(() => import('../games/Sudoku'))
+const MinesweeperApp = lazy(() => import('../games/Minesweeper'))
 const Game2048 = lazy(() => import('../games/Game2048'))
 const KelimeZinciri = lazy(() => import('../games/KelimeZinciri'))
 
@@ -23,7 +23,7 @@ const SCORE_LABELS: Record<string, string> = {
     kelimezinciri: 'En İyi Skor',
 }
 
-const IS_SCORE = new Set(['2048', 'kelimezinciri'])
+const SCORE_GAMES = new Set(['2048', 'kelimezinciri'])
 
 function readBestScore(gameId: string): string {
     const key = SCORE_KEYS[gameId]
@@ -31,7 +31,7 @@ function readBestScore(gameId: string): string {
     const raw = localStorage.getItem(key)
     if (!raw) return 'Henüz skor yok'
     const val = parseInt(raw, 10)
-    return IS_SCORE.has(gameId)
+    return SCORE_GAMES.has(gameId)
         ? `${val.toLocaleString('tr-TR')} puan`
         : `${raw} saniye`
 }
@@ -44,7 +44,7 @@ export default function PlayGamePage() {
     // skoru tazele
     useEffect(() => {
         const update = () => setBestScore(readBestScore(gameId ?? ''))
-        const interval = setInterval(update, 2000)
+        const interval = setInterval(update,2000)
         window.addEventListener('storage', update)
         return () => {
             clearInterval(interval)

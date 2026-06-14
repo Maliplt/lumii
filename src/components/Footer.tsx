@@ -11,7 +11,7 @@ const SOCIALS = [
 
 function BrandIcon({ path }: { path: string }) {
   return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width={16} height={16}  viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d={path} />
     </svg>
   )

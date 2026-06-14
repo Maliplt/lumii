@@ -50,7 +50,7 @@ const auth = createSlice({
     register(state, action: PayloadAction<Account>) {
       const taken = state.accounts.some((a) => a.email === action.payload.email)
       if (taken) {
-        state.error = 'Bu e-posta zaten kayıtlı.'
+        state.error = 'Bu e-posta adresiyle daha önce bir hesap oluşturulmuş.'
         return
       }
       const acc = { ...action.payload, createdAt: new Date().toLocaleDateString('tr-TR') }
@@ -63,10 +63,10 @@ const auth = createSlice({
         (a) => a.email === action.payload.email && a.password === action.payload.password
       )
       if (!acc) {
-        state.error = 'E-posta veya şifre hatalı.'
+        state.error = 'E-posta adresi veya şifre hatalı. Lütfen tekrar deneyin.'
         return
       }
-      state.currentUser = { name: acc.name, email: acc.email, createdAt: acc.createdAt, avatar: acc.avatar, plan: acc.plan }
+      state.currentUser = { name: acc.name,  email: acc.email, createdAt: acc.createdAt, avatar: acc.avatar, plan: acc.plan }
       state.error = null
     },
     setAvatar(state, action: PayloadAction<string>) {
@@ -160,8 +160,14 @@ const settings = createSlice({
 })
 
 // store
+interface PersistedState {
+  auth: AuthState
+  library: LibraryState
+  settings: SettingsState
+}
+
 // kayitli oturumu geri yukle, ayarlardan sadece bilinen anahtarlar alinir
-function loadState(): { auth: AuthState; library: LibraryState; settings: SettingsState } | undefined {
+function loadState(): PersistedState | undefined {
   try {
     const raw = localStorage.getItem('lumii-state')
     if (!raw) return undefined

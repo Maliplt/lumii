@@ -16,7 +16,7 @@ function useDebouncedValue<T>(value: T, delay = 400): T {
 // acilis genisligi
 function targetWidth(): string {
   const w = document.documentElement.clientWidth
-  return w <= 768 ? `${w - 16}px` : '520px'
+  return w <= 768 ? `${w-16}px` : '520px'
 }
 
 interface SearchBarProps {
@@ -86,20 +86,20 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
   return (
     <div
       ref={wrapperRef}
-      className="animated-search-container centered-search"
+      className="search-bar search-bar--centered"
       style={{ overflow: 'hidden', width: '0px', opacity: 0 }}
     >
-      <Search size={18} className="search-accent-icon" />
+      <Search size={18} className="search-bar__icon" />
       <input
         type="text"
         placeholder="Film veya dizi arayın..."
-        className="search-animated-input"
+        className="search-bar__input"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit() }}
         autoFocus
       />
-      <button className="search-animated-close" onClick={handleClose} aria-label="Aramayı kapat">
+      <button className="search-bar__close" onClick={handleClose} aria-label="Aramayı kapat">
         <X size={18} />
       </button>
     </div>

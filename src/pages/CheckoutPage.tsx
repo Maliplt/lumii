@@ -2,47 +2,31 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from 'rsuite'
 import { Check, Lock, CheckCircle } from 'lucide-react'
-import axios from 'axios'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import PageLayout from '../components/PageLayout'
 import { useToast } from '../components/Toast'
+import { isValidCardNumber, isValidExpiry, isValidCvc, formatCardNumber, formatExpiry, formatCvc } from '../services/card'
 import { useAppSelector, useAppDispatch, setPlan, setReceipt } from '../store/store'
 import { PACKAGES } from '../helpers'
 import type { PackageDef } from '../types/types'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+const PAYMENT_DELAY = 1500
 
-async function createIntent(amount: number): Promise<string> {
-  const body = new URLSearchParams({ amount: String(amount), currency: 'try' })
-  const res = await axios.post('https://api.stripe.com/v1/payment_intents', body, {
-    headers: { Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET_KEY}` },
-  })
-  return res.data.client_secret
-}
-
-const CARD_STYLE = {
-  style: {
-    base: {
-      color: '#ffffff',
-      fontSize: '15px',
-      fontFamily: 'Inter, sans-serif',
-      '::placeholder': { color: 'rgba(255,255,255,0.3)' },
-    },
-    invalid: { color: '#ff8a8a' },
-  },
-}
-
-interface BillingInfo {
+interface CheckoutFormState {
   cardName: string
+  cardNumber: string
+  expiry: string
+  cvc: string
   address: string
   district: string
   city: string
   postalCode: string
 }
 
-const EMPTY_BILLING: BillingInfo = {
+const EMPTY_FORM: CheckoutFormState = {
   cardName: '',
+  cardNumber: '',
+  expiry: '',
+  cvc: '',
   address: '',
   district: '',
   city: '',
@@ -50,49 +34,24 @@ const EMPTY_BILLING: BillingInfo = {
 }
 
 function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: string; onSuccess: () => void }) {
-  const stripe = useStripe()
-  const elements = useElements()
   const toast = useToast()
   const dispatch = useAppDispatch()
 
-  const [billing, setBilling] = useState<BillingInfo>(EMPTY_BILLING)
+  const [form, setForm] = useState<CheckoutFormState>(EMPTY_FORM)
   const [paying, setPaying] = useState(false)
 
-  const set = (field: keyof BillingInfo) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setBilling((prev) => ({ ...prev, [field]: e.target.value }))
+  const setField = (field: keyof CheckoutFormState, format?: (value: string) => string) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((prev) => ({ ...prev, [field]: format ? format(e.target.value) : e.target.value }))
 
-  const handlePay = async () => {
-    if (!stripe || !elements) return
-    if (!billing.cardName.trim()) {
-      toast('Kart sahibi adını girin.', 'warning')
-      return
-    }
+  const handlePay = () => {
+    if (!form.cardName.trim()) { toast('Lütfen kart üzerindeki adı ve soyadı girin.', 'warning'); return }
+    if (!isValidCardNumber(form.cardNumber)) { toast('Lütfen geçerli bir kart numarası girin.', 'error'); return }
+    if (!isValidExpiry(form.expiry)) { toast('Lütfen geçerli bir son kullanma tarihi girin.', 'error'); return }
+    if (!isValidCvc(form.cvc)) { toast('Lütfen geçerli bir güvenlik kodu (CVC) girin.', 'error'); return }
 
     setPaying(true)
-    try {
-      const amount = Number(pkg.price.replace(/\D/g, '')) * 100
-      const clientSecret = await createIntent(amount)
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardNumberElement)!,
-          billing_details: {
-            name: billing.cardName,
-            email,
-            address: {
-              line1: billing.address,
-              city: billing.city,
-              postal_code: billing.postalCode,
-              country: 'TR',
-            },
-          },
-        },
-      })
-
-      if (result.error) {
-        toast(result.error.message ?? 'Ödeme başarısız.', 'error')
-        return
-      }
-
+    setTimeout(() => {
       dispatch(setPlan(pkg.id))
       dispatch(setReceipt({
         planName: pkg.name,
@@ -103,11 +62,7 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
         email,
       }))
       onSuccess()
-    } catch {
-      toast('Ödeme başlatılamadı, tekrar dene.', 'error')
-    } finally {
-      setPaying(false)
-    }
+    }, PAYMENT_DELAY)
   }
 
   return (
@@ -119,31 +74,52 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
           type="text"
           className="checkout-text-input"
           placeholder="Ad Soyad"
-          value={billing.cardName}
-          onChange={set('cardName')}
+          value={form.cardName}
+          onChange={setField('cardName')}
           autoComplete="cc-name"
         />
       </div>
 
       <div className="checkout-field">
         <label>Kart Numarası</label>
-        <div className="checkout-card-input">
-          <CardNumberElement options={{ ...CARD_STYLE, showIcon: true }} />
-        </div>
+        <input
+          type="text"
+          className="checkout-text-input"
+          placeholder="1234 5678 9012 3456"
+          value={form.cardNumber}
+          onChange={setField('cardNumber', formatCardNumber)}
+          autoComplete="cc-number"
+          inputMode="numeric"
+          maxLength={19}
+        />
       </div>
 
       <div className="checkout-field-row">
         <div className="checkout-field">
           <label>Son Kullanma</label>
-          <div className="checkout-card-input">
-            <CardExpiryElement options={CARD_STYLE} />
-          </div>
+          <input
+            type="text"
+            className="checkout-text-input"
+            placeholder="AA/YY"
+            value={form.expiry}
+            onChange={setField('expiry', formatExpiry)}
+            autoComplete="cc-exp"
+            inputMode="numeric"
+            maxLength={5}
+          />
         </div>
         <div className="checkout-field">
           <label>CVC</label>
-          <div className="checkout-card-input">
-            <CardCvcElement options={CARD_STYLE} />
-          </div>
+          <input
+            type="text"
+            className="checkout-text-input"
+            placeholder="123"
+            value={form.cvc}
+            onChange={setField('cvc', formatCvc)}
+            autoComplete="cc-csc"
+            inputMode="numeric"
+            maxLength={3}
+          />
         </div>
       </div>
 
@@ -157,8 +133,8 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
             type="text"
             className="checkout-text-input"
             placeholder="Mahalle, Cadde, Sokak, No"
-            value={billing.address}
-            onChange={set('address')}
+            value={form.address}
+            onChange={setField('address')}
             autoComplete="street-address"
           />
         </div>
@@ -170,8 +146,8 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
               type="text"
               className="checkout-text-input"
               placeholder="İlçe"
-              value={billing.district}
-              onChange={set('district')}
+              value={form.district}
+              onChange={setField('district')}
             />
           </div>
           <div className="checkout-field">
@@ -180,8 +156,8 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
               type="text"
               className="checkout-text-input"
               placeholder="İstanbul"
-              value={billing.city}
-              onChange={set('city')}
+              value={form.city}
+              onChange={setField('city')}
               autoComplete="address-level2"
             />
           </div>
@@ -194,8 +170,8 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
               type="text"
               className="checkout-text-input"
               placeholder="34000"
-              value={billing.postalCode}
-              onChange={set('postalCode')}
+              value={form.postalCode}
+              onChange={setField('postalCode')}
               autoComplete="postal-code"
               maxLength={5}
             />
@@ -215,7 +191,7 @@ function CheckoutForm({ pkg, email, onSuccess }: { pkg: PackageDef; email: strin
       <Button appearance="primary" block loading={paying} className="checkout-pay" onClick={handlePay}>
         <Lock size={15} /> {pkg.price}{pkg.period} Öde
       </Button>
-      <p className="checkout-note">stripe test: 4242 4242 4242 4242 · gelecek tarih · herhangi CVC</p>
+      <p className="checkout-note">test kartı: 4242 4242 4242 4242 · gelecek tarih · 3 haneli CVC</p>
     </>
   )
 }
@@ -241,6 +217,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate()
   const [success, setSuccess] = useState(false)
 
+  // redux
   const currentUser = useAppSelector((s) => s.auth.currentUser)
   const pkg = PACKAGES.find((p) => p.id === planId && !p.free)
 
@@ -281,9 +258,7 @@ export default function CheckoutPage() {
               </ul>
             </div>
 
-            <Elements stripe={stripePromise}>
-              <CheckoutForm pkg={pkg} email={currentUser.email} onSuccess={() => setSuccess(true)} />
-            </Elements>
+            <CheckoutForm pkg={pkg} email={currentUser.email} onSuccess={() => setSuccess(true)} />
           </>
         )}
       </div>

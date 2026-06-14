@@ -296,7 +296,7 @@ type Owner = "player" | "ai";
 interface ChainItem { word: string; owner: Owner; }
 type Screen = "start" | "countdown" | "playing" | "ai_thinking" | "gameover";
 
-export default function WordChainApp() {
+export default function KelimeZinciriApp() {
   const [xp, setXp] = useState(() => {
     const saved = localStorage.getItem("kelimezinciri_xp");
     return saved ? parseInt(saved, 10) : 0;

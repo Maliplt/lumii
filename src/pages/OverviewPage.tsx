@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Button } from 'rsuite'
-import { Play, ChevronDown } from 'lucide-react'
+import { Button, Modal } from 'rsuite'
+import { Play, ChevronDown, Film } from 'lucide-react'
 import PageLayout from '../components/PageLayout'
 import ContentCarousel from '../components/ContentCarousel'
 import Spinner from '../components/Spinner'
-import { tmdbApi, getImageUrl } from '../services/tmdb'
+import { tmdbApi, getImageUrl, pickTrailer } from '../services/tmdb'
 import { useFetch } from '../helpers'
 import type { MovieDetail, TVShowDetail, Movie, TVShow, Episode } from '../types/types'
 
@@ -26,26 +26,29 @@ export default function OverviewPage() {
 
 function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
     const navigate = useNavigate()
-    const [openSeason, setOpenSeason] = useState<number>(1)
+    const [selectedSeason, setSelectedSeason] = useState(1)
+    const [trailerOpen, setTrailerOpen] = useState(false)
     const textClipRef = useRef<HTMLDivElement>(null)
 
     const numId = Number(id)
     const isMovie = type === 'movie'
 
-    // detay + benzerler
+    // detay + benzerler + fragman
     const { data, loading } = useFetch(() =>
         Promise.all([
             isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
             isMovie ? tmdbApi.getSimilarMovies(numId) : tmdbApi.getSimilarTVShows(numId),
+            tmdbApi.getVideos(type, numId),
         ])
     )
     const detail = data?.[0] ?? null
     const similar = (data?.[1].results.filter((item) => item.poster_path) ?? []) as Movie[] | TVShow[]
+    const trailerKey = data ? pickTrailer(data[2].results) : null
 
-    // secili sezonun bolumleri — TV show icin her zaman cekiliyor
+    // secili sezonun bolumleri
     const season = useFetch(
-        () => (isMovie ? Promise.resolve(null) : tmdbApi.getTVSeasonDetails(numId, openSeason)),
-        isMovie ? 'movie' : `sezon-${openSeason}`
+        () => (isMovie ? Promise.resolve(null) : tmdbApi.getTVSeasonDetails(numId, selectedSeason)),
+        isMovie ? 'movie' : `sezon-${selectedSeason}`
     )
 
     // uzun ozet kayar
@@ -57,7 +60,7 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
             const overflow = el.scrollHeight - el.clientHeight
             if (overflow > 8) {
                 el.style.setProperty('--overview-scroll', `-${overflow}px`)
-                el.style.setProperty('--overview-scroll-dur', `${Math.max(10, Math.round(overflow / 18) + 8)}s`)
+                el.style.setProperty('--overview-scroll-dur', `${Math.max(10, Math.round(overflow/18) + 8)}s`)
                 el.classList.add('is-overflowing')
             }
         }
@@ -73,7 +76,7 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
     const movieDetail = detail as MovieDetail
 
     const title = isMovie ? movieDetail?.title : tvDetail?.name
-    const year = isMovie ? movieDetail?.release_date?.slice(0, 4) : tvDetail?.first_air_date?.slice(0, 4)
+    const year = isMovie ? movieDetail?.release_date?.slice(0, 4) : tvDetail?.first_air_date?.slice(0,4)
     const runtime = isMovie
         ? movieDetail?.runtime ? `${movieDetail.runtime} dk` : null
         : tvDetail?.episode_run_time?.[0] ? `${tvDetail.episode_run_time[0]} dk` : null
@@ -106,9 +109,16 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
                         </div>
                         {director && <p className="overview-crew"><strong>Yönetmen:</strong> {director}</p>}
                         {cast && <p className="overview-cast"><strong>Oyuncular:</strong> {cast}</p>}
-                        <Button className="btn-play" size="lg" onClick={() => navigate(`/${type}/${id}/player`, { state: { title } })}>
-                            <Play size={20} fill="currentColor" className="play-icon" /> Oynat
-                        </Button>
+                        <div className="overview-actions">
+                            <Button className="btn-play" size="lg" onClick={() => navigate(`/${type}/${id}/player`, { state: { title } })}>
+                                <Play size={20} fill="currentColor" className="play-icon" /> Oynat
+                            </Button>
+                            {trailerKey && (
+                                <Button className="btn-trailer" size="lg" onClick={() => setTrailerOpen(true)}>
+                                    <Film size={20} /> Fragman İzle
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -119,10 +129,10 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
                             <div className="season-select-wrap">
                                 <select
                                     className="season-select"
-                                    value={openSeason}
-                                    onChange={(e) => setOpenSeason(Number(e.target.value))}
+                                    value={selectedSeason}
+                                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
                                 >
-                                    {Array.from({ length: tvDetail.number_of_seasons }, (_, i) => i + 1).map((n) => (
+                                    {Array.from({ length: tvDetail.number_of_seasons }, (_, i) => i+1).map((n) => (
                                         <option key={n} value={n}>{n}. Sezon</option>
                                     ))}
                                 </select>
@@ -167,7 +177,7 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="seasons-empty">Bölüm bilgileri yüklenemedi.</div>
+                            <div className="seasons-empty">Bölüm bilgilerine şu anda ulaşılamıyor.</div>
                         )}
                     </div>
                 )}
@@ -175,6 +185,24 @@ function OverviewContent({ type, id }: { type: 'movie' | 'tv'; id: string }) {
                 <div className="overview-similar">
                     <ContentCarousel type={type} title="Benzer İçerikler" items={similar} />
                 </div>
+
+                {trailerKey && (
+                    <Modal open={trailerOpen} onClose={() => setTrailerOpen(false)} size="lg" className="trailer-modal">
+                        <Modal.Header><Modal.Title>{title} — Fragman</Modal.Title></Modal.Header>
+                        <Modal.Body>
+                            {trailerOpen && (
+                                <div className="trailer-frame">
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
+                                        title="Fragman"
+                                        allow="autoplay; encrypted-media; fullscreen"
+                                        allowFullScreen
+                                    />
+                                </div>
+                            )}
+                        </Modal.Body>
+                    </Modal>
+                )}
                 </>
             )}
         </PageLayout>
