@@ -1,56 +1,62 @@
-import { useRef, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Schema, Input, InputGroup, Button } from 'rsuite'
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { animate } from 'animejs'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import { useToast } from '../components/Toast'
-import { tmdbApi, getImageUrl } from '../services/tmdb'
-import { useAppDispatch, useAppSelector, login, clearAuthError } from '../store/store'
-import type { Movie } from '../types/types'
+import { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Schema, Input, InputGroup, Button } from "rsuite";
+import { AlertCircle } from "lucide-react";
+import { MotionIcon } from "motion-icons-react";
+import { animate } from "animejs";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { useToast } from "../components/Toast";
+import { tmdbApi, getImageUrl } from "../services/tmdb";
+import {
+  useAppDispatch,
+  useAppSelector,
+  login,
+  clearAuthError,
+} from "../store/store";
+import type { Movie } from "../types/types";
 
-const { StringType } = Schema.Types
+const { StringType } = Schema.Types;
 
-type CheckResult = Record<string, { hasError: boolean; errorMessage: string }>
+type CheckResult = Record<string, { hasError: boolean; errorMessage: string }>;
 
 const loginModel = Schema.Model({
   email: StringType()
-    .isEmail('Lütfen geçerli bir e-posta adresi girin.')
-    .isRequired('Lütfen e-posta adresinizi girin.'),
+    .isEmail("Lütfen geçerli bir e-posta adresi girin.")
+    .isRequired("Lütfen e-posta adresinizi girin."),
   password: StringType()
-    .minLength(8, 'Şifreniz en az 8 karakter olmalıdır.')
-    .isRequired('Lütfen şifrenizi girin.'),
-})
+    .minLength(8, "Şifreniz en az 8 karakter olmalıdır.")
+    .isRequired("Lütfen şifrenizi girin."),
+});
 
 export default function LoginPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   // redux
-  const dispatch = useAppDispatch()
-  const currentUser = useAppSelector((s) => s.auth.currentUser)
-  const authError = useAppSelector((s) => s.auth.error)
-  const cardRef = useRef<HTMLDivElement>(null)
+  const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const authError = useAppSelector((s) => s.auth.error);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const [movies, setMovies] = useState<Movie[]>([])
-  const [bgIdx, setBgIdx] = useState(0)
-  const [formValue, setFormValue] = useState({ email: '', password: '' })
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [showPw, setShowPw] = useState(false)
-  const [forgotMsg, setForgotMsg] = useState('')
-  const toast = useToast()
-  const submitted = useRef(false)
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [bgIdx, setBgIdx] = useState(0);
+  const [formValue, setFormValue] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPw, setShowPw] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState("");
+  const toast = useToast();
+  const submitted = useRef(false);
 
-  // giris yapildiysa anasayfa
+  // anasayfa
   useEffect(() => {
     if (currentUser) {
-      if (submitted.current) toast(`Hoş geldin ${currentUser.name}!`)
-      navigate('/')
+      if (submitted.current) toast(`Hoş geldin ${currentUser.name}!`);
+      navigate("/");
     }
-  }, [currentUser, navigate, toast])
+  }, [currentUser, navigate, toast]);
 
   useEffect(() => {
-    dispatch(clearAuthError())
-  }, [dispatch])
+    dispatch(clearAuthError());
+  }, [dispatch]);
 
   useEffect(() => {
     if (cardRef.current)
@@ -58,54 +64,62 @@ export default function LoginPage() {
         opacity: [0, 1],
         translateY: [28, 0],
         duration: 600,
-        easing: 'easeOutQuart',
-      })
-  }, [])
+        easing: "easeOutQuart",
+      });
+  }, []);
 
   useEffect(() => {
-    tmdbApi.getPopularMovies()
+    tmdbApi
+      .getPopularMovies()
       .then((res) => {
-        setMovies(res.results.filter((m) => m.backdrop_path && m.overview).slice(0, 8))
+        setMovies(
+          res.results.filter((m) => m.backdrop_path && m.overview).slice(0, 8),
+        );
       })
-      .catch(() => {})
-  }, [])
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
-    if (movies.length <= 1) return
-    const id = setInterval(() => setBgIdx((i) => (i+1) % movies.length), 5000)
-    return () => clearInterval(id)
-  }, [movies.length])
+    if (movies.length <= 1) return;
+    const id = setInterval(
+      () => setBgIdx((i) => (i + 1) % movies.length),
+      5000,
+    );
+    return () => clearInterval(id);
+  }, [movies.length]);
 
-  const currentMovie = movies[bgIdx] ?? null
+  const currentMovie = movies[bgIdx] ?? null;
 
   const handleLogin = () => {
-    const result = loginModel.check(formValue) as CheckResult
-    const errs: Record<string, string> = {}
+    const result = loginModel.check(formValue) as CheckResult;
+    const errs: Record<string, string> = {};
 
     Object.entries(result).forEach(([field, check]) => {
-      if (check.hasError) errs[field] = check.errorMessage
-    })
-    setErrors(errs)
-    if (Object.keys(errs).length) return
+      if (check.hasError) errs[field] = check.errorMessage;
+    });
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
 
-    submitted.current = true
-    dispatch(login(formValue))
-  }
+    submitted.current = true;
+    dispatch(login(formValue));
+  };
 
   const setField = (key: keyof typeof formValue) => (value: string) => {
-    setFormValue((f) => ({ ...f, [key]: value }))
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: '' }))
-    if (authError) dispatch(clearAuthError())
-    if (forgotMsg) setForgotMsg('')
-  }
+    setFormValue((f) => ({ ...f, [key]: value }));
+    if (errors[key]) setErrors((e) => ({ ...e, [key]: "" }));
+    if (authError) dispatch(clearAuthError());
+    if (forgotMsg) setForgotMsg("");
+  };
 
   const handleForgot = () => {
-    if (!formValue.email.includes('@')) {
-      setForgotMsg('Lütfen önce e-posta adresinizi girin.')
-      return
+    if (!formValue.email.includes("@")) {
+      setForgotMsg("Lütfen önce e-posta adresinizi girin.");
+      return;
     }
-    setForgotMsg(`Sıfırlama bağlantısı ${formValue.email} adresine gönderildi.`)
-  }
+    setForgotMsg(
+      `Sıfırlama bağlantısı ${formValue.email} adresine gönderildi.`,
+    );
+  };
 
   return (
     <div className="login-page">
@@ -114,8 +128,8 @@ export default function LoginPage() {
       {movies.map((m, i) => (
         <img
           key={m.id}
-          className={`login-bg ${i === bgIdx ? 'login-bg--active' : ''}`}
-          src={getImageUrl(m.backdrop_path, 'original')}
+          className={`login-bg ${i === bgIdx ? "login-bg--active" : ""}`}
+          src={getImageUrl(m.backdrop_path, "original")}
           alt=""
           aria-hidden="true"
         />
@@ -137,18 +151,28 @@ export default function LoginPage() {
           <div className="login-card" ref={cardRef}>
             <div className="login-card__head">
               <h1 className="login-card__title">Giriş Yap</h1>
-              <p className="login-card__subtitle">Hesabınıza giriş yapın ve izlemeye devam edin.</p>
+              <p className="login-card__subtitle">
+                Hesabınıza giriş yapın ve izlemeye devam edin.
+              </p>
             </div>
 
-            <form className="login-form" onSubmit={(e) => { e.preventDefault(); handleLogin() }}>
+            <form
+              className="login-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
               <div className="login-field">
-                <label className="login-field__label" htmlFor="login-email">E-posta</label>
+                <label className="login-field__label" htmlFor="login-email">
+                  E-posta
+                </label>
                 <Input
                   id="login-email"
                   type="email"
                   placeholder="ornek@mail.com"
                   value={formValue.email}
-                  onChange={setField('email')}
+                  onChange={setField("email")}
                 />
                 {errors.email && (
                   <span className="login-field__error">
@@ -158,17 +182,36 @@ export default function LoginPage() {
               </div>
 
               <div className="login-field">
-                <label className="login-field__label" htmlFor="login-password">Şifre</label>
+                <label className="login-field__label" htmlFor="login-password">
+                  Şifre
+                </label>
                 <InputGroup inside>
                   <Input
                     id="login-password"
-                    type={showPw ? 'text' : 'password'}
+                    type={showPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={formValue.password}
-                    onChange={setField('password')}
+                    onChange={setField("password")}
                   />
-                  <InputGroup.Button onClick={() => setShowPw((p) => !p)} aria-label={showPw ? 'Şifreyi gizle' : 'Şifreyi göster'}>
-                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  <InputGroup.Button
+                    onClick={() => setShowPw((p) => !p)}
+                    aria-label={showPw ? "Şifreyi gizle" : "Şifreyi göster"}
+                  >
+                    {showPw ? (
+                      <MotionIcon
+                        name="EyeOff"
+                        size={18}
+                        trigger="hover"
+                        animation="pop"
+                      />
+                    ) : (
+                      <MotionIcon
+                        name="Eye"
+                        size={18}
+                        trigger="hover"
+                        animation="pop"
+                      />
+                    )}
                   </InputGroup.Button>
                 </InputGroup>
                 {errors.password && (
@@ -178,7 +221,11 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <button type="button" className="login-forgot" onClick={handleForgot}>
+              <button
+                type="button"
+                className="login-forgot"
+                onClick={handleForgot}
+              >
                 Şifremi unuttum
               </button>
               {forgotMsg && <p className="login-forgot-msg">{forgotMsg}</p>}
@@ -190,8 +237,20 @@ export default function LoginPage() {
               )}
 
               <div className="login-actions">
-                <Button appearance="primary" type="submit" block className="login-submit">Giriş Yap</Button>
-                <Button appearance="ghost" block className="login-register" onClick={() => navigate('/register')}>
+                <Button
+                  appearance="primary"
+                  type="submit"
+                  block
+                  className="login-submit"
+                >
+                  Giriş Yap
+                </Button>
+                <Button
+                  appearance="ghost"
+                  block
+                  className="login-register"
+                  onClick={() => navigate("/register")}
+                >
                   Üye Olmak İstiyorum
                 </Button>
               </div>
@@ -202,5 +261,5 @@ export default function LoginPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

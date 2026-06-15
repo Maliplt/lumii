@@ -1,24 +1,24 @@
-import { useState } from 'react'
-import { Tv2 } from 'lucide-react'
-import PageLayout from '../components/PageLayout'
-import MediaPlayer from '../components/MediaPlayer'
-import { getStreamSource } from '../services/player'
+import { useState } from "react";
+import { MotionIcon } from "motion-icons-react";
+import PageLayout from "../components/PageLayout";
+import MediaPlayer from "../components/MediaPlayer";
+import { getStreamSource } from "../services/player";
 
 interface Channel {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 const CHANNELS: Channel[] = [
-  { id: 'k1', name: 'Kanal 1' },
-  { id: 'k2', name: 'Kanal 2' },
-  { id: 'k3', name: 'Kanal 3' },
-  { id: 'k4',  name: 'Kanal 4' },
-  { id: 'k5', name: 'Kanal 5' },
-]
+  { id: "k1", name: "Kanal 1" },
+  { id: "k2", name: "Kanal 2" },
+  { id: "k3", name: "Kanal 3" },
+  { id: "k4", name: "Kanal 4" },
+  { id: "k5", name: "Kanal 5" },
+];
 
 export default function TvPage() {
-  const [selected, setSelected] = useState<Channel>(CHANNELS[0])
+  const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
 
   return (
     <PageLayout className="tv-page" mainClassName="tv-main">
@@ -29,10 +29,17 @@ export default function TvPage() {
             {CHANNELS.map((channel) => (
               <button
                 key={channel.id}
-                className={`tv-channel-item${selected.id === channel.id ? ' active' : ''}`}
+                className={`tv-channel-item${selected.id === channel.id ? " active" : ""}`}
                 onClick={() => setSelected(channel)}
               >
-                <div className="tv-channel-item__logo"><Tv2 size={20} /></div>
+                <div className="tv-channel-item__logo">
+                  <MotionIcon
+                    name="Tv2"
+                    size={20}
+                    trigger="hover"
+                    animation="pop"
+                  />
+                </div>
                 <span className="tv-channel-item__name">{channel.name}</span>
                 <span className="tv-channel-item__live" />
               </button>
@@ -52,5 +59,5 @@ export default function TvPage() {
         </div>
       </div>
     </PageLayout>
-  )
+  );
 }

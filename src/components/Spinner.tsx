@@ -1,12 +1,14 @@
-import Logo from './Logo'
+import Logo from "./Logo";
 
 interface SpinnerProps {
-  inline?: boolean
+  inline?: boolean;
 }
 
 export default function Spinner({ inline = false }: SpinnerProps) {
   return (
-    <div className={`spinner-overlay${inline ? ' spinner-overlay--inline' : ''}`}>
+    <div
+      className={`spinner-overlay${inline ? " spinner-overlay--inline" : ""}`}
+    >
       <div className="spinner-stage">
         <span className="spinner-pulse" />
         <span className="spinner-pulse" />
@@ -16,5 +18,5 @@ export default function Spinner({ inline = false }: SpinnerProps) {
       <Logo className="spinner-logo" />
       <span className="spinner-label">Yükleniyor</span>
     </div>
-  )
+  );
 }

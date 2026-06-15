@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'rsuite/dist/rsuite.min.css';
+@import 'motion-icons-react/style.css';
 
 /* font ayarlari */
 :root {

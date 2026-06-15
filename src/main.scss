@@ -1493,6 +1493,14 @@ main {
     }
 }
 
+// iframe'i kapatan seffaf kalkan: youtube'un hover'daki oynat/duraklat dugmesini engeller
+.cc-item__trailer-shield {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
 // ses ikonu — aksiyon butonu cercevesiyle, kosede
 .cc-item__mute {
     position: absolute;

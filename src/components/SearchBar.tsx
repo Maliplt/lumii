@@ -1,107 +1,123 @@
-import { useState, useEffect, useRef } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Search, X } from 'lucide-react'
-import { animate } from 'animejs'
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { MotionIcon } from "motion-icons-react";
+import { animate } from "animejs";
 
 // debounce
 function useDebouncedValue<T>(value: T, delay = 400): T {
-  const [debounced, setDebounced] = useState(value)
+  const [debounced, setDebounced] = useState(value);
   useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(id)
-  }, [value, delay])
-  return debounced
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
 }
 
-// acilis genisligi
+// genislik
 function targetWidth(): string {
-  const w = document.documentElement.clientWidth
-  return w <= 768 ? `${w-16}px` : '520px'
+  const w = document.documentElement.clientWidth;
+  return w <= 768 ? `${w - 16}px` : "520px";
 }
 
 interface SearchBarProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 export default function SearchBar({ open, onClose }: SearchBarProps) {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const initial = location.pathname === '/search'
-    ? (new URLSearchParams(location.search).get('q') ?? '')
-    : ''
-  const [query, setQuery] = useState(initial)
-  const debounced = useDebouncedValue(query.trim(), 400)
+  const initial =
+    location.pathname === "/search"
+      ? (new URLSearchParams(location.search).get("q") ?? "")
+      : "";
+  const [query, setQuery] = useState(initial);
+  const debounced = useDebouncedValue(query.trim(), 400);
 
-  // arama navigasyonu
-  const lastSent = useRef(initial)
+  // arama
+  const lastSent = useRef(initial);
   useEffect(() => {
-    if (debounced === lastSent.current) return
-    lastSent.current = debounced
+    if (debounced === lastSent.current) return;
+    lastSent.current = debounced;
     if (debounced) {
       navigate(`/search?q=${encodeURIComponent(debounced)}`, {
-        replace: location.pathname === '/search',
-      })
-    } else if (location.pathname === '/search') {
-      navigate('/search', { replace: true })
+        replace: location.pathname === "/search",
+      });
+    } else if (location.pathname === "/search") {
+      navigate("/search", { replace: true });
     }
-  }, [debounced, location.pathname, navigate])
+  }, [debounced, location.pathname, navigate]);
 
-  // acilis animasyonu
+  // acilis
   useEffect(() => {
     if (open && wrapperRef.current) {
       animate(wrapperRef.current, {
-        width: ['0px', targetWidth()],
+        width: ["0px", targetWidth()],
         opacity: [0, 1],
         duration: 450,
-        easing: 'easeOutQuart',
-      })
+        easing: "easeOutQuart",
+      });
     }
-  }, [open])
+  }, [open]);
 
   const handleClose = () => {
     if (wrapperRef.current) {
       animate(wrapperRef.current, {
-        width: [targetWidth(), '0px'],
+        width: [targetWidth(), "0px"],
         opacity: [1, 0],
         duration: 300,
-        easing: 'easeInQuart',
-        complete: () => { setQuery(''); onClose() },
-      })
+        easing: "easeInQuart",
+        complete: () => {
+          setQuery("");
+          onClose();
+        },
+      });
     } else {
-      setQuery('')
-      onClose()
+      setQuery("");
+      onClose();
     }
-  }
+  };
 
   const handleSubmit = () => {
-    const q = query.trim()
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}`)
-  }
+    const q = query.trim();
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+  };
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <div
       ref={wrapperRef}
       className="search-bar search-bar--centered"
-      style={{ overflow: 'hidden', width: '0px', opacity: 0 }}
+      style={{ overflow: "hidden", width: "0px", opacity: 0 }}
     >
-      <Search size={18} className="search-bar__icon" />
+      <MotionIcon
+        name="Search"
+        size={18}
+        trigger="hover"
+        animation="pop"
+        className="search-bar__icon"
+      />
       <input
         type="text"
         placeholder="Film veya dizi arayın..."
         className="search-bar__input"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit() }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSubmit();
+        }}
         autoFocus
       />
-      <button className="search-bar__close" onClick={handleClose} aria-label="Aramayı kapat">
-        <X size={18} />
+      <button
+        className="search-bar__close"
+        onClick={handleClose}
+        aria-label="Aramayı kapat"
+      >
+        <MotionIcon name="X" size={18} trigger="hover" animation="pop" />
       </button>
     </div>
-  )
+  );
 }

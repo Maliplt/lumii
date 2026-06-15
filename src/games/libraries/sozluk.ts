@@ -1,4 +1,3 @@
-
 const RAW = `AB
 ABA
 ABACI

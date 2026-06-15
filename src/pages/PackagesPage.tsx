@@ -1,37 +1,38 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Button } from 'rsuite'
-import { Check } from 'lucide-react'
-import { animate } from 'animejs'
-import PageLayout from '../components/PageLayout'
-import { useToast } from '../components/Toast'
-import { tmdbApi, getImageUrl } from '../services/tmdb'
-import { useFetch, PACKAGES } from '../helpers'
-import { useAppSelector } from '../store/store'
-import type { PackageDef } from '../types/types'
+import { useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "rsuite";
+import { Check } from "lucide-react";
+import { MotionIcon } from "motion-icons-react";
+import { animate } from "animejs";
+import PageLayout from "../components/PageLayout";
+import { useToast } from "../components/Toast";
+import { tmdbApi, getImageUrl } from "../services/tmdb";
+import { useFetch, PACKAGES } from "../helpers";
+import { useAppSelector } from "../store/store";
+import type { PackageDef } from "../types/types";
 
 export default function PackagesPage() {
-  const navigate = useNavigate()
-  const toast = useToast()
-  const heroRef = useRef<HTMLDivElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate();
+  const toast = useToast();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   // redux
-  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser)
-  const currentPlan = useAppSelector((s) => s.auth.currentUser?.plan)
+  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
+  const currentPlan = useAppSelector((s) => s.auth.currentUser?.plan);
 
   const { data } = useFetch(() =>
-    Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()])
-  )
+    Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()]),
+  );
 
-  // poster duvari
+  // posterlar
   const posters = useMemo(() => {
-    if (!data) return []
+    if (!data) return [];
     return [...data[0].results, ...data[1].results]
       .filter((m) => m.poster_path)
       .slice(0, 30)
-      .map((m) => getImageUrl(m.poster_path, 'w300'))
-  }, [data])
+      .map((m) => getImageUrl(m.poster_path, "w300"));
+  }, [data]);
 
   useEffect(() => {
     if (heroRef.current)
@@ -39,34 +40,34 @@ export default function PackagesPage() {
         opacity: [0, 1],
         translateY: [-20, 0],
         duration: 500,
-        easing: 'easeOutQuart',
-      })
+        easing: "easeOutQuart",
+      });
 
     if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll('.package-card')
+      const cards = gridRef.current.querySelectorAll(".package-card");
       animate(cards, {
         opacity: [0, 1],
         translateY: [32, 0],
         duration: 480,
-        easing: 'easeOutQuart',
-        delay: (_el: Element, i: number) => 160 + i*100,
-      })
+        easing: "easeOutQuart",
+        delay: (_el: Element, i: number) => 160 + i * 100,
+      });
     }
-  }, [])
+  }, []);
 
-  // ucretsiz uyelige, ucretliler odeme sayfasina
+  // secim
   const handleSelect = (pkg: PackageDef) => {
     if (pkg.free) {
-      navigate('/register')
-      return
+      navigate("/register");
+      return;
     }
     if (!isLoggedIn) {
-      toast('Paket satın almak için önce giriş yapmalısın.', 'warning')
-      navigate('/login')
-      return
+      toast("Paket satın almak için önce giriş yapmalısın.", "warning");
+      navigate("/login");
+      return;
     }
-    navigate(`/checkout/${pkg.id}`)
-  }
+    navigate(`/checkout/${pkg.id}`);
+  };
 
   return (
     <PageLayout className="packages-page" mainClassName="packages-main">
@@ -81,59 +82,73 @@ export default function PackagesPage() {
 
       <div className="packages-hero" ref={heroRef} style={{ opacity: 0 }}>
         <span className="packages-badge">Planlar &amp; Fiyatlar</span>
-        <h1 className="packages-hero__title">Binlerce Film, Dizi ve Oyun Seni Bekliyor</h1>
+        <h1 className="packages-hero__title">
+          Binlerce Film, Dizi ve Oyun Seni Bekliyor
+        </h1>
         <p className="packages-hero__subtitle">
-          Reklamsız, 4K kalitede, sınırsız erişim. Ücretsiz başla, istediğin zaman yükselt.
+          Reklamsız, 4K kalitede, sınırsız erişim. Ücretsiz başla, istediğin
+          zaman yükselt.
         </p>
       </div>
 
       <div className="packages-grid" ref={gridRef}>
         {PACKAGES.map((pkg) => {
-          const isActive = currentPlan === pkg.id
+          const isActive = currentPlan === pkg.id;
           return (
-          <div
-            key={pkg.id}
-            className={`package-card${pkg.accent ? ' package-card--accent' : ''}${isActive ? ' package-card--active' : ''}`}
-            style={{ opacity: 0 }}
-          >
-            {isActive && <span className="package-badge package-badge--active">Mevcut Plan</span>}
-            {!isActive && pkg.badge && <span className="package-badge">{pkg.badge}</span>}
-
-            <div className="package-card__header">
-              <pkg.Icon
-                size={22}
-                className={`package-icon${pkg.accent ? ' package-icon--accent' : ''}`}
-              />
-              <h3 className="package-name">{pkg.name}</h3>
-            </div>
-
-            <div className="package-price-row">
-              <span className="package-price">{pkg.price}</span>
-              {pkg.period && <span className="package-period">{pkg.period}</span>}
-            </div>
-
-            <ul className="package-features">
-              {pkg.features.map((f) => (
-                <li key={f}>
-                  <Check size={14} />
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              appearance={pkg.accent ? 'primary' : 'ghost'}
-              className={`package-cta${pkg.accent ? ' package-cta--accent' : ''}${isActive ? ' package-cta--active' : ''}`}
-              onClick={() => !isActive && handleSelect(pkg)}
-              disabled={isActive}
-              block
+            <div
+              key={pkg.id}
+              className={`package-card${pkg.accent ? " package-card--accent" : ""}${isActive ? " package-card--active" : ""}`}
+              style={{ opacity: 0 }}
             >
-              {isActive ? 'Mevcut' : pkg.cta}
-            </Button>
-          </div>
-          )
+              {isActive && (
+                <span className="package-badge package-badge--active">
+                  Mevcut Plan
+                </span>
+              )}
+              {!isActive && pkg.badge && (
+                <span className="package-badge">{pkg.badge}</span>
+              )}
+
+              <div className="package-card__header">
+                <MotionIcon
+                  name={pkg.icon}
+                  size={22}
+                  className={`package-icon${pkg.accent ? " package-icon--accent" : ""}`}
+                  trigger="hover"
+                  animation="pop"
+                />
+                <h3 className="package-name">{pkg.name}</h3>
+              </div>
+
+              <div className="package-price-row">
+                <span className="package-price">{pkg.price}</span>
+                {pkg.period && (
+                  <span className="package-period">{pkg.period}</span>
+                )}
+              </div>
+
+              <ul className="package-features">
+                {pkg.features.map((f) => (
+                  <li key={f}>
+                    <Check size={14} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                appearance={pkg.accent ? "primary" : "ghost"}
+                className={`package-cta${pkg.accent ? " package-cta--accent" : ""}${isActive ? " package-cta--active" : ""}`}
+                onClick={() => !isActive && handleSelect(pkg)}
+                disabled={isActive}
+                block
+              >
+                {isActive ? "Mevcut" : pkg.cta}
+              </Button>
+            </div>
+          );
         })}
       </div>
     </PageLayout>
-  )
+  );
 }

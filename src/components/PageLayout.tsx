@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
-import Spinner from './Spinner'
+import type { ReactNode } from "react";
+import Spinner from "./Spinner";
 
 interface PageLayoutProps {
-  children?: ReactNode
-  mainClassName?: string
-  className?: string
-  loading?: boolean
+  children?: ReactNode;
+  mainClassName?: string;
+  className?: string;
+  loading?: boolean;
 }
 
 // sarmalayici
@@ -17,9 +17,11 @@ export default function PageLayout({
 }: PageLayoutProps) {
   return (
     <div className={className}>
-      {loading
-        ? <Spinner inline />
-        : <main className={mainClassName}>{children}</main>}
+      {loading ? (
+        <Spinner inline />
+      ) : (
+        <main className={mainClassName}>{children}</main>
+      )}
     </div>
-  )
+  );
 }

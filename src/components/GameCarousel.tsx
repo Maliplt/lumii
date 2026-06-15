@@ -1,39 +1,39 @@
-import { Link } from 'react-router-dom'
-import sudokuImg from '../images/sudoku.svg'
-import minesweepImg from '../images/minesweep.svg'
-import game2048Img from '../images/2048.svg'
-import kelimezinciriImg from '../images/kelimezinciri.svg'
+import { Link } from "react-router-dom";
+import sudokuImg from "../images/sudoku.svg";
+import minesweepImg from "../images/minesweep.svg";
+import game2048Img from "../images/2048.svg";
+import kelimezinciriImg from "../images/kelimezinciri.svg";
 
 const GAMES = [
   {
-    id: '2048',
-    name: '2048',
-    path: '/play/2048',
+    id: "2048",
+    name: "2048",
+    path: "/play/2048",
     image: game2048Img,
-    description: 'Sayıları Birleştir'
+    description: "Sayıları Birleştir",
   },
   {
-    id: 'kelimezinciri',
-    name: 'Kelime Zinciri',
-    path: '/play/kelimezinciri',
+    id: "kelimezinciri",
+    name: "Kelime Zinciri",
+    path: "/play/kelimezinciri",
     image: kelimezinciriImg,
-    description: 'Zeka ve Hafıza Oyunu'
+    description: "Zeka ve Hafıza Oyunu",
   },
   {
-    id: 'sudoku',
-    name: 'Sudoku',
-    path: '/play/sudoku',
+    id: "sudoku",
+    name: "Sudoku",
+    path: "/play/sudoku",
     image: sudokuImg,
-    description: 'Zeka ve Mantık Oyunu'
+    description: "Zeka ve Mantık Oyunu",
   },
   {
-    id: 'minesweeper',
-    name: 'Mayın Tarlası',
-    path: '/play/minesweeper',
+    id: "minesweeper",
+    name: "Mayın Tarlası",
+    path: "/play/minesweeper",
     image: minesweepImg,
-    description: 'Klasik Mayın Bulma Oyunu'
-  }
-]
+    description: "Klasik Mayın Bulma Oyunu",
+  },
+];
 
 export default function GameCarousel() {
   return (
@@ -70,5 +70,5 @@ export default function GameCarousel() {
         </div>
       </div>
     </div>
-  )
+  );
 }
