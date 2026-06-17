@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { RiGamepadLine } from "react-icons/ri";
 import sudokuImg from "../images/sudoku.svg";
 import minesweepImg from "../images/minesweep.svg";
 import game2048Img from "../images/2048.svg";
@@ -11,6 +12,7 @@ const GAMES = [
     path: "/play/2048",
     image: game2048Img,
     description: "Sayıları Birleştir",
+    tag: "Strateji",
   },
   {
     id: "kelimezinciri",
@@ -18,6 +20,7 @@ const GAMES = [
     path: "/play/kelimezinciri",
     image: kelimezinciriImg,
     description: "Zeka ve Hafıza Oyunu",
+    tag: "Dil",
   },
   {
     id: "sudoku",
@@ -25,13 +28,15 @@ const GAMES = [
     path: "/play/sudoku",
     image: sudokuImg,
     description: "Zeka ve Mantık Oyunu",
+    tag: "Bulmaca",
   },
   {
     id: "minesweeper",
     name: "Mayın Tarlası",
     path: "/play/minesweeper",
     image: minesweepImg,
-    description: "Klasik Mayın Bulma Oyunu",
+    description: "Klasik Mayın Bulma",
+    tag: "Klasik",
   },
 ];
 
@@ -40,6 +45,8 @@ export default function GameCarousel() {
     <div className="game-carousel">
       <div className="gc-header">
         <div className="gc-header__left">
+          {/* baslik */}
+          <RiGamepadLine className="gc-header__icon" size={20} />
           <h3>Lumii Oyunlar</h3>
         </div>
       </div>
@@ -58,6 +65,8 @@ export default function GameCarousel() {
                   />
                   <div className="gc-card__overlay">
                     <div className="gc-card__details">
+                      {/* etiket */}
+                      <span className="gc-card__tag">{game.tag}</span>
                       <h4 className="gc-card__name">{game.name}</h4>
                       <p className="gc-card__desc">{game.description}</p>
                       <span className="gc-card__badge">OYNA</span>

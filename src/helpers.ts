@@ -3,10 +3,27 @@ import a1 from "./images/avatars/a1.svg";
 import a2 from "./images/avatars/a2.svg";
 import a3 from "./images/avatars/a3.svg";
 import a4 from "./images/avatars/a4.svg";
+import a5 from "./images/avatars/a5.svg";
+import a6 from "./images/avatars/a6.svg";
+import a7 from "./images/avatars/a7.svg";
+import a8 from "./images/avatars/a8.svg";
+import a9 from "./images/avatars/a9.svg";
+import a10 from "./images/avatars/a10.svg";
 import type { PackageDef } from "./types/types";
 
 // avatarlar
-export const AVATARS: Record<string, string> = { a1, a2, a3, a4 };
+export const AVATARS: Record<string, string> = {
+  a1,
+  a2,
+  a3,
+  a4,
+  a5,
+  a6,
+  a7,
+  a8,
+  a9,
+  a10,
+};
 
 // paketler
 export const PACKAGES: PackageDef[] = [

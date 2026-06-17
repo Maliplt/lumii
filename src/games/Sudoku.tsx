@@ -639,7 +639,7 @@ function newBoard(diff: string) {
 }
 
 export default function SudokuApp() {
-  // ilk bulmaca hazir baslar
+  // ilk bulmaca
   const [initial] = useState(() => newBoard("orta"));
   const [difficulty, setDifficulty] = useState<string>("orta");
   const [game, setGame] = useState<SudokuGame | null>(initial.game);

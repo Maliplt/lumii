@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, type RefObject } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidenav, Nav, Button, Toggle, Modal } from "rsuite";
-import { Check } from "lucide-react";
+import { Nav, Button, Toggle, Tag, Panel } from "rsuite";
+import { Check, Plus, Pencil, Bookmark, ThumbsUp, History } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
 import MediaCard from "../components/MediaCard";
+import ProfileEditorModal from "../components/ProfileEditorModal";
 import { useToast } from "../components/Toast";
 import { AVATARS, PACKAGES } from "../helpers";
 import {
@@ -12,18 +13,28 @@ import {
   useAppDispatch,
   toggleWatchlist,
   toggleLiked,
+  clearHistory,
   logout,
-  clearLibrary,
   setSetting,
-  setAvatar,
+  selectProfile,
+  addProfile,
+  updateProfile,
+  deleteProfile,
+  selectLibrary,
+  selectActiveProfile,
   type SavedItem,
+  type Profile,
 } from "../store/store";
 
-const SECTIONS = [
-  { key: "profil", label: "Hesap Bilgileri", icon: "User" },
+const ACCOUNT_SECTIONS = [
+  { key: "genel", label: "Genel Bakış", icon: "LayoutDashboard" },
+  { key: "profiller", label: "Profiller", icon: "Users" },
   { key: "plan", label: "Üyelik", icon: "Crown" },
   { key: "makbuz", label: "Makbuzlarım", icon: "Receipt" },
   { key: "ayarlar", label: "Ayarlar", icon: "Settings" },
+] as const;
+
+const LIBRARY_SECTIONS = [
   { key: "watchlist", label: "İzleme Listem", icon: "Bookmark" },
   { key: "liked", label: "Beğendiklerim", icon: "ThumbsUp" },
   { key: "history", label: "İzleme Geçmişi", icon: "History" },
@@ -48,6 +59,13 @@ const SETTING_ROWS = [
     desc: "Yarım kalan içerikleri anasayfada göster.",
   },
 ] as const;
+
+const MAX_PROFILES = 5;
+
+type EditorState =
+  | { mode: "create" }
+  | { mode: "edit"; profile: Profile }
+  | null;
 
 function MediaGrid({
   items,
@@ -76,83 +94,26 @@ function MediaGrid({
 export default function AccountPage() {
   const navigate = useNavigate();
   const toast = useToast();
-
-  // redux
   const dispatch = useAppDispatch();
+
   const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const { watchlist, liked, history } = useAppSelector((s) => s.library);
+  const activeProfile = useAppSelector(selectActiveProfile);
+  const { watchlist, liked, history } = useAppSelector(selectLibrary);
   const settings = useAppSelector((s) => s.settings);
   const receipt = useAppSelector((s) => s.auth.receipt);
 
-  const [active, setActive] = useState("profil");
-  const [avatarModal, setAvatarModal] = useState(false);
-
-  const profilRef = useRef<HTMLDivElement>(null);
-  const planRef = useRef<HTMLElement>(null);
-  const makbuzRef = useRef<HTMLElement>(null);
-  const ayarlarRef = useRef<HTMLElement>(null);
-  const watchlistRef = useRef<HTMLElement>(null);
-  const likedRef = useRef<HTMLElement>(null);
-  const historyRef = useRef<HTMLElement>(null);
+  const [active, setActive] = useState("genel");
+  const [editor, setEditor] = useState<EditorState>(null);
 
   // koruma
   useEffect(() => {
     if (!currentUser) navigate("/login");
   }, [currentUser, navigate]);
 
-  // aktif bolum
-  useEffect(() => {
-    const refs: [string, RefObject<HTMLElement | HTMLDivElement | null>][] = [
-      ["profil", profilRef],
-      ["plan", planRef],
-      ["makbuz", makbuzRef],
-      ["ayarlar", ayarlarRef],
-      ["watchlist", watchlistRef],
-      ["liked", likedRef],
-      ["history", historyRef],
-    ];
-    const onScroll = () => {
-      let current = "profil";
-      for (const [key, ref] of refs) {
-        const el = ref.current;
-        if (el && el.getBoundingClientRect().top <= 150) current = key;
-      }
-      // dibe gelindi
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.scrollHeight - 10
-      ) {
-        current = refs[refs.length - 1][0];
-      }
-      setActive(current);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   if (!currentUser) return null;
 
+  const profiles = currentUser.profiles;
   const activePlan = PACKAGES.find((p) => p.id === currentUser.plan);
-
-  const refMap: Record<
-    string,
-    RefObject<HTMLElement | HTMLDivElement | null>
-  > = {
-    profil: profilRef,
-    plan: planRef,
-    makbuz: makbuzRef,
-    ayarlar: ayarlarRef,
-    watchlist: watchlistRef,
-    liked: likedRef,
-    history: historyRef,
-  };
-
-  const scrollTo = (key: string) => {
-    refMap[key]?.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
 
   const removeWatchlist = (it: SavedItem) => {
     dispatch(toggleWatchlist(it));
@@ -164,12 +125,6 @@ export default function AccountPage() {
     toast("Beğeni geri alındı.");
   };
 
-  const selectAvatar = (id: string) => {
-    dispatch(setAvatar(id));
-    setAvatarModal(false);
-    toast("Profil resmi güncellendi.");
-  };
-
   const handlePassword = () => {
     toast(
       `Sıfırlama bağlantısı ${currentUser.email} adresine gönderildi.`,
@@ -179,126 +134,180 @@ export default function AccountPage() {
 
   const handleLogout = () => {
     dispatch(logout());
-    dispatch(clearLibrary());
     toast("Çıkış yapıldı.", "info");
     navigate("/");
   };
 
-  return (
-    <PageLayout className="account-page" mainClassName="account-main">
-      <div className="account-layout">
-        <Sidenav className="account-sidenav" appearance="subtle">
-          <Sidenav.Body>
-            <Nav
-              activeKey={active}
-              onSelect={(key) => key && scrollTo(key as string)}
-            >
-              {SECTIONS.map(({ key, label, icon }) => (
-                <Nav.Item key={key} eventKey={key}>
-                  <MotionIcon
-                    name={icon}
-                    size={16}
-                    trigger="hover"
-                    animation="pop"
-                  />{" "}
-                  {label}
-                </Nav.Item>
-              ))}
-            </Nav>
-          </Sidenav.Body>
-        </Sidenav>
+  const STATS = [
+    { key: "watchlist", label: "İzleme Listem", count: watchlist.length, Icon: Bookmark },
+    { key: "liked", label: "Beğendiklerim", count: liked.length, Icon: ThumbsUp },
+    { key: "history", label: "İzleme Geçmişi", count: history.length, Icon: History },
+  ];
 
-        <div className="account-content">
-          <div className="account-profile" ref={profilRef}>
-            <h2>Hesap Bilgileri</h2>
-            <div className="account-profile__row">
-              <div className="account-avatar-wrap">
-                <div className="account-avatar-lg">
-                  {currentUser.avatar ? (
-                    <img src={AVATARS[currentUser.avatar]} alt="" />
-                  ) : (
-                    currentUser.name.charAt(0).toUpperCase()
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="account-avatar-edit"
-                  aria-label="Profil resmini değiştir"
-                  onClick={() => setAvatarModal(true)}
-                >
-                  <MotionIcon
-                    name="Pencil"
-                    size={13}
-                    trigger="hover"
-                    animation="pop"
-                  />
-                </button>
-              </div>
-              <div className="account-profile__info">
-                <div className="account-info-row">
-                  <span>Ad</span>
-                  <strong>{currentUser.name}</strong>
-                </div>
-                <div className="account-info-row">
-                  <span>E-posta</span>
-                  <strong>{currentUser.email}</strong>
-                </div>
-                {currentUser.createdAt && (
-                  <div className="account-info-row">
-                    <span>Üyelik</span>
-                    <strong>{currentUser.createdAt}</strong>
-                  </div>
+  const renderSection = () => {
+    switch (active) {
+      case "genel":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">Genel Bakış</h2>
+
+            <div className="account-overview-card">
+              <span className="account-overview-card__avatar">
+                {activeProfile?.avatar ? (
+                  <img src={AVATARS[activeProfile.avatar]} alt="" />
+                ) : (
+                  currentUser.name.charAt(0).toUpperCase()
                 )}
+              </span>
+              <div className="account-overview-card__info">
+                <span className="account-overview-card__eyebrow">
+                  İzlenen profil
+                </span>
+                <strong>{activeProfile?.name ?? currentUser.name}</strong>
+                <span className="account-overview-card__mail">
+                  {currentUser.email}
+                </span>
               </div>
-              <div className="account-profile__actions">
-                <Button appearance="ghost" size="sm" onClick={handlePassword}>
-                  Şifre Değiştir
-                </Button>
-                <Button
-                  appearance="subtle"
-                  size="sm"
-                  className="account-logout-btn"
-                  onClick={handleLogout}
+              <Tag
+                className={`account-plan-tag account-plan-tag--${currentUser.plan || "free"}`}
+              >
+                {activePlan?.name ?? "Ücretsiz"} Plan
+              </Tag>
+              <Button
+                appearance="ghost"
+                className="account-overview-card__switch"
+                onClick={() => navigate("/profiles")}
+                startIcon={
+                  <MotionIcon name="Users" size={16} trigger="hover" animation="pop" />
+                }
+              >
+                Profil Değiştir
+              </Button>
+            </div>
+
+            <div className="account-stats">
+              {STATS.map(({ key, label, count, Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  className="account-stat"
+                  onClick={() => setActive(key)}
                 >
-                  Çıkış Yap
-                </Button>
+                  <span className="account-stat__icon">
+                    <Icon size={20} />
+                  </span>
+                  <span className="account-stat__count">{count}</span>
+                  <span className="account-stat__label">{label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="account-detail-grid">
+              <div className="account-info-row">
+                <span>Hesap Sahibi</span>
+                <strong>{currentUser.name}</strong>
+              </div>
+              <div className="account-info-row">
+                <span>E-posta</span>
+                <strong>{currentUser.email}</strong>
+              </div>
+              {currentUser.createdAt && (
+                <div className="account-info-row">
+                  <span>Üyelik Tarihi</span>
+                  <strong>{currentUser.createdAt}</strong>
+                </div>
+              )}
+              <div className="account-info-row">
+                <span>Profiller</span>
+                <strong>{profiles.length} profil</strong>
               </div>
             </div>
 
-            <Modal
-              open={avatarModal}
-              onClose={() => setAvatarModal(false)}
-              size="xs"
-              className="avatar-modal"
-            >
-              <Modal.Header>
-                <Modal.Title>Profil Resmi Seç</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="avatar-picker__list">
-                  {Object.entries(AVATARS).map(([id, src]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      className={`avatar-picker__item${currentUser.avatar === id ? " active" : ""}`}
-                      onClick={() => selectAvatar(id)}
-                      aria-label={`Avatar ${id}`}
-                    >
-                      <img src={src} alt="" />
-                    </button>
-                  ))}
-                </div>
-              </Modal.Body>
-            </Modal>
-          </div>
+            <div className="account-overview-actions">
+              <Button appearance="ghost" onClick={handlePassword}>
+                Şifre Değiştir
+              </Button>
+              <Button
+                appearance="subtle"
+                className="account-logout-btn"
+                onClick={handleLogout}
+              >
+                Çıkış Yap
+              </Button>
+            </div>
+          </section>
+        );
 
-          <section className="account-section" ref={planRef}>
-            <h2>Üyelik</h2>
-            <div className="account-plan">
+      case "profiller":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">Profiller</h2>
+            <p className="account-section__sub">
+              Her profil kendi izleme listesi, beğenileri ve geçmişine sahiptir.
+            </p>
+            <div className="account-profiles">
+              {profiles.map((p) => (
+                <div
+                  key={p.id}
+                  className={`account-profile-card${p.id === activeProfile?.id ? " active" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="account-profile-card__main"
+                    onClick={() => {
+                      dispatch(selectProfile(p.id));
+                      toast(`${p.name} olarak izliyorsun.`);
+                    }}
+                  >
+                    <span className="account-profile-card__avatar">
+                      <img src={AVATARS[p.avatar]} alt="" />
+                    </span>
+                    <span className="account-profile-card__name">{p.name}</span>
+                    {p.kids && (
+                      <span className="account-profile-card__kids">KIDS</span>
+                    )}
+                    {p.id === activeProfile?.id && (
+                      <span className="account-profile-card__active">Aktif</span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="account-profile-card__edit"
+                    aria-label="Profili düzenle"
+                    onClick={() => setEditor({ mode: "edit", profile: p })}
+                  >
+                    <Pencil size={15} />
+                  </button>
+                </div>
+              ))}
+
+              {profiles.length < MAX_PROFILES && (
+                <button
+                  type="button"
+                  className="account-profile-card account-profile-card--add"
+                  onClick={() => setEditor({ mode: "create" })}
+                >
+                  <span className="account-profile-card__avatar account-profile-card__avatar--add">
+                    <Plus size={26} />
+                  </span>
+                  <span className="account-profile-card__name">Profil Ekle</span>
+                </button>
+              )}
+            </div>
+          </section>
+        );
+
+      case "plan":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">Üyelik</h2>
+            <Panel className="account-plan" bordered>
               <div className="account-plan__info">
-                <span className="account-plan__badge">
+                <Tag
+                  className={`account-plan-tag account-plan-tag--${currentUser.plan || "free"}`}
+                >
                   {activePlan?.name ?? "Ücretsiz"} Plan
-                </span>
+                </Tag>
                 <ul>
                   {(activePlan?.features ?? PLAN_FEATURES).map((f) => (
                     <li key={f}>
@@ -308,25 +317,25 @@ export default function AccountPage() {
                 </ul>
               </div>
               <div className="account-plan__cta">
-                {currentUser.plan ? (
-                  <p>Planın aktif, iyi seyirler!</p>
-                ) : (
-                  <p>Reklamsız ve 4K izlemek için planını yükselt.</p>
-                )}
-                <Button
-                  appearance="primary"
-                  onClick={() => navigate("/packages")}
-                >
+                <p>
+                  {currentUser.plan
+                    ? "Planın aktif, iyi seyirler!"
+                    : "Reklamsız ve 4K izlemek için planını yükselt."}
+                </p>
+                <Button appearance="primary" onClick={() => navigate("/packages")}>
                   Paketleri Gör
                 </Button>
               </div>
-            </div>
+            </Panel>
           </section>
+        );
 
-          <section className="account-section" ref={makbuzRef}>
-            <h2>Makbuzlarım</h2>
+      case "makbuz":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">Makbuzlarım</h2>
             {receipt ? (
-              <div className="account-receipt">
+              <Panel className="account-receipt" bordered>
                 <div className="account-receipt__header">
                   <span className="account-receipt__badge">Ödeme Makbuzu</span>
                   <span className="account-receipt__date">{receipt.date}</span>
@@ -354,14 +363,17 @@ export default function AccountPage() {
                     </strong>
                   </div>
                 </div>
-              </div>
+              </Panel>
             ) : (
               <p className="account-empty">Henüz bir ödeme makbuzun yok.</p>
             )}
           </section>
+        );
 
-          <section className="account-section" ref={ayarlarRef}>
-            <h2>Ayarlar</h2>
+      case "ayarlar":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">Ayarlar</h2>
             <div className="account-settings">
               {SETTING_ROWS.map(({ key, label, desc }) => (
                 <div key={key} className="account-setting-row">
@@ -378,11 +390,13 @@ export default function AccountPage() {
               ))}
             </div>
           </section>
+        );
 
-          <section className="account-section" ref={watchlistRef}>
-            <h2>
-              İzleme Listem{" "}
-              {watchlist.length > 0 && <em>({watchlist.length})</em>}
+      case "watchlist":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">
+              İzleme Listem {watchlist.length > 0 && <em>({watchlist.length})</em>}
             </h2>
             <MediaGrid
               items={watchlist}
@@ -390,9 +404,12 @@ export default function AccountPage() {
               onRemove={removeWatchlist}
             />
           </section>
+        );
 
-          <section className="account-section" ref={likedRef}>
-            <h2>
+      case "liked":
+        return (
+          <section className="account-section">
+            <h2 className="account-section__title">
               Beğendiklerim {liked.length > 0 && <em>({liked.length})</em>}
             </h2>
             <MediaGrid
@@ -401,15 +418,129 @@ export default function AccountPage() {
               onRemove={removeLiked}
             />
           </section>
+        );
 
-          <section className="account-section" ref={historyRef}>
-            <h2>
-              İzleme Geçmişi {history.length > 0 && <em>({history.length})</em>}
-            </h2>
+      case "history":
+        return (
+          <section className="account-section">
+            <div className="account-section__head">
+              <h2 className="account-section__title">
+                İzleme Geçmişi {history.length > 0 && <em>({history.length})</em>}
+              </h2>
+              {history.length > 0 && (
+                <Button
+                  appearance="subtle"
+                  size="sm"
+                  onClick={() => {
+                    dispatch(clearHistory());
+                    toast("İzleme geçmişi temizlendi.", "info");
+                  }}
+                >
+                  Geçmişi Temizle
+                </Button>
+              )}
+            </div>
             <MediaGrid items={history} empty="İzleme geçmişin henüz boş." />
           </section>
-        </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <PageLayout className="account-page" mainClassName="account-main">
+      <div className="account-layout">
+        <aside className="account-side">
+          <div className="account-side__profile">
+            <span className="account-side__avatar">
+              {activeProfile?.avatar ? (
+                <img src={AVATARS[activeProfile.avatar]} alt="" />
+              ) : (
+                currentUser.name.charAt(0).toUpperCase()
+              )}
+            </span>
+            <div className="account-side__profile-info">
+              <strong>{activeProfile?.name ?? currentUser.name}</strong>
+              <span>{activePlan?.name ?? "Ücretsiz"} Plan</span>
+            </div>
+          </div>
+
+          <div className="account-side__group">
+            <span className="account-side__label">Hesap</span>
+            <Nav
+              vertical
+              appearance="subtle"
+              className="account-nav"
+              activeKey={active}
+              onSelect={(key) => key && setActive(key as string)}
+            >
+              {ACCOUNT_SECTIONS.map(({ key, label, icon }) => (
+                <Nav.Item key={key} eventKey={key}>
+                  <MotionIcon
+                    name={icon}
+                    size={16}
+                    trigger="hover"
+                    animation="pop"
+                  />
+                  <span>{label}</span>
+                </Nav.Item>
+              ))}
+            </Nav>
+          </div>
+
+          <div className="account-side__group">
+            <span className="account-side__label">Kitaplık</span>
+            <Nav
+              vertical
+              appearance="subtle"
+              className="account-nav"
+              activeKey={active}
+              onSelect={(key) => key && setActive(key as string)}
+            >
+              {LIBRARY_SECTIONS.map(({ key, label, icon }) => (
+                <Nav.Item key={key} eventKey={key}>
+                  <MotionIcon
+                    name={icon}
+                    size={16}
+                    trigger="hover"
+                    animation="pop"
+                  />
+                  <span>{label}</span>
+                </Nav.Item>
+              ))}
+            </Nav>
+          </div>
+        </aside>
+
+        <div className="account-content">{renderSection()}</div>
       </div>
+
+      {editor && (
+        <ProfileEditorModal
+          mode={editor.mode}
+          profile={editor.mode === "edit" ? editor.profile : undefined}
+          canDelete={profiles.length > 1}
+          onClose={() => setEditor(null)}
+          onSave={(data) => {
+            if (editor.mode === "create") {
+              dispatch(addProfile(data));
+              toast(`${data.name} profili oluşturuldu.`);
+            } else {
+              dispatch(updateProfile({ ...editor.profile, ...data }));
+              toast("Profil güncellendi.");
+            }
+            setEditor(null);
+          }}
+          onDelete={() => {
+            if (editor.mode !== "edit") return;
+            dispatch(deleteProfile(editor.profile.id));
+            toast("Profil silindi.", "info");
+            setEditor(null);
+          }}
+        />
+      )}
     </PageLayout>
   );
 }

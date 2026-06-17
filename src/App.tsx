@@ -11,6 +11,7 @@ const SearchPage = lazy(() => import("./pages/SearchPage"));
 const WorkInProgressPage = lazy(() => import("./pages/WorkInProgressPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ProfilesPage = lazy(() => import("./pages/ProfilesPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const PackagesPage = lazy(() => import("./pages/PackagesPage"));
 const PlayerPage = lazy(() => import("./pages/PlayerPage"));
@@ -42,6 +43,7 @@ function App() {
           {/* bagimsiz sayfalar */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profiles" element={<ProfilesPage />} />
           <Route path="/play/:gameId" element={<PlayGamePage />} />
           <Route path="/:type/:id/player" element={<PlayerPage />} />
         </Routes>

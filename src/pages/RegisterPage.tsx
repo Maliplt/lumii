@@ -54,12 +54,12 @@ export default function RegisterPage() {
   const toast = useToast();
   const submitted = useRef(false);
 
-  // anasayfa
+  // profil secimi
   useEffect(() => {
     if (currentUser) {
       if (submitted.current)
         toast(`Üyeliğin oluşturuldu, hoş geldin ${currentUser.name}!`);
-      navigate("/");
+      navigate("/profiles");
     }
   }, [currentUser, navigate, toast]);
 

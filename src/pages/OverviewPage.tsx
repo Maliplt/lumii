@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Modal } from "rsuite";
-import { Play, ChevronDown } from "lucide-react";
+import { Play, ChevronDown, Tv } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
 import ContentCarousel from "../components/ContentCarousel";
@@ -24,7 +24,7 @@ function formatDate(dateStr: string): string {
   });
 }
 
-// remount
+// tip/id degisince yenilenir
 export default function OverviewPage() {
   const { type, id } = useParams<{ type: "movie" | "tv"; id: string }>();
   if (!type || !id) return null;
@@ -35,12 +35,13 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [trailerOpen, setTrailerOpen] = useState(false);
+  const [episodesOpen, setEpisodesOpen] = useState(false);
   const textClipRef = useRef<HTMLDivElement>(null);
 
   const numId = Number(id);
   const isMovie = type === "movie";
 
-  // veriler
+  // toplu yukleme
   const { data, loading } = useFetch(() =>
     Promise.all([
       isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
@@ -55,7 +56,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
     []) as Movie[] | TVShow[];
   const trailerKey = data ? pickTrailer(data[2].results) : null;
 
-  // bolumler
+  // bolumleri cek
   const season = useFetch(
     () =>
       isMovie
@@ -64,7 +65,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
     isMovie ? "movie" : `sezon-${selectedSeason}`,
   );
 
-  // kayan ozet
+  // ozet kayar
   useEffect(() => {
     const el = textClipRef.current;
     if (!el) return;
@@ -106,10 +107,6 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const director = isMovie
     ? detail?.credits?.crew?.find((c) => c.job === "Director")?.name
     : detail?.credits?.crew?.find((c) => c.job === "Executive Producer")?.name;
-  const cast = detail?.credits?.cast
-    ?.slice(0, 5)
-    .map((c) => c.name)
-    .join(", ");
   const seasonsInfo =
     !isMovie && tvDetail?.number_of_seasons
       ? `${tvDetail.number_of_seasons} Sezon`
@@ -146,11 +143,6 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
                   <strong>Yönetmen:</strong> {director}
                 </p>
               )}
-              {cast && (
-                <p className="overview-cast">
-                  <strong>Oyuncular:</strong> {cast}
-                </p>
-              )}
               <div className="overview-actions">
                 <Button
                   className="btn-play"
@@ -182,80 +174,111 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
           </div>
 
           {!isMovie && tvDetail.number_of_seasons > 0 && (
-            <div className="overview-seasons-section">
-              <div className="seasons-header-row">
-                <h2 className="seasons-title">Sezonlar & Bölümler</h2>
-                <div className="season-select-wrap">
-                  <select
-                    className="season-select"
-                    value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                  >
-                    {Array.from(
-                      { length: tvDetail.number_of_seasons },
-                      (_, i) => i + 1,
-                    ).map((n) => (
-                      <option key={n} value={n}>
-                        {n}. Sezon
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={16} className="season-select-icon" />
-                </div>
-              </div>
+            <div className={`episodes-block${episodesOpen ? " is-open" : ""}`}>
+              <button
+                type="button"
+                className="episodes-toggle"
+                onClick={() => setEpisodesOpen((o) => !o)}
+                aria-expanded={episodesOpen}
+              >
+                <span className="episodes-toggle__art">
+                  <Tv size={22} />
+                </span>
+                <span className="episodes-toggle__texts">
+                  <span className="episodes-toggle__title">Bölümler</span>
+                  <span className="episodes-toggle__sub">
+                    {tvDetail.number_of_seasons} sezon · keşfetmek için tıkla
+                  </span>
+                </span>
+                <span
+                  className={`episodes-toggle__chev${episodesOpen ? " open" : ""}`}
+                >
+                  <ChevronDown size={20} />
+                </span>
+              </button>
 
-              {season.loading ? (
-                <div className="seasons-loading">
-                  <Spinner inline />
-                </div>
-              ) : season.data?.episodes?.length ? (
-                <div className="episodes-list">
-                  {season.data.episodes.map((episode: Episode) => (
-                    <div key={episode.id} className="episode-card">
-                      <div className="episode-card__media">
-                        <img
-                          src={getImageUrl(
-                            episode.still_path || detail.backdrop_path,
-                            "w300",
-                          )}
-                          alt={episode.name}
-                          loading="lazy"
-                        />
-                        <div className="episode-card__media-overlay">
-                          <span
-                            className="play-icon-mini"
-                            onClick={() =>
-                              navigate(`/${type}/${id}/player`, {
-                                state: { title },
-                              })
-                            }
-                          >
-                            <Play size={16} fill="currentColor" />
-                          </span>
-                        </div>
-                      </div>
-                      <div className="episode-card__info">
-                        <div className="episode-card__title-row">
-                          <h4 className="episode-card__title">
-                            {episode.episode_number}. {episode.name || "Bölüm"}
-                          </h4>
-                          {episode.air_date && (
-                            <span className="episode-airdate">
-                              {formatDate(episode.air_date)}
-                            </span>
-                          )}
-                        </div>
-                        <p className="episode-overview">
-                          {episode.overview ||
-                            "Bu bölüm için açıklama bulunmuyor."}
-                        </p>
-                      </div>
+              {episodesOpen && (
+                <div className="episodes-panel">
+                  {tvDetail.number_of_seasons > 1 && (
+                    <div className="season-pills">
+                      {Array.from(
+                        { length: tvDetail.number_of_seasons },
+                        (_, i) => i + 1,
+                      ).map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`season-pill${selectedSeason === n ? " active" : ""}`}
+                          onClick={() => setSelectedSeason(n)}
+                        >
+                          {n}. Sezon
+                        </button>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="seasons-empty">
-                  Bölüm bilgilerine şu anda ulaşılamıyor.
+                  )}
+
+                  {season.loading ? (
+                    <div className="seasons-loading">
+                      <Spinner inline />
+                    </div>
+                  ) : season.data?.episodes?.length ? (
+                    <div className="episodes-grid">
+                      {season.data.episodes.map((episode: Episode) => (
+                        <article
+                          key={episode.id}
+                          className="ep-card"
+                          onClick={() =>
+                            navigate(`/${type}/${id}/player`, {
+                              state: { title },
+                            })
+                          }
+                        >
+                          <div className="ep-card__thumb">
+                            <img
+                              src={getImageUrl(
+                                episode.still_path || detail.backdrop_path,
+                                "w300",
+                              )}
+                              alt={episode.name}
+                              loading="lazy"
+                            />
+                            <span className="ep-card__index">
+                              {String(episode.episode_number).padStart(2, "0")}
+                            </span>
+                            <span className="ep-card__play">
+                              <Play size={18} fill="currentColor" />
+                            </span>
+                          </div>
+                          <div className="ep-card__body">
+                            <div className="ep-card__head">
+                              <h4 className="ep-card__title">
+                                {episode.name ||
+                                  `${episode.episode_number}. Bölüm`}
+                              </h4>
+                              {episode.runtime ? (
+                                <span className="ep-card__runtime">
+                                  {episode.runtime} dk
+                                </span>
+                              ) : null}
+                            </div>
+                            <p className="ep-card__overview">
+                              {episode.overview ||
+                                "Bu bölüm için açıklama bulunmuyor."}
+                            </p>
+                            {episode.air_date && (
+                              <span className="ep-card__date">
+                                {formatDate(episode.air_date)}
+                              </span>
+                            )}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="seasons-empty">
+                      Bölüm bilgilerine şu anda ulaşılamıyor.
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MotionIcon } from "motion-icons-react";
-import { animate } from "animejs";
+import { Search, X, CornerDownLeft } from "lucide-react";
 
 // debounce
 function useDebouncedValue<T>(value: T, delay = 400): T {
@@ -13,12 +12,6 @@ function useDebouncedValue<T>(value: T, delay = 400): T {
   return debounced;
 }
 
-// genislik
-function targetWidth(): string {
-  const w = document.documentElement.clientWidth;
-  return w <= 768 ? `${w - 16}px` : "520px";
-}
-
 interface SearchBarProps {
   open: boolean;
   onClose: () => void;
@@ -27,13 +20,14 @@ interface SearchBarProps {
 export default function SearchBar({ open, onClose }: SearchBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const initial =
     location.pathname === "/search"
       ? (new URLSearchParams(location.search).get("q") ?? "")
       : "";
   const [query, setQuery] = useState(initial);
+  const [closing, setClosing] = useState(false);
   const debounced = useDebouncedValue(query.trim(), 400);
 
   // arama
@@ -50,34 +44,18 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
     }
   }, [debounced, location.pathname, navigate]);
 
-  // acilis
+  // odak
   useEffect(() => {
-    if (open && wrapperRef.current) {
-      animate(wrapperRef.current, {
-        width: ["0px", targetWidth()],
-        opacity: [0, 1],
-        duration: 450,
-        easing: "easeOutQuart",
-      });
-    }
-  }, [open]);
+    if (open && !closing) inputRef.current?.focus();
+  }, [open, closing]);
 
   const handleClose = () => {
-    if (wrapperRef.current) {
-      animate(wrapperRef.current, {
-        width: [targetWidth(), "0px"],
-        opacity: [1, 0],
-        duration: 300,
-        easing: "easeInQuart",
-        complete: () => {
-          setQuery("");
-          onClose();
-        },
-      });
-    } else {
+    setClosing(true);
+    setTimeout(() => {
+      setClosing(false);
       setQuery("");
       onClose();
-    }
+    }, 220);
   };
 
   const handleSubmit = () => {
@@ -88,35 +66,51 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
   if (!open) return null;
 
   return (
-    <div
-      ref={wrapperRef}
-      className="search-bar search-bar--centered"
-      style={{ overflow: "hidden", width: "0px", opacity: 0 }}
-    >
-      <MotionIcon
-        name="Search"
-        size={18}
-        trigger="hover"
-        animation="pop"
-        className="search-bar__icon"
-      />
+    <div className={`search-box${closing ? " is-closing" : ""}`}>
+      <span className="search-box__ring" />
+
+      <span className="search-box__glyph">
+        <Search size={18} />
+      </span>
+
       <input
+        ref={inputRef}
         type="text"
-        placeholder="Film veya dizi arayın..."
-        className="search-bar__input"
+        className="search-box__input"
+        placeholder="Film veya dizi ara"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSubmit();
+          if (e.key === "Escape") handleClose();
         }}
-        autoFocus
       />
+
+      {query && (
+        <button
+          type="button"
+          className="search-box__clear"
+          onClick={() => {
+            setQuery("");
+            inputRef.current?.focus();
+          }}
+          aria-label="Temizle"
+        >
+          <X size={15} />
+        </button>
+      )}
+
+      <span className="search-box__enter">
+        <CornerDownLeft size={12} />
+      </span>
+
       <button
-        className="search-bar__close"
+        type="button"
+        className="search-box__close"
         onClick={handleClose}
         aria-label="Aramayı kapat"
       >
-        <MotionIcon name="X" size={18} trigger="hover" animation="pop" />
+        <X size={16} />
       </button>
     </div>
   );

@@ -19,20 +19,21 @@ import {
   useAppSelector,
   toggleWatchlist,
   toggleLiked,
+  selectLibrary,
   type SavedItem,
 } from "../store/store";
 import type { Movie, TVShow } from "../types/types";
 
 const HOVER_EXPAND_DELAY = 500;
 
-// yt states
+// yt durumlari
 const YT_ENDED = 0;
 const YT_PLAYING = 1;
 
-// tek istek
+//tek istek
 const trailerCache = new Map<string, string | null>();
 
-// tek kart oynat
+// tek kart acik
 let activeStop: (() => void) | null = null;
 let activeToken: object | null = null;
 
@@ -88,17 +89,16 @@ const ItemCard = memo(function ItemCard({
   const [muted, setMuted] = useState(true);
   const navigate = useNavigate();
 
-  // kart tipi
+  // tip yoksa proptan
   const cardType = (item as SavedItem).media_type ?? type;
 
-  // redux
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const inWatchlist = useAppSelector((s) =>
-    s.library.watchlist.some((x) => x.id === item.id),
+    selectLibrary(s).watchlist.some((x) => x.id === item.id),
   );
   const isLiked = useAppSelector((s) =>
-    s.library.liked.some((x) => x.id === item.id),
+    selectLibrary(s).liked.some((x) => x.id === item.id),
   );
 
   const toast = useToast();
@@ -130,6 +130,7 @@ const ItemCard = memo(function ItemCard({
     toast(isLiked ? "Beğeni geri alındı." : "Beğenildi.");
   };
 
+  // butonlar sirayla belirir
   useEffect(() => {
     if (!showTitle) return;
     const buttons = ref.current?.querySelectorAll(".cc-item__action-btn");
@@ -144,7 +145,6 @@ const ItemCard = memo(function ItemCard({
     });
   }, [showTitle]);
 
-  // boslari gizle
   const name = (item as Movie).title ?? (item as TVShow).name;
   const year =
     ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(
@@ -154,7 +154,7 @@ const ItemCard = memo(function ItemCard({
   const rating = item.vote_average ? item.vote_average.toFixed(1) : "";
   const overviewSnippet = item.overview?.trim() ?? "";
 
-  // hover ile fragman
+  // fragman yukle
   const loadTrailer = async () => {
     const cacheKey = `${cardType}-${item.id}`;
     const cached = trailerCache.get(cacheKey);
@@ -209,7 +209,7 @@ const ItemCard = memo(function ItemCard({
     if (expanded.current) doCollapse();
   };
 
-  // sesi ac/kapa
+  // ses ac/kapa
   const toggleMute = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -227,7 +227,6 @@ const ItemCard = memo(function ItemCard({
     ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`
     : "";
 
-  // yt listen
   const startTrailer = () => {
     frameRef.current?.contentWindow?.postMessage(
       JSON.stringify({ event: "listening", channel: "widget" }),
@@ -235,7 +234,7 @@ const ItemCard = memo(function ItemCard({
     );
   };
 
-  // poster/yt gecisi
+  // oynatici durumu
   useEffect(() => {
     if (!showTitle || !trailerKey) return;
     const onMessage = (e: MessageEvent) => {
@@ -276,6 +275,8 @@ const ItemCard = memo(function ItemCard({
           loading="lazy"
         />
       </Link>
+
+
       {showTitle && trailerKey && (
         <>
           <div className={`cc-item__trailer ${ready ? "is-ready" : ""}`}>
@@ -287,7 +288,7 @@ const ItemCard = memo(function ItemCard({
               onLoad={startTrailer}
             />
           </div>
-          {/* seffaf katman */}
+          {/* tiklama katmani */}
           <div
             className="cc-item__trailer-shield"
             onClick={() => navigate(`/${cardType}/${item.id}`)}
@@ -408,7 +409,7 @@ export default function ContentCarousel({
   const visible = useVisibleCount();
 
   const slides = useMemo(() => {
-    // filtrele
+    // eksikleri ele
     const list = items.filter((it) => it.poster_path && it.overview?.trim());
     const result: Array<(Movie | TVShow)[]> = [];
     for (let i = 0; i < list.length; i += visible) {
@@ -417,7 +418,7 @@ export default function ContentCarousel({
     return result;
   }, [items, visible]);
 
-  // aktif index
+  // sayfa sinirlarini as
   const currentIndex =
     slides.length > 0 ? Math.min(activeIndex, slides.length - 1) : 0;
 
@@ -505,7 +506,7 @@ export default function ContentCarousel({
                 {slide.map((item) => (
                   <ItemCard key={item.id} item={item} type={type} />
                 ))}
-                {/* bosluklar */}
+                {/* bos slotlar */}
                 {Array.from({ length: visible - slide.length }).map((_, i) => (
                   <div
                     key={`bos-${i}`}

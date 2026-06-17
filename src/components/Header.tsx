@@ -6,12 +6,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import { useToast } from "./Toast";
-import { AVATARS } from "../helpers";
+import { AVATARS, PACKAGES } from "../helpers";
 import {
   useAppSelector,
   useAppDispatch,
   logout,
-  clearLibrary,
+  selectProfile,
+  selectActiveProfile,
 } from "../store/store";
 
 const NAV_LINKS = [
@@ -23,9 +24,14 @@ const NAV_LINKS = [
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  // redux
+  //redux
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const activeProfile = useAppSelector(selectActiveProfile);
+  const shownProfile = activeProfile ?? currentUser?.profiles[0] ?? null;
+  const otherProfiles = (currentUser?.profiles ?? []).filter(
+    (p) => p.id !== shownProfile?.id,
+  );
 
   const hasQuery =
     location.pathname === "/search" &&
@@ -37,8 +43,11 @@ export default function Header() {
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
   const toast = useToast();
+  const userPlanName = currentUser
+    ? PACKAGES.find((p) => p.id === currentUser.plan)?.name || "Ücretsiz Plan"
+    : "";
 
-  // disari tiklayinca veya esc ile kapat
+  //disari tiklayinca kapat
   useEffect(() => {
     if (!accountMenuOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -61,10 +70,15 @@ export default function Header() {
 
   const handleLogout = () => {
     dispatch(logout());
-    dispatch(clearLibrary());
     setMobileMenuOpen(false);
     setAccountMenuOpen(false);
     toast("Çıkış yapıldı.", "info");
+    navigate("/");
+  };
+
+  const switchProfile = (id: string) => {
+    dispatch(selectProfile(id));
+    setAccountMenuOpen(false);
     navigate("/");
   };
 
@@ -77,7 +91,7 @@ export default function Header() {
   return (
     <>
       <Navbar
-        className={`custom-header${scrolled ? " scrolled" : ""}${accountMenuOpen ? " menu-open" : ""}`}
+        className={`custom-header${scrolled ? " scrolled" : ""}${accountMenuOpen ? " menu-open" : ""}${showSearch ? " searching" : ""}`}
       >
         <Navbar.Content className="header-left">
           <Navbar.Brand as={Link} to="/" className="header-brand-link">
@@ -93,13 +107,15 @@ export default function Header() {
                 className="nav-link"
               >
                 <Stack spacing={8}>
-                  <MotionIcon
-                    name={icon}
-                    size={18}
-                    trigger="hover"
-                    animation="nudge"
-                  />
-                  <span>{label}</span>
+                  <span className="nav-icon-wrapper">
+                    <MotionIcon
+                      name={icon}
+                      size={18}
+                      trigger="hover"
+                      animation="nudge"
+                    />
+                  </span>
+                  <span className="nav-text-label">{label}</span>
                 </Stack>
               </Nav.Item>
             ))}
@@ -151,20 +167,22 @@ export default function Header() {
                   onClick={() => setAccountMenuOpen((p) => !p)}
                 >
                   <span className="account-avatar">
-                    {currentUser.avatar ? (
-                      <img src={AVATARS[currentUser.avatar]} alt="" />
+                    {shownProfile?.avatar ? (
+                      <img src={AVATARS[shownProfile.avatar]} alt="" />
                     ) : (
                       currentUser.name.charAt(0).toUpperCase()
                     )}
                   </span>
                   <span className="account-trigger__name">
-                    {currentUser.name}
+                    {shownProfile?.name ?? currentUser.name}
                   </span>
                   <ChevronDown size={15} className="account-trigger__caret" />
                 </button>
 
                 {accountMenuOpen && (
                   <div className="account-menu__panel">
+                    <div className="account-menu__decal account-menu__decal--tr" />
+                    <div className="account-menu__decal account-menu__decal--bl" />
                     <button
                       type="button"
                       className="account-menu__head"
@@ -173,17 +191,73 @@ export default function Header() {
                         navigate("/account");
                       }}
                     >
-                      <strong>{currentUser.name}</strong>
-                      <span>{currentUser.email}</span>
-                      <em>Hesabı Yönet</em>
+                      <div className="account-menu__head-card">
+                        <span className="account-menu__head-avatar">
+                          {shownProfile?.avatar ? (
+                            <img src={AVATARS[shownProfile.avatar]} alt="" />
+                          ) : (
+                            currentUser.name.charAt(0).toUpperCase()
+                          )}
+                        </span>
+                        <div className="account-menu__head-info">
+                          <strong>{shownProfile?.name ?? currentUser.name}</strong>
+                          <span>{currentUser.email}</span>
+                        </div>
+                      </div>
+                      <div className="account-menu__plan-section">
+                        <span className={`account-plan-badge account-plan-badge--${currentUser.plan || "free"}`}>
+                          {userPlanName}
+                        </span>
+                        <em>Hesabı Yönet</em>
+                      </div>
                     </button>
+
+                    <div className="account-menu__divider" />
+
+                    <div className="account-menu__profiles">
+                      {otherProfiles.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className="account-menu__profile"
+                          onClick={() => switchProfile(p.id)}
+                        >
+                          <span className="account-menu__profile-avatar">
+                            <img src={AVATARS[p.avatar]} alt="" />
+                          </span>
+                          <span>{p.name}</span>
+                          {p.kids && (
+                            <span className="account-menu__profile-kids">
+                              KIDS
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        className="account-menu__switch"
+                        onClick={() => {
+                          setAccountMenuOpen(false);
+                          navigate("/profiles");
+                        }}
+                      >
+                        <MotionIcon
+                          name="Users"
+                          size={16}
+                          trigger="hover"
+                          animation="pop"
+                        />
+                        Profilleri Yönet
+                      </button>
+                    </div>
+
                     <div className="account-menu__divider" />
                     <button
                       type="button"
                       className="account-menu__logout"
                       onClick={handleLogout}
                     >
-                      Çıkış Yap{" "}
+                      <span>Çıkış Yap</span>
                       <MotionIcon
                         name="LogOut"
                         size={16}
@@ -293,6 +367,25 @@ export default function Header() {
               )}
               {currentUser ? (
                 <>
+                  <Button
+                    appearance="ghost"
+                    className="giris-btn"
+                    block
+                    onClick={() => {
+                      navigate("/profiles");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Stack spacing={8}>
+                      <MotionIcon
+                        name="Users"
+                        size={18}
+                        trigger="hover"
+                        animation="pop"
+                      />
+                      <span>Profil Değiştir</span>
+                    </Stack>
+                  </Button>
                   <Button
                     appearance="ghost"
                     className="giris-btn"

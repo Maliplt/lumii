@@ -7,14 +7,19 @@ import GameCarousel from "../components/GameCarousel";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
 import { useFetch } from "../helpers";
-import { useAppSelector } from "../store/store";
+import { useAppSelector, selectLibrary } from "../store/store";
 import type { Movie, TVShow } from "../types/types";
 
 const HERO_COUNT = 5;
 
+//latin dışı başlıkları filtrele
+function isLatinTitle(title: string): boolean {
+  return !/[^\u0020-\u024F\u1E00-\u1EFF\u2000-\u206F\u20A0-\u20CF\u2100-\u214F\s]/.test(title);
+}
+
 export default function HomePage() {
   // redux
-  const continueWatching = useAppSelector((s) => s.library.continueWatching);
+  const continueWatching = useAppSelector((s) => selectLibrary(s).continueWatching);
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const showContinueRow = useAppSelector((s) => s.settings.continueRow);
 
@@ -38,6 +43,12 @@ export default function HomePage() {
       (data?.[0].results.filter((m) => m.poster_path && m.backdrop_path) ??
         []) as Movie[],
     [data],
+  );
+
+  //hero için latin filtre
+  const heroMovies = useMemo(
+    () => movies.filter((m) => isLatinTitle(m.title ?? "")).slice(0, HERO_COUNT),
+    [movies],
   );
 
   const tvShows = useMemo(
@@ -99,7 +110,7 @@ export default function HomePage() {
         />
       ) : (
         <>
-          <HeroCarousel movies={movies.slice(0, HERO_COUNT)} />
+          <HeroCarousel movies={heroMovies} />
           <div className="home-content">
             {isLoggedIn && showContinueRow && continueWatching.length > 0 && (
               <ContentCarousel
