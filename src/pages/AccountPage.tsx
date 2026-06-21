@@ -1,13 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { animate } from "animejs";
 import { Nav, Button, Toggle, Tag, Panel } from "rsuite";
-import { Check, Plus, Pencil, Bookmark, ThumbsUp, History } from "lucide-react";
+import {
+  Check,
+  Plus,
+  Pencil,
+  Bookmark,
+  ThumbsUp,
+  History,
+  Receipt,
+  type LucideIcon,
+} from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
 import MediaCard from "../components/MediaCard";
+import StateView from "../components/StateView";
 import ProfileEditorModal from "../components/ProfileEditorModal";
 import { useToast } from "../components/Toast";
-import { AVATARS, PACKAGES } from "../helpers";
+import { AVATARS, PACKAGES, useTitle, prefersReducedMotion } from "../helpers";
 import {
   useAppSelector,
   useAppDispatch,
@@ -70,13 +81,18 @@ type EditorState =
 function MediaGrid({
   items,
   empty,
+  icon,
+  action,
   onRemove,
 }: {
   items: SavedItem[];
   empty: string;
+  icon: LucideIcon;
+  action?: ReactNode;
   onRemove?: (it: SavedItem) => void;
 }) {
-  if (items.length === 0) return <p className="account-empty">{empty}</p>;
+  if (items.length === 0)
+    return <StateView Icon={icon} title={empty} action={action} />;
   return (
     <div className="search-grid">
       {items.map((it) => (
@@ -92,6 +108,7 @@ function MediaGrid({
 }
 
 export default function AccountPage() {
+  useTitle("Hesabım");
   const navigate = useNavigate();
   const toast = useToast();
   const dispatch = useAppDispatch();
@@ -104,11 +121,22 @@ export default function AccountPage() {
 
   const [active, setActive] = useState("genel");
   const [editor, setEditor] = useState<EditorState>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // koruma
   useEffect(() => {
     if (!currentUser) navigate("/login");
   }, [currentUser, navigate]);
+
+  // sekme degisince icerik animasyonu (opacity'siz -> donsa bile gorunur kalir)
+  useEffect(() => {
+    if (contentRef.current && !prefersReducedMotion())
+      animate(contentRef.current, {
+        translateY: [16, 0],
+        duration: 420,
+        ease: "out(3)",
+      });
+  }, [active]);
 
   if (!currentUser) return null;
 
@@ -365,7 +393,16 @@ export default function AccountPage() {
                 </div>
               </Panel>
             ) : (
-              <p className="account-empty">Henüz bir ödeme makbuzun yok.</p>
+              <StateView
+                Icon={Receipt}
+                title="Henüz bir ödeme makbuzun yok."
+                description="Bir paket aldığında makbuzun burada görünür."
+                action={
+                  <Button appearance="ghost" onClick={() => navigate("/packages")}>
+                    Paketleri Gör
+                  </Button>
+                }
+              />
             )}
           </section>
         );
@@ -401,6 +438,12 @@ export default function AccountPage() {
             <MediaGrid
               items={watchlist}
               empty="İzleme listen henüz boş."
+              icon={Bookmark}
+              action={
+                <Button appearance="primary" onClick={() => navigate("/")}>
+                  İçerik Keşfet
+                </Button>
+              }
               onRemove={removeWatchlist}
             />
           </section>
@@ -415,6 +458,12 @@ export default function AccountPage() {
             <MediaGrid
               items={liked}
               empty="Henüz beğendiğin bir içerik yok."
+              icon={ThumbsUp}
+              action={
+                <Button appearance="primary" onClick={() => navigate("/")}>
+                  İçerik Keşfet
+                </Button>
+              }
               onRemove={removeLiked}
             />
           </section>
@@ -440,7 +489,11 @@ export default function AccountPage() {
                 </Button>
               )}
             </div>
-            <MediaGrid items={history} empty="İzleme geçmişin henüz boş." />
+            <MediaGrid
+              items={history}
+              empty="İzleme geçmişin henüz boş."
+              icon={History}
+            />
           </section>
         );
 
@@ -514,7 +567,9 @@ export default function AccountPage() {
           </div>
         </aside>
 
-        <div className="account-content">{renderSection()}</div>
+        <div className="account-content" ref={contentRef}>
+          {renderSection()}
+        </div>
       </div>
 
       {editor && (

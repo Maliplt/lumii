@@ -8,6 +8,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useToast } from "../components/Toast";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
+import { useTitle } from "../helpers";
 import {
   useAppDispatch,
   useAppSelector,
@@ -30,6 +31,7 @@ const loginModel = Schema.Model({
 });
 
 export default function LoginPage() {
+  useTitle("Giriş Yap");
   const navigate = useNavigate();
   // redux
   const dispatch = useAppDispatch();

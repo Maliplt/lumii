@@ -6,7 +6,7 @@ import ContentCarousel from "../components/ContentCarousel";
 import GameCarousel from "../components/GameCarousel";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch } from "../helpers";
+import { useFetch, useTitle } from "../helpers";
 import { useAppSelector, selectLibrary } from "../store/store";
 import type { Movie, TVShow } from "../types/types";
 
@@ -18,6 +18,8 @@ function isLatinTitle(title: string): boolean {
 }
 
 export default function HomePage() {
+  useTitle("");
+
   // redux
   const continueWatching = useAppSelector((s) => selectLibrary(s).continueWatching);
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);

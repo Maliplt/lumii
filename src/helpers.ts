@@ -9,7 +9,7 @@ import a7 from "./images/avatars/a7.svg";
 import a8 from "./images/avatars/a8.svg";
 import a9 from "./images/avatars/a9.svg";
 import a10 from "./images/avatars/a10.svg";
-import type { PackageDef } from "./types/types";
+import type { Movie, TVShow, PackageDef } from "./types/types";
 
 // avatarlar
 export const AVATARS: Record<string, string> = {
@@ -125,6 +125,25 @@ export function useFetch<T>(
     loading: !ready,
     error: ready ? result.error : false,
   };
+}
+
+// film/dizi ortak alanlari (cast yerine)
+export const mediaName = (m: Movie | TVShow): string =>
+  "title" in m ? m.title : m.name;
+
+export const mediaYear = (m: Movie | TVShow): string =>
+  ("release_date" in m ? m.release_date : m.first_air_date)?.slice(0, 4) ?? "";
+
+// azaltilmis hareket tercihi
+export function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// sekme basligi
+export function useTitle(title: string) {
+  useEffect(() => {
+    document.title = title ? `Lumii — ${title}` : "Lumii";
+  }, [title]);
 }
 
 const SWIPE_THRESHOLD = 50;

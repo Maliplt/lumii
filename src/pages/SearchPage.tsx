@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { animate, stagger } from "animejs";
 import { SearchX, Search as SearchIcon } from "lucide-react";
 import { RiMovie2Line, RiTvLine, RiApps2Line } from "react-icons/ri";
 import PageLayout from "../components/PageLayout";
@@ -7,7 +8,7 @@ import MediaCard from "../components/MediaCard";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch } from "../helpers";
+import { useFetch, useTitle, prefersReducedMotion } from "../helpers";
 import type { SearchResult } from "../types/types";
 
 // sadece posterli icerikler
@@ -34,6 +35,7 @@ const FILTERS: { id: MediaFilter; label: string; Icon: React.ElementType }[] =
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") ?? "").trim();
+  useTitle(query ? `"${query}" araması` : "Arama");
 
   // varsayilan tum
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
@@ -54,6 +56,21 @@ export default function SearchPage() {
     if (mediaFilter === "all") return allResults;
     return allResults.filter((r) => r.media_type === mediaFilter);
   }, [allResults, mediaFilter]);
+
+  // sonuc izgarasi sirayla canlanir (transform-only)
+  const gridRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const cards = gridRef.current?.children;
+    if (cards && cards.length)
+      animate(Array.from(cards), {
+        translateY: [22, 0],
+        scale: [0.96, 1],
+        duration: 460,
+        delay: stagger(35),
+        ease: "out(3)",
+      });
+  }, [results]);
 
   const renderBody = () => {
     if (!query) {
@@ -85,7 +102,7 @@ export default function SearchPage() {
       );
     }
     return (
-      <div className="search-grid">
+      <div className="search-grid" ref={gridRef}>
         {results.map((item) => (
           <MediaCard
             key={`${item.media_type}-${item.id}`}

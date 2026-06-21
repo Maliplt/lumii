@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl } from "../services/tmdb";
+import { mediaName, mediaYear } from "../helpers";
 import type { Movie, TVShow } from "../types/types";
 
 interface MediaCardProps {
@@ -12,12 +13,8 @@ interface MediaCardProps {
 }
 
 function MediaCard({ item, type, onRemove }: MediaCardProps) {
-  const name = (item as Movie).title ?? (item as TVShow).name;
-  const year =
-    ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(
-      0,
-      4,
-    ) ?? "";
+  const name = mediaName(item);
+  const year = mediaYear(item);
   const rating = item.vote_average ? item.vote_average.toFixed(1) : "";
 
   return (

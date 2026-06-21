@@ -3,6 +3,7 @@ import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
 import MediaPlayer from "../components/MediaPlayer";
 import { getStreamSource } from "../services/player";
+import { useTitle } from "../helpers";
 
 interface Channel {
   id: string;
@@ -18,6 +19,7 @@ const CHANNELS: Channel[] = [
 ];
 
 export default function TvPage() {
+  useTitle("TV İzle");
   const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
 
   return (

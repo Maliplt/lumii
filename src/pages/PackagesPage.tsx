@@ -7,11 +7,12 @@ import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
 import { useToast } from "../components/Toast";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useFetch, PACKAGES } from "../helpers";
+import { useFetch, PACKAGES, useTitle } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
 
 export default function PackagesPage() {
+  useTitle("Paketler");
   const navigate = useNavigate();
   const toast = useToast();
   const heroRef = useRef<HTMLDivElement>(null);

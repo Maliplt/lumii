@@ -1,5 +1,8 @@
+import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { animate, stagger } from "animejs";
 import { RiGamepadLine } from "react-icons/ri";
+import { prefersReducedMotion } from "../helpers";
 import sudokuImg from "../images/sudoku.svg";
 import minesweepImg from "../images/minesweep.svg";
 import game2048Img from "../images/2048.svg";
@@ -41,6 +44,22 @@ const GAMES = [
 ];
 
 export default function GameCarousel() {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // kartlar acilista sirayla canlanir (transform-only)
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const items = trackRef.current?.querySelectorAll(".gc-item");
+    if (items && items.length)
+      animate(items, {
+        translateY: [26, 0],
+        scale: [0.94, 1],
+        duration: 520,
+        delay: stagger(70),
+        ease: "out(3)",
+      });
+  }, []);
+
   return (
     <div className="game-carousel">
       <div className="gc-header">
@@ -52,7 +71,7 @@ export default function GameCarousel() {
       </div>
 
       <div className="gc-wrapper">
-        <div className="gc-track">
+        <div className="gc-track" ref={trackRef}>
           {GAMES.map((game) => (
             <div key={game.id} className="gc-item">
               <Link to={game.path}>

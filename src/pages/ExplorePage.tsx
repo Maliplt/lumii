@@ -7,7 +7,7 @@ import ContentCarousel from "../components/ContentCarousel";
 import StateView from "../components/StateView";
 import Spinner from "../components/Spinner";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch } from "../helpers";
+import { useFetch, useTitle } from "../helpers";
 import type { Movie } from "../types/types";
 
 const GENRE = {
@@ -36,6 +36,7 @@ const withMedia = (list: Movie[]) =>
   list.filter((m) => m.poster_path && m.backdrop_path);
 
 export default function ExplorePage() {
+  useTitle("Seç İzle");
   const [activeCat, setActiveCat] = useState<string>("all");
 
   const { data, loading, error } = useFetch(() =>

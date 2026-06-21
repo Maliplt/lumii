@@ -13,7 +13,7 @@ import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl, tmdbApi, pickTrailer } from "../services/tmdb";
 import { useToast } from "./Toast";
-import { useSwipe } from "../helpers";
+import { useSwipe, prefersReducedMotion, mediaName, mediaYear } from "../helpers";
 import {
   useAppDispatch,
   useAppSelector,
@@ -132,7 +132,7 @@ const ItemCard = memo(function ItemCard({
 
   // butonlar sirayla belirir
   useEffect(() => {
-    if (!showTitle) return;
+    if (!showTitle || prefersReducedMotion()) return;
     const buttons = ref.current?.querySelectorAll(".cc-item__action-btn");
     if (!buttons || buttons.length === 0) return;
     animate(buttons, {
@@ -145,12 +145,8 @@ const ItemCard = memo(function ItemCard({
     });
   }, [showTitle]);
 
-  const name = (item as Movie).title ?? (item as TVShow).name;
-  const year =
-    ((item as Movie).release_date || (item as TVShow).first_air_date)?.slice(
-      0,
-      4,
-    ) ?? "";
+  const name = mediaName(item);
+  const year = mediaYear(item);
   const rating = item.vote_average ? item.vote_average.toFixed(1) : "";
   const overviewSnippet = item.overview?.trim() ?? "";
 
@@ -409,13 +405,15 @@ export default function ContentCarousel({
   const visible = useVisibleCount();
 
   const slides = useMemo(() => {
-    // eksikleri ele
-    const list = items.filter((it) => it.poster_path && it.overview?.trim());
-    const result: Array<(Movie | TVShow)[]> = [];
-    for (let i = 0; i < list.length; i += visible) {
-      result.push(list.slice(i, i + visible));
+    const playable = items.filter((it) => it.poster_path && it.overview?.trim());
+    const lastStart = Math.max(0, playable.length - visible);
+    const pages: Array<(Movie | TVShow)[]> = [];
+    for (let start = 0; start < playable.length; start += visible) {
+      // son sayfa eksik kalmasin diye sona yaslanir
+      const from = Math.min(start, lastStart);
+      pages.push(playable.slice(from, from + visible));
     }
-    return result;
+    return pages;
   }, [items, visible]);
 
   // sayfa sinirlarini as
@@ -431,6 +429,22 @@ export default function ContentCarousel({
   };
 
   const swipe = useSwipe(handleNext, handlePrev);
+
+  // slayt degisince kartlar sirayla canlanir (transform-only, guvenli)
+  const trackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const slide = trackRef.current?.querySelectorAll(".cc-slide")[currentIndex];
+    const cards = slide?.querySelectorAll(".cc-item:not(.cc-item--empty)");
+    if (cards && cards.length)
+      animate(cards, {
+        translateY: [24, 0],
+        scale: [0.95, 1],
+        duration: 500,
+        delay: stagger(55),
+        ease: "out(3)",
+      });
+  }, [currentIndex, visible]);
 
   if (slides.length === 0 && !headerExtra) return null;
 
@@ -465,7 +479,7 @@ export default function ContentCarousel({
       </div>
 
       {slides.length > 0 && (
-        <div className="cc-carousel-wrapper" {...swipe}>
+        <div className="cc-carousel-wrapper" ref={trackRef} {...swipe}>
           {slides.length > 1 && currentIndex > 0 && (
             <button
               className="cc-nav-arrow prev"

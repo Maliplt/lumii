@@ -8,6 +8,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useToast } from "../components/Toast";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
+import { useTitle } from "../helpers";
 import {
   useAppDispatch,
   useAppSelector,
@@ -34,6 +35,7 @@ const registerModel = Schema.Model({
 });
 
 export default function RegisterPage() {
+  useTitle("Üye Ol");
   const navigate = useNavigate();
   // redux
   const dispatch = useAppDispatch();

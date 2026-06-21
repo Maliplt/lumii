@@ -17,7 +17,9 @@ export default function StateView({
   return (
     <div className="state-view">
       {Icon && (
-        <Icon size={48} className="state-view__icon" strokeWidth={1.5} />
+        <span className="state-view__icon">
+          <Icon size={32} strokeWidth={1.75} />
+        </span>
       )}
       <h3 className="state-view__title">{title}</h3>
       {description && <p className="state-view__desc">{description}</p>}

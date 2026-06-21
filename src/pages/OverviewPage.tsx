@@ -7,7 +7,7 @@ import PageLayout from "../components/PageLayout";
 import ContentCarousel from "../components/ContentCarousel";
 import Spinner from "../components/Spinner";
 import { tmdbApi, getImageUrl, pickTrailer } from "../services/tmdb";
-import { useFetch } from "../helpers";
+import { useFetch, useTitle } from "../helpers";
 import type {
   MovieDetail,
   TVShowDetail,
@@ -93,6 +93,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const movieDetail = detail as MovieDetail;
 
   const title = isMovie ? movieDetail?.title : tvDetail?.name;
+  useTitle(title ?? "");
   const year = isMovie
     ? movieDetail?.release_date?.slice(0, 4)
     : tvDetail?.first_air_date?.slice(0, 4);
@@ -297,7 +298,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
               open={trailerOpen}
               onClose={() => setTrailerOpen(false)}
               size="lg"
-              className="trailer-modal"
+              className="lumii-modal trailer-modal"
             >
               <Modal.Header>
                 <Modal.Title>{title} — Fragman</Modal.Title>

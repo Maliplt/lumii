@@ -38,7 +38,12 @@ export default function ProfileEditorModal({
   };
 
   return (
-    <Modal open onClose={onClose} size="sm" className="profile-editor-modal">
+    <Modal
+      open
+      onClose={onClose}
+      size="sm"
+      className="lumii-modal profile-editor-modal"
+    >
       <Modal.Header>
         <Modal.Title>
           {mode === "create" ? "Yeni Profil" : "Profili Düzenle"}
