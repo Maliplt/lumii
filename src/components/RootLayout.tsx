@@ -11,7 +11,7 @@ export default function RootLayout() {
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
 
-  // girisli ama profil secilmemis -> kim izliyor
+  //  kim izliyor
   if (currentUser && !activeProfileId)
     return <Navigate to="/profiles" replace />;
 
