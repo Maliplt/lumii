@@ -13,7 +13,7 @@ import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl, tmdbApi, pickTrailer } from "../services/tmdb";
 import { useToast } from "./Toast";
-import { useSwipe, prefersReducedMotion, mediaName, mediaYear } from "../helpers";
+import { useSwipe, mediaName, mediaYear } from "../helpers";
 import {
   useAppDispatch,
   useAppSelector,
@@ -132,7 +132,7 @@ const ItemCard = memo(function ItemCard({
 
   // butonlar sirayla belirir
   useEffect(() => {
-    if (!showTitle || prefersReducedMotion()) return;
+    if (!showTitle) return;
     const buttons = ref.current?.querySelectorAll(".cc-item__action-btn");
     if (!buttons || buttons.length === 0) return;
     animate(buttons, {
@@ -433,7 +433,6 @@ export default function ContentCarousel({
   // slayt degisince kartlar sirayla canlanir (transform-only, guvenli)
   const trackRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (prefersReducedMotion()) return;
     const slide = trackRef.current?.querySelectorAll(".cc-slide")[currentIndex];
     const cards = slide?.querySelectorAll(".cc-item:not(.cc-item--empty)");
     if (cards && cards.length)

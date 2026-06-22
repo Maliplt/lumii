@@ -2,7 +2,6 @@ import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { animate, stagger } from "animejs";
 import { RiGamepadLine } from "react-icons/ri";
-import { prefersReducedMotion } from "../helpers";
 import sudokuImg from "../images/sudoku.svg";
 import minesweepImg from "../images/minesweep.svg";
 import game2048Img from "../images/2048.svg";
@@ -48,7 +47,6 @@ export default function GameCarousel() {
 
   // kartlar acilista sirayla canlanir (transform-only)
   useEffect(() => {
-    if (prefersReducedMotion()) return;
     const items = trackRef.current?.querySelectorAll(".gc-item");
     if (items && items.length)
       animate(items, {

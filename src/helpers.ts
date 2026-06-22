@@ -134,11 +134,6 @@ export const mediaName = (m: Movie | TVShow): string =>
 export const mediaYear = (m: Movie | TVShow): string =>
   ("release_date" in m ? m.release_date : m.first_air_date)?.slice(0, 4) ?? "";
 
-// azaltilmis hareket tercihi
-export function prefersReducedMotion(): boolean {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 // sekme basligi
 export function useTitle(title: string) {
   useEffect(() => {

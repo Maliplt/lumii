@@ -18,7 +18,7 @@ import MediaCard from "../components/MediaCard";
 import StateView from "../components/StateView";
 import ProfileEditorModal from "../components/ProfileEditorModal";
 import { useToast } from "../components/Toast";
-import { AVATARS, PACKAGES, useTitle, prefersReducedMotion } from "../helpers";
+import { AVATARS, PACKAGES, useTitle } from "../helpers";
 import {
   useAppSelector,
   useAppDispatch,
@@ -130,7 +130,7 @@ export default function AccountPage() {
 
   // sekme degisince icerik animasyonu (opacity'siz -> donsa bile gorunur kalir)
   useEffect(() => {
-    if (contentRef.current && !prefersReducedMotion())
+    if (contentRef.current)
       animate(contentRef.current, {
         translateY: [16, 0],
         duration: 420,

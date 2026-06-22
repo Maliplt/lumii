@@ -8,7 +8,7 @@ import MediaCard from "../components/MediaCard";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch, useTitle, prefersReducedMotion } from "../helpers";
+import { useFetch, useTitle } from "../helpers";
 import type { SearchResult } from "../types/types";
 
 // sadece posterli icerikler
@@ -60,7 +60,6 @@ export default function SearchPage() {
   // sonuc izgarasi sirayla canlanir (transform-only)
   const gridRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (prefersReducedMotion()) return;
     const cards = gridRef.current?.children;
     if (cards && cards.length)
       animate(Array.from(cards), {

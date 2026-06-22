@@ -41,6 +41,7 @@ export default function Header() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const accountCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toast = useToast();
   const userPlanName = currentUser
@@ -82,11 +83,28 @@ export default function Header() {
     navigate("/");
   };
 
+  // hover ile ac; ayrilinca kisa gecikmeyle kapat ki panele giderken kapanmasin
+  const openAccountMenu = () => {
+    if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
+    setAccountMenuOpen(true);
+  };
+  const scheduleCloseAccountMenu = () => {
+    if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
+    accountCloseTimer.current = setTimeout(() => setAccountMenuOpen(false), 260);
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(
+    () => () => {
+      if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
+    },
+    [],
+  );
 
   return (
     <>
@@ -161,8 +179,8 @@ export default function Header() {
               <div
                 className="account-menu"
                 ref={accountMenuRef}
-                onMouseEnter={() => setAccountMenuOpen(true)}
-                onMouseLeave={() => setAccountMenuOpen(false)}
+                onMouseEnter={openAccountMenu}
+                onMouseLeave={scheduleCloseAccountMenu}
               >
                 <button
                   type="button"

@@ -38,14 +38,6 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
 
   const swipe = useSwipe(handleNext, handlePrev);
 
-  // otomatik gecis
-  useEffect(() => {
-    if (isPaused || movies.length <= 1) return;
-    const timer = setTimeout(handleNext, AUTO_SLIDE_DELAY);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex, isPaused, movies.length]);
-
   // slayt animasyonu
   useEffect(() => {
     const slides = wrapperRef.current?.querySelectorAll(".hero-slide");
@@ -166,6 +158,17 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
       >
         <MotionIcon name="ChevronRight" size={28} trigger="hover" animation="nudge" />
       </button>
+
+      {movies.length > 1 && (
+        <div className="hero-progress">
+          <div
+            key={activeIndex}
+            className="hero-progress__fill"
+            style={{ animationDuration: `${AUTO_SLIDE_DELAY}ms` }}
+            onAnimationEnd={handleNext}
+          />
+        </div>
+      )}
 
       <div className="hero-bottom-fade" />
     </div>

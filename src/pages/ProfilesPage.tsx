@@ -6,7 +6,7 @@ import { Plus, Pencil } from "lucide-react";
 import Logo from "../components/Logo";
 import ProfileEditorModal from "../components/ProfileEditorModal";
 import { useToast } from "../components/Toast";
-import { AVATARS, useTitle, prefersReducedMotion } from "../helpers";
+import { AVATARS, useTitle } from "../helpers";
 import {
   useAppSelector,
   useAppDispatch,
@@ -38,7 +38,7 @@ export default function ProfilesPage() {
   useTitle(manage ? "Profilleri Yönet" : "Kim izliyor?");
 
   useEffect(() => {
-    if (!currentUser) navigate("/login", { replace: true });
+    if (!currentUser) navigate("/", { replace: true });
   }, [currentUser, navigate]);
 
   if (!currentUser) return null;
@@ -50,13 +50,6 @@ export default function ProfilesPage() {
       return;
     }
     if (leaving) return;
-
-    // azaltilmis harekette dogrudan gir
-    if (prefersReducedMotion()) {
-      dispatch(selectProfile(p.id));
-      navigate("/");
-      return;
-    }
 
     setLeaving(true);
 
