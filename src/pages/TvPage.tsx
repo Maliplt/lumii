@@ -2,20 +2,40 @@ import { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
 import MediaPlayer from "../components/MediaPlayer";
-import { getStreamSource } from "../services/player";
 import { useTitle } from "../helpers";
 
 interface Channel {
   id: string;
   name: string;
+  url: string;
 }
 
 const CHANNELS: Channel[] = [
-  { id: "k1", name: "Kanal 1" },
-  { id: "k2", name: "Kanal 2" },
-  { id: "k3", name: "Kanal 3" },
-  { id: "k4", name: "Kanal 4" },
-  { id: "k5", name: "Kanal 5" },
+  {
+    id: "atv",
+    name: "ATV",
+    url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv.m3u8",
+  },
+  {
+    id: "ahaber",
+    name: "A Haber",
+    url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/ahaber/ahaber.m3u8",
+  },
+  {
+    id: "aspor",
+    name: "A Spor",
+    url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8",
+  },
+  {
+    id: "tv360",
+    name: "360 TV",
+    url: "https://turkmedya-live.ercdn.net/tv360/tv360.m3u8",
+  },
+  {
+    id: "aksu",
+    name: "Aksu TV",
+    url: "https://live.artidijitalmedya.com/artidijital_aksutv/aksutv/playlist.m3u8",
+  },
 ];
 
 export default function TvPage() {
@@ -52,7 +72,7 @@ export default function TvPage() {
         <div className="tv-featured">
           <MediaPlayer
             key={selected.id}
-            src={getStreamSource()}
+            src={selected.url}
             title={selected.name}
             live
             startMuted

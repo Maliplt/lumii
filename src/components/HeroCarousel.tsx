@@ -29,6 +29,8 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+  const isPausedRef = useRef(false);
 
   const handlePrev = () =>
     setActiveIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
@@ -53,6 +55,35 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
       });
     }
   }, [activeIndex]);
+
+  // hover durumunu rAF dongusu icin sakla
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  // otomatik gecis + ilerleme cubugu — rAF/delta-time, asla donmaz, hover'da duraklar
+  useEffect(() => {
+    if (movies.length <= 1) return;
+    const fill = fillRef.current;
+    if (fill) fill.style.width = "0%";
+    let raf = 0;
+    let last = performance.now();
+    let elapsed = 0;
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (!isPausedRef.current) elapsed += Math.min(dt, 100);
+      const ratio = Math.min(1, elapsed / AUTO_SLIDE_DELAY);
+      if (fill) fill.style.width = `${ratio * 100}%`;
+      if (ratio >= 1) {
+        setActiveIndex((p) => (p === movies.length - 1 ? 0 : p + 1));
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [activeIndex, movies.length]);
 
   if (movies.length === 0) return null;
 
@@ -161,12 +192,7 @@ export default function HeroCarousel({ movies }: HeroCarouselProps) {
 
       {movies.length > 1 && (
         <div className="hero-progress">
-          <div
-            key={activeIndex}
-            className="hero-progress__fill"
-            style={{ animationDuration: `${AUTO_SLIDE_DELAY}ms` }}
-            onAnimationEnd={handleNext}
-          />
+          <div ref={fillRef} className="hero-progress__fill" />
         </div>
       )}
 

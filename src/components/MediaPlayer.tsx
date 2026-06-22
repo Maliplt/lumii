@@ -66,6 +66,7 @@ export default function MediaPlayer({
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [streamReady, setStreamReady] = useState(false);
   const [streamError, setStreamError] = useState(false);
+  const [atLive, setAtLive] = useState(true);
 
   // baslat
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function MediaPlayer({
 
     let cancelled = false;
     let hls: Hls | null = null;
+    let snapped = false;
 
     setStreamReady(false);
     setStreamError(false);
@@ -122,6 +124,13 @@ export default function MediaPlayer({
       hls.on(Hls.Events.LEVEL_SWITCHED, (_e, data) =>
         setCurrentLevel(data.level),
       );
+      // canli yayinda en guncel noktadan basla
+      hls.on(Hls.Events.LEVEL_LOADED, (_e, data) => {
+        if (cancelled || !live || snapped || !data.details.live) return;
+        snapped = true;
+        const pos = hlsRef.current?.liveSyncPosition;
+        if (pos != null && isFinite(pos)) video.currentTime = pos;
+      });
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (!data.fatal) return;
         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls?.startLoad();
@@ -142,7 +151,7 @@ export default function MediaPlayer({
       hls?.destroy();
       hlsRef.current = null;
     };
-  }, [src, startMuted, autoPlay]);
+  }, [src, startMuted, autoPlay, live]);
 
   // olaylar
   useEffect(() => {
@@ -153,6 +162,16 @@ export default function MediaPlayer({
       setCurrentTime(video.currentTime);
       if (video.buffered.length)
         setBuffered(video.buffered.end(video.buffered.length - 1));
+      if (live) {
+        const pos = hlsRef.current?.liveSyncPosition;
+        const edge =
+          pos != null && isFinite(pos)
+            ? pos
+            : video.seekable.length
+              ? video.seekable.end(video.seekable.length - 1)
+              : video.currentTime;
+        setAtLive(edge - video.currentTime < 12);
+      }
     };
     const onDurationChange = () => setDuration(video.duration);
     const onPlay = () => setPlaying(true);
@@ -177,7 +196,7 @@ export default function MediaPlayer({
       video.removeEventListener("volumechange", onVolume);
       video.removeEventListener("stalled", onStalled);
     };
-  }, []);
+  }, [live]);
 
   useEffect(() => {
     const onChange = () => setFullscreen(!!document.fullscreenElement);
@@ -251,6 +270,21 @@ export default function MediaPlayer({
       Math.min(video.duration || 0, video.currentTime + seconds),
     );
   };
+
+  // canli yayinin en guncel noktasina don
+  const goLive = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const pos = hlsRef.current?.liveSyncPosition;
+    const edge =
+      pos != null && isFinite(pos)
+        ? pos
+        : video.seekable.length
+          ? video.seekable.end(video.seekable.length - 1)
+          : video.currentTime;
+    video.currentTime = edge;
+    video.play().catch(() => {});
+  }, []);
 
   const toggleFullscreen = () => {
     const container = containerRef.current;
@@ -363,10 +397,15 @@ export default function MediaPlayer({
       />
 
       {live && (
-        <div className="player-live-badge">
+        <button
+          type="button"
+          className={`player-live-badge${atLive ? "" : " is-behind"}`}
+          onClick={goLive}
+          title={atLive ? "Canlı yayındasın" : "Canlı yayına dön"}
+        >
           <span className="player-live-dot" />
           CANLI
-        </div>
+        </button>
       )}
 
       {centerAction && (

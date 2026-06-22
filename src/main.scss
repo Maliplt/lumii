@@ -987,56 +987,6 @@ main {
 .rs-carousel-indicator,
 .rs-carousel-toolbar {
     z-index: 50 !important;
-
-    &.rs-carousel-indicator-shape-dot {
-        li {
-            button {
-                width: 22px !important;
-                height: 4px !important;
-                border-radius: var(--radius-pill) !important;
-                background-color: rgba(255, 255, 255, 0.28) !important;
-                position: relative !important;
-                overflow: hidden !important;
-                transition: width 0.35s var(--ease), background-color 0.25s !important;
-
-                &:hover {
-                    background-color: rgba(255, 255, 255, 0.55) !important;
-                    transform: none !important;
-                }
-            }
-
-            //aktif segment soldan saga dolar, ne zaman kayacagi belli olur
-            &.rs-carousel-indicator-active {
-                button {
-                    width: 46px !important;
-                    background-color: rgba(255, 255, 255, 0.22) !important;
-                    transform: none !important;
-                    box-shadow: none !important;
-
-                    &::after {
-                        content: '' !important;
-                        position: absolute !important;
-                        inset: 0 !important;
-                        width: 0 !important;
-                        background: var(--accent) !important;
-                        box-shadow: 0 0 8px var(--accent-glow) !important;
-                        border-radius: var(--radius-pill) !important;
-                        animation: heroProgress 6s linear forwards !important;
-                    }
-                }
-            }
-        }
-    }
-}
-
-@keyframes heroProgress {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
-//hover'da progress durur
-.hero-carousel-wrapper.is-paused .rs-carousel-indicator-active button::after {
-    animation-play-state: paused !important;
 }
 
 //alt ilerleme cubugu — siradaki karta ne kadar kaldigi
@@ -1056,13 +1006,6 @@ main {
     width: 0;
     background: var(--accent);
     box-shadow: 0 0 10px var(--accent-glow);
-    animation-name: heroProgress;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-}
-
-.hero-carousel-wrapper.is-paused .hero-progress__fill {
-    animation-play-state: paused;
 }
 
 //hero noktalari kaldirildi — alt ilerleme cubugu gosterge olarak yeterli
@@ -6636,14 +6579,30 @@ main {
     align-items: center;
     gap: var(--space-2);
     padding: 4px var(--space-3);
+    border: none;
     border-radius: var(--radius-1);
     background: var(--danger);
     color: #fff;
     font-size: var(--fs-xs);
     font-weight: 800;
     letter-spacing: 0.1em;
-    z-index: 4;
-    pointer-events: none;
+    z-index: 12;
+    cursor: pointer;
+    @include smooth(background-color opacity);
+
+    &:hover {
+        opacity: 0.88;
+    }
+
+    //canliyi geride takip ederken: sonuk, tiklayinca geri don
+    &.is-behind {
+        background: rgba(255, 255, 255, 0.22);
+
+        .player-live-dot {
+            background: rgba(255, 255, 255, 0.7);
+            animation: none;
+        }
+    }
 }
 
 .player-live-dot {
