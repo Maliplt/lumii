@@ -158,7 +158,12 @@ export default function Header() {
               </Button>
             )}
             {currentUser ? (
-              <div className="account-menu" ref={accountMenuRef}>
+              <div
+                className="account-menu"
+                ref={accountMenuRef}
+                onMouseEnter={() => setAccountMenuOpen(true)}
+                onMouseLeave={() => setAccountMenuOpen(false)}
+              >
                 <button
                   type="button"
                   className="account-trigger"
