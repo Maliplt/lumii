@@ -7,7 +7,7 @@ import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
 import { useToast } from "../components/Toast";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useFetch, PACKAGES, useTitle } from "../helpers";
+import { useFetch, PACKAGES, useTitle, withPoster } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
 
@@ -29,8 +29,7 @@ export default function PackagesPage() {
   // posterlar
   const posters = useMemo(() => {
     if (!data) return [];
-    return [...data[0].results, ...data[1].results]
-      .filter((m) => m.poster_path)
+    return withPoster([...data[0].results, ...data[1].results])
       .slice(0, 30)
       .map((m) => getImageUrl(m.poster_path, "w300"));
   }, [data]);

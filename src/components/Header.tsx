@@ -1,12 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { Navbar, Nav, Button, Stack } from "rsuite";
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Film,
+  Tv,
+  Users,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
-import { useToast } from "./Toast";
-import { AVATARS, PACKAGES } from "../helpers";
+import { useToast, toastText } from "./Toast";
+import { AVATARS } from "../helpers";
 import {
   useAppSelector,
   useAppDispatch,
@@ -16,7 +24,7 @@ import {
 } from "../store/store";
 
 const NAV_LINKS = [
-  { to: "/", label: "Anasayfa", icon: "Home" },
+  { to: "/", label: "Ana Sayfa", icon: "Home" },
   { to: "/explore", label: "Seç İzle", icon: "Film" },
   { to: "/tv", label: "TV İzle", icon: "Tv" },
 ];
@@ -24,7 +32,6 @@ const NAV_LINKS = [
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  //redux
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const activeProfile = useAppSelector(selectActiveProfile);
@@ -36,19 +43,18 @@ export default function Header() {
   const hasQuery =
     location.pathname === "/search" &&
     !!new URLSearchParams(location.search).get("q");
+  const exploreType = new URLSearchParams(location.search).get("type");
   const [showSearch, setShowSearch] = useState(hasQuery);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const selectCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toast = useToast();
-  const userPlanName = currentUser
-    ? PACKAGES.find((p) => p.id === currentUser.plan)?.name || "Ücretsiz Plan"
-    : "";
 
-  //disari tiklayinca kapat
   useEffect(() => {
     if (!accountMenuOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -73,7 +79,7 @@ export default function Header() {
     dispatch(logout());
     setMobileMenuOpen(false);
     setAccountMenuOpen(false);
-    toast("Çıkış yapıldı.", "info");
+    toast(toastText.loggedOut, "info");
     navigate("/");
   };
 
@@ -83,7 +89,6 @@ export default function Header() {
     navigate("/");
   };
 
-  // hover ile ac; ayrilinca kisa gecikmeyle kapat ki panele giderken kapanmasin
   const openAccountMenu = () => {
     if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
     setAccountMenuOpen(true);
@@ -91,6 +96,15 @@ export default function Header() {
   const scheduleCloseAccountMenu = () => {
     if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
     accountCloseTimer.current = setTimeout(() => setAccountMenuOpen(false), 260);
+  };
+
+  const openSelectMenu = () => {
+    if (selectCloseTimer.current) clearTimeout(selectCloseTimer.current);
+    setSelectOpen(true);
+  };
+  const scheduleCloseSelectMenu = () => {
+    if (selectCloseTimer.current) clearTimeout(selectCloseTimer.current);
+    selectCloseTimer.current = setTimeout(() => setSelectOpen(false), 220);
   };
 
   useEffect(() => {
@@ -102,6 +116,7 @@ export default function Header() {
   useEffect(
     () => () => {
       if (accountCloseTimer.current) clearTimeout(accountCloseTimer.current);
+      if (selectCloseTimer.current) clearTimeout(selectCloseTimer.current);
     },
     [],
   );
@@ -116,31 +131,91 @@ export default function Header() {
             <Logo />
           </Navbar.Brand>
           <Nav activeKey={location.pathname} className="header-main-nav">
-            {NAV_LINKS.map(({ to, label, icon }) => (
-              <Nav.Item
-                key={to}
-                as={Link}
-                to={to}
-                eventKey={to}
-                className="nav-link"
-              >
-                <Stack spacing={8}>
-                  <span className="nav-icon-wrapper">
-                    <MotionIcon
-                      name={icon}
-                      size={18}
-                      trigger="hover"
-                      animation="nudge"
-                    />
-                  </span>
-                  <span className="nav-text-label">{label}</span>
-                </Stack>
-              </Nav.Item>
-            ))}
+            {NAV_LINKS.map(({ to, label, icon }) => {
+              const active =
+                to === "/"
+                  ? location.pathname === "/"
+                  : location.pathname.startsWith(to);
+              const item = (
+                <Nav.Item
+                  key={to}
+                  as={Link}
+                  to={to}
+                  eventKey={to}
+                  active={active}
+                  className="nav-link"
+                >
+                  <Stack spacing={8}>
+                    <span className="nav-icon-wrapper">
+                      <MotionIcon
+                        name={icon}
+                        size={18}
+                        trigger="hover"
+                        animation="nudge"
+                      />
+                    </span>
+                    <span className="nav-text-label">{label}</span>
+                  </Stack>
+                </Nav.Item>
+              );
+
+              if (to !== "/explore") return item;
+              return (
+                <div
+                  key={to}
+                  className="nav-select"
+                  onMouseEnter={openSelectMenu}
+                  onMouseLeave={scheduleCloseSelectMenu}
+                >
+                  <button
+                    type="button"
+                    className={`nav-link nav-select__trigger${active ? " is-active" : ""}`}
+                    aria-haspopup="true"
+                    aria-expanded={selectOpen}
+                  >
+                    <Stack spacing={8}>
+                      <span className="nav-icon-wrapper">
+                        <MotionIcon
+                          name={icon}
+                          size={18}
+                          trigger="hover"
+                          animation="nudge"
+                        />
+                      </span>
+                      <span className="nav-text-label">{label}</span>
+                    </Stack>
+                  </button>
+                  {selectOpen && (
+                    <div className="nav-select__panel">
+                      <Link
+                        to="/explore?type=movie"
+                        className="nav-select__btn"
+                        onClick={() => setSelectOpen(false)}
+                      >
+                        <Film size={20} />
+                        <span>Film İzle</span>
+                      </Link>
+                      <Link
+                        to="/explore?type=tv"
+                        className="nav-select__btn"
+                        onClick={() => setSelectOpen(false)}
+                      >
+                        <Tv size={20} />
+                        <span>Dizi İzle</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </Nav>
         </Navbar.Content>
 
-        <SearchBar open={showSearch} onClose={() => setShowSearch(false)} />
+        <SearchBar
+          key={`${location.pathname}${location.search}`}
+          open={showSearch}
+          onClose={() => setShowSearch(false)}
+        />
 
         <Navbar.Content className="header-right">
           <div className="header-desktop-actions">
@@ -204,89 +279,84 @@ export default function Header() {
 
                 {accountMenuOpen && (
                   <div className="account-menu__panel">
-                    <div className="account-menu__decal account-menu__decal--tr" />
-                    <div className="account-menu__decal account-menu__decal--bl" />
+                    <div className="account-menu__current">
+                      <span className="account-menu__current-avatar">
+                        {shownProfile?.avatar ? (
+                          <img src={AVATARS[shownProfile.avatar]} alt="" />
+                        ) : (
+                          currentUser.name.charAt(0).toUpperCase()
+                        )}
+                      </span>
+                      <div className="account-menu__current-info">
+                        <strong>{shownProfile?.name ?? currentUser.name}</strong>
+                        <span>{currentUser.email}</span>
+                      </div>
+                    </div>
+
+                    <div className="account-menu__divider" />
+
                     <button
                       type="button"
-                      className="account-menu__head"
+                      className="account-menu__section"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        navigate("/profiles");
+                      }}
+                    >
+                      <Users size={17} />
+                      <span>Profiller</span>
+                      <ChevronRight
+                        size={16}
+                        className="account-menu__section-caret"
+                      />
+                    </button>
+
+                    {otherProfiles.length > 0 && (
+                      <div className="account-menu__profiles">
+                        {otherProfiles.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            className="account-menu__profile"
+                            onClick={() => switchProfile(p.id)}
+                          >
+                            <span className="account-menu__profile-avatar">
+                              <img src={AVATARS[p.avatar]} alt="" />
+                            </span>
+                            <span>{p.name}</span>
+                            {p.kids && (
+                              <span className="account-menu__profile-kids">
+                                KIDS
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="account-menu__divider" />
+
+                    <button
+                      type="button"
+                      className="account-menu__item"
                       onClick={() => {
                         setAccountMenuOpen(false);
                         navigate("/account");
                       }}
                     >
-                      <div className="account-menu__head-card">
-                        <span className="account-menu__head-avatar">
-                          {shownProfile?.avatar ? (
-                            <img src={AVATARS[shownProfile.avatar]} alt="" />
-                          ) : (
-                            currentUser.name.charAt(0).toUpperCase()
-                          )}
-                        </span>
-                        <div className="account-menu__head-info">
-                          <strong>{shownProfile?.name ?? currentUser.name}</strong>
-                          <span>{currentUser.email}</span>
-                        </div>
-                      </div>
-                      <div className="account-menu__plan-section">
-                        <span className={`account-plan-badge account-plan-badge--${currentUser.plan || "free"}`}>
-                          {userPlanName}
-                        </span>
-                        <em>Hesabı Yönet</em>
-                      </div>
+                      <Settings size={17} />
+                      <span>Ayarlar</span>
                     </button>
 
                     <div className="account-menu__divider" />
 
-                    <div className="account-menu__profiles">
-                      {otherProfiles.map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          className="account-menu__profile"
-                          onClick={() => switchProfile(p.id)}
-                        >
-                          <span className="account-menu__profile-avatar">
-                            <img src={AVATARS[p.avatar]} alt="" />
-                          </span>
-                          <span>{p.name}</span>
-                          {p.kids && (
-                            <span className="account-menu__profile-kids">
-                              KIDS
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        className="account-menu__switch"
-                        onClick={() => {
-                          setAccountMenuOpen(false);
-                          navigate("/profiles");
-                        }}
-                      >
-                        <MotionIcon
-                          name="Users"
-                          size={16}
-                          trigger="hover"
-                          animation="pop"
-                        />
-                        Profilleri Yönet
-                      </button>
-                    </div>
-
-                    <div className="account-menu__divider" />
                     <button
                       type="button"
-                      className="account-menu__logout"
+                      className="account-menu__item account-menu__item--logout"
                       onClick={handleLogout}
                     >
-                      <span>Çıkış Yap</span>
-                      <MotionIcon
-                        name="LogOut"
-                        size={16}
-                        trigger="hover"
-                        animation="pop"
-                      />
+                      <LogOut size={17} />
+                      <span>Oturumu Kapat</span>
                     </button>
                   </div>
                 )}
@@ -349,22 +419,93 @@ export default function Header() {
             className="mobile-nav-panel"
             onClick={(e) => e.stopPropagation()}
           >
-            {NAV_LINKS.map(({ to, label, icon }) => (
+            <div className="mobile-nav-head">
               <Link
-                key={to}
-                to={to}
-                className={`mobile-nav-link${location.pathname === to ? " active" : ""}`}
+                to="/"
+                className="mobile-nav-brand"
                 onClick={() => setMobileMenuOpen(false)}
+                aria-label="Lumii ana sayfa"
+              >
+                <Logo />
+              </Link>
+              <button
+                type="button"
+                className="mobile-nav-close"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Menüyü kapat"
               >
                 <MotionIcon
-                  name={icon}
-                  size={20}
+                  name="X"
+                  size={22}
                   trigger="hover"
-                  animation="nudge"
+                  animation="pop"
                 />
-                <span>{label}</span>
-              </Link>
-            ))}
+              </button>
+            </div>
+
+            {currentUser && (
+              <button
+                type="button"
+                className="mobile-nav-account"
+                onClick={() => {
+                  navigate("/account");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span className="mobile-nav-account__avatar">
+                  {shownProfile?.avatar ? (
+                    <img src={AVATARS[shownProfile.avatar]} alt="" />
+                  ) : (
+                    currentUser.name.charAt(0).toUpperCase()
+                  )}
+                </span>
+                <span className="mobile-nav-account__text">
+                  <strong>{shownProfile?.name ?? currentUser.name}</strong>
+                  <small>{currentUser.email}</small>
+                </span>
+                <ChevronRight size={18} />
+              </button>
+            )}
+
+            <div className="mobile-nav-list">
+            {NAV_LINKS.map(({ to, label, icon }) =>
+              to === "/explore" ? (
+                <div key={to} className="mobile-nav-sub">
+                  <Link
+                    to="/explore?type=movie"
+                    className={`mobile-nav-link${location.pathname === "/explore" && exploreType !== "tv" ? " active" : ""}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Film size={21} />
+                    <span>Film İzle</span>
+                  </Link>
+                  <Link
+                    to="/explore?type=tv"
+                    className={`mobile-nav-link${location.pathname === "/explore" && exploreType === "tv" ? " active" : ""}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Tv size={21} />
+                    <span>Dizi İzle</span>
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`mobile-nav-link${location.pathname === to ? " active" : ""}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <MotionIcon
+                    name={icon}
+                    size={21}
+                    trigger="hover"
+                    animation="nudge"
+                  />
+                  <span>{label}</span>
+                </Link>
+              ),
+            )}
+            </div>
             <div className="mobile-nav-divider" />
             <div className="mobile-nav-cta">
               {!currentUser?.plan && (

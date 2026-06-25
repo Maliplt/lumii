@@ -11,12 +11,17 @@ import {
 } from "react-redux";
 import type { Movie, TVShow } from "../types/types";
 
+export const MAX_PROFILES = 5;
+
 // profil
 export interface Profile {
   id: string;
   name: string;
   avatar: string;
   kids: boolean;
+  locked?: boolean;
+  playback?: "auto" | "manual";
+  notifications?: "all" | "important" | "off";
 }
 
 // giris / kayit
@@ -26,6 +31,7 @@ interface Account {
   password: string;
   createdAt?: string;
   plan?: string;
+  receipt?: Receipt | null;
   profiles: Profile[];
 }
 
@@ -34,6 +40,7 @@ interface CurrentUser {
   email: string;
   createdAt?: string;
   plan?: string;
+  receipt?: Receipt | null;
   profiles: Profile[];
 }
 
@@ -64,7 +71,21 @@ const authInitial: AuthState = {
 
 // varsayilan profil
 function makeProfile(name: string, avatar = "a1", kids = false): Profile {
-  return { id: nanoid(), name, avatar, kids };
+  return {
+    id: nanoid(),
+    name,
+    avatar,
+    kids,
+    locked: false,
+    playback: "auto",
+    notifications: "important",
+  };
+}
+
+// aktif kullanicinin kayitli hesabini bul (profil/plan/sifre islemleri hep buna bakiyor)
+function findAccount(state: AuthState): Account | undefined {
+  if (!state.currentUser) return undefined;
+  return state.accounts.find((a) => a.email === state.currentUser!.email);
 }
 
 const auth = createSlice({
@@ -89,9 +110,11 @@ const auth = createSlice({
         name: acc.name,
         email: acc.email,
         createdAt: acc.createdAt,
+        receipt: acc.receipt ?? null,
         profiles: acc.profiles,
       };
       state.activeProfileId = null;
+      state.receipt = acc.receipt ?? null;
       state.error = null;
     },
     login(state, action: PayloadAction<{ email: string; password: string }>) {
@@ -111,19 +134,22 @@ const auth = createSlice({
         email: acc.email,
         createdAt: acc.createdAt,
         plan: acc.plan,
+        receipt: acc.receipt ?? null,
         profiles: acc.profiles,
       };
       state.activeProfileId = null;
+      state.receipt = acc.receipt ?? null;
       state.error = null;
     },
     addProfile: {
       reducer(state, action: PayloadAction<Profile>) {
         if (!state.currentUser) return;
+        if (state.currentUser.profiles.length >= MAX_PROFILES) return;
         state.currentUser.profiles.push(action.payload);
-        const acc = state.accounts.find(
-          (a) => a.email === state.currentUser!.email,
-        );
-        if (acc) acc.profiles.push(action.payload);
+        const acc = findAccount(state);
+        if (acc && acc.profiles.length < MAX_PROFILES) {
+          acc.profiles.push(action.payload);
+        }
       },
       prepare(input: { name: string; avatar: string; kids?: boolean }) {
         return {
@@ -138,9 +164,7 @@ const auth = createSlice({
         if (i !== -1) list[i] = action.payload;
       };
       apply(state.currentUser.profiles);
-      const acc = state.accounts.find(
-        (a) => a.email === state.currentUser!.email,
-      );
+      const acc = findAccount(state);
       if (acc) apply(acc.profiles);
     },
     deleteProfile(state, action: PayloadAction<string>) {
@@ -148,10 +172,10 @@ const auth = createSlice({
       state.currentUser.profiles = state.currentUser.profiles.filter(
         (p) => p.id !== action.payload,
       );
-      const acc = state.accounts.find(
-        (a) => a.email === state.currentUser!.email,
-      );
-      if (acc) acc.profiles = acc.profiles.filter((p) => p.id !== action.payload);
+      const acc = findAccount(state);
+      if (acc) {
+        acc.profiles = acc.profiles.filter((p) => p.id !== action.payload);
+      }
       if (state.activeProfileId === action.payload) state.activeProfileId = null;
     },
     selectProfile(state, action: PayloadAction<string>) {
@@ -160,17 +184,33 @@ const auth = createSlice({
     setPlan(state, action: PayloadAction<string>) {
       if (!state.currentUser) return;
       state.currentUser.plan = action.payload;
-      const acc = state.accounts.find(
-        (a) => a.email === state.currentUser!.email,
-      );
+      const acc = findAccount(state);
       if (acc) acc.plan = action.payload;
     },
     setReceipt(state, action: PayloadAction<Receipt>) {
       state.receipt = action.payload;
+      if (state.currentUser) state.currentUser.receipt = action.payload;
+      const acc = findAccount(state);
+      if (acc) acc.receipt = action.payload;
+    },
+    changePassword(
+      state,
+      action: PayloadAction<{ current: string; next: string }>,
+    ) {
+      if (!state.currentUser) return;
+      const acc = findAccount(state);
+      if (!acc) return;
+      if (acc.password !== action.payload.current) {
+        state.error = "Mevcut şifren hatalı.";
+        return;
+      }
+      acc.password = action.payload.next;
+      state.error = null;
     },
     logout(state) {
       state.currentUser = null;
       state.activeProfileId = null;
+      state.receipt = null;
     },
     clearAuthError(state) {
       state.error = null;
@@ -180,6 +220,14 @@ const auth = createSlice({
 
 // kitaplik
 export type SavedItem = (Movie | TVShow) & { media_type: "movie" | "tv" };
+
+export const savedItemKey = (item: Pick<SavedItem, "id" | "media_type">): string =>
+  `${item.media_type}-${item.id}`;
+
+export const sameSavedItem = (
+  a: Pick<SavedItem, "id" | "media_type">,
+  b: Pick<SavedItem, "id" | "media_type">,
+): boolean => savedItemKey(a) === savedItemKey(b);
 
 interface LibraryData {
   watchlist: SavedItem[];
@@ -216,8 +264,8 @@ function bucket(state: LibraryState): LibraryData | null {
 
 // toggle helper
 function toggle(list: SavedItem[], item: SavedItem): SavedItem[] {
-  return list.some((x) => x.id === item.id)
-    ? list.filter((x) => x.id !== item.id)
+  return list.some((x) => sameSavedItem(x, item))
+    ? list.filter((x) => !sameSavedItem(x, item))
     : [item, ...list];
 }
 
@@ -239,9 +287,9 @@ const library = createSlice({
       const item = action.payload;
       b.continueWatching = [
         item,
-        ...b.continueWatching.filter((x) => x.id !== item.id),
+        ...b.continueWatching.filter((x) => !sameSavedItem(x, item)),
       ];
-      b.history = [item, ...b.history.filter((x) => x.id !== item.id)];
+      b.history = [item, ...b.history.filter((x) => !sameSavedItem(x, item))];
     },
     clearHistory(state) {
       const b = bucket(state);
@@ -276,11 +324,17 @@ const library = createSlice({
 interface SettingsState {
   autoplay: boolean;
   continueRow: boolean;
+  previews: boolean;
+  emailNotifications: boolean;
+  dataSaver: boolean;
 }
 
 const settingsInitial: SettingsState = {
   autoplay: true,
   continueRow: true,
+  previews: true,
+  emailNotifications: true,
+  dataSaver: false,
 };
 
 const settings = createSlice({
@@ -338,6 +392,7 @@ export const {
   selectProfile,
   setPlan,
   setReceipt,
+  changePassword,
 } = auth.actions;
 export const { toggleWatchlist, toggleLiked, startWatching, clearHistory } =
   library.actions;
@@ -351,11 +406,10 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // secimler
-const EMPTY: LibraryData = emptyLibrary;
-
 export const selectActiveProfile = (s: RootState): Profile | null =>
   s.auth.currentUser?.profiles.find((p) => p.id === s.auth.activeProfileId) ??
   null;
 
 export const selectLibrary = (s: RootState): LibraryData =>
-  (s.library.activeId && s.library.byProfile[s.library.activeId]) || EMPTY;
+  (s.library.activeId && s.library.byProfile[s.library.activeId]) ||
+  emptyLibrary;

@@ -5,7 +5,7 @@ import { Button } from "rsuite";
 import { Plus, Pencil } from "lucide-react";
 import Logo from "../components/Logo";
 import ProfileEditorModal from "../components/ProfileEditorModal";
-import { useToast } from "../components/Toast";
+import { useToast, toastText } from "../components/Toast";
 import { AVATARS, useTitle } from "../helpers";
 import {
   useAppSelector,
@@ -14,10 +14,9 @@ import {
   addProfile,
   updateProfile,
   deleteProfile,
+  MAX_PROFILES,
   type Profile,
 } from "../store/store";
-
-const MAX_PROFILES = 5;
 
 type EditorState =
   | { mode: "create" }
@@ -142,17 +141,17 @@ export default function ProfilesPage() {
           onSave={(data) => {
             if (editor.mode === "create") {
               dispatch(addProfile(data));
-              toast(`${data.name} profili oluşturuldu.`);
+              toast(toastText.profileCreated(data.name));
             } else {
               dispatch(updateProfile({ ...editor.profile, ...data }));
-              toast("Profil güncellendi.");
+              toast(toastText.profileUpdated);
             }
             setEditor(null);
           }}
           onDelete={() => {
             if (editor.mode !== "edit") return;
             dispatch(deleteProfile(editor.profile.id));
-            toast("Profil silindi.", "info");
+            toast(toastText.profileDeleted, "info");
             setEditor(null);
           }}
         />

@@ -6,16 +6,10 @@ import ContentCarousel from "../components/ContentCarousel";
 import GameCarousel from "../components/GameCarousel";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch, useTitle } from "../helpers";
+import { useFetch, useTitle, withPoster, withMedia, heroFrom, useLazyReveal } from "../helpers";
 import { useAppSelector, selectLibrary } from "../store/store";
-import type { Movie, TVShow } from "../types/types";
 
 const HERO_COUNT = 5;
-
-//latin dışı başlıkları filtrele
-function isLatinTitle(title: string): boolean {
-  return !/[^\u0020-\u024F\u1E00-\u1EFF\u2000-\u206F\u20A0-\u20CF\u2100-\u214F\s]/.test(title);
-}
 
 export default function HomePage() {
   useTitle("");
@@ -40,63 +34,69 @@ export default function HomePage() {
     ]),
   );
 
-  const movies = useMemo(
-    () =>
-      (data?.[0].results.filter((m) => m.poster_path && m.backdrop_path) ??
-        []) as Movie[],
-    [data],
-  );
+  // Promise.all sirasini bir kez isimlere bagla; asagisi indeks yerine isimle okusun
+  const lists = useMemo(() => {
+    const [
+      popularMovies,
+      popularTV,
+      trending,
+      trendingShows,
+      upcomingMovies,
+      topRatedShows,
+      nowPlayingMovies,
+      airingShows,
+      adventureMovies,
+      animationMovies,
+    ] = data ?? [];
 
-  //hero için latin filtre
-  const heroMovies = useMemo(
-    () => movies.filter((m) => isLatinTitle(m.title ?? "")).slice(0, HERO_COUNT),
-    [movies],
-  );
+    return {
+      movies: withMedia(popularMovies?.results ?? []),
+      heroMovies: heroFrom(popularMovies?.results ?? [], HERO_COUNT),
+      tvShows: withPoster(popularTV?.results ?? []),
+      trendingMovies: withPoster(trending?.results ?? []),
+      trendingTV: withPoster(trendingShows?.results ?? []),
+      upcoming: withPoster(upcomingMovies?.results ?? []),
+      topRatedTV: withPoster(topRatedShows?.results ?? []),
+      nowPlaying: withPoster(nowPlayingMovies?.results ?? []),
+      airingToday: withPoster(airingShows?.results ?? []),
+      adventure: withPoster(adventureMovies?.results ?? []),
+      animation: withPoster(animationMovies?.results ?? []),
+    };
+  }, [data]);
 
-  const tvShows = useMemo(
-    () => (data?.[1].results.filter((tv) => tv.poster_path) ?? []) as TVShow[],
-    [data],
-  );
+  const {
+    movies,
+    heroMovies,
+    tvShows,
+    trendingMovies,
+    trendingTV,
+    upcoming,
+    topRatedTV,
+    nowPlaying,
+    airingToday,
+    adventure,
+    animation,
+  } = lists;
 
-  const trendingMovies = useMemo(
-    () => (data?.[2].results.filter((m) => m.poster_path) ?? []) as Movie[],
-    [data],
-  );
+  // tum satirlar tek dizide; useLazyReveal scroll'a gore parca parca gosteriyor
+  const rows = [
+    <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler" items={movies} />,
+    <GameCarousel key="games" />,
+    isLoggedIn && showContinueRow && continueWatching.length > 0 ? (
+      <ContentCarousel key="continue" type="movie" title="İzlemeye Devam Et" items={continueWatching} />
+    ) : null,
+    <ContentCarousel key="nowplaying" type="movie" title="Sinemalarda Vizyondakiler" items={nowPlaying} />,
+    <ContentCarousel key="trending" type="movie" title="Gündemdekiler" items={trendingMovies} />,
+    <ContentCarousel key="poptv" type="tv" title="Popüler Diziler" items={tvShows} />,
+    <ContentCarousel key="airing" type="tv" title="Televizyonda Bugün" items={airingToday} />,
+    <ContentCarousel key="toptv" type="tv" title="En Beğenilen Diziler" items={topRatedTV} />,
+    <ContentCarousel key="adventure" type="movie" title="Macera Severlere" items={adventure} />,
+    <ContentCarousel key="upcoming" type="movie" title="Yakında Gelecekler" items={upcoming} />,
+    <ContentCarousel key="animation" type="movie" title="Animasyon Dünyası" items={animation} />,
+    <ContentCarousel key="trendingtv" type="tv" title="Gündemdeki Diziler" items={trendingTV} />,
+  ].filter(Boolean);
 
-  const trendingTV = useMemo(
-    () => (data?.[3].results.filter((tv) => tv.poster_path) ?? []) as TVShow[],
-    [data],
-  );
-
-  const upcoming = useMemo(
-    () => (data?.[4].results.filter((m) => m.poster_path) ?? []) as Movie[],
-    [data],
-  );
-
-  const topRatedTV = useMemo(
-    () => (data?.[5].results.filter((tv) => tv.poster_path) ?? []) as TVShow[],
-    [data],
-  );
-
-  const nowPlaying = useMemo(
-    () => (data?.[6].results.filter((m) => m.poster_path) ?? []) as Movie[],
-    [data],
-  );
-
-  const airingToday = useMemo(
-    () => (data?.[7].results.filter((tv) => tv.poster_path) ?? []) as TVShow[],
-    [data],
-  );
-
-  const adventure = useMemo(
-    () => (data?.[8].results.filter((m) => m.poster_path) ?? []) as Movie[],
-    [data],
-  );
-
-  const animation = useMemo(
-    () => (data?.[9].results.filter((m) => m.poster_path) ?? []) as Movie[],
-    [data],
-  );
+  const { visible, sentinelRef } = useLazyReveal(rows.length);
 
   return (
     <PageLayout
@@ -114,64 +114,10 @@ export default function HomePage() {
         <>
           <HeroCarousel movies={heroMovies} />
           <div className="home-content">
-            {isLoggedIn && showContinueRow && continueWatching.length > 0 && (
-              <ContentCarousel
-                type="movie"
-                title="İzlemeye Devam Et"
-                items={continueWatching}
-              />
+            {rows.slice(0, visible)}
+            {visible < rows.length && (
+              <div className="lazy-row-sentinel" ref={sentinelRef} aria-hidden="true" />
             )}
-            <GameCarousel />
-            <ContentCarousel
-              type="movie"
-              title="Popüler Filmler"
-              items={movies}
-            />
-            <ContentCarousel
-              type="movie"
-              title="Sinemalarda Vizyondakiler"
-              items={nowPlaying}
-            />
-            <ContentCarousel
-              type="movie"
-              title="Gündemdekiler"
-              items={trendingMovies}
-            />
-            <ContentCarousel
-              type="tv"
-              title="Popüler Diziler"
-              items={tvShows}
-            />
-            <ContentCarousel
-              type="tv"
-              title="Televizyonda Bugün"
-              items={airingToday}
-            />
-            <ContentCarousel
-              type="tv"
-              title="En Beğenilen Diziler"
-              items={topRatedTV}
-            />
-            <ContentCarousel
-              type="movie"
-              title="Macera Severlere"
-              items={adventure}
-            />
-            <ContentCarousel
-              type="movie"
-              title="Yakında Gelecekler"
-              items={upcoming}
-            />
-            <ContentCarousel
-              type="movie"
-              title="Animasyon Dünyası"
-              items={animation}
-            />
-            <ContentCarousel
-              type="tv"
-              title="Gündemdeki Diziler"
-              items={trendingTV}
-            />
           </div>
         </>
       )}

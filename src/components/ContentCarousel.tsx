@@ -8,44 +8,72 @@ import {
 } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
-import { animate, stagger } from "animejs";
 import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
-import { getImageUrl, tmdbApi, pickTrailer } from "../services/tmdb";
-import { useToast } from "./Toast";
-import { useSwipe, mediaName, mediaYear } from "../helpers";
 import {
-  useAppDispatch,
-  useAppSelector,
-  toggleWatchlist,
-  toggleLiked,
-  selectLibrary,
-  type SavedItem,
-} from "../store/store";
-import type { Movie, TVShow } from "../types/types";
+  getImageUrl,
+  tmdbApi,
+  pickTrailer,
+  genreNames,
+  formatRuntime,
+} from "../services/tmdb";
+import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton } from "../helpers";
+import { useAppSelector, type SavedItem } from "../store/store";
+import type { Movie, TVShow, MovieDetail, TVShowDetail } from "../types/types";
+
+type Media = Movie | TVShow;
+
+// watchlist/begeni butonlari — kart ve hero ayni yapiyi paylasiyor (mantik helpers'taki hook'ta)
+export function MediaActionButtons({
+  item,
+  type,
+  className = "",
+}: {
+  item: Movie | TVShow | SavedItem;
+  type: "movie" | "tv";
+  className?: string;
+}) {
+  const lib = useLibraryActions(item, type);
+  return (
+    <>
+      <button
+        className={`cc-item__action-btn outline cc-item__watchlist ${className}${lib.inWatchlist ? " active" : ""}`}
+        type="button"
+        onClick={lib.onWatchlist}
+        aria-label={lib.inWatchlist ? "Listeden çıkar" : "Listeye ekle"}
+      >
+        <MotionIcon
+          name={lib.inWatchlist ? "Check" : "Plus"}
+          size={lib.inWatchlist ? 19 : 20}
+          trigger="click"
+          animation="pop"
+        />
+      </button>
+      <button
+        className={`cc-item__action-btn outline cc-item__like ${className}${lib.isLiked ? " active" : ""}`}
+        type="button"
+        onClick={lib.onLike}
+        aria-label={lib.isLiked ? "Beğeniyi geri al" : "Beğen"}
+      >
+        <MotionIcon name="Heart" size={17} trigger="click" animation="heartbeat" />
+      </button>
+    </>
+  );
+}
 
 const HOVER_EXPAND_DELAY = 500;
-
-// yt durumlari
 const YT_ENDED = 0;
 const YT_PLAYING = 1;
 
-//tek istek
-const trailerCache = new Map<string, string | null>();
+const detailCache = new Map<
+  string,
+  { trailer: string | null; runtime: number; seasons: number }
+>();
 
-// tek kart acik
-let activeStop: (() => void) | null = null;
-let activeToken: object | null = null;
+let closeOpenCard: (() => void) | null = null;
+let openToken: object | null = null;
 
-// pop animasyonu
-function pop(el: HTMLElement) {
-  el.classList.remove("is-pop");
-  void el.offsetWidth;
-  el.classList.add("is-pop");
-}
-
-// kart sayisi
-function calcCount(width: number): number {
+function visibleFor(width: number): number {
   if (width <= 480) return 2;
   if (width <= 768) return 3;
   if (width <= 1024) return 4;
@@ -53,21 +81,31 @@ function calcCount(width: number): number {
 }
 
 function useVisibleCount(): number {
-  const [count, setCount] = useState(() => calcCount(window.innerWidth));
-
+  const [count, setCount] = useState(() =>
+    typeof window === "undefined" ? 6 : visibleFor(window.innerWidth),
+  );
   useEffect(() => {
-    const handler = () => setCount(calcCount(window.innerWidth));
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
+    const onResize = () => setCount(visibleFor(window.innerWidth));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
-
   return count;
+}
+
+function usePages(items: Media[], visible: number) {
+  return useMemo(() => {
+    const flat = items.filter((it) => it.poster_path && it.overview?.trim());
+    const pages: Media[][] = [];
+    for (let start = 0; start < flat.length; start += visible)
+      pages.push(flat.slice(start, start + visible));
+    return { flat, pages };
+  }, [items, visible]);
 }
 
 interface ContentCarouselProps {
   type: "movie" | "tv";
   title: string;
-  items: (Movie | TVShow)[];
+  items: Media[];
   headerExtra?: ReactNode;
 }
 
@@ -75,148 +113,121 @@ const ItemCard = memo(function ItemCard({
   item,
   type,
 }: {
-  item: Movie | TVShow;
+  item: Media;
   type: "movie" | "tv";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const expanded = useRef(false);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const token = useRef({});
-  const [showTitle, setShowTitle] = useState(false);
+  const openRef = useRef(false);
+  const [open, setOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [runtime, setRuntime] = useState(0);
+  const [seasons, setSeasons] = useState(0);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(true);
   const navigate = useNavigate();
 
-  // tip yoksa proptan
   const cardType = (item as SavedItem).media_type ?? type;
-
-  const dispatch = useAppDispatch();
-  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
-  const inWatchlist = useAppSelector((s) =>
-    selectLibrary(s).watchlist.some((x) => x.id === item.id),
-  );
-  const isLiked = useAppSelector((s) =>
-    selectLibrary(s).liked.some((x) => x.id === item.id),
-  );
-
-  const toast = useToast();
-  const saved = { ...item, media_type: cardType } as SavedItem;
-
-  const onWatchlist = (e: React.MouseEvent) => {
-    pop(e.currentTarget as HTMLElement);
-    if (!isLoggedIn) {
-      toast("İzleme listeni kullanmak için önce giriş yapmalısın.", "warning");
-      navigate("/login");
-      return;
-    }
-    dispatch(toggleWatchlist(saved));
-    toast(
-      inWatchlist
-        ? "İzleme listesinden çıkarıldı."
-        : "İzleme listesine eklendi.",
-    );
-  };
-
-  const onLike = (e: React.MouseEvent) => {
-    pop(e.currentTarget as HTMLElement);
-    if (!isLoggedIn) {
-      toast("İçerikleri beğenmek için önce giriş yapmalısın.", "warning");
-      navigate("/login");
-      return;
-    }
-    dispatch(toggleLiked(saved));
-    toast(isLiked ? "Beğeni geri alındı." : "Beğenildi.");
-  };
-
-  // butonlar sirayla belirir
-  useEffect(() => {
-    if (!showTitle) return;
-    const buttons = ref.current?.querySelectorAll(".cc-item__action-btn");
-    if (!buttons || buttons.length === 0) return;
-    animate(buttons, {
-      opacity: [0, 1],
-      scale: [0.5, 1],
-      translateY: [8, 0],
-      duration: 420,
-      delay: stagger(60),
-      ease: "outBack",
-    });
-  }, [showTitle]);
+  const previewsEnabled = useAppSelector((s) => s.settings.previews);
 
   const name = mediaName(item);
   const year = mediaYear(item);
   const rating = item.vote_average ? item.vote_average.toFixed(1) : "";
-  const overviewSnippet = item.overview?.trim() ?? "";
+  const genres = genreNames(item.genre_ids, 3);
+  const adult = (item as Movie).adult === true;
+  const extra =
+    cardType === "movie"
+      ? formatRuntime(runtime)
+      : seasons > 0
+        ? `${seasons} Sezon`
+        : "";
 
-  // fragman yukle
-  const loadTrailer = async () => {
-    const cacheKey = `${cardType}-${item.id}`;
-    const cached = trailerCache.get(cacheKey);
-    if (cached !== undefined) {
-      setTrailerKey(cached);
+  const apply = (d: { trailer: string | null; runtime: number; seasons: number }) => {
+    if (!openRef.current) return;
+    setTrailerKey(d.trailer);
+    setRuntime(d.runtime);
+    setSeasons(d.seasons);
+  };
+
+  const loadDetail = async () => {
+    const key = `${cardType}-${item.id}`;
+    const cached = detailCache.get(key);
+    if (cached) {
+      apply(cached);
       return;
     }
     try {
-      const { results } = await tmdbApi.getVideos(cardType, item.id);
-      const key = pickTrailer(results);
-      trailerCache.set(cacheKey, key);
-      if (expanded.current) setTrailerKey(key);
+      const detail =
+        cardType === "movie"
+          ? await tmdbApi.getMovieDetail(item.id)
+          : await tmdbApi.getTVShowDetail(item.id);
+      const runtime =
+        cardType === "movie" ? ((detail as MovieDetail).runtime ?? 0) : 0;
+      const seasons =
+        cardType === "tv"
+          ? ((detail as TVShowDetail).number_of_seasons ?? 0)
+          : 0;
+      const d = {
+        trailer: pickTrailer(detail.videos?.results ?? []),
+        runtime,
+        seasons,
+      };
+      detailCache.set(key, d);
+      apply(d);
     } catch {
-      trailerCache.set(cacheKey, null);
+      detailCache.set(key, { trailer: null, runtime: 0, seasons: 0 });
     }
   };
 
-  const doExpand = () => {
-    if (activeStop && activeToken !== token.current) activeStop();
-    activeToken = token.current;
-    activeStop = doCollapse;
-    expanded.current = true;
-    setShowTitle(true);
-    loadTrailer();
-    if (ref.current)
-      animate(ref.current, { flexGrow: 2, duration: 380, ease: "outQuart" });
+  const expand = () => {
+    if (closeOpenCard && openToken !== token.current) closeOpenCard();
+    openToken = token.current;
+    closeOpenCard = collapse;
+    openRef.current = true;
+    setOpen(true);
+    loadDetail();
   };
 
-  const doCollapse = () => {
-    if (activeToken === token.current) {
-      activeToken = null;
-      activeStop = null;
+  const collapse = () => {
+    if (openToken === token.current) {
+      openToken = null;
+      closeOpenCard = null;
     }
-    expanded.current = false;
-    setShowTitle(false);
+    openRef.current = false;
+    setOpen(false);
     setTrailerKey(null);
     setReady(false);
     setMuted(true);
-    if (ref.current)
-      animate(ref.current, { flexGrow: 1, duration: 260, ease: "outQuart" });
+    setSeasons(0);
+    setRuntime(0);
   };
 
   const onEnter = () => {
+    if (!previewsEnabled) return;
     if (window.matchMedia("(hover: none)").matches) return;
-    timer.current = setTimeout(doExpand, HOVER_EXPAND_DELAY);
+    hoverTimer.current = setTimeout(expand, HOVER_EXPAND_DELAY);
   };
   const onLeave = () => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-      timer.current = null;
+    if (hoverTimer.current) {
+      clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
     }
-    if (expanded.current) doCollapse();
+    if (openRef.current) collapse();
   };
 
-  // ses ac/kapa
   const toggleMute = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    pop(e.currentTarget as HTMLElement);
+    popButton(e.currentTarget as HTMLElement);
     const win = frameRef.current?.contentWindow;
     if (!win) return;
     win.postMessage(
       JSON.stringify({ event: "command", func: muted ? "unMute" : "mute" }),
       "*",
     );
-    setMuted((prev) => !prev);
+    setMuted((m) => !m);
   };
 
   const trailerSrc = trailerKey
@@ -230,9 +241,8 @@ const ItemCard = memo(function ItemCard({
     );
   };
 
-  // oynatici durumu
   useEffect(() => {
-    if (!showTitle || !trailerKey) return;
+    if (!open || !trailerKey) return;
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== "https://www.youtube.com") return;
       let msg: { info?: { playerState?: number } };
@@ -244,22 +254,21 @@ const ItemCard = memo(function ItemCard({
       const state = msg.info?.playerState;
       if (state === undefined) return;
       setReady(state === YT_PLAYING);
-      if (state === YT_ENDED) {
+      if (state === YT_ENDED)
         frameRef.current?.contentWindow?.postMessage(
           JSON.stringify({ event: "command", func: "playVideo" }),
           "*",
         );
-      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [showTitle, trailerKey]);
+  }, [open, trailerKey]);
 
   return (
     <div
       ref={ref}
-      className="cc-item"
-      style={{ flexGrow: 1 }}
+      className={`cc-item${open ? " is-open" : ""}`}
+      style={{ flexGrow: open ? 2 : 1 }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
@@ -269,11 +278,11 @@ const ItemCard = memo(function ItemCard({
           src={getImageUrl(item.poster_path, "w300")}
           alt={name}
           loading="lazy"
+          decoding="async"
         />
       </Link>
 
-
-      {showTitle && trailerKey && (
+      {open && trailerKey && (
         <>
           <div className={`cc-item__trailer ${ready ? "is-ready" : ""}`}>
             <iframe
@@ -284,7 +293,6 @@ const ItemCard = memo(function ItemCard({
               onLoad={startTrailer}
             />
           </div>
-          {/* tiklama katmani */}
           <div
             className="cc-item__trailer-shield"
             onClick={() => navigate(`/${cardType}/${item.id}`)}
@@ -295,25 +303,20 @@ const ItemCard = memo(function ItemCard({
             onClick={toggleMute}
             aria-label={muted ? "Sesi aç" : "Sesi kapat"}
           >
-            {muted ? (
-              <MotionIcon
-                name="VolumeX"
-                size={18}
-                trigger="hover"
-                animation="pop"
-              />
-            ) : (
-              <MotionIcon
-                name="Volume2"
-                size={18}
-                trigger="hover"
-                animation="pop"
-              />
-            )}
+            <MotionIcon
+              name={muted ? "VolumeX" : "Volume2"}
+              size={18}
+              trigger="click"
+              animation="pop"
+            />
           </button>
         </>
       )}
-      <div className={`cc-item__overlay ${showTitle ? "active" : ""}`}>
+
+      <div
+        className={`cc-item__overlay ${open ? "active" : ""}`}
+        onClick={() => navigate(`/${cardType}/${item.id}`)}
+      >
         <div className="cc-item__details">
           <div className="cc-item__actions-row">
             <div className="cc-item__actions-left">
@@ -323,48 +326,9 @@ const ItemCard = memo(function ItemCard({
                 onClick={() => navigate(`/${cardType}/${item.id}`)}
                 aria-label="Oynat"
               >
-                <MotionIcon
-                  name="Play"
-                  size={18}
-                  trigger="hover"
-                  animation="nudge"
-                />
+                <MotionIcon name="Play" size={18} trigger="click" animation="nudge" />
               </button>
-              <button
-                className={`cc-item__action-btn outline${inWatchlist ? " active" : ""}`}
-                type="button"
-                onClick={onWatchlist}
-                aria-label={inWatchlist ? "Listeden çıkar" : "Listeye ekle"}
-              >
-                {inWatchlist ? (
-                  <MotionIcon
-                    name="Check"
-                    size={19}
-                    trigger="hover"
-                    animation="pop"
-                  />
-                ) : (
-                  <MotionIcon
-                    name="Plus"
-                    size={20}
-                    trigger="hover"
-                    animation="spin"
-                  />
-                )}
-              </button>
-              <button
-                className={`cc-item__action-btn outline${isLiked ? " active" : ""}`}
-                type="button"
-                onClick={onLike}
-                aria-label={isLiked ? "Beğeniyi geri al" : "Beğen"}
-              >
-                <MotionIcon
-                  name="Heart"
-                  size={17}
-                  trigger="hover"
-                  animation="heartbeat"
-                />
-              </button>
+              <MediaActionButtons item={item} type={cardType} />
             </div>
           </div>
           <h4 className="cc-item__name">{name}</h4>
@@ -374,19 +338,18 @@ const ItemCard = memo(function ItemCard({
               {year && rating && <span className="cc-item__divider">•</span>}
               {rating && (
                 <span className="cc-item__rating">
-                  <Star
-                    size={11}
-                    fill="currentColor"
-                    className="cc-item__star"
-                  />
+                  <Star size={11} fill="currentColor" className="cc-item__star" />
                   {rating}
                 </span>
               )}
             </div>
           )}
-          {overviewSnippet && (
-            <div className="cc-item__overview-container">
-              <p className="cc-item__overview">{overviewSnippet}</p>
+          {(genres.length > 0 || adult || extra) && (
+            <div className="cc-item__tagline">
+              {adult && <span className="cc-item__age">18+</span>}
+              <span className="cc-item__genres">
+                {[...genres, extra].filter(Boolean).join(" · ")}
+              </span>
             </div>
           )}
         </div>
@@ -395,57 +358,73 @@ const ItemCard = memo(function ItemCard({
   );
 });
 
+function Peek({
+  item,
+  side,
+  onClick,
+}: {
+  item: Media;
+  side: "prev" | "next";
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`cc-peek ${side}`}
+      onClick={onClick}
+      aria-label={side === "prev" ? "Önceki" : "Sonraki"}
+      tabIndex={-1}
+    >
+      <img
+        src={getImageUrl(item.poster_path, "w300")}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </button>
+  );
+}
+
+function NavArrow({ side, onClick }: { side: "prev" | "next"; onClick: () => void }) {
+  return (
+    <button
+      className={`cc-nav-arrow ${side}`}
+      onClick={onClick}
+      aria-label={side === "prev" ? "Önceki slayt" : "Sonraki slayt"}
+    >
+      <MotionIcon
+        name={side === "prev" ? "ChevronLeft" : "ChevronRight"}
+        size={30}
+        trigger="click"
+        animation="nudge"
+      />
+    </button>
+  );
+}
+
 export default function ContentCarousel({
   type,
   title,
   items,
   headerExtra,
 }: ContentCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [page, setPage] = useState(0);
   const visible = useVisibleCount();
-
-  const slides = useMemo(() => {
-    const playable = items.filter((it) => it.poster_path && it.overview?.trim());
-    const lastStart = Math.max(0, playable.length - visible);
-    const pages: Array<(Movie | TVShow)[]> = [];
-    for (let start = 0; start < playable.length; start += visible) {
-      // son sayfa eksik kalmasin diye sona yaslanir
-      const from = Math.min(start, lastStart);
-      pages.push(playable.slice(from, from + visible));
-    }
-    return pages;
-  }, [items, visible]);
-
-  // sayfa sinirlarini as
-  const currentIndex =
-    slides.length > 0 ? Math.min(activeIndex, slides.length - 1) : 0;
-
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-  };
-
-  const swipe = useSwipe(handleNext, handlePrev);
-
-  // slayt degisince kartlar sirayla canlanir (transform-only, guvenli)
+  const { flat, pages } = usePages(items, visible);
   const trackRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const slide = trackRef.current?.querySelectorAll(".cc-slide")[currentIndex];
-    const cards = slide?.querySelectorAll(".cc-item:not(.cc-item--empty)");
-    if (cards && cards.length)
-      animate(cards, {
-        translateY: [24, 0],
-        scale: [0.95, 1],
-        duration: 500,
-        delay: stagger(55),
-        ease: "out(3)",
-      });
-  }, [currentIndex, visible]);
 
-  if (slides.length === 0 && !headerExtra) return null;
+  const current = pages.length > 0 ? Math.min(page, pages.length - 1) : 0;
+
+  const from = current * visible;
+  const peekPrev = from > 0 ? flat[from - 1] : null;
+  const peekNext = from + visible < flat.length ? flat[from + visible] : null;
+
+  const goPrev = () => setPage((p) => (p === 0 ? pages.length - 1 : p - 1));
+  const goNext = () => setPage((p) => (p === pages.length - 1 ? 0 : p + 1));
+  const swipe = useSwipe(goNext, goPrev);
+
+  if (pages.length === 0 && !headerExtra) return null;
+
+  const multi = pages.length > 1;
 
   return (
     <div className="content-carousel">
@@ -454,75 +433,46 @@ export default function ContentCarousel({
           <h3 className="cc-header__title">{title}</h3>
         </div>
         <div className="cc-header__right">
-          {headerExtra}
-          {slides.length > 1 && (
+          {multi && (
             <div className="cc-header__indicators">
-              {slides.map((_, index) => (
+              {pages.map((_, i) => (
                 <span
-                  key={index}
+                  key={i}
                   role="button"
                   tabIndex={0}
-                  className={`cc-indicator-dot ${index === currentIndex ? "active" : ""}`}
-                  aria-label={`Slayt ${index + 1}`}
-                  aria-current={index === currentIndex ? true : undefined}
-                  onClick={() => setActiveIndex(index)}
+                  className={`cc-indicator-dot ${i === current ? "active" : ""}`}
+                  aria-label={`Slayt ${i + 1}`}
+                  aria-current={i === current ? true : undefined}
+                  onClick={() => setPage(i)}
                   onKeyDown={(e) =>
-                    (e.key === "Enter" || e.key === " ") &&
-                    setActiveIndex(index)
+                    (e.key === "Enter" || e.key === " ") && setPage(i)
                   }
                 />
               ))}
             </div>
           )}
+          {headerExtra}
         </div>
       </div>
 
-      {slides.length > 0 && (
+      {pages.length > 0 && (
         <div className="cc-carousel-wrapper" ref={trackRef} {...swipe}>
-          {slides.length > 1 && currentIndex > 0 && (
-            <button
-              className="cc-nav-arrow prev"
-              onClick={handlePrev}
-              aria-label="Önceki slayt"
-            >
-              <MotionIcon
-                name="ChevronLeft"
-                size={30}
-                trigger="hover"
-                animation="nudge"
-              />
-            </button>
+          {multi && current > 0 && <NavArrow side="prev" onClick={goPrev} />}
+          {multi && current < pages.length - 1 && (
+            <NavArrow side="next" onClick={goNext} />
           )}
+          {peekPrev && <Peek item={peekPrev} side="prev" onClick={goPrev} />}
+          {peekNext && <Peek item={peekNext} side="next" onClick={goNext} />}
 
-          {slides.length > 1 && currentIndex < slides.length - 1 && (
-            <button
-              className="cc-nav-arrow next"
-              onClick={handleNext}
-              aria-label="Sonraki slayt"
-            >
-              <MotionIcon
-                name="ChevronRight"
-                size={30}
-                trigger="hover"
-                animation="nudge"
-              />
-            </button>
-          )}
-
-          <Carousel
-            placement="bottom"
-            activeIndex={currentIndex}
-            onSelect={setActiveIndex}
-          >
-            {slides.map((slide, si) => (
+          <Carousel placement="bottom" activeIndex={current} onSelect={setPage}>
+            {pages.map((slide, si) => (
               <div key={si} className="cc-slide">
-                {slide.map((item) => (
-                  <ItemCard key={item.id} item={item} type={type} />
+                {slide.map((it) => (
+                  <ItemCard key={`${type}-${it.id}`} item={it} type={type} />
                 ))}
-                {/* bos slotlar */}
                 {Array.from({ length: visible - slide.length }).map((_, i) => (
                   <div
-                    key={`bos-${i}`}
+                    key={`empty-${i}`}
                     className="cc-item cc-item--empty"
                     style={{ flexGrow: 1 }}
                   />

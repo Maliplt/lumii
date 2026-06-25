@@ -1,75 +1,38 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { animate, stagger } from "animejs";
 import { SearchX, Search as SearchIcon } from "lucide-react";
-import { RiMovie2Line, RiTvLine, RiApps2Line } from "react-icons/ri";
 import PageLayout from "../components/PageLayout";
-import MediaCard from "../components/MediaCard";
+import ContentCarousel from "../components/ContentCarousel";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch, useTitle } from "../helpers";
-import type { SearchResult } from "../types/types";
-
-// sadece posterli icerikler
-function isPlayable(result: {
-  media_type?: string;
-  poster_path?: string | null;
-}): result is SearchResult {
-  return (
-    (result.media_type === "movie" || result.media_type === "tv") &&
-    !!result.poster_path
-  );
-}
-
-type MediaFilter = "all" | "movie" | "tv";
-
-// filtre butonlarinin tanimlari
-const FILTERS: { id: MediaFilter; label: string; Icon: React.ElementType }[] =
-  [
-    { id: "all", label: "Tümü", Icon: RiApps2Line },
-    { id: "movie", label: "Film", Icon: RiMovie2Line },
-    { id: "tv", label: "Dizi", Icon: RiTvLine },
-  ];
+import { isPlayableSearchResult, useFetch, useTitle } from "../helpers";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") ?? "").trim();
   useTitle(query ? `"${query}" araması` : "Arama");
 
-  // varsayilan tum
-  const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
-
   const { data, loading, error } = useFetch(
     () => (query ? tmdbApi.search(query) : Promise.resolve(null)),
     query,
   );
 
-  // tum sonuclar
+  // oynatilabilir sonuclar
   const allResults = useMemo(
-    () => (data?.results ?? []).filter(isPlayable),
+    () => (data?.results ?? []).filter(isPlayableSearchResult),
     [data],
   );
 
-  // gosterilecek liste
-  const results = useMemo(() => {
-    if (mediaFilter === "all") return allResults;
-    return allResults.filter((r) => r.media_type === mediaFilter);
-  }, [allResults, mediaFilter]);
-
-  // sonuc izgarasi sirayla canlanir (transform-only)
-  const gridRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const cards = gridRef.current?.children;
-    if (cards && cards.length)
-      animate(Array.from(cards), {
-        translateY: [22, 0],
-        scale: [0.96, 1],
-        duration: 460,
-        delay: stagger(35),
-        ease: "out(3)",
-      });
-  }, [results]);
+  // sonuclari ture gore ayir — her tur kendi ContentCarousel satirinda
+  const movieResults = useMemo(
+    () => allResults.filter((r) => r.media_type === "movie"),
+    [allResults],
+  );
+  const tvResults = useMemo(
+    () => allResults.filter((r) => r.media_type === "tv"),
+    [allResults],
+  );
 
   const renderBody = () => {
     if (!query) {
@@ -91,7 +54,7 @@ export default function SearchPage() {
         />
       );
     }
-    if (results.length === 0) {
+    if (allResults.length === 0) {
       return (
         <StateView
           Icon={SearchX}
@@ -100,15 +63,19 @@ export default function SearchPage() {
         />
       );
     }
+    // sonuclar ana sayfadaki gibi sira sira ContentCarousel ile
     return (
-      <div className="search-grid" ref={gridRef}>
-        {results.map((item) => (
-          <MediaCard
-            key={`${item.media_type}-${item.id}`}
-            item={item}
-            type={item.media_type}
+      <div className="search-rows">
+        {movieResults.length > 0 && (
+          <ContentCarousel
+            type="movie"
+            title="Sonuç Filmler"
+            items={movieResults}
           />
-        ))}
+        )}
+        {tvResults.length > 0 && (
+          <ContentCarousel type="tv" title="Sonuç Diziler" items={tvResults} />
+        )}
       </div>
     );
   };
@@ -116,30 +83,10 @@ export default function SearchPage() {
   return (
     <PageLayout className="search-page" mainClassName="search-main">
       {query && !loading && allResults.length > 0 && (
-        <div className="search-results-header">
-          <h2>
-            <span className="search-results-query">"{query}"</span> için
-            sonuçlar
+        <div className="search-head">
+          <h2 className="search-head__title">
+            <span className="search-head__query">"{query}"</span> için sonuçlar
           </h2>
-          <span className="search-results-count">{results.length} içerik</span>
-        </div>
-      )}
-
-      {/* tur filtresi */}
-      {query && !loading && allResults.length > 0 && (
-        <div className="search-filters">
-          <span className="search-filter-label">Tur:</span>
-          {FILTERS.map(({ id, label, Icon }) => (
-            <button
-              key={id}
-              className={`search-filter-pill${mediaFilter === id ? " active" : ""}`}
-              onClick={() => setMediaFilter(id)}
-              type="button"
-            >
-              <Icon size={14} />
-              {label}
-            </button>
-          ))}
         </div>
       )}
 

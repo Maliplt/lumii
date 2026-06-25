@@ -14,6 +14,7 @@ import {
   SkipForward,
   Wifi,
 } from "lucide-react";
+import Spinner from "./Spinner";
 
 function formatTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return "0:00";
@@ -68,7 +69,6 @@ export default function MediaPlayer({
   const [streamError, setStreamError] = useState(false);
   const [atLive, setAtLive] = useState(true);
 
-  // baslat
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -88,7 +88,6 @@ export default function MediaPlayer({
     video.muted = startMuted;
     setMuted(startMuted);
 
-    // autoplay kapali
     const tryPlay = () => {
       if (!autoPlay) return;
       const playback = video.play();
@@ -124,7 +123,6 @@ export default function MediaPlayer({
       hls.on(Hls.Events.LEVEL_SWITCHED, (_e, data) =>
         setCurrentLevel(data.level),
       );
-      // canli yayinda en guncel noktadan basla
       hls.on(Hls.Events.LEVEL_LOADED, (_e, data) => {
         if (cancelled || !live || snapped || !data.details.live) return;
         snapped = true;
@@ -153,7 +151,6 @@ export default function MediaPlayer({
     };
   }, [src, startMuted, autoPlay, live]);
 
-  // olaylar
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -271,7 +268,6 @@ export default function MediaPlayer({
     );
   };
 
-  // canli yayinin en guncel noktasina don
   const goLive = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -294,7 +290,6 @@ export default function MediaPlayer({
         container.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
       else document.exitFullscreen();
     } catch {
-      // safari
       const legacy = container as { webkitRequestFullscreen?: () => void };
       legacy.webkitRequestFullscreen?.();
     }
@@ -306,7 +301,6 @@ export default function MediaPlayer({
     setShowSettings(false);
   };
 
-  // klavye
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
@@ -384,9 +378,6 @@ export default function MediaPlayer({
         preload="auto"
       />
 
-      <div className="player-gradient-top" />
-      <div className="player-gradient-bottom" />
-
       <div
         className="player-click-zone"
         onClick={() => {
@@ -420,13 +411,7 @@ export default function MediaPlayer({
 
       {!streamReady && !streamError && (
         <div className="player-loading">
-          <div className="spinner-stage">
-            <span className="spinner-pulse" />
-            <span className="spinner-pulse" />
-            <span className="spinner-pulse" />
-            <span className="spinner-core" />
-          </div>
-          <p>Akış yükleniyor…</p>
+          <Spinner inline label="Akış yükleniyor…" />
         </div>
       )}
 

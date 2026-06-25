@@ -22,16 +22,16 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const initial =
+  const urlQuery =
     location.pathname === "/search"
       ? (new URLSearchParams(location.search).get("q") ?? "")
       : "";
-  const [query, setQuery] = useState(initial);
+  const [query, setQuery] = useState(urlQuery);
   const [closing, setClosing] = useState(false);
   const debounced = useDebouncedValue(query.trim(), 400);
 
   // arama
-  const lastSent = useRef(initial);
+  const lastSent = useRef(urlQuery);
   useEffect(() => {
     if (debounced === lastSent.current) return;
     lastSent.current = debounced;
@@ -51,9 +51,11 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
 
   const handleClose = () => {
     setClosing(true);
+    setQuery("");
+    lastSent.current = "";
+    if (location.pathname === "/search") navigate("/search", { replace: true });
     setTimeout(() => {
       setClosing(false);
-      setQuery("");
       onClose();
     }, 220);
   };

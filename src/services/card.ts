@@ -1,9 +1,6 @@
 // dogrulama
 function onlyDigits(value: string): string {
-  return value
-    .split("")
-    .filter((ch) => ch >= "0" && ch <= "9")
-    .join("");
+  return value.replace(/\D/g, "");
 }
 
 export function isValidCardNumber(value: string): boolean {

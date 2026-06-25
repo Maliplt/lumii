@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Schema, Input, InputGroup, Button } from "rsuite";
 import { AlertCircle } from "lucide-react";
@@ -6,16 +6,15 @@ import { MotionIcon } from "motion-icons-react";
 import { animate } from "animejs";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { useToast } from "../components/Toast";
+import { useToast, toastText } from "../components/Toast";
+import { useFetch, useTitle } from "../helpers";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useTitle } from "../helpers";
 import {
   useAppDispatch,
   useAppSelector,
   register,
   clearAuthError,
 } from "../store/store";
-import type { Movie } from "../types/types";
 
 const { StringType } = Schema.Types;
 
@@ -43,8 +42,6 @@ export default function RegisterPage() {
   const authError = useAppSelector((s) => s.auth.error);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [bgIdx, setBgIdx] = useState(0);
   const [formValue, setFormValue] = useState({
     name: "",
     email: "",
@@ -53,14 +50,35 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPw, setShowPw] = useState(false);
+  const [showPw2, setShowPw2] = useState(false);
   const toast = useToast();
   const submitted = useRef(false);
+  const [bgIdx, setBgIdx] = useState(0);
+  const { data } = useFetch(() => tmdbApi.getPopularMovies());
+
+  const movies = useMemo(
+    () =>
+      (data?.results ?? [])
+        .filter((movie) => movie.backdrop_path && movie.overview)
+        .slice(0, 8),
+    [data],
+  );
+
+  useEffect(() => {
+    if (movies.length <= 1) return;
+    const id = window.setInterval(
+      () => setBgIdx((index) => (index + 1) % movies.length),
+      5000,
+    );
+    return () => window.clearInterval(id);
+  }, [movies.length]);
+
+  const currentMovie = movies[bgIdx] ?? null;
 
   // profil secimi
   useEffect(() => {
     if (currentUser) {
-      if (submitted.current)
-        toast(`Üyeliğin oluşturuldu, hoş geldin ${currentUser.name}!`);
+      if (submitted.current) toast(toastText.registered(currentUser.name));
       navigate("/profiles");
     }
   }, [currentUser, navigate, toast]);
@@ -78,28 +96,6 @@ export default function RegisterPage() {
         easing: "easeOutQuart",
       });
   }, []);
-
-  useEffect(() => {
-    tmdbApi
-      .getPopularMovies()
-      .then((res) => {
-        setMovies(
-          res.results.filter((m) => m.backdrop_path && m.overview).slice(0, 8),
-        );
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (movies.length <= 1) return;
-    const id = setInterval(
-      () => setBgIdx((i) => (i + 1) % movies.length),
-      5000,
-    );
-    return () => clearInterval(id);
-  }, [movies.length]);
-
-  const currentMovie = movies[bgIdx] ?? null;
 
   const handleRegister = () => {
     const result = registerModel.check(formValue) as CheckResult;
@@ -131,11 +127,11 @@ export default function RegisterPage() {
     <div className="login-page">
       <Header />
 
-      {movies.map((m, i) => (
+      {movies.map((movie, index) => (
         <img
-          key={m.id}
-          className={`login-bg ${i === bgIdx ? "login-bg--active" : ""}`}
-          src={getImageUrl(m.backdrop_path, "original")}
+          key={movie.id}
+          className={`login-bg ${index === bgIdx ? "login-bg--active" : ""}`}
+          src={getImageUrl(movie.backdrop_path, "original")}
           alt=""
           aria-hidden="true"
         />
@@ -248,13 +244,26 @@ export default function RegisterPage() {
                 <label className="login-field__label" htmlFor="reg-confirm">
                   Şifre Tekrar
                 </label>
-                <Input
-                  id="reg-confirm"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formValue.confirm}
-                  onChange={setField("confirm")}
-                />
+                <InputGroup inside>
+                  <Input
+                    id="reg-confirm"
+                    type={showPw2 ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formValue.confirm}
+                    onChange={setField("confirm")}
+                  />
+                  <InputGroup.Button
+                    onClick={() => setShowPw2((p) => !p)}
+                    aria-label={showPw2 ? "Şifreyi gizle" : "Şifreyi göster"}
+                  >
+                    <MotionIcon
+                      name={showPw2 ? "EyeOff" : "Eye"}
+                      size={18}
+                      trigger="hover"
+                      animation="pop"
+                    />
+                  </InputGroup.Button>
+                </InputGroup>
                 {errors.confirm && (
                   <span className="login-field__error">
                     <AlertCircle size={13} /> {errors.confirm}

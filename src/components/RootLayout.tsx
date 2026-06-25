@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
-import Spinner from "./Spinner";
 import { useAppSelector } from "../store/store";
 
 // kabuk
@@ -18,7 +17,7 @@ export default function RootLayout() {
   return (
     <div className="app-shell">
       <Header />
-      <Suspense fallback={<Spinner inline />}>
+      <Suspense fallback={null}>
         <div key={location.pathname} className="route-view">
           <Outlet />
         </div>

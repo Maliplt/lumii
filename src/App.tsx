@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Spinner from "./components/Spinner";
 import RootLayout from "./components/RootLayout";
 
@@ -19,9 +19,20 @@ const TvPage = lazy(() => import("./pages/TvPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<Spinner />}>
         <Routes>
           {/* kabuk */}

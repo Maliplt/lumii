@@ -72,6 +72,7 @@ export interface MovieDetail extends Movie {
   tagline: string;
   status: string;
   credits?: Credits;
+  videos?: VideosResponse;
 }
 
 export interface TVShowDetail extends TVShow {
@@ -82,6 +83,7 @@ export interface TVShowDetail extends TVShow {
   number_of_seasons: number;
   number_of_episodes: number;
   credits?: Credits;
+  videos?: VideosResponse;
 }
 
 export interface Episode {

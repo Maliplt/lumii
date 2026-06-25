@@ -13,6 +13,30 @@ import type {
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
+// tmdb tur id -> turkce (film + dizi)
+export const GENRES: Record<number, string> = {
+  28: "Aksiyon", 12: "Macera", 16: "Animasyon", 35: "Komedi", 80: "Suç",
+  99: "Belgesel", 18: "Dram", 10751: "Aile", 14: "Fantastik", 36: "Tarih",
+  27: "Korku", 10402: "Müzik", 9648: "Gizem", 10749: "Romantik", 878: "Bilim-Kurgu",
+  10770: "TV Film", 53: "Gerilim", 10752: "Savaş", 37: "Western",
+  10759: "Aksiyon & Macera", 10762: "Çocuk", 10763: "Haber", 10764: "Realite",
+  10765: "Bilim-Kurgu & Fantastik", 10766: "Pembe Dizi", 10767: "Talk Show",
+  10768: "Savaş & Politika",
+};
+
+// tur id'lerinden okunabilir etiketler
+export function genreNames(ids: number[] = [], limit = 3): string[] {
+  return ids.map((id) => GENRES[id]).filter(Boolean).slice(0, limit);
+}
+
+// dakikadan "2sa 15dk" / "48dk"
+export function formatRuntime(mins?: number | null): string {
+  if (!mins || mins <= 0) return "";
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h ? `${h}sa ${m}dk` : `${m}dk`;
+}
+
 const tmdbClient = axios.create({
   baseURL: "https://api.themoviedb.org/3",
   params: {
@@ -32,7 +56,7 @@ async function tmdbFetch<T>(
 
 export const getImageUrl = (
   path: string | null,
-  size: "w300" | "w500" | "original" = "w500",
+  size: "w300" | "w500" | "w780" | "w1280" | "original" = "w500",
 ): string => {
   if (!path) return "https://placehold.co/500x750?text=No+Image";
   return `${IMAGE_BASE_URL}/${size}${path}`;
@@ -60,10 +84,14 @@ export const tmdbApi = {
     tmdbFetch<TMDBResponse<SearchResult>>("/search/multi", { query, page }),
 
   getMovieDetail: (id: number): Promise<MovieDetail> =>
-    tmdbFetch<MovieDetail>(`/movie/${id}`, { append_to_response: "credits" }),
+    tmdbFetch<MovieDetail>(`/movie/${id}`, {
+      append_to_response: "credits,videos",
+    }),
 
   getTVShowDetail: (id: number): Promise<TVShowDetail> =>
-    tmdbFetch<TVShowDetail>(`/tv/${id}`, { append_to_response: "credits" }),
+    tmdbFetch<TVShowDetail>(`/tv/${id}`, {
+      append_to_response: "credits,videos",
+    }),
 
   getSimilarMovies: (id: number): Promise<TMDBResponse<Movie>> =>
     tmdbFetch<TMDBResponse<Movie>>(`/movie/${id}/similar`),
@@ -108,18 +136,22 @@ export const tmdbApi = {
   getMoviesByGenre: (
     genreId: number | string,
     page = 1,
+    sortBy?: string,
   ): Promise<TMDBResponse<Movie>> =>
     tmdbFetch<TMDBResponse<Movie>>("/discover/movie", {
       with_genres: genreId,
       page,
+      ...(sortBy ? { sort_by: sortBy, "vote_count.gte": 200 } : {}),
     }),
 
   getTVShowsByGenre: (
     genreId: number | string,
     page = 1,
+    sortBy?: string,
   ): Promise<TMDBResponse<TVShow>> =>
     tmdbFetch<TMDBResponse<TVShow>>("/discover/tv", {
       with_genres: genreId,
       page,
+      ...(sortBy ? { sort_by: sortBy, "vote_count.gte": 100 } : {}),
     }),
 };

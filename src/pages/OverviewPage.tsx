@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Modal } from "rsuite";
-import { Play, ChevronDown, Tv } from "lucide-react";
-import { MotionIcon } from "motion-icons-react";
+import { AlertTriangle, Play, ChevronDown, Tv } from "lucide-react";
 import PageLayout from "../components/PageLayout";
+import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import Spinner from "../components/Spinner";
-import { tmdbApi, getImageUrl, pickTrailer } from "../services/tmdb";
+import StateView from "../components/StateView";
+import { tmdbApi, getImageUrl, formatRuntime } from "../services/tmdb";
 import { useFetch, useTitle } from "../helpers";
 import type {
   MovieDetail,
@@ -34,27 +34,25 @@ export default function OverviewPage() {
 function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(1);
-  const [trailerOpen, setTrailerOpen] = useState(false);
   const [episodesOpen, setEpisodesOpen] = useState(false);
-  const textClipRef = useRef<HTMLDivElement>(null);
 
   const numId = Number(id);
   const isMovie = type === "movie";
 
-  // toplu yukleme
-  const { data, loading } = useFetch(() =>
-    Promise.all([
-      isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
-      isMovie
-        ? tmdbApi.getSimilarMovies(numId)
-        : tmdbApi.getSimilarTVShows(numId),
-      tmdbApi.getVideos(type, numId),
-    ]),
+  // ilk ekran verisi
+  const { data, loading, error } = useFetch(() =>
+    Number.isFinite(numId)
+      ? Promise.all([
+          isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
+          isMovie
+            ? tmdbApi.getSimilarMovies(numId)
+            : tmdbApi.getSimilarTVShows(numId),
+        ])
+      : Promise.reject(new Error("Geçersiz içerik ID")),
   );
   const detail = data?.[0] ?? null;
   const similar = (data?.[1].results.filter((item) => item.poster_path) ??
     []) as Movie[] | TVShow[];
-  const trailerKey = data ? pickTrailer(data[2].results) : null;
 
   // bolumleri cek
   const season = useFetch(
@@ -65,46 +63,14 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
     isMovie ? "movie" : `sezon-${selectedSeason}`,
   );
 
-  // ozet kayar
-  useEffect(() => {
-    const el = textClipRef.current;
-    if (!el) return;
-    const measure = () => {
-      el.classList.remove("is-overflowing");
-      const overflow = el.scrollHeight - el.clientHeight;
-      if (overflow > 8) {
-        el.style.setProperty("--overview-scroll", `-${overflow}px`);
-        el.style.setProperty(
-          "--overview-scroll-dur",
-          `${Math.max(10, Math.round(overflow / 18) + 8)}s`,
-        );
-        el.classList.add("is-overflowing");
-      }
-    };
-    const raf = requestAnimationFrame(measure);
-    window.addEventListener("resize", measure);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", measure);
-    };
-  }, [detail]);
-
   const tvDetail = detail as TVShowDetail;
   const movieDetail = detail as MovieDetail;
 
   const title = isMovie ? movieDetail?.title : tvDetail?.name;
   useTitle(title ?? "");
-  const year = isMovie
-    ? movieDetail?.release_date?.slice(0, 4)
-    : tvDetail?.first_air_date?.slice(0, 4);
-  const runtime = isMovie
-    ? movieDetail?.runtime
-      ? `${movieDetail.runtime} dk`
-      : null
-    : tvDetail?.episode_run_time?.[0]
-      ? `${tvDetail.episode_run_time[0]} dk`
-      : null;
-  const genres = detail?.genres?.map((g) => g.name).join(" / ");
+  const runtimeMin = isMovie
+    ? (movieDetail?.runtime ?? 0)
+    : (tvDetail?.episode_run_time?.[0] ?? 0);
   const director = isMovie
     ? detail?.credits?.crew?.find((c) => c.job === "Director")?.name
     : detail?.credits?.crew?.find((c) => c.job === "Executive Producer")?.name;
@@ -113,67 +79,48 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
       ? `${tvDetail.number_of_seasons} Sezon`
       : null;
 
+  // hero meta-row icine kutusuz plain metinler (sure, sezon)
+  const heroMeta = [formatRuntime(runtimeMin), seasonsInfo].filter(
+    Boolean,
+  ) as string[];
+  const heroItems = useMemo(
+    () =>
+      detail
+        ? ([
+            {
+              ...detail,
+              genre_ids: detail.genres?.map((g) => g.id) ?? [],
+            },
+          ] as (Movie | TVShow)[])
+        : [],
+    [detail],
+  );
+
   return (
     <PageLayout
       className="overview-page"
       mainClassName="overview-main"
-      loading={loading || !detail}
+      loading={loading}
     >
+      {(error || !detail) && (
+        <StateView
+          Icon={AlertTriangle}
+          title="İçerik yüklenemedi"
+          description="Bu içeriğe şu anda ulaşılamıyor. Lütfen daha sonra tekrar dene."
+        />
+      )}
       {detail && (
         <>
-          <div className="overview-hero">
-            <img
-              className="overview-hero__img"
-              src={getImageUrl(detail.backdrop_path, "original")}
-              alt={title}
-              loading="lazy"
-            />
-            <div className="overview-hero__overlay" />
-            <div className="overview-hero__info">
-              <h1 className="overview-hero__title">{title}</h1>
-              <p className="overview-meta">
-                {[genres, runtime, seasonsInfo, year]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              <div className="overview-text-clip" ref={textClipRef}>
-                <p className="overview-text">{detail.overview}</p>
-              </div>
-              {director && (
-                <p className="overview-crew">
-                  <strong>Yönetmen:</strong> {director}
-                </p>
-              )}
-              <div className="overview-actions">
-                <Button
-                  className="btn-play"
-                  size="lg"
-                  onClick={() =>
-                    navigate(`/${type}/${id}/player`, { state: { title } })
-                  }
-                >
-                  <Play size={20} fill="currentColor" className="play-icon" />{" "}
-                  Oynat
-                </Button>
-                {trailerKey && (
-                  <Button
-                    className="btn-trailer"
-                    size="lg"
-                    onClick={() => setTrailerOpen(true)}
-                  >
-                    <MotionIcon
-                      name="Film"
-                      size={20}
-                      trigger="hover"
-                      animation="pop"
-                    />{" "}
-                    Fragman İzle
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          <HeroCarousel
+            movies={heroItems}
+            inlineTrailer
+            hideMoreInfo
+            meta={heroMeta}
+            director={director}
+            directorLabel={isMovie ? "Yönetmen" : "Yapımcı"}
+          />
 
+          <div className="overview-content">
           {!isMovie && tvDetail.number_of_seasons > 0 && (
             <div className={`episodes-block${episodesOpen ? " is-open" : ""}`}>
               <button
@@ -285,38 +232,15 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
             </div>
           )}
 
-          <div className="overview-similar">
-            <ContentCarousel
-              type={type}
-              title="Benzer İçerikler"
-              items={similar}
-            />
+            <div className="overview-similar">
+              <ContentCarousel
+                type={type}
+                title="Benzer İçerikler"
+                items={similar}
+              />
+            </div>
           </div>
 
-          {trailerKey && (
-            <Modal
-              open={trailerOpen}
-              onClose={() => setTrailerOpen(false)}
-              size="lg"
-              className="lumii-modal trailer-modal"
-            >
-              <Modal.Header>
-                <Modal.Title>{title} — Fragman</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                {trailerOpen && (
-                  <div className="trailer-frame">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
-                      title="Fragman"
-                      allow="autoplay; encrypted-media; fullscreen"
-                      allowFullScreen
-                    />
-                  </div>
-                )}
-              </Modal.Body>
-            </Modal>
-          )}
         </>
       )}
     </PageLayout>
