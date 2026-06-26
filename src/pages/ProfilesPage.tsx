@@ -42,7 +42,6 @@ export default function ProfilesPage() {
 
   if (!currentUser) return null;
 
-  // profil sec: avatar zoom + ekran fade sonra gir
   const enter = (p: Profile, el: HTMLElement) => {
     if (manage) {
       setEditor({ mode: "edit", profile: p });
@@ -102,7 +101,7 @@ export default function ProfilesPage() {
                     <Pencil size={22} />
                   </span>
                 )}
-                {p.kids && <span className="profile-card__kids">KIDS</span>}
+                {p.kids && <span className="profile-card__kids">Çocuk</span>}
               </span>
               <span className="profile-card__name">{p.name}</span>
             </button>

@@ -28,3 +28,12 @@ dist-ssr
 
 .local
 *.local.md
+
+# ai / arac dosyalari - commit disi
+.claude/
+.agents/
+.cursor/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+.mcp.json

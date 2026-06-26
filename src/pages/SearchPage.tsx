@@ -24,7 +24,6 @@ export default function SearchPage() {
     [data],
   );
 
-  // sonuclari ture gore ayir — her tur kendi ContentCarousel satirinda
   const movieResults = useMemo(
     () => allResults.filter((r) => r.media_type === "movie"),
     [allResults],
@@ -63,7 +62,6 @@ export default function SearchPage() {
         />
       );
     }
-    // sonuclar ana sayfadaki gibi sira sira ContentCarousel ile
     return (
       <div className="search-rows">
         {movieResults.length > 0 && (

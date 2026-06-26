@@ -47,7 +47,6 @@ export default function Footer() {
 
     setIsSubmitting(true);
     try {
-      //istek simülasyonu-düzeltilecek
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsSubmitted(true);
       toast("Mesajınız başarıyla iletildi!", "success");
@@ -55,7 +54,7 @@ export default function Footer() {
       setEmail("");
       setMessage("");
 
-      setTimeout(() => {            //sıfırla
+      setTimeout(() => {
         setIsSubmitted(false);
       }, 5000);
     } catch {
@@ -203,7 +202,7 @@ export default function Footer() {
 
         <div className="site-footer__bottom">
           <span className="site-footer__copyright">
-            © 2026 Lumii. Tüm hakları saklıdır.
+            © 2026 TENET. Tüm hakları saklıdır.
           </span>
           <div className="site-footer__legal">
             <Link className="site-footer__legal-link" to="/legal/gizlilik">

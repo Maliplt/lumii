@@ -3,7 +3,6 @@ import { useToaster, Message } from "rsuite";
 
 type ToastType = "success" | "info" | "warning" | "error";
 
-// ortak toast metinleri — sabitler dogrudan, degiskenli olanlar parametre alir
 export const toastText = {
   loginForWatchlist: "İzleme listeni kullanmak için önce giriş yapmalısın.",
   loginForLike: "İçerikleri beğenmek için önce giriş yapmalısın.",

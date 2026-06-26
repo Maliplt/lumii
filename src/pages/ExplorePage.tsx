@@ -1,11 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertTriangle, ChevronUp } from "lucide-react";
+import { AlertTriangle, ChevronDown } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import StateView from "../components/StateView";
-import Spinner from "../components/Spinner";
 import { tmdbApi } from "../services/tmdb";
 import { useFetch, useTitle, withPoster, heroFrom, useLazyReveal } from "../helpers";
 import type { Movie, TVShow } from "../types/types";
@@ -62,8 +61,26 @@ function CategoryDropdown({
   onSelect: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const [dropLeft, setDropLeft] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const activeCat = cats.find((c) => c.id === active) ?? cats[0];
+
+  const MENU_EST = 320;
+  const toggle = () => {
+    setOpen((o) => {
+      if (!o && ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        const below = window.innerHeight - rect.bottom;
+        setDropUp(below < MENU_EST && rect.top > below);
+        const estW = Math.min(540, window.innerWidth * 0.92);
+        const overflowsLeftIfRight = rect.right - estW < 8;
+        const fitsRightIfLeft = rect.left + estW <= window.innerWidth - 8;
+        setDropLeft(overflowsLeftIfRight && fitsRightIfLeft);
+      }
+      return !o;
+    });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -75,15 +92,18 @@ function CategoryDropdown({
   }, [open]);
 
   return (
-    <div className={`cat-dd${open ? " open" : ""}`} ref={ref}>
+    <div
+      className={`cat-dd${open ? " open" : ""}${dropUp ? " cat-dd--up" : ""}${dropLeft ? " cat-dd--left" : ""}`}
+      ref={ref}
+    >
       <button
         type="button"
         className="cat-dd__toggle"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         aria-expanded={open}
       >
         <span>{activeCat.label}</span>
-        <ChevronUp size={16} className="cat-dd__caret" />
+        <ChevronDown size={16} className="cat-dd__caret" />
       </button>
       {open && (
         <div className="cat-dd__menu">
@@ -92,7 +112,6 @@ function CategoryDropdown({
               key={c.id}
               type="button"
               className={`cat-dd__item${c.id === active ? " active" : ""}`}
-              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 onSelect(c.id);
                 setOpen(false);
@@ -135,7 +154,7 @@ async function loadAll(type: MediaType): Promise<ExploreData> {
     return {
       hero: heroFrom(trending.results),
       rows: [
-        { title: "En Yüksek Puanlılar", items: withPoster(topRated.results) },
+        { title: "En Yüksek Puanlı Filmler", items: withPoster(topRated.results) },
         { title: "Sinemalarda Vizyondakiler", items: withPoster(nowPlaying.results) },
         { title: "Gündemdekiler", items: withPoster(trending.results) },
         { title: "Aksiyon ve Macera", items: withPoster(action.results) },
@@ -205,10 +224,11 @@ async function loadCategory(
     byGenre(2),
     byGenre(3),
   ]);
+  const noun = type === "movie" ? "Filmler" : "Diziler";
   return [
-    { title: `${label} — Öne Çıkanlar`, items: withPoster(p1.results) },
-    { title: `${label} — En Yüksek Puanlılar`, items: withPoster(top.results) },
-    { title: `${label} — Daha Fazlası`, items: withPoster(p2.results) },
+    { title: `${label} — Öne Çıkan ${noun}`, items: withPoster(p1.results) },
+    { title: `${label} — En Yüksek Puanlı ${noun}`, items: withPoster(top.results) },
+    { title: `${label} — Daha Fazla ${noun}`, items: withPoster(p2.results) },
     { title: `${label} — Keşfet`, items: withPoster(p3.results) },
   ];
 }
@@ -220,17 +240,14 @@ export default function ExplorePage() {
     movie: "all",
     tv: "all",
   });
-  const scrollBeforeCategory = useRef<number | null>(null);
 
   useTitle(type === "tv" ? "Dizi İzle" : "Film İzle");
 
   const cat = catByType[type];
   const cats = type === "tv" ? TV_CATS : MOVIE_CATS;
   const activeCat = cats.find((c) => c.id === cat) ?? cats[0];
-  const setCat = (id: string) => {
-    scrollBeforeCategory.current = window.scrollY;
+  const setCat = (id: string) =>
     setCatByType((prev) => ({ ...prev, [type]: id }));
-  };
 
   const base = useFetch<ExploreData>(() => loadAll(type), `base-${type}`);
   const catFetch = useFetch<Section[]>(
@@ -241,27 +258,15 @@ export default function ExplorePage() {
     `${type}-${cat}`,
   );
 
-  const rows = cat === "all" ? (base.data?.rows ?? []) : (catFetch.data ?? []);
-  const catLoading = cat !== "all" && catFetch.loading;
-
-  useLayoutEffect(() => {
-    if (scrollBeforeCategory.current == null) return;
-    const y = scrollBeforeCategory.current;
-    const keepScroll = () => window.scrollTo({ top: y });
-    keepScroll();
-    requestAnimationFrame(keepScroll);
-    window.setTimeout(keepScroll, 250);
-    window.setTimeout(() => {
-      keepScroll();
-      scrollBeforeCategory.current = null;
-    }, 750);
-  }, [cat, catLoading, rows.length]);
+  const liveRows: Section[] | null =
+    cat === "all" ? (base.data?.rows ?? null) : catFetch.data;
+  const rows = liveRows ?? [];
+  const catError = cat !== "all" && catFetch.error;
 
   const dropdown = (
     <CategoryDropdown cats={cats} active={cat} onSelect={setCat} />
   );
 
-  // dolu satirlari elemana cevir; useLazyReveal scroll'a gore parca parca gosteriyor
   const cards = rows
     .filter((r) => r.items.length > 0)
     .map((r, i) => (
@@ -295,17 +300,7 @@ export default function ExplorePage() {
               <HeroCarousel movies={base.data.hero} />
             )}
             <div className="explore-content">
-              {catLoading ? (
-                <>
-                  <ContentCarousel
-                    type={type}
-                    title={activeCat.label}
-                    items={[]}
-                    headerExtra={dropdown}
-                  />
-                  <Spinner inline />
-                </>
-              ) : catFetch.error ? (
+              {catError && rows.length === 0 ? (
                 <StateView
                   Icon={AlertTriangle}
                   title="Kategori yüklenemedi"

@@ -35,7 +35,6 @@ function App() {
       <ScrollToTop />
       <Suspense fallback={<Spinner />}>
         <Routes>
-          {/* kabuk */}
           <Route element={<RootLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/explore" element={<ExplorePage />} />
@@ -51,7 +50,6 @@ function App() {
             <Route path="*" element={<WorkInProgressPage />} />
           </Route>
 
-          {/* bagimsiz sayfalar */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profiles" element={<ProfilesPage />} />

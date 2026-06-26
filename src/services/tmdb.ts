@@ -86,11 +86,13 @@ export const tmdbApi = {
   getMovieDetail: (id: number): Promise<MovieDetail> =>
     tmdbFetch<MovieDetail>(`/movie/${id}`, {
       append_to_response: "credits,videos",
+      include_video_language: "tr,en,null",
     }),
 
   getTVShowDetail: (id: number): Promise<TVShowDetail> =>
     tmdbFetch<TVShowDetail>(`/tv/${id}`, {
       append_to_response: "credits,videos",
+      include_video_language: "tr,en,null",
     }),
 
   getSimilarMovies: (id: number): Promise<TMDBResponse<Movie>> =>

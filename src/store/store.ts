@@ -12,6 +12,7 @@ import {
 import type { Movie, TVShow } from "../types/types";
 
 export const MAX_PROFILES = 5;
+const DEFAULT_PROFILE_AVATAR = "default-blue";
 
 // profil
 export interface Profile {
@@ -20,6 +21,7 @@ export interface Profile {
   avatar: string;
   kids: boolean;
   locked?: boolean;
+  lockPin?: string;
   playback?: "auto" | "manual";
   notifications?: "all" | "important" | "off";
 }
@@ -51,6 +53,10 @@ export interface Receipt {
   period: string;
   date: string;
   email: string;
+  paymentMethod?: string;
+  billingAddress?: string;
+  marketingConsent?: boolean;
+  termsAccepted?: boolean;
 }
 
 interface AuthState {
@@ -70,7 +76,7 @@ const authInitial: AuthState = {
 };
 
 // varsayilan profil
-function makeProfile(name: string, avatar = "a1", kids = false): Profile {
+function makeProfile(name: string, avatar = DEFAULT_PROFILE_AVATAR, kids = false): Profile {
   return {
     id: nanoid(),
     name,
@@ -82,7 +88,6 @@ function makeProfile(name: string, avatar = "a1", kids = false): Profile {
   };
 }
 
-// aktif kullanicinin kayitli hesabini bul (profil/plan/sifre islemleri hep buna bakiyor)
 function findAccount(state: AuthState): Account | undefined {
   if (!state.currentUser) return undefined;
   return state.accounts.find((a) => a.email === state.currentUser!.email);
@@ -151,7 +156,7 @@ const auth = createSlice({
           acc.profiles.push(action.payload);
         }
       },
-      prepare(input: { name: string; avatar: string; kids?: boolean }) {
+      prepare(input: { name: string; avatar?: string; kids?: boolean }) {
         return {
           payload: makeProfile(input.name, input.avatar, !!input.kids),
         };
@@ -192,6 +197,42 @@ const auth = createSlice({
       if (state.currentUser) state.currentUser.receipt = action.payload;
       const acc = findAccount(state);
       if (acc) acc.receipt = action.payload;
+    },
+    updateEmail(state, action: PayloadAction<string>) {
+      if (!state.currentUser) return;
+      const nextEmail = action.payload.trim();
+      if (!nextEmail) return;
+      const acc = findAccount(state);
+      if (acc) {
+        acc.email = nextEmail;
+        if (acc.receipt) acc.receipt.email = nextEmail;
+      }
+      state.currentUser.email = nextEmail;
+      if (state.currentUser.receipt) state.currentUser.receipt.email = nextEmail;
+      if (state.receipt) state.receipt.email = nextEmail;
+    },
+    updatePaymentMethod(
+      state,
+      action: PayloadAction<{
+        paymentMethod: string;
+        billingAddress: string;
+        email?: string;
+        marketingConsent?: boolean;
+      }>,
+    ) {
+      const apply = (receipt?: Receipt | null) => {
+        if (!receipt) return;
+        receipt.paymentMethod = action.payload.paymentMethod;
+        receipt.billingAddress = action.payload.billingAddress;
+        if (action.payload.email) receipt.email = action.payload.email;
+        if (typeof action.payload.marketingConsent === "boolean") {
+          receipt.marketingConsent = action.payload.marketingConsent;
+        }
+      };
+      apply(state.receipt);
+      apply(state.currentUser?.receipt);
+      const acc = findAccount(state);
+      apply(acc?.receipt);
     },
     changePassword(
       state,
@@ -359,7 +400,7 @@ interface PersistedState {
 //state geri yukle
 function loadState(): PersistedState | undefined {
   try {
-    const raw = localStorage.getItem("lumii-state");
+    const raw = localStorage.getItem("tenet-state");
     if (!raw) return undefined;
     return JSON.parse(raw) as PersistedState;
   } catch {
@@ -378,7 +419,7 @@ export const store = configureStore({
 
 // state kaydet
 store.subscribe(() => {
-  localStorage.setItem("lumii-state", JSON.stringify(store.getState()));
+  localStorage.setItem("tenet-state", JSON.stringify(store.getState()));
 });
 
 export const {
@@ -392,6 +433,8 @@ export const {
   selectProfile,
   setPlan,
   setReceipt,
+  updateEmail,
+  updatePaymentMethod,
   changePassword,
 } = auth.actions;
 export const { toggleWatchlist, toggleLiked, startWatching, clearHistory } =

@@ -9,7 +9,7 @@ const SECTIONS = {
     title: "Gizlilik Politikası",
     icon: "Shield",
     paragraphs: [
-      "Lumii olarak gizliliğine önem veriyoruz. Bu sayfada hangi verileri topladığımızı ve nasıl kullandığımızı kısaca anlatıyoruz.",
+      "TENET olarak gizliliğine önem veriyoruz. Bu sayfada hangi verileri topladığımızı ve nasıl kullandığımızı kısaca anlatıyoruz.",
       "Hesap bilgilerin, izleme geçmişin ve cihaz bilgilerin yalnızca hizmeti sunmak ve deneyimini iyileştirmek için kullanılır.",
       "Verilerini üçüncü taraflarla pazarlama amacıyla paylaşmıyoruz. İstediğin zaman hesabını ve verilerini silebilirsin.",
     ],
@@ -19,7 +19,7 @@ const SECTIONS = {
     title: "Kullanım Koşulları",
     icon: "FileText",
     paragraphs: [
-      "Lumii’yi kullanarak bu koşulları kabul etmiş olursun.",
+      "TENET’i kullanarak bu koşulları kabul etmiş olursun.",
       "İçerikler kişisel ve ticari olmayan kullanım içindir. Hesabını tanımadığın kişilerle paylaşmaman önerilir.",
       "Platformu kötüye kullanmak, içerikleri izinsiz kopyalamak veya dağıtmak yasaktır.",
     ],
@@ -29,7 +29,7 @@ const SECTIONS = {
     title: "Çerez Politikası",
     icon: "Cookie",
     paragraphs: [
-      "Lumii, oturumunu açık tutmak ve tercihlerini hatırlamak için çerez kullanır.",
+      "TENET, oturumunu açık tutmak ve tercihlerini hatırlamak için çerez kullanır.",
       "Zorunlu çerezler sitenin çalışması için gereklidir; tercih çerezleri ise deneyimini kişiselleştirir.",
       "Çerezleri tarayıcı ayarlarından istediğin zaman temizleyebilir veya engelleyebilirsin.",
     ],

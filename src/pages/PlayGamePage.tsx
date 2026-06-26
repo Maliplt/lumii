@@ -8,12 +8,16 @@ const SudokuApp = lazy(() => import("../games/Sudoku"));
 const MinesweeperApp = lazy(() => import("../games/Minesweeper"));
 const Game2048 = lazy(() => import("../games/Game2048"));
 const KelimeZinciri = lazy(() => import("../games/KelimeZinciri"));
+const BlockBloomPuzzle = lazy(() => import("../games/BlockBloomPuzzle"));
+const MahjongSanctuary = lazy(() => import("../games/MahjongSanctuary"));
 
 const SCORE_KEYS: Record<string, string> = {
   sudoku: "sudoku_best_time",
   minesweeper: "minesweeper_best_time",
   "2048": "game2048_best_score",
   kelimezinciri: "kelimezinciri_best",
+  blockbloom: "blockbloom_best_score",
+  mahjong: "mahjong_best_score",
 };
 
 const SCORE_LABELS: Record<string, string> = {
@@ -21,9 +25,11 @@ const SCORE_LABELS: Record<string, string> = {
   minesweeper: "En İyi Süre",
   "2048": "En İyi Skor",
   kelimezinciri: "En İyi Skor",
+  blockbloom: "En İyi Skor",
+  mahjong: "En İyi Skor",
 };
 
-const SCORE_GAMES = new Set(["2048", "kelimezinciri"]);
+const SCORE_GAMES = new Set(["2048", "kelimezinciri", "blockbloom", "mahjong"]);
 
 function readBestScore(gameId: string): string {
   const key = SCORE_KEYS[gameId];
@@ -90,6 +96,10 @@ export default function PlayGamePage() {
             <Game2048 />
           ) : gameId === "kelimezinciri" ? (
             <KelimeZinciri />
+          ) : gameId === "blockbloom" ? (
+            <BlockBloomPuzzle />
+          ) : gameId === "mahjong" ? (
+            <MahjongSanctuary />
           ) : (
             <div className="pg-error">Oyun bulunamadı.</div>
           )}

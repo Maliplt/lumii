@@ -1,15 +1,5 @@
 import { useState, useEffect, useRef, type TouchEvent, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import a1 from "./images/avatars/a1.svg";
-import a2 from "./images/avatars/a2.svg";
-import a3 from "./images/avatars/a3.svg";
-import a4 from "./images/avatars/a4.svg";
-import a5 from "./images/avatars/a5.svg";
-import a6 from "./images/avatars/a6.svg";
-import a7 from "./images/avatars/a7.svg";
-import a8 from "./images/avatars/a8.svg";
-import a9 from "./images/avatars/a9.svg";
-import a10 from "./images/avatars/a10.svg";
 import {
   useAppDispatch,
   useAppSelector,
@@ -23,18 +13,94 @@ import { useToast, toastText } from "./components/Toast";
 import type { Movie, TVShow, PackageDef, SearchResult } from "./types/types";
 
 // avatarlar
-export const AVATARS: Record<string, string> = {
-  a1,
-  a2,
-  a3,
-  a4,
-  a5,
-  a6,
-  a7,
-  a8,
-  a9,
-  a10,
-};
+export interface AvatarItem {
+  key: string;
+  name: string;
+  src: string;
+}
+
+export interface AvatarCategory {
+  id: string;
+  label: string;
+  avatars: AvatarItem[];
+}
+
+export const AVATAR_CATEGORIES: AvatarCategory[] = [
+  {
+    id: "animals",
+    label: "Hayvanlar",
+    avatars: [
+      { key: "animal-cat", name: "Kedi", src: "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animal-dog", name: "Köpek", src: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animal-lion", name: "Aslan", src: "https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animal-fox", name: "Tilki", src: "https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=360&h=450&q=88" },
+    ],
+  },
+  {
+    id: "cinema",
+    label: "Sinema",
+    avatars: [
+      { key: "cinema-noir-photo", name: "Noir", src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "cinema-hero", name: "Kahraman", src: "https://images.unsplash.com/photo-1608889175123-8ee362201f81?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "cinema-space-photo", name: "Uzay", src: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "cinema-mask", name: "Maske", src: "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=360&h=450&q=88" },
+    ],
+  },
+  {
+    id: "comic",
+    label: "Çizgi Roman",
+    avatars: [
+      { key: "comic-mask", name: "Maskeli", src: "https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "comic-figure", name: "Figür", src: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "comic-panel", name: "Panel", src: "https://images.unsplash.com/photo-1618519764620-7403abdbdfe9?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "comic-color", name: "Renkli", src: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=360&h=450&q=88" },
+    ],
+  },
+  {
+    id: "animated",
+    label: "Animasyon",
+    avatars: [
+      { key: "animated-toy", name: "Oyuncak", src: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animated-robot", name: "Robot", src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animated-cosplay", name: "Cosplay", src: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?auto=format&fit=crop&w=360&h=450&q=88" },
+      { key: "animated-neon", name: "Neon", src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=360&h=450&q=88" },
+    ],
+  },
+];
+
+export const DEFAULT_AVATAR = AVATAR_CATEGORIES[0].avatars[0].key;
+
+export const AVATARS: Record<string, string> = Object.fromEntries(
+  AVATAR_CATEGORIES.flatMap((group) => group.avatars).map((avatar) => [
+    avatar.key,
+    avatar.src,
+  ]),
+);
+
+Object.assign(AVATARS, {
+  "default-blue": AVATARS["animal-cat"],
+  "default-mint": AVATARS["animal-dog"],
+  "default-gold": AVATARS["animal-lion"],
+  "cinema-noir": AVATARS["cinema-noir-photo"],
+  "cinema-action": AVATARS["cinema-hero"],
+  "cinema-space": AVATARS["cinema-space-photo"],
+  "toon-pop": AVATARS["animated-toy"],
+  "toon-spark": AVATARS["comic-figure"],
+  "toon-wave": AVATARS["comic-color"],
+  "fantasy-mage": AVATARS["animated-robot"],
+  "fantasy-hero": AVATARS["animated-cosplay"],
+  "fantasy-shadow": AVATARS["comic-mask"],
+  a1: AVATARS["animal-cat"],
+  a2: AVATARS["animal-dog"],
+  a3: AVATARS["animal-lion"],
+  a4: AVATARS["cinema-noir-photo"],
+  a5: AVATARS["cinema-hero"],
+  a6: AVATARS["cinema-space-photo"],
+  a7: AVATARS["comic-mask"],
+  a8: AVATARS["comic-figure"],
+  a9: AVATARS["animated-toy"],
+  a10: AVATARS["animated-robot"],
+});
 
 // paketler
 export const PACKAGES: PackageDef[] = [
@@ -47,12 +113,18 @@ export const PACKAGES: PackageDef[] = [
     badge: null,
     accent: false,
     free: true,
+    summary: "TENET'i denemek ve temel kataloğa erişmek için.",
+    quality: "SD 480p",
+    screens: "1 ekran",
+    downloads: "Yok",
+    support: "Standart",
     features: [
       "SD Kalite (480p)",
-      "Reklamlı İzleme",
-      "Sınırlı Film & Dizi",
-      "1 Cihaz",
-      "Temel Oyunlar",
+      "Reklamlı izleme",
+      "Sınırlı film ve dizi kataloğu",
+      "1 cihaz",
+      "Temel oyunlar",
+      "Profil yönetimi",
     ],
     cta: "Ücretsiz Başla",
   },
@@ -62,17 +134,24 @@ export const PACKAGES: PackageDef[] = [
     price: "₺49",
     period: "/ay",
     icon: "Zap",
-    badge: "En Popüler",
+    badge: "Dengeli",
     accent: false,
     free: false,
+    summary: "Reklamsız izleme ve aile kullanımı için en dengeli plan.",
+    quality: "Full HD 1080p",
+    screens: "2 ekran",
+    downloads: "Mobil indirme",
+    support: "Standart",
     features: [
       "Full HD Kalite (1080p)",
-      "Reklamsız İzleme",
-      "Tüm Film & Diziler",
-      "2 Cihaz",
-      "Tüm Oyunlar",
+      "Reklamsız izleme",
+      "Tüm film ve dizi kataloğu",
+      "Aynı anda 2 cihaz",
+      "Mobil indirme",
+      "Tüm oyunlar",
+      "Çocuk profili ve profil kilidi",
     ],
-    cta: "Başla",
+    cta: "Standart'a Geç",
   },
   {
     id: "premium",
@@ -80,17 +159,24 @@ export const PACKAGES: PackageDef[] = [
     price: "₺79",
     period: "/ay",
     icon: "Crown",
-    badge: null,
-    accent: true,
+    badge: "En kapsamlı",
+    accent: false,
     free: false,
+    summary: "En yüksek kalite, daha fazla ekran ve öncelikli destek.",
+    quality: "4K Ultra HD",
+    screens: "4 ekran",
+    downloads: "Tüm cihazlar",
+    support: "Öncelikli",
     features: [
       "4K Ultra HD",
-      "Reklamsız İzleme",
-      "Tüm İçerikler + Özel Yapımlar",
-      "4 Cihaz + İndirme",
-      "Öncelikli Destek",
+      "Reklamsız izleme",
+      "Tüm içerikler ve özel yapımlar",
+      "Aynı anda 4 cihaz",
+      "Tüm cihazlarda indirme",
+      "Öncelikli destek",
+      "Erken erişim koleksiyonları",
     ],
-    cta: "Başla",
+    cta: "Premium'a Geç",
   },
 ];
 
@@ -148,7 +234,6 @@ export const mediaName = (m: Movie | TVShow): string =>
 export const mediaYear = (m: Movie | TVShow): string =>
   ("release_date" in m ? m.release_date : m.first_air_date)?.slice(0, 4) ?? "";
 
-// liste suzgecleri — Home ve Explore ayni mantigi tekrarliyordu, tek yere aldim
 type MediaItem = Movie | TVShow;
 
 export const withPoster = <T extends readonly MediaItem[]>(list: T): Array<T[number]> =>
@@ -157,7 +242,6 @@ export const withPoster = <T extends readonly MediaItem[]>(list: T): Array<T[num
 export const withMedia = <T extends readonly MediaItem[]>(list: T): Array<T[number]> =>
   list.filter((m) => m.poster_path && m.backdrop_path);
 
-// hero serisi: poster+backdrop'i olan, latin baslikli ve ozeti dolu ilk birkac icerik
 export function heroFrom<T extends readonly MediaItem[]>(list: T, count = 5): Array<T[number]> {
   return withMedia(list)
     .filter((m) => isLatinTitle(mediaName(m)) && m.overview?.trim())
@@ -177,7 +261,7 @@ export function isPlayableSearchResult(result: {
 // sekme basligi
 export function useTitle(title: string) {
   useEffect(() => {
-    document.title = title ? `Lumii — ${title}` : "Lumii";
+    document.title = title ? `TENET — ${title}` : "TENET";
   }, [title]);
 }
 
@@ -205,14 +289,12 @@ export function useSwipe(onLeft: () => void, onRight: () => void) {
   return { onTouchStart, onTouchEnd };
 }
 
-// kucuk pop animasyonu — class'i sifirlayip yeniden tetikler
 export function popButton(el: HTMLElement) {
   el.classList.remove("is-pop");
   void el.offsetWidth;
   el.classList.add("is-pop");
 }
 
-// watchlist/begeni aksiyonlari — ContentCarousel ve HeroCarousel tek yerden besleniyor
 export function useLibraryActions(
   item: Movie | TVShow | SavedItem,
   type: "movie" | "tv",
@@ -256,18 +338,21 @@ export function useLibraryActions(
   return { inWatchlist, isLiked, onWatchlist, onLike };
 }
 
-// satir satir lazy reveal — Home ve Explore uzun listeleri parca parca gosteriyor
 export function useLazyReveal(total: number, initial = 3, step = 2) {
-  const [visible, setVisible] = useState(initial);
+  const [visible, setVisible] = useState(() => Math.min(initial, total));
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const safeVisible = Math.min(visible, total);
 
+  // data asenkron gelince total 0'dan artacak, visible'ı başlat
   useEffect(() => {
-    setVisible(Math.min(initial, total));
-  }, [initial, total]);
+    if (total > 0 && visible === 0) {
+      setVisible(Math.min(initial, total));
+    }
+  }, [total, initial, visible]);
 
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el || visible >= total) return;
+    if (!el || safeVisible >= total) return;
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -278,7 +363,7 @@ export function useLazyReveal(total: number, initial = 3, step = 2) {
 
     io.observe(el);
     return () => io.disconnect();
-  }, [total, step, visible]);
+  }, [total, step, safeVisible]);
 
-  return { visible, sentinelRef };
+  return { visible: safeVisible, sentinelRef };
 }

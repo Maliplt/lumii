@@ -23,7 +23,6 @@ import type { Movie, TVShow, MovieDetail, TVShowDetail } from "../types/types";
 
 type Media = Movie | TVShow;
 
-// watchlist/begeni butonlari — kart ve hero ayni yapiyi paylasiyor (mantik helpers'taki hook'ta)
 export function MediaActionButtons({
   item,
   type,
@@ -34,13 +33,17 @@ export function MediaActionButtons({
   className?: string;
 }) {
   const lib = useLibraryActions(item, type);
+  const watchlistLabel = lib.inWatchlist ? "Listeden çıkar" : "Listeye ekle";
+  const likeLabel = lib.isLiked ? "Beğeniyi geri al" : "Beğen";
+
   return (
     <>
       <button
         className={`cc-item__action-btn outline cc-item__watchlist ${className}${lib.inWatchlist ? " active" : ""}`}
         type="button"
         onClick={lib.onWatchlist}
-        aria-label={lib.inWatchlist ? "Listeden çıkar" : "Listeye ekle"}
+        aria-label={watchlistLabel}
+        data-action-label={watchlistLabel}
       >
         <MotionIcon
           name={lib.inWatchlist ? "Check" : "Plus"}
@@ -53,7 +56,8 @@ export function MediaActionButtons({
         className={`cc-item__action-btn outline cc-item__like ${className}${lib.isLiked ? " active" : ""}`}
         type="button"
         onClick={lib.onLike}
-        aria-label={lib.isLiked ? "Beğeniyi geri al" : "Beğen"}
+        aria-label={likeLabel}
+        data-action-label={likeLabel}
       >
         <MotionIcon name="Heart" size={17} trigger="click" animation="heartbeat" />
       </button>
@@ -119,6 +123,7 @@ const ItemCard = memo(function ItemCard({
   const ref = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const readyTimer = useRef<number | null>(null);
   const token = useRef({});
   const openRef = useRef(false);
   const [open, setOpen] = useState(false);
@@ -191,6 +196,10 @@ const ItemCard = memo(function ItemCard({
   };
 
   const collapse = () => {
+    if (readyTimer.current) {
+      window.clearTimeout(readyTimer.current);
+      readyTimer.current = null;
+    }
     if (openToken === token.current) {
       openToken = null;
       closeOpenCard = null;
@@ -231,7 +240,7 @@ const ItemCard = memo(function ItemCard({
   };
 
   const trailerSrc = trailerKey
-    ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`
+    ? `https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0`
     : "";
 
   const startTrailer = () => {
@@ -244,7 +253,11 @@ const ItemCard = memo(function ItemCard({
   useEffect(() => {
     if (!open || !trailerKey) return;
     const onMessage = (e: MessageEvent) => {
-      if (e.origin !== "https://www.youtube.com") return;
+      if (
+        e.origin !== "https://www.youtube.com" &&
+        e.origin !== "https://www.youtube-nocookie.com"
+      )
+        return;
       let msg: { info?: { playerState?: number } };
       try {
         msg = JSON.parse(e.data);
@@ -253,7 +266,15 @@ const ItemCard = memo(function ItemCard({
       }
       const state = msg.info?.playerState;
       if (state === undefined) return;
-      setReady(state === YT_PLAYING);
+      if (readyTimer.current) {
+        window.clearTimeout(readyTimer.current);
+        readyTimer.current = null;
+      }
+      if (state === YT_PLAYING) {
+        readyTimer.current = window.setTimeout(() => setReady(true), 900);
+      } else {
+        setReady(false);
+      }
       if (state === YT_ENDED)
         frameRef.current?.contentWindow?.postMessage(
           JSON.stringify({ event: "command", func: "playVideo" }),
@@ -261,13 +282,19 @@ const ItemCard = memo(function ItemCard({
         );
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      if (readyTimer.current) {
+        window.clearTimeout(readyTimer.current);
+        readyTimer.current = null;
+      }
+    };
   }, [open, trailerKey]);
 
   return (
     <div
       ref={ref}
-      className={`cc-item${open ? " is-open" : ""}`}
+      className={`cc-item${open ? " is-open" : ""}${ready ? " is-playing" : ""}`}
       style={{ flexGrow: open ? 2 : 1 }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
@@ -302,6 +329,7 @@ const ItemCard = memo(function ItemCard({
             type="button"
             onClick={toggleMute}
             aria-label={muted ? "Sesi aç" : "Sesi kapat"}
+            data-action-label={muted ? "Sesi aç" : "Sesi kapat"}
           >
             <MotionIcon
               name={muted ? "VolumeX" : "Volume2"}
@@ -325,6 +353,7 @@ const ItemCard = memo(function ItemCard({
                 type="button"
                 onClick={() => navigate(`/${cardType}/${item.id}`)}
                 aria-label="Oynat"
+                data-action-label="Oynat"
               >
                 <MotionIcon name="Play" size={18} trigger="click" animation="nudge" />
               </button>
@@ -461,8 +490,22 @@ export default function ContentCarousel({
           {multi && current < pages.length - 1 && (
             <NavArrow side="next" onClick={goNext} />
           )}
-          {peekPrev && <Peek item={peekPrev} side="prev" onClick={goPrev} />}
-          {peekNext && <Peek item={peekNext} side="next" onClick={goNext} />}
+          {peekPrev && (
+            <Peek
+              key={`prev-${peekPrev.id}`}
+              item={peekPrev}
+              side="prev"
+              onClick={goPrev}
+            />
+          )}
+          {peekNext && (
+            <Peek
+              key={`next-${peekNext.id}`}
+              item={peekNext}
+              side="next"
+              onClick={goNext}
+            />
+          )}
 
           <Carousel placement="bottom" activeIndex={current} onSelect={setPage}>
             {pages.map((slide, si) => (

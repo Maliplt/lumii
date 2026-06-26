@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { Button, Input, Modal, Toggle } from "rsuite";
-import { Trash2 } from "lucide-react";
-import { AVATARS } from "../helpers";
+import { X } from "lucide-react";
+import { AVATAR_CATEGORIES, AVATARS, DEFAULT_AVATAR } from "../helpers";
 import type { Profile } from "../store/store";
-
-const AVATAR_KEYS = Object.keys(AVATARS);
 
 interface Props {
   mode: "create" | "edit";
   profile?: Profile;
   canDelete?: boolean;
-  onSave: (data: { name: string; avatar: string; kids: boolean }) => void;
+  onSave: (data: { name: string; kids: boolean; avatar: string }) => void;
   onDelete?: () => void;
   onClose: () => void;
 }
@@ -24,9 +22,10 @@ export default function ProfileEditorModal({
   onClose,
 }: Props) {
   const [name, setName] = useState(profile?.name ?? "");
-  const [avatar, setAvatar] = useState(profile?.avatar ?? AVATAR_KEYS[0]);
   const [kids, setKids] = useState(profile?.kids ?? false);
+  const [avatar, setAvatar] = useState(profile?.avatar ?? DEFAULT_AVATAR);
   const [error, setError] = useState("");
+  const isEdit = mode === "edit";
 
   const save = () => {
     const trimmed = name.trim();
@@ -34,32 +33,42 @@ export default function ProfileEditorModal({
       setError("Lütfen bir profil adı girin.");
       return;
     }
-    onSave({ name: trimmed, avatar, kids });
+    onSave({ name: trimmed, kids, avatar });
   };
 
   return (
-    <Modal open onClose={onClose} size="sm" className="profile-modal">
-      <Modal.Header>
-        <Modal.Title>{mode === "create" ? "Yeni Profil" : "Profili Düzenle"}</Modal.Title>
-      </Modal.Header>
+    <Modal
+      open
+      onClose={onClose}
+      size={isEdit ? "lg" : "sm"}
+      className={`profile-modal profile-edit-modal${isEdit ? " profile-edit-modal--full" : ""}`}
+    >
+      <div className="profile-modal__head">
+        <button
+          type="button"
+          className="profile-modal__close"
+          onClick={onClose}
+          aria-label="Kapat"
+        >
+          <X size={22} />
+        </button>
+      </div>
 
       <Modal.Body>
-        <div className="profile-edit">
-          <div className="profile-edit__preview">
-            <img src={AVATARS[avatar]} alt="" />
-            <div>
-              <strong>{name.trim() || "Profil adı"}</strong>
-              <span>{kids ? "Çocuk profili" : "Standart profil"}</span>
-            </div>
-          </div>
+        <div className="profile-edit__hero">
+          <h2>{isEdit ? "Profili düzenle" : "Profil ekle"}</h2>
+          <p>Bu hesabı izleyecek kişi için profil bilgilerini düzenle.</p>
+        </div>
 
+        <div className="profile-edit__identity">
+          <img src={AVATARS[avatar]} alt="" />
           <label className="profile-edit__field" htmlFor="profile-name">
             <span>Profil adı</span>
             <Input
               id="profile-name"
               value={name}
               maxLength={20}
-              placeholder="Örn. Salon"
+              placeholder="Ad"
               onChange={(value) => {
                 setName(value);
                 if (error) setError("");
@@ -67,56 +76,63 @@ export default function ProfileEditorModal({
             />
             {error && <small>{error}</small>}
           </label>
+        </div>
 
-          <div className="profile-edit__field">
-            <span>Avatar</span>
-            <div className="profile-edit__avatars">
-              {AVATAR_KEYS.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={avatar === key ? "is-active" : ""}
-                  onClick={() => setAvatar(key)}
-                  aria-label={`Avatar ${key}`}
-                >
-                  <img src={AVATARS[key]} alt="" />
-                </button>
+        <div className="profile-edit__kid-toggle">
+          <div>
+            <strong>Çocuk Profili</strong>
+            <span>Sadece çocuklara uygun dizileri ve filmleri göster</span>
+          </div>
+          <Toggle
+            checked={kids}
+            onChange={setKids}
+            className="profile-rsuite-toggle"
+            aria-label="Çocuk Profili"
+          />
+        </div>
+
+        {isEdit && (
+          <div className="profile-edit__avatars">
+            <h3 className="profile-edit__avatars-title">Profil resmi</h3>
+            <div className="avatar-modal__list">
+              {AVATAR_CATEGORIES.map((group) => (
+                <section className="avatar-modal__group" key={group.id}>
+                  <h3>{group.label}</h3>
+                  <div>
+                    {group.avatars.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        className={avatar === item.key ? "is-active" : ""}
+                        onClick={() => setAvatar(item.key)}
+                        aria-label={`${item.name} avatarı`}
+                      >
+                        <img src={item.src} alt="" />
+                        <span>{item.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </div>
-
-          <div className="profile-edit__kids">
-            <div>
-              <strong>Çocuk profili</strong>
-              <span>Yalnızca çocuklara uygun içerikler gösterilir.</span>
-            </div>
-            <Toggle checked={kids} onChange={setKids} aria-label="Çocuk profili" />
-          </div>
-        </div>
+        )}
       </Modal.Body>
 
       <Modal.Footer>
         <div className="profile-edit__footer">
-          <div>
-            {mode === "edit" && canDelete && onDelete && (
-              <Button
-                appearance="subtle"
-                className="profile-edit__delete"
-                onClick={onDelete}
-                startIcon={<Trash2 size={16} />}
-              >
-                Sil
-              </Button>
-            )}
-          </div>
-          <div>
-            <Button appearance="ghost" onClick={onClose}>
-              Vazgeç
-            </Button>
-            <Button appearance="primary" onClick={save}>
-              Kaydet
-            </Button>
-          </div>
+          <Button appearance="primary" onClick={save} block>
+            Profili Kaydet
+          </Button>
+          {isEdit && canDelete && onDelete && (
+            <button
+              type="button"
+              className="profile-edit__delete"
+              onClick={onDelete}
+            >
+              Profili sil
+            </button>
+          )}
         </div>
       </Modal.Footer>
     </Modal>

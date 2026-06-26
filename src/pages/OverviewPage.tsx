@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertTriangle, Play, ChevronDown, Tv } from "lucide-react";
+import { AlertTriangle, Play } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
@@ -24,7 +24,6 @@ function formatDate(dateStr: string): string {
   });
 }
 
-// tip/id degisince yenilenir
 export default function OverviewPage() {
   const { type, id } = useParams<{ type: "movie" | "tv"; id: string }>();
   if (!type || !id) return null;
@@ -34,12 +33,9 @@ export default function OverviewPage() {
 function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(1);
-  const [episodesOpen, setEpisodesOpen] = useState(false);
-
   const numId = Number(id);
   const isMovie = type === "movie";
 
-  // ilk ekran verisi
   const { data, loading, error } = useFetch(() =>
     Number.isFinite(numId)
       ? Promise.all([
@@ -48,26 +44,25 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
             ? tmdbApi.getSimilarMovies(numId)
             : tmdbApi.getSimilarTVShows(numId),
         ])
-      : Promise.reject(new Error("Geçersiz içerik ID")),
+        : Promise.reject(new Error("Geçersiz içerik ID")),
   );
+
   const detail = data?.[0] ?? null;
   const similar = (data?.[1].results.filter((item) => item.poster_path) ??
     []) as Movie[] | TVShow[];
-
-  // bolumleri cek
   const season = useFetch(
     () =>
       isMovie
         ? Promise.resolve(null)
         : tmdbApi.getTVSeasonDetails(numId, selectedSeason),
-    isMovie ? "movie" : `sezon-${selectedSeason}`,
+    isMovie ? "movie" : `season-${numId}-${selectedSeason}`,
   );
 
   const tvDetail = detail as TVShowDetail;
   const movieDetail = detail as MovieDetail;
-
   const title = isMovie ? movieDetail?.title : tvDetail?.name;
   useTitle(title ?? "");
+
   const runtimeMin = isMovie
     ? (movieDetail?.runtime ?? 0)
     : (tvDetail?.episode_run_time?.[0] ?? 0);
@@ -78,8 +73,6 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
     !isMovie && tvDetail?.number_of_seasons
       ? `${tvDetail.number_of_seasons} Sezon`
       : null;
-
-  // hero meta-row icine kutusuz plain metinler (sure, sezon)
   const heroMeta = [formatRuntime(runtimeMin), seasonsInfo].filter(
     Boolean,
   ) as string[];
@@ -109,6 +102,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
           description="Bu içeriğe şu anda ulaşılamıyor. Lütfen daha sonra tekrar dene."
         />
       )}
+
       {detail && (
         <>
           <HeroCarousel
@@ -121,34 +115,11 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
           />
 
           <div className="overview-content">
-          {!isMovie && tvDetail.number_of_seasons > 0 && (
-            <div className={`episodes-block${episodesOpen ? " is-open" : ""}`}>
-              <button
-                type="button"
-                className="episodes-toggle"
-                onClick={() => setEpisodesOpen((o) => !o)}
-                aria-expanded={episodesOpen}
-              >
-                <span className="episodes-toggle__art">
-                  <Tv size={22} />
-                </span>
-                <span className="episodes-toggle__texts">
-                  <span className="episodes-toggle__title">Bölümler</span>
-                  <span className="episodes-toggle__sub">
-                    {tvDetail.number_of_seasons} sezon · keşfetmek için tıkla
-                  </span>
-                </span>
-                <span
-                  className={`episodes-toggle__chev${episodesOpen ? " open" : ""}`}
-                >
-                  <ChevronDown size={20} />
-                </span>
-              </button>
-
-              {episodesOpen && (
+            {!isMovie && tvDetail.number_of_seasons > 0 && (
+              <section className="episodes-block" aria-label="Bölümler">
                 <div className="episodes-panel">
                   {tvDetail.number_of_seasons > 1 && (
-                    <div className="season-pills">
+                    <div className="season-pills" aria-label="Sezonlar">
                       {Array.from(
                         { length: tvDetail.number_of_seasons },
                         (_, i) => i + 1,
@@ -159,7 +130,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
                           className={`season-pill${selectedSeason === n ? " active" : ""}`}
                           onClick={() => setSelectedSeason(n)}
                         >
-                          {n}. Sezon
+                          {String(n).padStart(2, "0")}
                         </button>
                       ))}
                     </div>
@@ -194,9 +165,10 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
                               {String(episode.episode_number).padStart(2, "0")}
                             </span>
                             <span className="ep-card__play">
-                              <Play size={18} fill="currentColor" />
+                              <Play size={16} fill="currentColor" />
                             </span>
                           </div>
+
                           <div className="ep-card__body">
                             <div className="ep-card__head">
                               <h4 className="ep-card__title">
@@ -228,9 +200,8 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          )}
+              </section>
+            )}
 
             <div className="overview-similar">
               <ContentCarousel
@@ -240,7 +211,6 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
               />
             </div>
           </div>
-
         </>
       )}
     </PageLayout>

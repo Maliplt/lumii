@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Carousel, Button } from "rsuite";
+import { Button } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
 import { Play, Info, Film, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
@@ -45,6 +45,7 @@ export default function HeroCarousel({
 }: HeroCarouselProps) {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [inView, setInView] = useState(true);
   const [autoMeta, setAutoMeta] = useState<string[]>([]);
@@ -52,16 +53,19 @@ export default function HeroCarousel({
   const [heroTrailerReady, setHeroTrailerReady] = useState(false);
   const [heroTrailerMuted, setHeroTrailerMuted] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const fillRef = useRef<HTMLDivElement>(null);
   const trailerRef = useRef<HTMLIFrameElement>(null);
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
 
-  const handlePrev = () =>
+  const handlePrev = () => {
+    setProgress(0);
     setActiveIndex((prev) => (prev === 0 ? movies.length - 1 : prev - 1));
+  };
 
-  const handleNext = () =>
+  const handleNext = () => {
+    setProgress(0);
     setActiveIndex((prev) => (prev === movies.length - 1 ? 0 : prev + 1));
+  };
 
   const swipe = useSwipe(handleNext, handlePrev);
 
@@ -130,11 +134,6 @@ export default function HeroCarousel({
 
   useEffect(() => {
     if (!multi || !inView) return;
-    const fill = fillRef.current;
-    if (fill) {
-      fill.style.width = "100%";
-      fill.style.transform = "scaleX(0)";
-    }
     let raf = 0;
     let last = performance.now();
     let elapsed = 0;
@@ -143,8 +142,9 @@ export default function HeroCarousel({
       last = now;
       if (!isPausedRef.current) elapsed += Math.min(dt, 100);
       const ratio = Math.min(1, elapsed / AUTO_SLIDE_DELAY);
-      if (fill) fill.style.transform = `scaleX(${ratio})`;
+      setProgress(ratio);
       if (ratio >= 1) {
+        setProgress(0);
         setActiveIndex((p) => (p === movies.length - 1 ? 0 : p + 1));
         return;
       }
@@ -155,15 +155,15 @@ export default function HeroCarousel({
   }, [activeIndex, multi, inView, movies.length]);
 
   useEffect(() => {
-    setHeroTrailerKey(null);
-    setHeroTrailerReady(false);
-    setHeroTrailerMuted(true);
     if (!inlineTrailer || !inView) return;
     const m = movies[activeIndex];
     if (!m) return;
 
     let alive = true;
     const timer = setTimeout(async () => {
+      setHeroTrailerKey(null);
+      setHeroTrailerReady(false);
+      setHeroTrailerMuted(true);
       try {
         const mtype = "title" in m ? "movie" : "tv";
         const videos = await tmdbApi.getVideos(mtype, m.id);
@@ -212,13 +212,11 @@ export default function HeroCarousel({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <Carousel
-        placement="bottom"
-        shape="dot"
-        activeIndex={activeIndex}
-        onSelect={(index) => setActiveIndex(index)}
-        className="hero-carousel-inner"
-      >
+      <div className="hero-carousel-inner">
+        <div
+          className="hero-carousel-track"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
         {movies.map((movie, index) => {
           const genres = genreNames(movie.genre_ids, 3);
           const hasRating = movie.vote_average > 0;
@@ -289,7 +287,10 @@ export default function HeroCarousel({
               <div className="hero-overlay" />
               <div className="hero-bottom-fade" />
 
-              <div className="hero-info">
+              <div
+                className="hero-info"
+                key={index === activeIndex ? `active-${activeIndex}` : `idle-${index}`}
+              >
                 {genres.length > 0 && (
                   <div className="hero-info__genres">
                     {genres.map((name) => (
@@ -369,7 +370,8 @@ export default function HeroCarousel({
             </div>
           );
         })}
-      </Carousel>
+        </div>
+      </div>
 
       {multi && (
         <>
@@ -393,13 +395,16 @@ export default function HeroCarousel({
       {multi && (
         <div className="hero-progress">
           {movies.map((_, i) => (
-            <div key={i} className="hero-progress__seg">
+            <div key={i} className={`hero-progress__seg${i < activeIndex ? " is-past" : ""}`}>
               <div
-                ref={i === activeIndex ? fillRef : undefined}
-                className="hero-progress__seg-fill"
+                className={`hero-progress__seg-fill${i === activeIndex ? " active" : ""}`}
                 style={{
                   width:
-                    i < activeIndex ? "100%" : i > activeIndex ? "0%" : undefined,
+                    i < activeIndex
+                      ? "0%"
+                      : i === activeIndex
+                        ? `${progress * 100}%`
+                        : "0%",
                 }}
               />
             </div>

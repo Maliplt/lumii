@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { CustomProvider } from "rsuite";
 import { store } from "./store/store";
 import "./index.css";
-import "./main-teal.scss";
+import "./main.scss";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(

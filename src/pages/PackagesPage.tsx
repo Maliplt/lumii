@@ -94,31 +94,40 @@ export default function PackagesPage() {
       <div className="packages-grid" ref={gridRef}>
         {PACKAGES.map((pkg) => {
           const isActive = currentPlan === pkg.id;
+          const specs = [
+            { label: "Görüntü", value: pkg.quality },
+            { label: "Eş zamanlı", value: pkg.screens },
+            { label: "İndirme", value: pkg.downloads },
+            { label: "Destek", value: pkg.support },
+          ].filter((s) => s.value);
+
           return (
             <div
               key={pkg.id}
-              className={`package-card${pkg.accent ? " package-card--accent" : ""}${isActive ? " package-card--active" : ""}`}
+              className={`package-card${isActive ? " package-card--active" : ""}`}
               style={{ opacity: 0 }}
             >
-              {isActive && (
-                <span className="package-badge package-badge--active">
-                  Mevcut Plan
-                </span>
-              )}
-              {!isActive && pkg.badge && (
-                <span className="package-badge">{pkg.badge}</span>
-              )}
-
-              <div className="package-card__header">
-                <MotionIcon
-                  name={pkg.icon}
-                  size={22}
-                  className={`package-icon${pkg.accent ? " package-icon--accent" : ""}`}
-                  trigger="hover"
-                  animation="pop"
-                />
-                <h3 className="package-name">{pkg.name}</h3>
+              <div className="package-card__top">
+                <div className="package-card__header">
+                  <MotionIcon
+                    name={pkg.icon}
+                    size={20}
+                    className="package-icon"
+                    trigger="hover"
+                    animation="pop"
+                  />
+                  <h3 className="package-name">{pkg.name}</h3>
+                </div>
+                {isActive ? (
+                  <span className="package-badge package-badge--active">
+                    Mevcut Plan
+                  </span>
+                ) : (
+                  pkg.badge && <span className="package-badge">{pkg.badge}</span>
+                )}
               </div>
+
+              {pkg.summary && <p className="package-summary">{pkg.summary}</p>}
 
               <div className="package-price-row">
                 <span className="package-price">{pkg.price}</span>
@@ -127,28 +136,45 @@ export default function PackagesPage() {
                 )}
               </div>
 
+              {specs.length > 0 && (
+                <dl className="package-specs">
+                  {specs.map((s) => (
+                    <div className="package-spec" key={s.label}>
+                      <dt>{s.label}</dt>
+                      <dd>{s.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+
               <ul className="package-features">
                 {pkg.features.map((f) => (
                   <li key={f}>
-                    <Check size={14} />
+                    <Check size={15} />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <Button
-                appearance={pkg.accent ? "primary" : "ghost"}
-                className={`package-cta${pkg.accent ? " package-cta--accent" : ""}${isActive ? " package-cta--active" : ""}`}
+                appearance="primary"
+                className={`package-cta package-cta--accent${isActive ? " package-cta--active" : ""}`}
                 onClick={() => !isActive && handleSelect(pkg)}
                 disabled={isActive}
                 block
               >
-                {isActive ? "Mevcut" : pkg.cta}
+                {isActive ? "Aktif Planın" : pkg.cta}
               </Button>
             </div>
           );
         })}
       </div>
+
+      <p className="packages-footnote">
+        Tüm planlar aylık olarak otomatik yenilenir; dilediğin zaman hesabından
+        planını değiştirebilir veya aboneliğini iptal edebilirsin. Fiyatlara KDV
+        dahildir.
+      </p>
     </PageLayout>
   );
 }

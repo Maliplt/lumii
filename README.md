@@ -1,6 +1,6 @@
-# Lumii
+# TENET
 
-Lumii is a modern, responsive streaming and gaming platform dashboard built using React 19, TypeScript, and Vite. It integrates media playback, movie/show information from TMDB, tiered membership plans, and a collection of interactive games.
+TENET is a modern, responsive streaming and gaming platform dashboard built using React 19, TypeScript, and Vite. It integrates media playback, movie/show information from TMDB, tiered membership plans, and a collection of interactive games.
 
 ## Features
 

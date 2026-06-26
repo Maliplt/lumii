@@ -48,7 +48,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(() =>
+    typeof window === "undefined" ? false : window.scrollY > 30,
+  );
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,6 +111,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -326,7 +329,7 @@ export default function Header() {
                             <span>{p.name}</span>
                             {p.kids && (
                               <span className="account-menu__profile-kids">
-                                KIDS
+                                Çocuk
                               </span>
                             )}
                           </button>
@@ -424,7 +427,7 @@ export default function Header() {
                 to="/"
                 className="mobile-nav-brand"
                 onClick={() => setMobileMenuOpen(false)}
-                aria-label="Lumii ana sayfa"
+                aria-label="TENET ana sayfa"
               >
                 <Logo />
               </Link>

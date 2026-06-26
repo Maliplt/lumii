@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Search, X, CornerDownLeft } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 // debounce
 function useDebouncedValue<T>(value: T, delay = 400): T {
@@ -102,9 +102,7 @@ export default function SearchBar({ open, onClose }: SearchBarProps) {
         </button>
       )}
 
-      <span className="search-box__enter">
-        <CornerDownLeft size={12} />
-      </span>
+
 
       <button
         type="button"

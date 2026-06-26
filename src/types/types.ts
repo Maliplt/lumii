@@ -130,6 +130,11 @@ export interface PackageDef {
   badge: string | null;
   accent: boolean;
   features: string[];
+  summary?: string;
+  quality?: string;
+  screens?: string;
+  downloads?: string;
+  support?: string;
   cta: string;
   free: boolean;
 }
