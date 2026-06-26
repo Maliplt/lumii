@@ -343,7 +343,7 @@ export function useLazyReveal(total: number, initial = 3, step = 2) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const safeVisible = Math.min(visible, total);
 
-  // data asenkron gelince total 0'dan artacak, visible'ı başlat
+  // data  gelince total 0'dan art
   useEffect(() => {
     if (total > 0 && visible === 0) {
       setVisible(Math.min(initial, total));

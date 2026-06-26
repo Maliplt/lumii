@@ -151,6 +151,31 @@ $bp-sm: 480px;
     }
 }
 
+// marka renkli ince scrollbar (kaydirilabilir seritler/listeler)
+@mixin accent-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(255, 255, 255, 0.05);
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-hover);
+    }
+}
+
 // reset & tipografi
 *,
 *::before,
@@ -5975,6 +6000,7 @@ main {
     font-size: clamp(26px, 4vw, var(--fs-3xl));
     font-weight: 800;
     letter-spacing: -0.02em;
+    color: #ffffff;
     margin-bottom: var(--space-6);
     position: relative;
     padding-left: var(--space-3);
@@ -6001,13 +6027,14 @@ main {
     display: inline-flex !important;
     align-items: center;
     gap: 8px;
-    padding: 9px 16px !important;
-    border-radius: var(--radius-1);
-    border: 1px solid var(--border-default);
+    padding: 10px 18px !important;
+    border-radius: var(--radius-1) !important; // keskin kose
+    border: 1px solid var(--border-strong);
     background: var(--bg-2) !important;
-    color: var(--text-secondary) !important;
+    color: rgba(255, 255, 255, 0.92) !important;
     font-size: var(--fs-sm);
-    font-weight: 600;
+    font-weight: 700;
+    white-space: nowrap;
     @include smooth(background-color color border-color, var(--dur-fast));
 
     svg {
@@ -6022,15 +6049,15 @@ main {
     &:hover,
     &:focus {
         background: var(--bg-3) !important;
-        color: var(--text-primary) !important;
-        border-color: var(--border-strong);
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.28);
     }
 
     &.rs-nav-item-active,
     &[data-active='true'] {
-        background: rgba($brand, 0.14) !important;
-        border-color: rgba($brand, 0.55) !important;
-        color: var(--accent) !important;
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #ffffff !important;
     }
 }
 
@@ -6040,22 +6067,37 @@ main {
 
     h2 {
         font-size: var(--fs-2xl);
-        font-weight: 700;
+        font-weight: 800;
         margin-bottom: var(--space-5);
-        color: var(--text-primary);
+        color: #ffffff;
     }
 
     p {
         font-size: var(--fs-md);
         line-height: 1.75;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.86);
         margin-bottom: var(--space-4);
     }
 
     .legal-updated {
         margin-top: var(--space-6);
         font-size: var(--fs-sm);
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.62);
+    }
+}
+
+// mobilde sekmeler dagilmasin: tek satir, duzenli yatay serit
+@media (max-width: 600px) {
+    .legal-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: var(--space-6);
+        @include accent-scroll;
+    }
+
+    .legal-tab {
+        flex: 0 0 auto;
     }
 }
 
@@ -6360,6 +6402,10 @@ main {
         gap: var(--space-4);
         padding: var(--space-5) var(--space-6);
         pointer-events: none;
+        // beyaz/parlak goruntude okunabilirlik icin yari-opak scrim
+        background: linear-gradient(to bottom,
+                rgba(0, 0, 0, 0.55) 0%,
+                rgba(0, 0, 0, 0) 100%);
 
         >* {
             pointer-events: auto;
@@ -6376,11 +6422,16 @@ main {
     }
 
     &__bottom {
-        padding: 0 var(--space-6) var(--space-6);
+        padding: var(--space-6) var(--space-6) var(--space-6);
         display: flex;
         flex-direction: column;
         gap: var(--space-3);
         pointer-events: none;
+        // alt kontroller icin yari-opak scrim
+        background: linear-gradient(to top,
+                rgba(0, 0, 0, 0.72) 0%,
+                rgba(0, 0, 0, 0.35) 45%,
+                rgba(0, 0, 0, 0) 100%);
 
         >* {
             pointer-events: auto;
@@ -6663,14 +6714,16 @@ main {
 .tv-main {
     padding: calc(72px + var(--space-5)) clamp(12px, 2.4vw, 34px) var(--space-6);
     height: 100vh;
+    min-height: 0;
     box-sizing: border-box;
 }
 
 .tv-layout {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 340px 1fr;
     gap: var(--space-5);
-    height: 100%;
+    // sabit yukseklik: player kanal sayisindan bagimsiz buyuk kalir, liste kendi icinde kayar
+    height: calc(100vh - 116px);
     margin: 0 auto;
 
     @include bp($bp-lg) {
@@ -6685,46 +6738,107 @@ main {
     flex-direction: column;
     gap: var(--space-3);
     overflow: hidden;
+    min-height: 0;
 
     &__title {
-        font-size: var(--fs-md);
-        font-weight: 700;
-        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: var(--fs-lg);
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        color: #ffffff;
         margin: 0;
         flex-shrink: 0;
     }
 }
 
+// kanal arama (header search-box estetigi, panel ici tam genislik)
+.tv-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    height: 42px;
+    padding: 0 8px 0 13px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-2);
+    @include smooth(border-color);
+
+    &:focus-within {
+        border-color: rgba($brand, 0.6);
+    }
+
+    &__glyph {
+        flex-shrink: 0;
+        color: var(--text-muted);
+    }
+
+    &__input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 0.94rem;
+        font-family: var(--font-body);
+        font-weight: 500;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    }
+
+    &__clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border: none;
+        border-radius: var(--radius-1);
+        background: rgba(255, 255, 255, 0.07);
+        color: var(--text-muted);
+        cursor: pointer;
+        @include smooth(background-color color);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+        }
+    }
+}
+
+.tv-channel-empty {
+    padding: var(--space-5) var(--space-3);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.92rem;
+    text-align: center;
+}
+
 .tv-channel-list {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    padding-right: var(--space-1);
-
-    &::-webkit-scrollbar {
-        width: 3px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: var(--border-default);
-        border-radius: 2px;
-    }
+    padding-right: 6px;
+    @include accent-scroll;
 }
 
 .tv-channel-item {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-3);
+    padding: 12px 14px;
     border: 1px solid var(--border-subtle);
     background: var(--bg-1);
-    border-radius: 2px;
+    border-radius: var(--radius-2);
     cursor: pointer;
     text-align: left;
     width: 100%;
@@ -6747,21 +6861,41 @@ main {
             color: #ffffff;
         }
 
+        .tv-channel-item__no {
+            color: #ffffff;
+        }
+
+        // img logo beyaz kalsin; sadece kisa-kod fallback boyaninsin
         .tv-channel-item__logo {
-            background: var(--accent);
             border-color: var(--accent);
+        }
+
+        .tv-channel-item__logo--text {
+            background: var(--accent);
             color: #fff;
         }
     }
 
+    &__no {
+        flex-shrink: 0;
+        width: 18px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.95rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        @include smooth(color);
+    }
+
     &__logo {
-        width: 46px;
-        height: 36px;
+        width: 60px;
+        height: 46px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        background: var(--bg-3);
+        overflow: hidden;
+        background: #ffffff;
         border: 1px solid var(--border-strong);
         border-radius: var(--radius-1);
         color: rgba(255, 255, 255, 0.92);
@@ -6771,6 +6905,18 @@ main {
         text-transform: uppercase;
         font-variant-numeric: tabular-nums;
         @include smooth(background-color border-color color);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+    }
+
+    // logo yuklenmediginde: koyu zemin + kisa kod
+    &__logo--text {
+        background: var(--bg-3);
     }
 
     &__texts {
@@ -6885,6 +7031,62 @@ main {
     }
 }
 
+// mobilde TV: player ustte, kanallar altta dikey scrollable liste (ekrandan tasmaz)
+@media (max-width: 1024px) {
+    .tv-main {
+        height: auto;
+        padding-top: calc(56px + var(--space-4));
+    }
+
+    .tv-layout {
+        gap: var(--space-3);
+    }
+
+    .tv-featured {
+        order: -1;
+    }
+
+    .tv-featured__player {
+        flex: none;
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+
+    .tv-sidebar {
+        overflow: visible;
+    }
+
+    // mobilde liste endless degil: ~5 kanal gosterir, gerisi kendi icinde kayar
+    .tv-channel-list {
+        flex: none;
+        flex-direction: column;
+        max-height: 392px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        gap: 8px;
+        padding-right: 4px;
+        @include accent-scroll;
+    }
+
+    .tv-channel-item {
+        width: 100%;
+    }
+}
+
+// telefonda player daha kisa + viewport'a duyarli (16:9 tam yukseklik fazla geliyor)
+@media (max-width: 768px) {
+    .tv-featured__player {
+        aspect-ratio: auto;
+        height: 26vh;
+        min-height: 150px;
+        max-height: 200px;
+    }
+
+    .tv-featured__player .player-video {
+        object-fit: cover;
+    }
+}
+
 
 @keyframes livePulse {
 
@@ -6944,36 +7146,64 @@ main {
 }
 
 // canli rozeti
-.player-live-badge {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
+// canli rozeti artik alt kontrol cubugunda (sag ust yerine)
+.player-live-pill {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: 4px var(--space-3);
+    gap: 6px;
+    padding: 3px 8px;
     border: none;
     border-radius: var(--radius-1);
     background: var(--danger);
     color: #fff;
-    font-size: var(--fs-xs);
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.1em;
-    z-index: 12;
+    letter-spacing: 0.03em;
     cursor: pointer;
     @include smooth(background-color opacity);
+
+    .player-live-dot {
+        width: 6px;
+        height: 6px;
+    }
 
     &:hover {
         opacity: 0.88;
     }
 
     &.is-behind {
-        background: rgba(255, 255, 255, 0.22);
+        background: rgba(0, 0, 0, 0.62);
+        letter-spacing: 0.02em;
 
         .player-live-dot {
             background: rgba(255, 255, 255, 0.7);
             animation: none;
         }
+    }
+}
+
+// mediaplayer yukleme: donmeyen, nabiz gibi buyuyup kuculen logo
+.player-loading__logo {
+    width: clamp(120px, 22%, 200px);
+    height: auto;
+    pointer-events: none;
+    animation: playerLogoPulse 1.25s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .player-loading__logo {
+        width: clamp(76px, 34%, 120px);
+    }
+}
+
+@keyframes playerLogoPulse {
+    0%, 100% {
+        transform: scale(0.9);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
     }
 }
 
@@ -8981,30 +9211,41 @@ main {
     color: #fff;
 }
 
+// mobilde nav: dikey liste yerine yatay kayan sekme seridi
 @media (max-width: 980px) {
     .acct-nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        overflow: visible;
+        display: flex;
+        flex-wrap: nowrap;
+        grid-template-columns: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 6px;
+        padding: 8px 8px 10px;
+        scroll-snap-type: x proximity;
+        @include accent-scroll;
+    }
+
+    .acct-nav__title {
+        display: none;
+    }
+
+    .acct-nav__item {
+        width: auto;
+        flex: 0 0 auto;
+        min-height: 0;
+        grid-template-columns: auto auto;
         gap: 8px;
-        padding: 8px;
-        scroll-snap-type: none;
-    }
+        padding: 10px 14px;
+        white-space: nowrap;
+        scroll-snap-align: start;
 
-    .acct-nav__item {
-        width: 100%;
-        min-height: 58px;
-        flex: none;
-    }
-}
+        small {
+            display: none;
+        }
 
-@media (max-width: 640px) {
-    .acct-nav {
-        grid-template-columns: 1fr;
-    }
-
-    .acct-nav__item {
-        min-height: 54px;
+        strong {
+            font-size: 14.5px;
+        }
     }
 
     .acct-sidebar__profile {
@@ -9103,6 +9344,33 @@ main {
     place-items: center !important;
     padding: 20px !important;
     overflow-x: hidden;
+}
+
+// mobilde modal: tam ortali, dengeli kart (rsuite'in scrollbar-pay kaymasi yok)
+@media (max-width: 600px) {
+    .rs-modal-wrapper:has(.profile-modal) {
+        place-items: center !important;
+        padding: 12px !important;
+        overflow: hidden !important;
+    }
+
+    // .rs-modal-wrapper oneki specificity'yi artirir, taban kurallari ezsin
+    .rs-modal-wrapper .profile-modal.rs-modal {
+        width: auto !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .rs-modal-wrapper .profile-modal .rs-modal-dialog {
+        width: min(440px, calc(100vw - 24px)) !important;
+        max-width: 100% !important;
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+
+    .profile-modal .rs-modal-content {
+        max-height: none;
+    }
 }
 
 .profile-modal.rs-modal {

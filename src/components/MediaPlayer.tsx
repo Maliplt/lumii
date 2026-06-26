@@ -14,7 +14,7 @@ import {
   SkipForward,
   Wifi,
 } from "lucide-react";
-import Spinner from "./Spinner";
+import tenetLogo from "../images/tenet-logo.svg";
 
 function formatTime(s: number): string {
   if (!isFinite(s) || isNaN(s)) return "0:00";
@@ -387,18 +387,6 @@ export default function MediaPlayer({
         onDoubleClick={toggleFullscreen}
       />
 
-      {live && (
-        <button
-          type="button"
-          className={`player-live-badge${atLive ? "" : " is-behind"}`}
-          onClick={goLive}
-          title={atLive ? "Canlı yayındasın" : "Canlı yayına dön"}
-        >
-          <span className="player-live-dot" />
-          CANLI
-        </button>
-      )}
-
       {centerAction && (
         <div className="player-center-action" key={centerAction.id}>
           {centerAction.type === "play" ? (
@@ -411,7 +399,7 @@ export default function MediaPlayer({
 
       {!streamReady && !streamError && (
         <div className="player-loading">
-          <Spinner inline label="Akış yükleniyor…" />
+          <img src={tenetLogo} alt="" className="player-loading__logo" />
         </div>
       )}
 
@@ -532,7 +520,20 @@ export default function MediaPlayer({
             </div>
 
             <div className="player-controls__right">
-              <span className="player-quality-badge">{currentLevelInfo}</span>
+              {live ? (
+                <button
+                  type="button"
+                  className={`player-live-pill${atLive ? "" : " is-behind"}`}
+                  onClick={goLive}
+                  title={atLive ? "Canlı yayındasın" : "Canlı yayına dön"}
+                >
+                  <span className="player-live-dot" />
+                  {atLive ? "Canlı" : "Canlıya Dön"}
+                </button>
+              ) : (
+                <span className="player-quality-badge">{currentLevelInfo}</span>
+              )}
+              {!live && (
               <div className="player-settings-wrap">
                 <button
                   className="player-btn"
@@ -562,6 +563,7 @@ export default function MediaPlayer({
                   </div>
                 )}
               </div>
+              )}
               <button
                 className="player-btn"
                 onClick={toggleFullscreen}
