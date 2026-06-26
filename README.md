@@ -22,6 +22,8 @@ TENET is a modern, responsive streaming and gaming platform dashboard built usin
 - **Minesweeper**: A modern version of the classic puzzle with custom grids, bomb flags, and state management.
 - **Sudoku**: Fully interactive board with number pad, input history, conflict highlighting, and sound effects.
 - **Kelime Zinciri (Word Chain)**: A word connection game in Turkish featuring dictionary lookups, score tracking, and time limits.
+- **Block Bloom**: A block-placement puzzle where you drop shapes onto a grid to clear lines and rows. *(Coming soon)*
+- **Mahjong Sanctuary**: A traditional tile-matching game built around clearing layered tile layouts. *(Coming soon)*
 
 ## Tech Stack
 
