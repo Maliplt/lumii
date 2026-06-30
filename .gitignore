@@ -10,13 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
 
 .env
 
 # Editor directories and files
 .vscode/*
-.claude/launch.json
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -25,17 +23,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-.local
-*.local.md
-
-# ai / arac dosyalari - commit disi
-.claude/
-.agents/
-.cursor/
-AGENTS.md
-CLAUDE.md
-skills-lock.json
-.mcp.json
-artifacts/
-
