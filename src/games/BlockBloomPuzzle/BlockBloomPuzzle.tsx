@@ -820,8 +820,10 @@ export default function BlockBloomPuzzle() {
     if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) return null;
     if (!piece) return { row, col };
     const bounds = shapeBounds(piece.cells);
+    const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+    const rowOffset = isTouch ? 2 : 0;
     return {
-      row: clamp(row - Math.floor(bounds.height / 2), 0, BOARD_SIZE - bounds.height),
+      row: clamp(row - Math.floor(bounds.height / 2) - rowOffset, 0, BOARD_SIZE - bounds.height),
       col: clamp(col - Math.floor(bounds.width / 2), 0, BOARD_SIZE - bounds.width),
     };
   }, []);
