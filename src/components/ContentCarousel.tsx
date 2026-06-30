@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
-import { Star, Play } from "lucide-react";
+import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import {
   getImageUrl,
@@ -340,20 +340,7 @@ const ItemCard = memo(function ItemCard({
         </div>
       )}
 
-      {/* mobil dokunmatik kontrol */}
-      <button
-        className="cc-item__trailer-cta"
-        type="button"
-        aria-label="Fragmanı izle"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          navigate(`/${cardType}/${item.id}/player`, { state: { title: name } });
-        }}
-      >
-        <Play size={15} fill="currentColor" />
-        <span>Fragman</span>
-      </button>
+
 
       {open && trailerKey && (
         <>

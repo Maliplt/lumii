@@ -123,35 +123,7 @@
         box-shadow 0.25s var(--ease-out);
 }
 
-// dokunmatik ekranlar
-.cc-item__trailer-cta {
-    display: none;
-}
 
-@media (hover: none) {
-    .cc-item__trailer-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        z-index: 6;
-        padding: 6px 11px;
-        border: none;
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.62);
-        color: #fff;
-        font-size: 0.74rem;
-        font-weight: 700;
-        cursor: pointer;
-        backdrop-filter: blur(4px);
-    }
-
-    .cc-item__trailer-cta:active {
-        transform: scale(0.95);
-    }
-}
 
 @keyframes iconPop {
     0% {

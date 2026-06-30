@@ -139,7 +139,7 @@
 .season-pill {
     flex-shrink: 0;
     padding: 8px 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-1);
     border: 1px solid var(--border-strong);
     background: var(--bg-1);
     color: var(--text-secondary);
