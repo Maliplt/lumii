@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { animate } from "animejs";
 import { Button } from "rsuite";
 import { Plus, Pencil } from "lucide-react";
-import Logo from "../components/Logo";
-import ProfileEditorModal from "../components/ProfileEditorModal";
+import Logo from "../components/header/Logo";
+import ProfileEditorModal from "../components/modals/ProfileEditorModal";
+import ProfileUnlockModal from "../components/modals/ProfileUnlockModal";
 import { useToast, toastText } from "../components/Toast";
 import { AVATARS, useTitle } from "../helpers";
 import {
@@ -33,6 +34,7 @@ export default function ProfilesPage() {
   const [manage, setManage] = useState(false);
   const [editor, setEditor] = useState<EditorState>(null);
   const [leaving, setLeaving] = useState(false);
+  const [unlocking, setUnlocking] = useState<Profile | null>(null);
   const centerRef = useRef<HTMLDivElement>(null);
   useTitle(manage ? "Profilleri Yönet" : "Kim izliyor?");
 
@@ -42,16 +44,12 @@ export default function ProfilesPage() {
 
   if (!currentUser) return null;
 
-  const enter = (p: Profile, el: HTMLElement) => {
-    if (manage) {
-      setEditor({ mode: "edit", profile: p });
-      return;
-    }
+  // pin sonrasi gecis animasyonu
+  const goToProfile = (p: Profile, el: HTMLElement | null) => {
     if (leaving) return;
-
     setLeaving(true);
 
-    const avatar = el.querySelector(".profile-card__avatar");
+    const avatar = el?.querySelector(".profile-card__avatar");
     if (avatar) animate(avatar, { scale: 1.3, duration: 460, ease: "out(2)" });
     if (centerRef.current)
       animate(centerRef.current, {
@@ -65,6 +63,21 @@ export default function ProfilesPage() {
       dispatch(selectProfile(p.id));
       navigate("/");
     }, 470);
+  };
+
+  const enter = (p: Profile, el: HTMLElement) => {
+    if (manage) {
+      setEditor({ mode: "edit", profile: p });
+      return;
+    }
+    if (leaving) return;
+
+    if (p.locked && p.lockPin) {
+      setUnlocking(p);
+      return;
+    }
+
+    goToProfile(p, el);
   };
 
   return (
@@ -152,6 +165,18 @@ export default function ProfilesPage() {
             dispatch(deleteProfile(editor.profile.id));
             toast(toastText.profileDeleted, "info");
             setEditor(null);
+          }}
+        />
+      )}
+
+      {unlocking && (
+        <ProfileUnlockModal
+          profile={unlocking}
+          onClose={() => setUnlocking(null)}
+          onSuccess={() => {
+            const p = unlocking;
+            setUnlocking(null);
+            goToProfile(p, null);
           }}
         />
       )}

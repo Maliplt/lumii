@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Star, Play } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import {
   getImageUrl,
@@ -17,9 +17,21 @@ import {
   genreNames,
   formatRuntime,
 } from "../services/tmdb";
-import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton } from "../helpers";
-import { useAppSelector, type SavedItem } from "../store/store";
-import type { Movie, TVShow, MovieDetail, TVShowDetail } from "../types/types";
+import {
+  useSwipe,
+  mediaName,
+  mediaYear,
+  useLibraryActions,
+  popButton,
+  formatTime,
+} from "../helpers";
+import {
+  useAppSelector,
+  resumeLabel,
+  canResumeProgress,
+  type SavedItem,
+} from "../store/store";
+import type { Movie, TVShow } from "../types/types";
 
 type Media = Movie | TVShow;
 
@@ -164,20 +176,11 @@ const ItemCard = memo(function ItemCard({
       return;
     }
     try {
-      const detail =
-        cardType === "movie"
-          ? await tmdbApi.getMovieDetail(item.id)
-          : await tmdbApi.getTVShowDetail(item.id);
-      const runtime =
-        cardType === "movie" ? ((detail as MovieDetail).runtime ?? 0) : 0;
-      const seasons =
-        cardType === "tv"
-          ? ((detail as TVShowDetail).number_of_seasons ?? 0)
-          : 0;
+      const videos = await tmdbApi.getVideos(cardType, item.id);
       const d = {
-        trailer: pickTrailer(detail.videos?.results ?? []),
-        runtime,
-        seasons,
+        trailer: pickTrailer(videos.results ?? []),
+        runtime: 0,
+        seasons: 0,
       };
       detailCache.set(key, d);
       apply(d);
@@ -240,18 +243,33 @@ const ItemCard = memo(function ItemCard({
   };
 
   const trailerSrc = trailerKey
-    ? `https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0`
+    ? `https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0&vq=hd720`
     : "";
 
   const startTrailer = () => {
-    frameRef.current?.contentWindow?.postMessage(
+    const win = frameRef.current?.contentWindow;
+    if (!win) return;
+    win.postMessage(
       JSON.stringify({ event: "listening", channel: "widget" }),
       "*",
     );
+    window.setTimeout(() => {
+      win.postMessage(
+        JSON.stringify({ event: "command", func: "mute" }),
+        "*",
+      );
+      win.postMessage(
+        JSON.stringify({ event: "command", func: "playVideo" }),
+        "*",
+      );
+    }, 350);
   };
 
   useEffect(() => {
     if (!open || !trailerKey) return;
+    const readyFallback = window.setTimeout(() => {
+      setReady(true);
+    }, 2400);
     const onMessage = (e: MessageEvent) => {
       if (
         e.origin !== "https://www.youtube.com" &&
@@ -266,14 +284,9 @@ const ItemCard = memo(function ItemCard({
       }
       const state = msg.info?.playerState;
       if (state === undefined) return;
-      if (readyTimer.current) {
-        window.clearTimeout(readyTimer.current);
-        readyTimer.current = null;
-      }
       if (state === YT_PLAYING) {
-        readyTimer.current = window.setTimeout(() => setReady(true), 900);
-      } else {
-        setReady(false);
+        window.clearTimeout(readyFallback);
+        setReady(true);
       }
       if (state === YT_ENDED)
         frameRef.current?.contentWindow?.postMessage(
@@ -284,12 +297,25 @@ const ItemCard = memo(function ItemCard({
     window.addEventListener("message", onMessage);
     return () => {
       window.removeEventListener("message", onMessage);
+      window.clearTimeout(readyFallback);
       if (readyTimer.current) {
         window.clearTimeout(readyTimer.current);
         readyTimer.current = null;
       }
     };
   }, [open, trailerKey]);
+
+  const wp = (item as SavedItem).watchProgress;
+  const actionLabel = resumeLabel(cardType, wp, formatTime) ?? "Oynat";
+  const isResumeAction = actionLabel !== "Oynat";
+  const playerState =
+    cardType === "tv" && canResumeProgress(wp) && wp.season && wp.episode
+      ? { title: name, season: wp.season, episode: wp.episode }
+      : { title: name };
+  const watchPct =
+    wp && wp.duration > 0
+      ? Math.min(99, (wp.position / wp.duration) * 100)
+      : 0;
 
   return (
     <div
@@ -308,6 +334,26 @@ const ItemCard = memo(function ItemCard({
           decoding="async"
         />
       </Link>
+      {watchPct > 0 && (
+        <div className="cc-progress-bar">
+          <div className="cc-progress-bar__fill" style={{ width: `${watchPct}%` }} />
+        </div>
+      )}
+
+      {/* mobil dokunmatik kontrol */}
+      <button
+        className="cc-item__trailer-cta"
+        type="button"
+        aria-label="Fragmanı izle"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          navigate(`/${cardType}/${item.id}/player`, { state: { title: name } });
+        }}
+      >
+        <Play size={15} fill="currentColor" />
+        <span>Fragman</span>
+      </button>
 
       {open && trailerKey && (
         <>
@@ -349,13 +395,19 @@ const ItemCard = memo(function ItemCard({
           <div className="cc-item__actions-row">
             <div className="cc-item__actions-left">
               <button
-                className="cc-item__action-btn play"
+                className={`cc-item__action-btn play${isResumeAction ? " is-resume" : ""}`}
                 type="button"
-                onClick={() => navigate(`/${cardType}/${item.id}`)}
-                aria-label="Oynat"
-                data-action-label="Oynat"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/${cardType}/${item.id}/player`, { state: playerState });
+                }}
+                aria-label={actionLabel}
+                data-action-label={actionLabel}
               >
                 <MotionIcon name="Play" size={18} trigger="click" animation="nudge" />
+                {isResumeAction && (
+                  <span className="cc-item__action-text">{actionLabel}</span>
+                )}
               </button>
               <MediaActionButtons item={item} type={cardType} />
             </div>

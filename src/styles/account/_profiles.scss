@@ -1,0 +1,389 @@
+@use "sass:color";
+@use "../base" as *;
+
+.acct-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 360px));
+    gap: var(--space-3);
+    align-items: start;
+}
+
+.acct-profile-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-height: 0;
+    max-width: 360px;
+    padding: 16px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.13);
+    color: #fff;
+    text-align: left;
+    align-items: stretch;
+
+    img {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    h3 {
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 900;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    p {
+        margin-top: 3px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.94rem;
+    }
+
+    > button {
+        width: 36px;
+        height: 36px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-1);
+        background: var(--bg-2);
+        color: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+    }
+}
+
+.acct-profile-card__head {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) 38px;
+    align-items: center;
+    gap: 14px;
+
+    img {
+        width: 76px;
+        height: 92px;
+        object-fit: cover;
+        outline: 1px solid rgba(255, 255, 255, 0.1);
+        outline-offset: -1px;
+    }
+
+    h3 {
+        margin: 0;
+        color: #fff;
+        font-size: 1.14rem;
+        font-weight: 950;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 0.96rem;
+        font-weight: 750;
+    }
+
+    > button {
+        width: 38px;
+        height: 38px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid var(--border-default);
+        background: var(--bg-2);
+        color: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+        transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+
+        &:hover {
+            border-color: rgba($brand, 0.68);
+            color: var(--accent);
+            background: rgba($brand, 0.1);
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+}
+
+.acct-settings-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    img {
+        width: 34px;
+        height: 38px;
+        object-fit: cover;
+        outline: 1px solid rgba(255, 255, 255, 0.1);
+        outline-offset: -1px;
+    }
+}
+
+.acct-profile-card--add {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: left;
+    border-style: dashed;
+    cursor: pointer;
+    max-width: 360px;
+    min-height: 172px;
+    padding: 18px;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+
+    .acct-profile-add__icon {
+        display: inline-grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: var(--radius-1);
+        color: #fff;
+        transition: border-color 0.16s ease, color 0.16s ease;
+    }
+
+    .acct-profile-add__text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+
+        strong {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        small {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 0.84rem;
+            font-weight: 750;
+            line-height: 1.3;
+        }
+    }
+
+    &:hover {
+        border-color: rgba($brand, 0.6);
+        background: rgba($brand, 0.06);
+
+        .acct-profile-add__icon {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    }
+}
+
+.acct-profile-card.acct-profile-card--add {
+    width: min(100%, 340px);
+    max-width: 340px;
+    min-height: 104px;
+    padding: 16px 18px;
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.acct-profile-photo-btn {
+    width: 100% !important;
+    min-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.94) !important;
+    font-size: 0.94rem !important;
+    font-weight: 900 !important;
+    transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+
+    &:hover {
+        border-color: rgba($brand, 0.76) !important;
+        background: rgba($brand, 0.14) !important;
+        color: #fff !important;
+    }
+}
+
+.acct-profile-controls {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.acct-control-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    > span {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+}
+
+.acct-control-line--stack {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+
+    > span {
+        text-align: left;
+    }
+}
+
+// kilit butonu
+.acct-toggle-btn {
+    min-width: 64px;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-1);
+    background: var(--bg-2);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.82rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+
+    &:hover {
+        border-color: var(--border-strong);
+    }
+
+    // acik durumda notr beyaz vurgu
+    &.is-on {
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+    }
+}
+
+.acct-segmented {
+    display: flex;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-1);
+    overflow: hidden;
+
+    button {
+        flex: 1;
+        min-height: 32px;
+        padding: 0 10px;
+        border: 0;
+        border-left: 1px solid var(--border-default);
+        background: var(--bg-2);
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.82rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: background-color 0.16s ease, color 0.16s ease;
+
+        &:first-child {
+            border-left: 0;
+        }
+
+        &:hover {
+            color: #fff;
+        }
+
+        // secili segment notr beyaz dolgu
+        &.is-active {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+        }
+    }
+}
+
+.acct-segmented--compact {
+    min-width: min(320px, 100%);
+}
+
+.acct-password-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding: 18px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    background: var(--bg-1);
+
+    h3 {
+        grid-column: 1 / -1;
+        color: #fff;
+        font-size: 1.06rem;
+        font-weight: 900;
+    }
+
+    label {
+        display: grid;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    label span {
+        color: rgba(255, 255, 255, 0.84);
+        font-size: var(--fs-sm);
+        font-weight: 900;
+    }
+
+    input {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-1);
+        background: var(--bg-2);
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.16s ease, background-color 0.16s ease;
+
+        &:focus {
+            border-color: var(--border-strong);
+            background: var(--bg-3);
+        }
+    }
+}
+
+.acct-password-form__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.acct-icon-text {
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-1);
+    background: var(--bg-2);
+    font-size: var(--fs-sm);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.acct-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-4);
+}
+
+.account-trigger__name {
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0 !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.72);
+}

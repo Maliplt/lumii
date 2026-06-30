@@ -1,0 +1,29 @@
+@use "sass:color";
+@use "../base" as *;
+
+@media (max-width: 480px) {
+    .play-game-page .pg-header {
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 12px 16px;
+    }
+
+    .play-game-page .pg-back-btn {
+        flex: 0 0 auto;
+        padding: 6px 10px !important;
+    }
+
+    .play-game-page .pg-score-card {
+        min-width: 0;
+        max-width: calc(100% - 132px);
+        padding: 6px 10px;
+        overflow: hidden;
+    }
+
+    .play-game-page .pg-score-card span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

@@ -1,0 +1,401 @@
+@use "sass:color";
+@use "../base" as *;
+
+.player-controls {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    opacity: 0;
+    transition: opacity 300ms var(--ease);
+    pointer-events: none;
+
+    &.visible {
+        opacity: 1;
+    }
+
+    &__top {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding: var(--space-5) var(--space-6);
+        pointer-events: none;
+        // ust scrim
+        background: transparent;
+
+        >* {
+            pointer-events: auto;
+        }
+    }
+
+    &__title {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: var(--fs-lg);
+        font-weight: 700;
+        color: var(--text-primary);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        @include truncate;
+    }
+
+    &__subtitle {
+        font-size: var(--fs-sm);
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.7);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    &__bottom {
+        padding: var(--space-6) var(--space-6) var(--space-6);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        pointer-events: none;
+        // alt scrim
+        background: transparent;
+
+        >* {
+            pointer-events: auto;
+        }
+    }
+
+    &__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__left,
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+}
+
+.player-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    border-radius: 50%;
+    flex-shrink: 0;
+    @include smooth(background, color);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    &--back {
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(8px);
+        color: #fff;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    &--play {
+        width: 52px;
+        height: 52px;
+        background: var(--accent);
+        color: #fff;
+
+        &:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+    }
+}
+
+.player-quality-badge {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+    padding: 3px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.player-upgrade-btn {
+    padding: 4px 14px;
+    border-radius: 4px;
+    border: none;
+    background: var(--accent, #14b8a6);
+    color: #fff;
+    font-size: var(--fs-xs, 0.78rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.1s ease;
+
+    &:hover {
+        background: var(--accent-hover, #0d9488);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.player-settings-wrap {
+    position: relative;
+    z-index: 30;
+}
+
+.player-settings-menu {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0;
+    z-index: 40;
+    background: rgba($surface-1, 0.96);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    padding: var(--space-2);
+    min-width: 210px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+
+    &__label {
+        font-size: var(--fs-xs);
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: var(--space-1) var(--space-2) var(--space-2);
+        margin: 0;
+    }
+
+    &__item {
+        display: block;
+        width: 100%;
+        padding: var(--space-2) var(--space-3);
+        text-align: left;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: var(--fs-sm);
+        border-radius: var(--radius-1);
+        cursor: pointer;
+        @include smooth(background, color);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        &.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        &:disabled {
+            cursor: default;
+            color: rgba(255, 255, 255, 0.62);
+        }
+    }
+}
+
+.player-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.player-progress-track {
+    position: relative;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+
+    &:hover {
+        height: 6px;
+
+        .player-progress-played {
+            background: var(--accent-hover);
+        }
+    }
+
+    @include smooth(height);
+}
+
+.player-progress-buffered {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+    @include smooth(width, 200ms);
+}
+
+.player-progress-played {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+}
+
+.player-progress-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft), 0 1px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 2;
+    @include smooth(transform, var(--dur-fast));
+}
+
+.player-progress-track:hover .player-progress-thumb {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.player-progress-input {
+    position: absolute;
+    inset: -8px 0;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    margin: 0;
+}
+
+.player-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-xs);
+    color: rgba(255, 255, 255, 0.65);
+    font-variant-numeric: tabular-nums;
+    padding: 0 2px;
+}
+
+.player-live-rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.player-live-rail__track {
+    position: relative;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.16);
+    overflow: hidden;
+}
+
+.player-live-rail__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--danger);
+}
+
+.player-live-rail__edge {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 5px rgba($danger, 0.28);
+    transform: translate(50%, -50%);
+}
+
+.player-live-rail__meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.72);
+    letter-spacing: 0.05em;
+}
+
+// ses kontrol
+.player-volume {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.player-volume-bar-wrap {
+    position: relative;
+    width: 80px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover {
+        height: 6px;
+
+        .player-volume-bar-fill {
+            background: var(--accent-hover);
+        }
+    }
+
+    @include smooth(height);
+}
+
+.player-volume-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+}
+
+.player-volume-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.player-volume-input {
+    position: absolute;
+    inset: -8px 0;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    margin: 0;
+}
+
+.player-volume-pct {
+    font-size: var(--fs-xs);
+    color: rgba(255, 255, 255, 0.6);
+    min-width: 30px;
+    font-variant-numeric: tabular-nums;
+}

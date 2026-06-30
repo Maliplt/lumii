@@ -4,7 +4,7 @@ import { User, Mail, MessageSquare, Send, CheckCircle } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Input, Button } from "rsuite";
-import Logo from "./Logo";
+import Logo from "./header/Logo";
 import { useToast } from "./Toast";
 
 const SOCIALS = [

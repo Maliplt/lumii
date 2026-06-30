@@ -1,0 +1,208 @@
+@use "sass:color";
+@use "../base" as *;
+
+@keyframes livePulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+// tiklama katmani
+.player-click-zone {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    cursor: pointer;
+}
+
+// orta ikon
+.player-center-action {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 6;
+    pointer-events: none;
+    animation: playerCenterPop 600ms var(--ease) forwards;
+}
+
+@keyframes playerCenterPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+    }
+
+    28% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.3);
+    }
+}
+
+// canli rozeti
+.player-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: none;
+    border-radius: var(--radius-1);
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    @include smooth(background-color opacity);
+
+    .player-live-dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    &:hover {
+        opacity: 0.88;
+    }
+
+    &.is-behind {
+        background: rgba(0, 0, 0, 0.62);
+        letter-spacing: 0.02em;
+
+        .player-live-dot {
+            background: rgba(255, 255, 255, 0.7);
+            animation: none;
+        }
+    }
+}
+
+// yukleme animasyonu
+.player-loading__logo {
+    width: clamp(120px, 22%, 200px);
+    height: auto;
+    pointer-events: none;
+    animation: playerLogoPulse 1.25s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .player-loading__logo {
+        width: clamp(76px, 34%, 120px);
+    }
+}
+
+@keyframes playerLogoPulse {
+
+    0%,
+    100% {
+        transform: scale(0.9);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+.player-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+// player mobil
+@media (max-width: 768px) {
+    .player-controls__top {
+        padding: var(--space-4);
+    }
+
+    .player-controls__bottom {
+        padding: 0 var(--space-4) var(--space-4);
+        gap: var(--space-2);
+    }
+
+    .player-controls__title {
+        font-size: var(--fs-base);
+    }
+
+    .player-controls__left,
+    .player-controls__right {
+        gap: 2px;
+    }
+
+    .player-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .player-btn--play {
+        width: 46px;
+        height: 46px;
+    }
+
+    // mobilde cihaz sesi
+    .player-volume-bar-wrap,
+    .player-volume-pct,
+    .player-quality-badge {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-controls__top {
+        padding: var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .player-controls__bottom {
+        padding: 0 var(--space-3) var(--space-3);
+    }
+
+    .player-btn {
+        width: 34px;
+        height: 34px;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .player-btn--play {
+        width: 44px;
+        height: 44px;
+    }
+
+    .player-time {
+        font-size: 10px;
+    }
+
+    .player-center-action {
+        width: 72px;
+        height: 72px;
+    }
+
+    .player-settings-menu {
+        min-width: 170px;
+    }
+}

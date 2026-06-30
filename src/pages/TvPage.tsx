@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import PageLayout from "../components/PageLayout";
-import MediaPlayer from "../components/MediaPlayer";
+import MediaPlayer from "../components/player/MediaPlayer";
 import { useTitle } from "../helpers";
 
 interface Channel {
@@ -13,14 +13,14 @@ interface Channel {
   url: string;
 }
 
-// yalnizca ercdn.net akislari (iptv-org index.m3u) + bir adet beIN
+// yayin akisi listesi
 const CHANNELS: Channel[] = [
   {
     id: "atv",
     name: "ATV",
     short: "atv",
     category: "Genel",
-    logo: "https://i.imgur.com/HyVUwFC.png",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Atv_logo_2010.svg",
     url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_1080p.m3u8",
   },
   {
@@ -44,7 +44,7 @@ const CHANNELS: Channel[] = [
     name: "A Spor",
     short: "AS",
     category: "Spor",
-    logo: "https://i.imgur.com/ZhkZzLf.png",
+    logo: "https://upload.wikimedia.org/wikipedia/tr/e/e9/A_Spor_logosu.png",
     url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8",
   },
   {
@@ -52,7 +52,7 @@ const CHANNELS: Channel[] = [
     name: "NOW TV",
     short: "NOW",
     category: "Eğlence",
-    logo: "https://i.imgur.com/5EYjWK7.png",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/NOW_TV_(Turkey)_wordmark-red.svg",
     url: "https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8",
   },
   {
@@ -60,7 +60,7 @@ const CHANNELS: Channel[] = [
     name: "360 TV",
     short: "360",
     category: "Haber",
-    logo: "https://i.imgur.com/agn47sQ.png",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/360_TV_Logo.jpg",
     url: "https://turkmedya-live.ercdn.net/tv360/tv360.m3u8",
   },
   {
@@ -68,7 +68,7 @@ const CHANNELS: Channel[] = [
     name: "TV4",
     short: "TV4",
     category: "Genel",
-    logo: "https://i.imgur.com/UpsQsbd.png",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/TV4_logo.png",
     url: "https://turkmedya-live.ercdn.net/tv4/tv4.m3u8",
   },
   {
@@ -100,7 +100,7 @@ const CHANNELS: Channel[] = [
     name: "Akit TV",
     short: "AKT",
     category: "Haber",
-    logo: "https://i.imgur.com/oGto929.png",
+    logo: "https://upload.wikimedia.org/wikipedia/tr/c/cf/Akit_TV.png",
     url: "https://akittv-live.ercdn.net/akittv/akittv.m3u8",
   },
   {
@@ -108,7 +108,7 @@ const CHANNELS: Channel[] = [
     name: "Minika Go",
     short: "MG",
     category: "Çocuk",
-    logo: "https://i.imgur.com/qIoipDq.png",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/MinikaGO.png",
     url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago/minikago.m3u8",
   },
   {
@@ -116,7 +116,7 @@ const CHANNELS: Channel[] = [
     name: "Minika Çocuk",
     short: "MÇ",
     category: "Çocuk",
-    logo: "https://i.imgur.com/VCywMTv.png",
+    logo: "https://i.tmgrup.com.tr/mnka/cocuk/site/v1/i/minika-cocuk-logo.png",
     url: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago_cocuk/minikago_cocuk.m3u8",
   },
   {
@@ -132,7 +132,7 @@ const CHANNELS: Channel[] = [
     name: "BabyTV",
     short: "BABY",
     category: "Çocuk",
-    logo: "https://i.imgur.com/4BDJ5FT.png",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/2/21/LogoBabyTV-2021-MAIN_logo.png",
     url: "https://saran-live.ercdn.net/babytv/index.m3u8",
   },
   {
@@ -172,16 +172,30 @@ export default function TvPage() {
   const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
   const [query, setQuery] = useState("");
 
-  // sabit kanal numarasi (1..N) + arama filtresi
-  const filtered = useMemo(() => {
+  const groups = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    return CHANNELS.map((channel, index) => ({ channel, no: index + 1 })).filter(
+    const matches = CHANNELS.map((channel, index) => ({
+      channel,
+      no: index + 1,
+    })).filter(
       ({ channel }) =>
         !q ||
         channel.name.toLocaleLowerCase("tr").includes(q) ||
         channel.category.toLocaleLowerCase("tr").includes(q),
     );
+    const out: { category: string; items: typeof matches }[] = [];
+    for (const entry of matches) {
+      let group = out.find((g) => g.category === entry.channel.category);
+      if (!group) {
+        group = { category: entry.channel.category, items: [] };
+        out.push(group);
+      }
+      group.items.push(entry);
+    }
+    return out;
   }, [query]);
+
+  const hasResults = groups.length > 0;
 
   return (
     <PageLayout className="tv-page" mainClassName="tv-main">
@@ -211,25 +225,31 @@ export default function TvPage() {
           </div>
 
           <div className="tv-channel-list">
-            {filtered.map(({ channel, no }) => (
-              <button
-                key={channel.id}
-                className={`tv-channel-item${selected.id === channel.id ? " active" : ""}`}
-                onClick={() => setSelected(channel)}
-              >
-                <span className="tv-channel-item__no">{no}</span>
-                <ChannelLogo channel={channel} />
-                <span className="tv-channel-item__texts">
-                  <span className="tv-channel-item__name">{channel.name}</span>
-                  <span className="tv-channel-item__cat">{channel.category}</span>
-                </span>
-                <span className="tv-channel-item__live">
-                  <span className="tv-channel-item__live-dot" />
-                  CANLI
-                </span>
-              </button>
+            {groups.map((group) => (
+              <div key={group.category} className="tv-channel-group">
+                <h3 className="tv-channel-group__title">{group.category}</h3>
+                {group.items.map(({ channel, no }) => (
+                  <button
+                    key={channel.id}
+                    className={`tv-channel-item${selected.id === channel.id ? " active" : ""}`}
+                    onClick={() => setSelected(channel)}
+                  >
+                    <span className="tv-channel-item__no">{no}</span>
+                    <ChannelLogo channel={channel} />
+                    <span className="tv-channel-item__texts">
+                      <span className="tv-channel-item__name">
+                        {channel.name}
+                      </span>
+                    </span>
+                    <span className="tv-channel-item__live">
+                      <span className="tv-channel-item__live-dot" />
+                      CANLI
+                    </span>
+                  </button>
+                ))}
+              </div>
             ))}
-            {!filtered.length && (
+            {!hasResults && (
               <p className="tv-channel-empty">"{query}" için kanal bulunamadı.</p>
             )}
           </div>

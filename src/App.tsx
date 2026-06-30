@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Spinner from "./components/Spinner";
 import RootLayout from "./components/RootLayout";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExplorePage = lazy(() => import("./pages/ExplorePage"));
@@ -18,6 +19,7 @@ const PlayerPage = lazy(() => import("./pages/PlayerPage"));
 const TvPage = lazy(() => import("./pages/TvPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -29,10 +31,10 @@ function ScrollToTop() {
   return null;
 }
 
-function App() {
+function AppRoutes() {
+  const { pathname } = useLocation();
   return (
-    <BrowserRouter>
-      <ScrollToTop />
+    <ErrorBoundary resetKey={pathname}>
       <Suspense fallback={<Spinner />}>
         <Routes>
           <Route element={<RootLayout />}>
@@ -47,7 +49,7 @@ function App() {
             <Route path="/checkout/:planId" element={<CheckoutPage />} />
             <Route path="/work-in-progress" element={<WorkInProgressPage />} />
             <Route path="/:type/:id" element={<OverviewPage />} />
-            <Route path="*" element={<WorkInProgressPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
@@ -57,6 +59,15 @@ function App() {
           <Route path="/:type/:id/player" element={<PlayerPage />} />
         </Routes>
       </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <ScrollToTop />
+      <AppRoutes />
     </BrowserRouter>
   );
 }

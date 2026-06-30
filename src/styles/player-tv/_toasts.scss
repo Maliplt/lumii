@@ -1,0 +1,137 @@
+@use "sass:color";
+@use "../base" as *;
+
+.rs-toast-container {
+    top: calc(72px + var(--space-3)) !important;
+    z-index: var(--z-spinner) !important;
+}
+
+.rs-toast {
+    filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.65));
+    margin-bottom: var(--space-3) !important;
+}
+
+.rs-message {
+    --rs-message-success-bg: #{$surface-1} !important;
+    --rs-message-success-icon: #{$brand} !important;
+    --rs-message-success-text: #ffffff !important;
+    --rs-message-success-border: #{$brand} !important;
+    --rs-message-info-bg: #{$surface-1} !important;
+    --rs-message-info-icon: #{$brand} !important;
+    --rs-message-info-text: #ffffff !important;
+    --rs-message-info-border: #{$brand} !important;
+    --rs-message-warning-bg: #{$surface-1} !important;
+    --rs-message-warning-icon: #{$brand} !important;
+    --rs-message-warning-text: #ffffff !important;
+    --rs-message-warning-border: #{$brand} !important;
+    --rs-message-error-bg: #{$surface-1} !important;
+    --rs-message-error-icon: #{$brand} !important;
+    --rs-message-error-text: #ffffff !important;
+    --rs-message-error-border: #{$brand} !important;
+
+    border-radius: var(--radius-0) !important;
+    border: none !important;
+    border-left: 4px solid $brand !important;
+    background: $surface-1 !important;
+    background-color: $surface-1 !important;
+    color: #ffffff !important;
+    font-family: var(--font-body) !important;
+    min-width: 340px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+
+    // ic container
+    .rs-message-container {
+        background: transparent !important;
+        background-color: transparent !important;
+        padding: var(--space-4) var(--space-5) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: var(--space-3) !important;
+    }
+
+    // ikon alani
+    .rs-message-icon-wrapper {
+        align-self: center !important;
+        flex-shrink: 0 !important;
+
+        .rs-icon {
+            color: $brand !important;
+            font-size: 20px !important;
+            width: 20px !important;
+            height: 20px !important;
+            fill: $brand !important;
+        }
+
+        svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+    }
+
+    // metin
+    .rs-message-content {
+        color: #ffffff !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 600 !important;
+        font-family: var(--font-body) !important;
+        letter-spacing: 0.01em !important;
+        line-height: 1.4 !important;
+        flex: 1 !important;
+    }
+
+    // metin alani
+    .rs-message-body {
+        color: #ffffff !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 600 !important;
+        font-family: var(--font-body) !important;
+    }
+
+    // kapatma butonu
+    .rs-message-btn-close,
+    .rs-btn-close {
+        color: rgba(255, 255, 255, 0.4) !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        @include smooth(color, var(--dur-fast));
+
+        &:hover {
+            color: #ffffff !important;
+            background: transparent !important;
+        }
+    }
+
+    &.rs-message-success,
+    &.rs-message-info,
+    &.rs-message-warning,
+    &.rs-message-error {
+        background: $surface-1 !important;
+        background-color: $surface-1 !important;
+        border-left-color: $brand !important;
+
+        .rs-message-icon-wrapper .rs-icon,
+        .rs-message-icon-wrapper svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+
+        .rs-message-container {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .rs-message-content,
+        .rs-message-body {
+            color: #ffffff !important;
+        }
+    }
+
+    // ust alan
+    .rs-message-header {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: var(--fs-lg) !important;
+        font-family: var(--font-display) !important;
+    }
+}

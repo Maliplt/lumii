@@ -1,0 +1,43 @@
+@use "sass:color";
+@use "base" as *;
+
+// metin sarma
+h1, h2, h3,
+.hero-info__title,
+.cc-header__title,
+.state-view__title,
+.search-head__title,
+.legal-title,
+.acct-topbar h1,
+.acct-section h2,
+.acct-row__copy h3 {
+    text-wrap: balance;
+}
+
+p, li, figcaption, blockquote,
+.hero-overview,
+.state-view__desc,
+.cc-item__name,
+.search-head__query,
+.legal-content p,
+.acct-section__intro,
+.acct-row__copy p,
+.acct-summary p {
+    text-wrap: pretty;
+}
+
+// sayisal hizalama
+.hero-rating,
+.cc-item__rating,
+.cc-item__poster-rating,
+.package-price,
+.checkout-plan__price {
+    font-variant-numeric: tabular-nums;
+}
+
+// gorsel kenarlari
+.cc-item__poster,
+.media-card__poster img {
+    outline: 1px solid rgba(255, 255, 255, 0.1);
+    outline-offset: -1px;
+}

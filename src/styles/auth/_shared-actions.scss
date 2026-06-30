@@ -1,0 +1,91 @@
+@use "sass:color";
+@use "../base" as *;
+
+// izleme listesi ve begeni aktif
+.cc-item__action-btn.outline.active {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+
+    &:hover {
+        background: #f1f1f1;
+        border-color: #f1f1f1;
+        color: #000000;
+    }
+}
+
+// hesap avatar
+.account-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-2);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.account-trigger {
+    display: inline-flex !important;
+    flex-shrink: 0 !important;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 6px 0 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    max-width: 200px;
+    transition: background-color 0.2s var(--ease);
+
+    &__name {
+        color: rgba(255, 255, 255, 0.94);
+        font-family: var(--font-header);
+        font-weight: 800;
+        font-size: 13.5px;
+        text-transform: capitalize;
+        @include truncate;
+        transition: color 0.2s var(--ease);
+    }
+
+    &__caret {
+        color: rgba(255, 255, 255, 0.4);
+        flex-shrink: 0;
+        transition: transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        transform: translateY(0.5px);
+    }
+
+    &:hover {
+        .account-avatar {
+            border-color: rgba(255, 255, 255, 0.42);
+        }
+        .account-trigger__name {
+            color: #ffffff;
+        }
+    }
+
+    &[aria-expanded='true'] {
+        .account-trigger__name {
+            color: #ffffff;
+        }
+
+        .account-trigger__caret {
+            color: #ffffff;
+            transform: translateY(0.5px) rotate(180deg);
+        }
+    }
+}

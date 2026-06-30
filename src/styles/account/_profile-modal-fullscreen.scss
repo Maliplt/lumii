@@ -1,0 +1,67 @@
+@use "sass:color";
+@use "../base" as *;
+
+// tam ekran modal
+.profile-edit-modal--full .rs-modal-content {
+    max-height: calc(100vh - 32px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-edit-modal--full .rs-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1;
+    padding-top: 14px !important;
+    padding-bottom: 0 !important;
+    max-height: none !important;
+}
+
+.profile-edit-modal--full .rs-modal-footer {
+    position: static !important;
+    padding-top: 18px !important;
+    flex-shrink: 0;
+    background: rgba(10, 10, 12, 0.98);
+}
+
+.profile-edit-modal--full .profile-modal__head {
+    top: 8px;
+    right: 22px;
+}
+
+.profile-edit-modal--full .profile-edit__avatars .avatar-modal__list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+}
+
+.profile-edit-modal--full .profile-edit__avatars .avatar-modal__group > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+// mobil modal stili
+@media (max-width: 600px) {
+    .rs-modal-wrapper:has(.profile-modal) {
+        place-items: center !important;
+        padding: 12px !important;
+        overflow: hidden !important;
+    }
+
+    .rs-modal-wrapper .profile-modal.rs-modal {
+        width: auto !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .rs-modal-wrapper .profile-modal .rs-modal-dialog {
+        width: min(440px, calc(100vw - 24px)) !important;
+        max-width: 100% !important;
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+
+    .profile-modal .rs-modal-content {
+        max-height: none;
+    }
+}

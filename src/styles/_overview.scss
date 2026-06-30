@@ -1,0 +1,97 @@
+@use "sass:color";
+@use "base" as *;
+
+// icerik detay sayfasi
+.overview-content {
+    position: relative;
+    z-index: 2;
+    margin-top: -160px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+
+    > *:first-child {
+        margin-top: 0;
+    }
+}
+
+
+// bolum listesi
+.episodes-block {
+    padding: clamp(18px, 3vw, 36px) var(--space-6) var(--space-8);
+    margin-top: -86px;
+    position: relative;
+    z-index: 4;
+    background: var(--bg-0);
+    border: 0;
+}
+
+.episodes-panel {
+    margin-top: 0;
+}
+
+.season-pills {
+    margin-bottom: 16px;
+}
+
+.season-pill {
+    min-width: 48px;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: var(--radius-1);
+}
+
+.episodes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.ep-card {
+    border-radius: var(--radius-1);
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+}
+
+.ep-card:hover {
+    transform: none;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+.ep-card__thumb::after {
+    display: none;
+}
+
+.ep-card__thumb img {
+    transform: none !important;
+}
+
+.ep-card__index {
+    left: 10px;
+    top: 10px;
+    bottom: auto;
+    padding: 5px 8px;
+    border-radius: var(--radius-1);
+    background: rgba(0, 0, 0, 0.56);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 950;
+    line-height: 1;
+    color: #fff !important;
+    text-shadow: none;
+}
+
+.ep-card__play {
+    right: 10px;
+    bottom: 10px;
+    top: auto;
+    left: auto;
+    width: 36px;
+    height: 36px;
+    opacity: 1;
+    transform: none;
+    border-radius: var(--radius-1);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: none;
+}

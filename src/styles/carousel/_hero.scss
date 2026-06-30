@@ -1,0 +1,182 @@
+@use "sass:color";
+@use "../base" as *;
+
+// hero karuseli
+.hero-carousel-inner {
+    height: 95vh !important;
+    height: 95dvh !important;
+    overflow: hidden;
+}
+
+.hero-carousel-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 520ms var(--ease-out);
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.hero-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    // katman
+    z-index: 1;
+
+    // hero oklar
+    .hero-nav-btn {
+        position: absolute;
+        top: 42%;
+        transform: translateY(-50%);
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        color: rgba(255, 255, 255, 0.62) !important;
+        width: 40px !important;
+        height: 64px !important;
+        border-radius: var(--radius-2) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer;
+        z-index: 15;
+        opacity: 0;
+        box-shadow: none;
+        transition: opacity 0.25s var(--ease), background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease);
+
+        // hover zemini
+        &:hover {
+            background: rgba(18, 18, 18, 0.82) !important;
+            border-color: rgba(255, 255, 255, 0.22) !important;
+            color: #ffffff !important;
+            transform: translateY(-50%) scale(1.06) !important;
+        }
+
+        &:active {
+            transform: translateY(-50%) scale(0.95) !important;
+        }
+
+        &.prev {
+            left: 16px;
+        }
+
+        &.next {
+            right: 16px;
+        }
+    }
+
+    &:hover .hero-nav-btn {
+        opacity: 1;
+    }
+
+    // poster alt baglantisi
+    .hero-bottom-fade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 18%;
+        // poster altinda tek renk karartma
+        background: transparent;
+        pointer-events: none;
+        z-index: 5;
+    }
+}
+
+.hero-slide {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+
+    .hero-slide__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 20%;
+        filter: brightness(1.08);
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        will-change: transform, opacity;
+    }
+
+    .hero-trailer {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: #000000;
+        transition: opacity 0.45s ease;
+
+        &.is-ready {
+            opacity: 1;
+        }
+
+        iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.16);
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16 / 9;
+            min-width: 116%;
+            min-height: 116%;
+            border: 0;
+            pointer-events: none;
+        }
+    }
+
+    // poster
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+    }
+
+    .hero-info {
+        position: absolute;
+        bottom: 200px;
+        left: 40px;
+        color: #fff;
+        max-width: 600px;
+        z-index: 12;
+
+        .hero-info__title {
+            font-family: var(--font-hero);
+            font-size: clamp(40px, 6vw, 84px);
+            font-weight: 400;
+            line-height: 0.94;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+            margin: 0;
+            // okunurluk golgesi
+            text-shadow: 0 3px 22px rgba(0, 0, 0, 0.7), 0 1px 4px rgba(0, 0, 0, 0.55);
+        }
+
+        .hero-meta {
+            margin: 8px 0 4px;
+            opacity: 0.8;
+            font-size: var(--fs-sm);
+            color: rgba(255, 255, 255, 0.92);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero-overview {
+            margin: 8px 0 16px;
+            opacity: 0.9;
+            font-size: var(--fs-md);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.92);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: calc(1.5em * 3);
+        }
+    }
+}

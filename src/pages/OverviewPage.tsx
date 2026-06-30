@@ -6,8 +6,15 @@ import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
-import { tmdbApi, getImageUrl, formatRuntime } from "../services/tmdb";
-import { useFetch, useTitle } from "../helpers";
+import NotFoundPage from "./NotFoundPage";
+import { tmdbApi, getImageUrl, formatRuntime, pickTrailer } from "../services/tmdb";
+import { useFetch, useTitle, formatTime, settleList } from "../helpers";
+import {
+  useAppSelector,
+  selectLibrary,
+  resumeLabel,
+  canResumeProgress,
+} from "../store/store";
 import type {
   MovieDetail,
   TVShowDetail,
@@ -27,6 +34,7 @@ function formatDate(dateStr: string): string {
 export default function OverviewPage() {
   const { type, id } = useParams<{ type: "movie" | "tv"; id: string }>();
   if (!type || !id) return null;
+  if (type !== "movie" && type !== "tv") return <NotFoundPage />;
   return <OverviewContent key={`${type}-${id}`} type={type} id={id} />;
 }
 
@@ -38,7 +46,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
 
   const { data, loading, error } = useFetch(() =>
     Number.isFinite(numId)
-      ? Promise.all([
+      ? settleList([
           isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
           isMovie
             ? tmdbApi.getSimilarMovies(numId)
@@ -48,7 +56,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   );
 
   const detail = data?.[0] ?? null;
-  const similar = (data?.[1].results.filter((item) => item.poster_path) ??
+  const similar = (data?.[1]?.results.filter((item) => item.poster_path) ??
     []) as Movie[] | TVShow[];
   const season = useFetch(
     () =>
@@ -62,6 +70,17 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
   const movieDetail = detail as MovieDetail;
   const title = isMovie ? movieDetail?.title : tvDetail?.name;
   useTitle(title ?? "");
+
+  const library = useAppSelector(selectLibrary);
+  const savedItem = library.continueWatching.find(
+    (x) => x.id === numId && x.media_type === type,
+  );
+  const wp = savedItem?.watchProgress;
+  const ctaLabel = resumeLabel(type, wp, formatTime) ?? undefined;
+  const ctaNavState =
+    canResumeProgress(wp) && !isMovie && wp.season && wp.episode
+      ? { season: wp.season, episode: wp.episode }
+      : undefined;
 
   const runtimeMin = isMovie
     ? (movieDetail?.runtime ?? 0)
@@ -88,6 +107,7 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
         : [],
     [detail],
   );
+  const heroTrailerKey = pickTrailer(detail?.videos?.results ?? []);
 
   return (
     <PageLayout
@@ -108,10 +128,13 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
           <HeroCarousel
             movies={heroItems}
             inlineTrailer
+            inlineTrailerKey={heroTrailerKey}
             hideMoreInfo
             meta={heroMeta}
             director={director}
             directorLabel={isMovie ? "Yönetmen" : "Yapımcı"}
+            ctaLabel={ctaLabel}
+            ctaNavState={ctaNavState}
           />
 
           <div className="overview-content">
@@ -148,7 +171,11 @@ function OverviewContent({ type, id }: { type: "movie" | "tv"; id: string }) {
                           className="ep-card"
                           onClick={() =>
                             navigate(`/${type}/${id}/player`, {
-                              state: { title },
+                              state: {
+                                title,
+                                season: selectedSeason,
+                                episode: episode.episode_number,
+                              },
                             })
                           }
                         >

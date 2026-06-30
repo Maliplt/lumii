@@ -1,39 +1,33 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Toggle } from "rsuite";
-import {
-  Bookmark,
-  Check,
-  CreditCard,
-  Crown,
-  History,
-  Laptop,
-  Mail,
-  Pencil,
-  Plus,
-  Receipt,
-  Settings,
-  ShieldCheck,
-  Smartphone,
-  ThumbsUp,
-  UserRound,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { Receipt } from "lucide-react";
 import PageLayout from "../components/PageLayout";
-import EmailChangeModal from "../components/EmailChangeModal";
-import MediaCard from "../components/MediaCard";
-import PaymentMethodModal from "../components/PaymentMethodModal";
-import ProfileEditorModal from "../components/ProfileEditorModal";
-import ProfileLockModal from "../components/ProfileLockModal";
-import StateView from "../components/StateView";
+import EmailChangeModal from "../components/modals/EmailChangeModal";
+import PaymentMethodModal from "../components/modals/PaymentMethodModal";
+import ProfileEditorModal from "../components/modals/ProfileEditorModal";
+import ProfileLockModal from "../components/modals/ProfileLockModal";
 import { useToast, toastText } from "../components/Toast";
 import {
-  AVATARS,
-  DEFAULT_AVATAR,
-  PACKAGES,
-  useTitle,
-} from "../helpers";
+  ACCOUNT_NAV,
+  LIBRARY_NAV,
+  PLAN_FALLBACK,
+  formatPlan,
+  avatarFor,
+  type SectionKey,
+  type NavItem,
+  type EditorState,
+  type PasswordForm,
+} from "../components/account/accountData";
+import {
+  OverviewTab,
+  ProfilesTab,
+  MembershipTab,
+  SecurityTab,
+  BillingTab,
+  SettingsTab,
+  LibraryTab,
+} from "../components/account/AccountTabs";
+import { PACKAGES, useTitle } from "../helpers";
 import {
   addProfile,
   changePassword,
@@ -45,116 +39,8 @@ import {
   updateProfile,
   useAppDispatch,
   useAppSelector,
-  MAX_PROFILES,
   type Profile,
-  type SavedItem,
 } from "../store/store";
-
-type SectionKey =
-  | "overview"
-  | "profiles"
-  | "membership"
-  | "security"
-  | "billing"
-  | "settings"
-  | "watchlist"
-  | "liked"
-  | "history";
-
-interface NavItem {
-  key: SectionKey;
-  label: string;
-  helper: string;
-  icon: LucideIcon;
-}
-
-interface EditorState {
-  mode: "create" | "edit";
-  profile?: Profile;
-}
-
-interface PasswordForm {
-  current: string;
-  next: string;
-  confirm: string;
-}
-
-const ACCOUNT_NAV: NavItem[] = [
-  { key: "overview", label: "Hesap", helper: "Genel durum", icon: UserRound },
-  { key: "profiles", label: "Profiller", helper: "Kullanıcı profilleri", icon: Users },
-  { key: "membership", label: "Üyelik", helper: "Abonelik", icon: Crown },
-  { key: "security", label: "Güvenlik", helper: "Giriş ve cihazlar", icon: ShieldCheck },
-  { key: "billing", label: "Ödeme", helper: "Fatura ve kart", icon: CreditCard },
-  { key: "settings", label: "Ayarlar", helper: "Aktif profil", icon: Settings },
-];
-
-const LIBRARY_NAV: NavItem[] = [
-  { key: "watchlist", label: "Kaydedilenler", helper: "Kaydedilenler", icon: Bookmark },
-  { key: "liked", label: "Beğenilenler", helper: "Seçilen içerikler", icon: ThumbsUp },
-  { key: "history", label: "Geçmiş", helper: "Son izlenenler", icon: History },
-];
-
-const PLAN_FALLBACK = PACKAGES.find((pkg) => pkg.id === "free") ?? PACKAGES[0];
-
-function SectionIntro({ children }: { children: ReactNode }) {
-  if (!children) return null;
-  return <p className="acct-section__intro">{children}</p>;
-}
-
-function SummaryBlock({ children }: { children: ReactNode }) {
-  return <div className="acct-summary">{children}</div>;
-}
-
-function SummaryRow({
-  label,
-  value,
-  action,
-  children,
-}: {
-  label: string;
-  value: ReactNode;
-  action?: ReactNode;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="acct-row">
-      <div className="acct-row__copy">
-        <span>{label}</span>
-        <strong>{value}</strong>
-        {children}
-      </div>
-      {action && <div className="acct-row__action">{action}</div>}
-    </div>
-  );
-}
-
-function MediaGrid({ items, empty }: { items: SavedItem[]; empty: string }) {
-  if (!items.length) {
-    return (
-      <StateView
-        title={empty}
-        description="İçerik eklediğinde burada düzenli bir liste olarak görünür."
-      />
-    );
-  }
-
-  return (
-    <div className="acct-media-grid">
-      {items.map((item) => (
-        <MediaCard key={`${item.media_type}-${item.id}`} item={item} type={item.media_type} />
-      ))}
-    </div>
-  );
-}
-
-function formatPlan(plan: (typeof PACKAGES)[number]) {
-  if (plan.free || plan.price === "₺0") return plan.name;
-  return `${plan.name} ${plan.price}${plan.period}`;
-}
-
-function avatarFor(profile?: Profile | null) {
-  return AVATARS[profile?.avatar ?? DEFAULT_AVATAR] ?? AVATARS[DEFAULT_AVATAR];
-}
 
 export default function AccountPage() {
   useTitle("Hesap");
@@ -188,7 +74,9 @@ export default function AccountPage() {
   );
 
   const navMeta = useMemo(
-    () => [...ACCOUNT_NAV, ...LIBRARY_NAV].find((item) => item.key === active) ?? ACCOUNT_NAV[0],
+    () =>
+      [...ACCOUNT_NAV, ...LIBRARY_NAV].find((item) => item.key === active) ??
+      ACCOUNT_NAV[0],
     [active],
   );
 
@@ -240,17 +128,17 @@ export default function AccountPage() {
       toast("Tüm şifre alanlarını doldurmalısın.", "warning");
       return;
     }
-
     if (account?.password !== current) {
       toast("Mevcut şifre hatalı.", "error");
       return;
     }
-
     if (next.length < 8 || next === current) {
-      toast("Yeni şifre en az 8 karakter olmalı ve eskisinden farklı olmalı.", "warning");
+      toast(
+        "Yeni şifre en az 8 karakter olmalı ve eskisinden farklı olmalı.",
+        "warning",
+      );
       return;
     }
-
     if (next !== confirm) {
       toast("Yeni şifreler eşleşmiyor.", "warning");
       return;
@@ -263,12 +151,10 @@ export default function AccountPage() {
 
   const NavButton = ({ item }: { item: NavItem }) => {
     const Icon = item.icon;
-    const selected = active === item.key;
-
     return (
       <button
         type="button"
-        className={`acct-nav__item${selected ? " is-active" : ""}`}
+        className={`acct-nav__item${active === item.key ? " is-active" : ""}`}
         onClick={() => setActive(item.key)}
       >
         <Icon size={18} />
@@ -280,394 +166,107 @@ export default function AccountPage() {
     );
   };
 
-  const renderProfileSettings = (profile: Profile) => (
-    <SummaryBlock>
-      <SummaryRow
-        label="Aktif profil"
-        value={
-          <span className="acct-settings-profile">
-            <img src={avatarFor(profile)} alt="" />
-            {profile.name}
-          </span>
-        }
-      />
-      <SummaryRow
-        label="Otomatik oynatma"
-        value="Sonraki bölüm ve önizlemeler kendiliğinden başlasın"
-        action={
-          <Toggle
-            checked={(profile.playback ?? "auto") === "auto"}
-            className="profile-rsuite-toggle"
-            aria-label="Otomatik oynatma"
-            onChange={(checked) =>
+  const renderActiveTab = () => {
+    switch (active) {
+      case "overview":
+        return (
+          <OverviewTab
+            user={user}
+            plan={plan}
+            shownProfileName={shownProfile?.name ?? user.name}
+            profileCount={profileCount}
+            onChangeEmail={() => setEmailOpen(true)}
+            onManagePlan={() => setActive("membership")}
+          />
+        );
+      case "profiles":
+        return (
+          <ProfilesTab
+            profiles={user.profiles}
+            profileCount={profileCount}
+            onEdit={(profile) => setEditor({ mode: "edit", profile })}
+            onCreate={() => setEditor({ mode: "create" })}
+            onDisableLock={(profile) =>
               updateProfileSettings(
                 profile,
-                { playback: checked ? "auto" : "manual" },
-                checked
-                  ? "Otomatik oynatma açıldı."
-                  : "Otomatik oynatma kapatıldı.",
+                { locked: false, lockPin: undefined },
+                "Profil kilidi kapatıldı.",
               )
             }
+            onCreateLock={(profile) => setLockProfile(profile)}
           />
-        }
-      />
-      <SummaryRow
-        label="Bildirimler"
-        value="E-posta bildirimlerini al"
-        action={
-          <Toggle
-            checked={(profile.notifications ?? "important") !== "off"}
-            className="profile-rsuite-toggle"
-            aria-label="E-posta bildirimleri"
-            onChange={(checked) =>
-              updateProfileSettings(
-                profile,
-                { notifications: checked ? "all" : "off" },
-                checked ? "Bildirimler açıldı." : "Bildirimler kapatıldı.",
-              )
-            }
+        );
+      case "membership":
+        return (
+          <MembershipTab
+            user={user}
+            plan={plan}
+            paymentMethod={receipt?.paymentMethod}
+            billingAddress={receipt?.billingAddress}
+            billingEmail={receipt?.email}
+            onSeePlans={() => navigate("/packages")}
+            onUpdatePayment={() => setPaymentOpen(true)}
           />
-        }
-      />
-      <SummaryRow
-        label="İzleme geçmişi"
-        value={`${selectedLibrary.history.length} içerik`}
-        action={
-          <Button
-            appearance="ghost"
-            size="sm"
-            onClick={() => {
+        );
+      case "security":
+        return (
+          <SecurityTab
+            email={user.email}
+            showDevices={showDevices}
+            onToggleDevices={() => {
+              setShowDevices((prev) => !prev);
+              toast(
+                showDevices ? "Cihaz listesi kapatıldı." : "Cihaz listesi açıldı.",
+                "info",
+              );
+            }}
+            passwordForm={passwordForm}
+            onPasswordField={updatePasswordField}
+            onSubmitPassword={submitPassword}
+          />
+        );
+      case "billing":
+        return (
+          <BillingTab
+            user={user}
+            paymentMethod={receipt?.paymentMethod}
+            billingAddress={receipt?.billingAddress}
+            billingEmail={receipt?.email}
+            lastAmount={receipt ? `${receipt.amount}${receipt.period}` : undefined}
+            lastDate={receipt?.date}
+            marketingConsent={receipt?.marketingConsent}
+            onUpdatePayment={() => setPaymentOpen(true)}
+          />
+        );
+      case "settings":
+        return (
+          <SettingsTab
+            profile={shownProfile}
+            fallbackName={user.name}
+            historyCount={selectedLibrary.history.length}
+            onSetting={(changes, message) => {
+              if (shownProfile)
+                updateProfileSettings(shownProfile, changes, message);
+            }}
+            onClearHistory={() => {
               dispatch(clearHistory());
               toast("İzleme geçmişi temizlendi.", "info");
             }}
-          >
-            Temizle
-          </Button>
-        }
-      />
-    </SummaryBlock>
-  );
-
-  const renderContent = () => {
-    if (active === "overview") {
-      return (
-        <section className="acct-section">
-          <SectionIntro>Hesap bilgileri ve üyelik durumu.</SectionIntro>
-
-          <div className="acct-overview-grid">
-            <SummaryBlock>
-              <SummaryRow label="Hesap sahibi" value={user.name} />
-              <SummaryRow
-                label="E-posta"
-                value={user.email}
-                action={
-                  <Button appearance="ghost" size="sm" onClick={() => setEmailOpen(true)}>
-                    Değiştir
-                  </Button>
-                }
-              />
-              <SummaryRow label="Üyelik başlangıcı" value={user.createdAt ?? "Bugün"} />
-            </SummaryBlock>
-
-            <SummaryBlock>
-              <SummaryRow
-                label="Plan"
-                value={formatPlan(plan)}
-                action={
-                  <Button appearance="ghost" size="sm" onClick={() => setActive("membership")}>
-                    Yönet
-                  </Button>
-                }
-              />
-              <SummaryRow label="Aktif profil" value={shownProfile?.name ?? user.name} />
-              <SummaryRow label="Profil sayısı" value={`${profileCount}/${MAX_PROFILES}`} />
-            </SummaryBlock>
-          </div>
-        </section>
-      );
+          />
+        );
+      case "watchlist":
+        return (
+          <LibraryTab items={selectedLibrary.watchlist} empty="Listen henüz boş" />
+        );
+      case "liked":
+        return (
+          <LibraryTab items={selectedLibrary.liked} empty="Henüz beğeni yok" />
+        );
+      default:
+        return (
+          <LibraryTab items={selectedLibrary.history} empty="İzleme geçmişin boş" />
+        );
     }
-
-    if (active === "profiles") {
-      return (
-        <section className="acct-section">
-          <SectionIntro>
-            Profil oluşturma sade kalır; avatar ve kilit gibi ayrıntıları buradan yönetebilirsin.
-          </SectionIntro>
-
-          <div className="acct-profile-grid">
-            {user.profiles.map((profile) => (
-              <article className="acct-profile-card" key={profile.id}>
-                <div className="acct-profile-card__head">
-                  <img src={avatarFor(profile)} alt="" />
-                  <div>
-                    <h3>{profile.name}</h3>
-                    <p>{profile.kids ? "Çocuk" : "Standart profil"}</p>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label={`${profile.name} profilini düzenle`}
-                    onClick={() => setEditor({ mode: "edit", profile })}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                </div>
-
-                <div className="acct-profile-controls">
-                  <div className="acct-control-line">
-                    <span>Profil kilidi</span>
-                    <button
-                      type="button"
-                      className={`acct-toggle-btn${profile.locked ? " is-on" : ""}`}
-                      onClick={() => {
-                        if (profile.locked) {
-                          updateProfileSettings(
-                            profile,
-                            { locked: false, lockPin: undefined },
-                            "Profil kilidi kapatıldı.",
-                          );
-                          return;
-                        }
-                        setLockProfile(profile);
-                      }}
-                    >
-                      {profile.locked ? "Açık" : "Kilit oluştur"}
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-
-            {profileCount < MAX_PROFILES && (
-              <button
-                type="button"
-                className="acct-profile-card acct-profile-card--add"
-                onClick={() => setEditor({ mode: "create" })}
-              >
-                <span className="acct-profile-add__icon">
-                  <Plus size={22} />
-                </span>
-                <span className="acct-profile-add__text">
-                  <strong>Profil ekle</strong>
-                  <small>Profil adı ve türünü seç</small>
-                </span>
-              </button>
-            )}
-          </div>
-        </section>
-      );
-    }
-
-    if (active === "membership") {
-      const renewal = plan.free
-        ? "Ücretsiz — yenileme yok"
-        : `${plan.price}${plan.period} · otomatik yenilenir`;
-      return (
-        <section className="acct-section">
-          <SectionIntro>Abonelik, faturalandırma ve erişim bilgileri.</SectionIntro>
-
-          <div className="acct-overview-grid">
-            <SummaryBlock>
-              <SummaryRow
-                label="Aktif plan"
-                value={formatPlan(plan)}
-                action={
-                  <Button appearance="primary" size="sm" onClick={() => navigate("/packages")}>
-                    Planları Gör
-                  </Button>
-                }
-              />
-              <SummaryRow label="Üyelik başlangıcı" value={user.createdAt ?? "Bugün"} />
-              <SummaryRow label="Sonraki yenileme" value={renewal} />
-              <SummaryRow label="Görüntü kalitesi" value={plan.quality ?? "SD 480p"} />
-              <SummaryRow label="Eş zamanlı ekran" value={plan.screens ?? "1 ekran"} />
-            </SummaryBlock>
-
-            <SummaryBlock>
-              <SummaryRow
-                label="Ödeme yöntemi"
-                value={receipt?.paymentMethod ?? "Tanımlı değil"}
-                action={
-                  <Button appearance="ghost" size="sm" onClick={() => setPaymentOpen(true)}>
-                    {receipt?.paymentMethod ? "Güncelle" : "Ekle"}
-                  </Button>
-                }
-              />
-              <SummaryRow label="Fatura adresi" value={receipt?.billingAddress ?? "Eklenmedi"} />
-              <SummaryRow label="Fatura e-postası" value={receipt?.email ?? user.email} />
-            </SummaryBlock>
-          </div>
-
-          <div className="acct-feature-block">
-            <h3>Plan kapsamı</h3>
-            <ul>
-              {plan.features.map((feature) => (
-                <li key={feature}>
-                  <Check size={16} />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      );
-    }
-
-    if (active === "security") {
-      return (
-        <section className="acct-section">
-          <SectionIntro>Giriş bilgileri ve açık oturumlar.</SectionIntro>
-
-          <SummaryBlock>
-            <SummaryRow
-              label="E-posta adresi"
-              value={user.email}
-              action={
-                <span className="acct-status">
-                  <Mail size={14} />
-                  Doğrulanmış
-                </span>
-              }
-            />
-            <SummaryRow
-              label="Oturum cihazları"
-              value={showDevices ? "Web tarayıcı, mobil erişim" : "2 kayıt"}
-              action={
-                <Button
-                  appearance="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowDevices((prev) => !prev);
-                    toast(showDevices ? "Cihaz listesi kapatıldı." : "Cihaz listesi açıldı.", "info");
-                  }}
-                >
-                  {showDevices ? "Cihazları Gizle" : "Cihazları Göster"}
-                </Button>
-              }
-            >
-              {showDevices && (
-                <div className="acct-device-list">
-                  <span>
-                    <Laptop size={15} />
-                    Windows Chrome, aktif oturum
-                  </span>
-                  <span>
-                    <Smartphone size={15} />
-                    Mobil tarayıcı, son erişim bugün
-                  </span>
-                </div>
-              )}
-            </SummaryRow>
-          </SummaryBlock>
-
-          <form
-            className="acct-password-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitPassword();
-            }}
-          >
-            <h3>Şifreyi değiştir</h3>
-            <label>
-              <span>Mevcut şifre</span>
-              <input
-                type="password"
-                value={passwordForm.current}
-                onChange={(event) => updatePasswordField("current", event.target.value)}
-                autoComplete="current-password"
-              />
-            </label>
-            <label>
-              <span>Yeni şifre</span>
-              <input
-                type="password"
-                value={passwordForm.next}
-                onChange={(event) => updatePasswordField("next", event.target.value)}
-                autoComplete="new-password"
-              />
-            </label>
-            <label>
-              <span>Yeni şifre tekrar</span>
-              <input
-                type="password"
-                value={passwordForm.confirm}
-                onChange={(event) => updatePasswordField("confirm", event.target.value)}
-                autoComplete="new-password"
-              />
-            </label>
-            <div className="acct-password-form__actions">
-              <Button appearance="primary" type="submit">
-                Güncelle
-              </Button>
-            </div>
-          </form>
-        </section>
-      );
-    }
-
-    if (active === "billing") {
-      return (
-        <section className="acct-section">
-          <SectionIntro>Ödeme yöntemi ve fatura bilgileri.</SectionIntro>
-
-          <SummaryBlock>
-            <SummaryRow
-              label="Ödeme yöntemi"
-              value={receipt?.paymentMethod ?? (receipt ? "Kart ile ödeme" : "Ödeme yöntemi yok")}
-              action={
-                <Button appearance="primary" size="sm" onClick={() => setPaymentOpen(true)}>
-                  {receipt?.paymentMethod ? "Güncelle" : "Kart Ekle"}
-                </Button>
-              }
-            />
-            <SummaryRow label="Fatura adresi" value={receipt?.billingAddress ?? "Eklenmedi"} />
-            <SummaryRow
-              label="Son işlem"
-              value={receipt ? `${receipt.amount}${receipt.period}` : "Kayıt yok"}
-            >
-              {receipt?.date && <small className="acct-row__note">{receipt.date}</small>}
-            </SummaryRow>
-            <SummaryRow label="Fatura e-postası" value={receipt?.email ?? user.email} />
-            <SummaryRow
-              label="Pazarlama bildirimleri"
-              value={receipt?.marketingConsent ? "Açık" : "Kapalı"}
-            />
-          </SummaryBlock>
-        </section>
-      );
-    }
-
-    if (active === "settings") {
-      return (
-        <section className="acct-section">
-          <SectionIntro>
-            Ayarlar şu anda aktif olan profile uygulanır. Aktif profil: {shownProfile?.name ?? user.name}.
-          </SectionIntro>
-          {shownProfile ? renderProfileSettings(shownProfile) : null}
-        </section>
-      );
-    }
-
-    if (active === "watchlist") {
-      return (
-        <section className="acct-section">
-          <MediaGrid items={selectedLibrary.watchlist} empty="Listen henüz boş" />
-        </section>
-      );
-    }
-
-    if (active === "liked") {
-      return (
-        <section className="acct-section">
-          <MediaGrid items={selectedLibrary.liked} empty="Henüz beğeni yok" />
-        </section>
-      );
-    }
-
-    return (
-      <section className="acct-section">
-        <MediaGrid items={selectedLibrary.history} empty="İzleme geçmişin boş" />
-      </section>
-    );
   };
 
   return (
@@ -705,11 +304,13 @@ export default function AccountPage() {
           {receipt && (
             <div className="acct-receipt">
               <Receipt size={17} />
-              <span>{receipt.planName} planı {receipt.date} tarihinde aktif edildi.</span>
+              <span>
+                {receipt.planName} planı {receipt.date} tarihinde aktif edildi.
+              </span>
             </div>
           )}
 
-          {renderContent()}
+          {renderActiveTab()}
         </div>
       </div>
 
@@ -768,7 +369,9 @@ export default function AccountPage() {
           profile={lockProfile}
           onClose={() => setLockProfile(null)}
           onSave={(pin) => {
-            dispatch(updateProfile({ ...lockProfile, locked: true, lockPin: pin }));
+            dispatch(
+              updateProfile({ ...lockProfile, locked: true, lockPin: pin }),
+            );
             toast("Profil kilidi oluşturuldu.");
             setLockProfile(null);
           }}
@@ -777,4 +380,3 @@ export default function AccountPage() {
     </PageLayout>
   );
 }
-

@@ -4,12 +4,16 @@ import { Button } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
 import Spinner from "../components/Spinner";
 
-const SudokuApp = lazy(() => import("../games/Sudoku"));
-const MinesweeperApp = lazy(() => import("../games/Minesweeper"));
-const Game2048 = lazy(() => import("../games/Game2048"));
-const KelimeZinciri = lazy(() => import("../games/KelimeZinciri"));
-const BlockBloomPuzzle = lazy(() => import("../games/BlockBloomPuzzle"));
-const MahjongSanctuary = lazy(() => import("../games/MahjongSanctuary"));
+const SudokuApp = lazy(() => import("../games/Sudoku/Sudoku"));
+const MinesweeperApp = lazy(() => import("../games/Minesweeper/Minesweeper"));
+const Game2048 = lazy(() => import("../games/Game2048/Game2048"));
+const KelimeZinciri = lazy(() => import("../games/KelimeZinciri/KelimeZinciri"));
+const BlockBloomPuzzle = lazy(() =>
+  import("../games/BlockBloomPuzzle/BlockBloomPuzzle"),
+);
+const MahjongSanctuary = lazy(() =>
+  import("../games/MahjongSanctuary/MahjongSanctuary"),
+);
 
 const SCORE_KEYS: Record<string, string> = {
   sudoku: "sudoku_best_time",
@@ -47,7 +51,6 @@ export default function PlayGamePage() {
   const navigate = useNavigate();
   const [bestScore, setBestScore] = useState(() => readBestScore(gameId ?? ""));
 
-  // skoru yenile
   useEffect(() => {
     const update = () => setBestScore(readBestScore(gameId ?? ""));
     const interval = setInterval(update, 2000);

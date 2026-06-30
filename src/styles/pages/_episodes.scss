@@ -1,0 +1,327 @@
+@use "sass:color";
+@use "../base" as *;
+
+.episodes-block {
+    padding: var(--space-8) var(--space-6);
+    background-color: var(--bg-0);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+// acilir bolum bari
+.episodes-toggle {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-1);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-1);
+    cursor: pointer;
+    text-align: left;
+    @include smooth(border-color transform box-shadow, var(--dur-base));
+
+    &:hover {
+        border-color: rgba($brand, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 0 20px rgba($brand, 0.15), 0 12px 32px rgba(0, 0, 0, 0.4);
+
+        .episodes-toggle__art {
+            background: rgba($brand, 0.16);
+            border-color: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba($brand, 0.45);
+            transform: scale(1.05);
+        }
+
+        .episodes-toggle__chev {
+            background: var(--accent);
+            color: #fff;
+        }
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba($brand, 0.25);
+    }
+
+    &__art {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: var(--radius-1);
+        background: rgba($brand, 0.08);
+        border: 1px solid rgba($brand, 0.25);
+        color: var(--accent);
+        @include smooth(transform box-shadow background-color border-color color, var(--dur-base));
+    }
+
+    &__texts {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        margin-right: auto;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+        line-height: 1.15;
+    }
+
+    &__sub {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+
+    &__chev {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba($brand, 0.12);
+        color: var(--accent);
+        @include smooth(transform background-color color, var(--dur-base));
+
+        &.open {
+            transform: rotate(180deg);
+            background: var(--accent);
+            color: #fff;
+        }
+    }
+
+    @include bp($bp-md) {
+        padding: 12px 14px;
+        gap: 12px;
+
+        &__art { width: 42px; height: 42px; }
+        &__title { font-size: 16px; }
+    }
+}
+
+.episodes-panel {
+    margin-top: var(--space-6);
+}
+
+// yatay sezon secici
+.season-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: var(--space-5);
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar { height: 5px; }
+    &::-webkit-scrollbar-thumb {
+        background: var(--border-strong);
+        border-radius: 999px;
+    }
+}
+
+.season-pill {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-1);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth(border-color background-color color transform);
+
+    &:hover {
+        border-color: rgba($brand, 0.5);
+        color: var(--text-primary);
+    }
+
+    &.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        box-shadow: 0 6px 18px rgba($brand, 0.3);
+    }
+}
+
+.seasons-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.seasons-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: var(--fs-md);
+    padding: var(--space-8) 0;
+}
+
+// bolum kart izgarasi
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-4);
+}
+
+.ep-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-1);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-2);
+    overflow: hidden;
+    cursor: pointer;
+    @include smooth(border-color transform box-shadow background-color);
+
+    &:hover {
+        border-color: rgba($brand, 0.35);
+        transform: translateY(-3px);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+
+        .ep-card__thumb img {
+            transform: scale(1.06);
+        }
+
+        .ep-card__play {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .ep-card__index {
+            color: var(--accent);
+        }
+    }
+
+    &__thumb {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: var(--bg-3);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.45s var(--ease);
+        }
+
+        // ust ve alt karartma
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    // editoryel buyuk numara
+    &__index {
+        position: absolute;
+        left: 12px;
+        bottom: 6px;
+        z-index: 1;
+        font-family: var(--font-display);
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1;
+        color: #fff;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+        @include smooth(color, var(--dur-base));
+    }
+
+    &__play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        z-index: 2;
+        transform: translate(-50%, -50%) scale(0.8);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        box-shadow: 0 6px 18px rgba($brand, 0.45);
+        @include smooth(opacity transform, var(--dur-base));
+
+        svg { margin-left: 2px; }
+    }
+
+    &__body {
+        padding: var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+    }
+
+    &__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    &__title {
+        margin: 0;
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        font-size: var(--fs-md);
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__runtime {
+        flex-shrink: 0;
+        font-size: var(--fs-xs);
+        font-weight: 600;
+        color: var(--accent);
+        background: rgba($brand, 0.1);
+        padding: 2px 8px;
+        border-radius: 999px;
+    }
+
+    &__overview {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: var(--fs-sm);
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    &__date {
+        margin-top: auto;
+        color: var(--text-tertiary);
+        font-size: var(--fs-xs);
+        font-weight: 500;
+    }
+}

@@ -1,0 +1,72 @@
+// ─── Pixel Pixie – Overlay & Modal ───────────────────────────────────────────
+
+.bb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(5, 3, 20, 0.86);
+  backdrop-filter: blur(4px);
+  animation: px-overlay-in 0.15s ease;
+}
+
+.bb-modal {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 24px;
+  border: 3px solid var(--bb-line);
+  border-radius: 6px;
+  background: var(--bb-panel-strong);
+  box-shadow:
+    0 0 0 1px var(--bb-glass-strong),
+    0 30px 70px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 var(--bb-glass-strong);
+  animation: px-modal-in 0.18s steps(3, end);
+}
+
+.bb-modal-crown {
+  font-family: var(--px-font-pixel);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 2px 2px 0 #cc8c00;
+  animation: px-glow 1s steps(2, end) infinite;
+}
+
+.bb-modal-badge {
+  font-family: var(--px-font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--bb-muted);
+}
+
+.bb-modal-score {
+  font-family: var(--px-font-pixel);
+  font-size: clamp(1.6rem, 7vw, 2.4rem);
+  color: var(--bb-accent);
+  text-shadow: 4px 4px 0 var(--bb-accent-dark), 0 0 30px color-mix(in srgb, var(--bb-accent) 40%, transparent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.bb-modal-sub {
+  font-size: 0.8rem;
+  color: var(--bb-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.bb-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}

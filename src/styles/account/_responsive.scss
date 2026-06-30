@@ -1,0 +1,256 @@
+@use "sass:color";
+@use "../base" as *;
+
+// logo boyutlari
+.rs-navbar-brand .tenet-logo {
+    font-size: clamp(96px, 9vw, 138px);
+}
+
+.spinner-logo.tenet-logo {
+    font-size: clamp(118px, 12vw, 168px);
+}
+
+.profiles-page__top .tenet-logo {
+    font-size: clamp(72px, 7vw, 108px);
+}
+
+.site-footer__logo .tenet-logo {
+    font-size: 104px;
+}
+
+@media (max-width: 720px) {
+    .rs-navbar-brand .tenet-logo {
+        font-size: 82px;
+    }
+
+    .profiles-page__top .tenet-logo {
+        font-size: 70px;
+    }
+
+    .profile-edit-modal--full .profile-edit__avatars .avatar-modal__group > div {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+// responsive duzenler
+@media (max-width: 980px) {
+    .acct-main {
+        padding: 76px 10px 30px;
+    }
+
+    .acct-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .acct-sidebar {
+        position: static;
+    }
+
+    .acct-sidebar__profile {
+        grid-template-columns: 42px minmax(0, 1fr);
+        padding: 10px;
+
+        img {
+            width: 42px;
+            height: 42px;
+            border-radius: 0 !important;
+        }
+    }
+
+    .acct-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        grid-template-columns: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 6px;
+        padding: 8px 8px 10px;
+        scroll-snap-type: x proximity;
+        @include accent-scroll;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .acct-nav__title {
+        display: none;
+    }
+
+    .acct-nav__item {
+        width: auto;
+        flex: 0 0 auto;
+        min-height: 0;
+        grid-template-columns: auto auto;
+        gap: 8px;
+        padding: 10px 14px;
+        white-space: nowrap;
+        scroll-snap-align: start;
+
+        small {
+            display: none;
+        }
+
+        strong {
+            font-size: 14.5px;
+        }
+    }
+
+    .acct-overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acct-password-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-nav-overlay {
+        background: rgba(0, 0, 0, 0.62) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: calc(var(--z-header) + 2);
+    }
+
+    .mobile-nav-panel {
+        width: min(360px, 88vw);
+    }
+}
+
+@media (max-width: 640px) {
+    .acct-main {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .acct-content {
+        gap: var(--space-3);
+    }
+
+    .acct-topbar {
+        display: grid;
+        gap: 10px;
+        padding-bottom: 12px;
+
+        h1 {
+            font-size: clamp(1.48rem, 8vw, 1.92rem);
+        }
+
+        .rs-btn {
+            width: fit-content;
+        }
+    }
+
+    .acct-row {
+        display: grid;
+        gap: 12px;
+        padding: 13px;
+        min-height: 0;
+    }
+
+    .acct-row__action {
+        justify-content: flex-start;
+
+        .acct-segmented--compact {
+            width: 100%;
+        }
+    }
+
+    .acct-profile-grid,
+    .acct-media-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acct-profile-card {
+        grid-template-columns: 46px minmax(0, 1fr) 34px;
+        min-height: 78px;
+        padding: 12px;
+        max-width: none;
+
+        img {
+            width: 46px;
+            height: 46px;
+        }
+
+        > button {
+            width: 34px;
+            height: 34px;
+        }
+    }
+
+    .acct-profile-card.acct-profile-card--add {
+        max-width: none;
+    }
+
+    .acct-profile-card__head {
+        grid-template-columns: 50px minmax(0, 1fr) 36px;
+
+        img {
+            width: 50px;
+            height: 56px;
+        }
+    }
+
+    .acct-password-form__actions,
+    .profile-edit__footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .acct-password-form__actions .rs-btn,
+    .acct-icon-text,
+    .profile-edit__footer .rs-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .profile-edit__avatars {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .profile-modal .rs-modal-body,
+    .profile-modal .rs-modal-footer {
+        padding-left: 22px !important;
+        padding-right: 22px !important;
+    }
+
+    .avatar-modal__hero {
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 16px;
+
+        > img {
+            width: 84px;
+            height: 106px;
+        }
+    }
+
+    .avatar-modal__group > div {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+// yuvarlatma sifirlama
+.acct-sidebar__profile,
+.acct-nav,
+.acct-summary,
+.acct-profile-card,
+.acct-password-form,
+.profile-edit__preview,
+.profile-edit__kids,
+.profile-edit__avatars button {
+    border-radius: 0 !important;
+}
+
+.acct-sidebar__profile img,
+.acct-profile-card img,
+.profile-edit__preview img,
+.profile-edit__avatars img,
+.account-menu__current-avatar,
+.account-menu__current-avatar img,
+.account-menu__profile-avatar,
+.account-menu__profile-avatar img {
+    border-radius: 0 !important;
+}
+
+// profil modalleri

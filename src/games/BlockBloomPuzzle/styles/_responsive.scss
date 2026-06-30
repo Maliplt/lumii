@@ -1,0 +1,174 @@
+// ─── Pixel Pixie – Responsive ─────────────────────────────────────────────────
+
+// Large screens
+@media (min-width: 600px) {
+  .bb-game-screen {
+    max-width: 560px;
+  }
+
+  .bb-menu-screen {
+    padding: 40px 24px 36px;
+    gap: 28px;
+  }
+
+  .bb-px-title span:first-child,
+  .bb-px-title span:last-child {
+    font-size: 3.6rem;
+  }
+
+  .bb-piece-slot {
+    min-height: 120px;
+  }
+
+  .bb-toolbar {
+    gap: 10px;
+  }
+
+  .bb-tool-btn {
+    min-height: 80px;
+  }
+
+  .bb-tb-label {
+    font-size: 0.75rem;
+  }
+
+  .bb-tb-icon {
+    font-size: 1.5rem;
+  }
+
+  .bb-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bb-theme-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .bb-ghs strong {
+    font-size: 1.1rem;
+  }
+}
+
+// Tall screens – let the board grow
+@media (min-height: 800px) {
+  .bb-board {
+    max-width: min(540px, calc(100svh - 310px));
+  }
+}
+
+// Small phones – tight layout
+@media (max-width: 380px) {
+  .bb-mode-picker {
+    grid-template-columns: 1fr;
+    max-width: 300px;
+  }
+
+  .bb-mode-chip small {
+    display: none;
+  }
+
+  .bb-px-title span:first-child,
+  .bb-px-title span:last-child {
+    font-size: 1.7rem;
+  }
+
+  .bb-toolbar {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    padding: 0 8px;
+  }
+
+  .bb-tb-label {
+    font-size: 0.6rem;
+  }
+
+  .bb-tool-btn {
+    min-height: 62px;
+  }
+
+  .bb-piece-slot {
+    min-height: 90px;
+  }
+
+  .bb-toggles {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-theme-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bb-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bb-ghs strong {
+    font-size: 0.8rem;
+  }
+
+  .bb-ghs span {
+    font-size: 0.38rem;
+  }
+}
+
+// Very small phones
+@media (max-width: 340px) {
+  .bb-gh-scores {
+    gap: 4px;
+  }
+
+  .bb-ghs {
+    min-width: 58px;
+    padding: 5px 7px;
+  }
+
+  .bb-ghs span {
+    font-size: 0.35rem;
+  }
+
+  .bb-ghs strong {
+    font-size: 0.72rem;
+  }
+}
+
+// Landscape mobile
+@media (max-height: 500px) and (orientation: landscape) {
+  .bb-menu-screen {
+    padding: 16px 20px;
+    gap: 14px;
+    min-height: auto;
+  }
+
+  .bb-px-logomark {
+    display: none;
+  }
+
+  .bb-px-title span:first-child,
+  .bb-px-title span:last-child {
+    font-size: 1.5rem;
+  }
+
+  .bb-menu-hero {
+    gap: 8px;
+  }
+
+  .bb-board-container {
+    padding: 8px 12px 6px;
+  }
+
+  .bb-board {
+    max-width: min(380px, calc(100svh - 180px));
+  }
+
+  .bb-piece-tray {
+    margin-bottom: 6px;
+  }
+
+  .bb-piece-slot {
+    min-height: 80px;
+  }
+
+  .bb-tool-btn {
+    min-height: 58px;
+  }
+}

@@ -1,0 +1,63 @@
+@use "sass:color";
+@use "../base" as *;
+
+// logo
+.tenet-logo {
+    font-size: inherit;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    user-select: none;
+    transition: transform 0.25s var(--ease);
+
+    img {
+        display: block;
+        width: auto;
+        height: 1em;
+        max-height: none;
+        object-fit: contain;
+    }
+
+    &:hover {
+        transform: scale(1.03);
+    }
+}
+
+@keyframes logoPulse {
+    0%, 100% {
+        text-shadow: 0 0 12px var(--accent), 0 0 4px var(--accent-glow);
+        opacity: 0.85;
+        transform: scale(1);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--accent), 0 0 8px var(--accent-glow), 0 0 25px var(--accent-glow);
+        opacity: 1;
+        transform: scale(1.1) rotate(4deg);
+    }
+}
+
+@keyframes logoShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes springNudge {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-6px) scale(1.18) rotate(-4deg); }
+    50% { transform: translateY(-2px) scale(0.95) rotate(2deg); }
+    70% { transform: translateY(-4px) scale(1.05) rotate(-1deg); }
+    100% { transform: translateY(-3px) scale(1.08) rotate(0deg); }
+}
+
+@keyframes cssPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@keyframes cssLogout {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+}

@@ -1,0 +1,76 @@
+@use "sass:color";
+@use "../base" as *;
+
+// sayfalar
+// kabuk
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.route-view {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    animation: routeFade 0.3s var(--ease) both;
+}
+
+.route-view>.home-page,
+.route-view>.overview-page,
+.route-view>.explore-page,
+.route-view>.search-page,
+.route-view>.packages-page,
+.route-view>.tv-page,
+.route-view>.legal-page,
+.route-view>.checkout-page,
+.route-view>.wip-page {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes routeFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.home-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.home-main {
+    flex: 1;
+    // hero header arkasindan baslar
+    padding-top: 0;
+}
+
+.home-content,
+.explore-content {
+    position: relative;
+    z-index: 2;
+    margin-top: -160px;
+    padding: var(--space-8) var(--space-10);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+
+    .content-carousel:first-child {
+        margin-top: 0;
+    }
+}
+
+.explore-content {
+    position: relative;
+    z-index: 2;
+}

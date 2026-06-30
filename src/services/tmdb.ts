@@ -13,7 +13,7 @@ import type {
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
-// tmdb tur id -> turkce (film + dizi)
+// tmdb tur id turkce ceviri
 export const GENRES: Record<number, string> = {
   28: "Aksiyon", 12: "Macera", 16: "Animasyon", 35: "Komedi", 80: "Suç",
   99: "Belgesel", 18: "Dram", 10751: "Aile", 14: "Fantastik", 36: "Tarih",
@@ -24,12 +24,12 @@ export const GENRES: Record<number, string> = {
   10768: "Savaş & Politika",
 };
 
-// tur id'lerinden okunabilir etiketler
+// tur idlerinden okunabilir etiketler
 export function genreNames(ids: number[] = [], limit = 3): string[] {
   return ids.map((id) => GENRES[id]).filter(Boolean).slice(0, limit);
 }
 
-// dakikadan "2sa 15dk" / "48dk"
+// sure formati
 export function formatRuntime(mins?: number | null): string {
   if (!mins || mins <= 0) return "";
   const h = Math.floor(mins / 60);
@@ -107,7 +107,7 @@ export const tmdbApi = {
   ): Promise<TVSeasonDetail> =>
     tmdbFetch<TVSeasonDetail>(`/tv/${tvId}/season/${seasonNumber}`),
 
-  // en-US cek
+  // ingilizce dil secenegi
   getVideos: (type: "movie" | "tv", id: number): Promise<VideosResponse> =>
     tmdbFetch<VideosResponse>(`/${type}/${id}/videos`, { language: "en-US" }),
 

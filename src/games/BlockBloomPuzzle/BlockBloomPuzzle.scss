@@ -1,0 +1,9 @@
+@use "styles/foundation";
+@use "styles/menu";
+@use "styles/board";
+@use "styles/overlay";
+@use "styles/motion";
+@use "styles/responsive";
+
+// Pixel art fonts – oyuna özel, proje genelinde değil
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap");

@@ -1,0 +1,85 @@
+@use "sass:color";
+@use "../base" as *;
+
+// rsuite gecis stili
+.profile-rsuite-toggle.rs-toggle {
+    .rs-toggle-track {
+        height: 28px !important;
+        min-width: 52px !important;
+        border-radius: 5px !important;
+        background-color: rgba(255, 255, 255, 0.28) !important;
+        transition: background-color 0.18s ease !important;
+
+        &::after {
+            width: 22px !important;
+            height: 22px !important;
+            top: 3px !important;
+            left: 3px !important;
+            border-radius: 3px !important;
+            background-color: #fff !important;
+        }
+    }
+
+    // aktif rengi ver
+    &.rs-toggle-checked .rs-toggle-track,
+    &:has(.rs-toggle-input:checked) .rs-toggle-track {
+        background-color: var(--accent) !important;
+
+        &::after {
+            left: 100% !important;
+            margin-left: -25px !important;
+        }
+    }
+
+    &:hover .rs-toggle-track {
+        background-color: rgba(255, 255, 255, 0.36) !important;
+    }
+
+    &.rs-toggle-checked:hover .rs-toggle-track,
+    &:has(.rs-toggle-input:checked):hover .rs-toggle-track {
+        background-color: var(--accent-hover) !important;
+    }
+}
+
+.acct-check-line,
+.acct-status,
+.acct-icon-text,
+.acct-device-list span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.acct-status,
+.acct-device-list span,
+.acct-icon-text,
+.acct-control-line > span {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.acct-status {
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-1);
+    background: var(--bg-2);
+    font-size: var(--fs-sm);
+    font-weight: 900;
+}
+
+.acct-device-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+
+    span {
+        min-height: 32px;
+        padding: 0 10px;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-1);
+        background: var(--bg-2);
+        font-size: var(--fs-sm);
+        font-weight: 800;
+    }
+}

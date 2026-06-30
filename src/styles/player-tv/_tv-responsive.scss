@@ -1,0 +1,58 @@
+@use "sass:color";
+@use "../base" as *;
+
+// mobil duzen
+@media (max-width: 1024px) {
+    .tv-main {
+        height: auto;
+        padding-top: calc(56px + var(--space-4));
+    }
+
+    .tv-layout {
+        gap: var(--space-3);
+    }
+
+    .tv-featured {
+        order: -1;
+    }
+
+    .tv-featured__player {
+        flex: none;
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+
+    .tv-sidebar {
+        overflow: visible;
+    }
+
+    // kanal listesi
+    .tv-channel-list {
+        flex: none;
+        flex-direction: column;
+        max-height: 392px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        gap: 8px;
+        padding-right: 4px;
+        @include accent-scroll;
+    }
+
+    .tv-channel-item {
+        width: 100%;
+    }
+}
+
+// telefonda player daha kisa
+@media (max-width: 768px) {
+    .tv-featured__player {
+        aspect-ratio: auto;
+        height: 26vh;
+        min-height: 150px;
+        max-height: 200px;
+    }
+
+    .tv-featured__player .player-video {
+        object-fit: cover;
+    }
+}

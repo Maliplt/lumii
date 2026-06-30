@@ -1,0 +1,144 @@
+@use "sass:color";
+@use "../base" as *;
+
+// reset ve tipografi
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: var(--bg-0);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.rs-navbar,
+.rs-nav,
+.rs-btn,
+.rs-dropdown {
+    font-family: var(--font-display) !important;
+}
+.rs-input,
+.rs-form-control,
+.rs-picker-toggle-value {
+    font-family: var(--font-body) !important;
+}
+
+body {
+    overflow-x: hidden;
+    color-scheme: dark;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    user-select: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    @include smooth(color);
+
+    &:hover {
+        color: var(--text-primary);
+    }
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+h1 {
+    font-size: var(--fs-hero);
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: var(--fs-3xl);
+    line-height: 1.15;
+}
+
+h3 {
+    font-size: var(--fs-2xl);
+    line-height: 1.2;
+    margin-bottom: var(--space-4);
+}
+
+h4 {
+    font-size: var(--fs-xl);
+    line-height: 1.25;
+}
+
+h5 {
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+}
+
+h6 {
+    font-size: var(--fs-md);
+    line-height: 1.4;
+}
+
+p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+main {
+    flex: 1;
+    display: block;
+    background-color: var(--bg-0);
+}
+
+.flex {
+    display: flex;
+
+    &.flex-col {
+        flex-direction: column;
+    }
+
+    &.flex-1 {
+        flex: 1 1 0%;
+    }
+}
+
+.min-h-screen {
+    min-height: 100vh;
+}

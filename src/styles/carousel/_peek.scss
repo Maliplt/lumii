@@ -1,0 +1,79 @@
+@use "sass:color";
+@use "../base" as *;
+
+// peek poster
+.cc-peek {
+    position: absolute;
+    top: 0;
+    width: var(--cc-peek-w);
+    height: var(--cc-poster-h);
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    z-index: 4;
+    border-radius: var(--radius-2);
+    opacity: 0.74;
+    transition: opacity 0.25s ease, transform 0.28s var(--ease-out);
+
+    img {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: auto;
+        max-width: none;
+        object-fit: cover;
+    }
+
+    // peek karartma
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba($ink, 0.22);
+        pointer-events: none;
+    }
+
+    &:hover {
+        opacity: 0.96;
+    }
+
+    &.prev {
+        left: 0;
+        animation: ccPeekPrevIn 0.32s var(--ease-out) both;
+
+        img {
+            right: 0;
+        }
+    }
+
+    &.next {
+        right: 0;
+        animation: ccPeekNextIn 0.32s var(--ease-out) both;
+
+        img {
+            left: 0;
+        }
+    }
+}
+
+@keyframes ccPeekPrevIn {
+    from {
+        transform: translateX(-12px);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes ccPeekNextIn {
+    from {
+        transform: translateX(12px);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}

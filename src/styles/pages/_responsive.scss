@@ -1,0 +1,394 @@
+@use "sass:color";
+@use "../base" as *;
+
+// responsive
+@media (max-width: 1200px) {
+    .custom-header {
+        padding: 0 var(--space-6) !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --fs-hero: 36px;
+        --fs-4xl: 32px;
+        --fs-3xl: 26px;
+    }
+
+    .custom-header {
+        padding: 0 var(--space-4) !important;
+    }
+
+    .hero-carousel-inner {
+        height: 65vh !important;
+    }
+
+    .hero-carousel-inner {
+        height: 65dvh !important;
+    }
+
+    .hero-nav-btn {
+        width: 46px !important;
+        height: 46px !important;
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .content-carousel {
+        --cc-poster-h: 33vw;
+        --cc-peek-w: 26px;
+    }
+
+    .home-content,
+    .explore-content {
+        padding: var(--space-6) var(--space-8);
+    }
+
+    .episodes-block {
+        padding: var(--space-6) var(--space-6);
+    }
+
+    .overview-similar {
+        padding: var(--space-6) var(--space-6);
+    }
+}
+
+// mobil baslik
+@media (max-width: 980px) and (min-width: 769px) {
+    .header-main-nav {
+        flex-shrink: 0;
+        gap: 2px !important;
+    }
+
+    .header-main-nav .nav-text-label {
+        display: none !important;
+    }
+
+    // stack boslugu kalmasin
+    .header-main-nav .nav-icon-wrapper {
+        margin: 0 !important;
+    }
+
+    .header-main-nav .nav-link {
+        padding: 8px 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --fs-hero: 24px;
+        --fs-3xl: 22px;
+        --fs-2xl: 20px;
+        --fs-xl: 18px;
+    }
+
+    .header-main-nav {
+        display: none !important;
+    }
+
+    .header-desktop-actions {
+        display: none !important;
+    }
+
+    .header-mobile-actions {
+        display: flex !important;
+        align-items: center;
+        gap: var(--space-2);
+        padding: 0 var(--space-3);
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    .custom-header {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 56px !important;
+        padding: 0 var(--space-4) !important;
+    }
+
+    .hero-carousel-inner {
+        height: 52vh !important;
+        height: 52dvh !important;
+    }
+
+    .hero-nav-btn {
+        width: 42px !important;
+        height: 42px !important;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        &.prev {
+            left: 12px;
+        }
+
+        &.next {
+            right: 12px;
+        }
+    }
+    .hero-slide .hero-info {
+        bottom: 64px;
+        left: 16px;
+        right: 16px;
+        max-width: none;
+    }
+
+    .hero-sound-toggle {
+        right: 16px;
+        bottom: 64px;
+        height: 42px;
+        min-width: 42px;
+    }
+    .home-content,
+    .explore-content,
+    .overview-content {
+        margin-top: -40px !important;
+    }
+
+    .hero-overview {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: var(--fs-sm) !important;
+    }
+
+    .content-carousel {
+        --cc-poster-h: 44vw;
+        --cc-peek-w: 14px;
+    }
+
+    .content-carousel {
+        margin-bottom: var(--space-6);
+    }
+
+    .gc-card {
+        width: 130px !important;
+        height: 130px !important;
+    }
+
+    .gc-track {
+        gap: var(--space-3);
+    }
+
+    .home-content,
+    .explore-content {
+        padding: var(--space-6) var(--space-5);
+        gap: var(--space-6);
+    }
+
+    .overview-similar {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .episodes-block {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .episodes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .play-game-page .pg-header {
+        padding: var(--space-3) var(--space-4);
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .wip-container {
+        padding: var(--space-8) var(--space-4) var(--space-6);
+    }
+
+    .btn-play {
+        font-size: 15px !important;
+        padding: 10px 28px !important;
+    }
+
+    .hero-action-btn {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+
+    .cc-item__name {
+        font-size: 15px !important;
+    }
+
+    .cc-carousel-wrapper .cc-nav-arrow {
+        width: 40px;
+    }
+
+    .custom-header.searching {
+        .header-brand-link,
+        .rs-navbar-brand {
+            display: none !important;
+        }
+
+        .header-mobile-actions {
+            display: none !important;
+        }
+
+        .header-left,
+        .header-right {
+            flex: 0 0 auto !important;
+        }
+    }
+
+    .search-box {
+        flex: 1 1 auto;
+        margin: 0;
+        height: 42px;
+        gap: 8px;
+        padding-left: 14px;
+
+        &__enter {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --fs-hero: 20px;
+        --fs-2xl: 18px;
+        --fs-xl: 16px;
+    }
+
+    .custom-header {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 52px !important;
+        padding: 0 var(--space-3) !important;
+    }
+
+    .header-brand-link {
+        font-size: 22px !important;
+    }
+
+    .hero-carousel-inner {
+        height: 48vh !important;
+        height: 48dvh !important;
+    }
+
+    .hero-nav-btn {
+        width: 36px !important;
+        height: 36px !important;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .hero-slide .hero-info {
+        bottom: 56px;
+        left: 12px;
+        right: 12px;
+    }
+
+    .hero-sound-toggle {
+        right: 12px;
+        bottom: 56px;
+    }
+
+    .hero-overview {
+        display: none !important;
+    }
+    .overview-page .hero-overview {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-top: var(--space-2);
+        font-size: var(--fs-sm) !important;
+    }
+
+    .hero-carousel-wrapper .hero-nav-btn {
+        display: none !important;
+    }
+
+    .cc-carousel-wrapper .cc-nav-arrow {
+        display: none;
+    }
+
+    .content-carousel {
+        --cc-poster-h: 62vw;
+        --cc-peek-w: 10px;
+    }
+
+    .gc-card {
+        width: 115px !important;
+        height: 115px !important;
+    }
+
+    .gc-track {
+        gap: var(--space-2);
+        padding-bottom: var(--space-3);
+    }
+
+    .home-content,
+    .explore-content {
+        padding: var(--space-5) var(--space-4);
+        gap: var(--space-5);
+    }
+    .btn-play {
+        font-size: 14px !important;
+        padding: 9px 22px !important;
+    }
+
+    .cc-item__name {
+        font-size: 12px !important;
+        letter-spacing: 0;
+    }
+
+    .cc-item__meta {
+        font-size: 11px !important;
+        gap: 4px;
+    }
+
+    .cc-carousel-wrapper .cc-nav-arrow {
+        width: 32px;
+    }
+
+    .paket-btn {
+        font-size: 13px !important;
+        padding: 7px 14px !important;
+    }
+
+    .giris-btn {
+        font-size: 13px !important;
+        padding: 7px 14px !important;
+    }
+
+    .play-game-page .pg-score-card {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
+
+    .play-game-page .pg-back-btn {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+    }
+
+    .mobile-nav-panel {
+        width: 100%;
+        border-left: none !important;
+    }
+
+    .mobile-nav-head {
+        min-height: 64px;
+    }
+}

@@ -25,8 +25,11 @@ interface HeroCarouselProps {
   director?: string;
   directorLabel?: string;
   inlineTrailer?: boolean;
+  inlineTrailerKey?: string | null;
   trailerDelayMs?: number;
   hideMoreInfo?: boolean;
+  ctaLabel?: string;
+  ctaNavState?: { season?: number; episode?: number };
 }
 
 const AUTO_SLIDE_DELAY = 6000;
@@ -42,6 +45,9 @@ export default function HeroCarousel({
   trailerDelayMs = 1400,
   hideMoreInfo = false,
   directorLabel = "Yönetmen",
+  inlineTrailerKey,
+  ctaLabel,
+  ctaNavState,
 }: HeroCarouselProps) {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -54,6 +60,7 @@ export default function HeroCarousel({
   const [heroTrailerMuted, setHeroTrailerMuted] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const trailerRef = useRef<HTMLIFrameElement>(null);
+  const trailerReadyTimer = useRef<number | null>(null);
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
 
@@ -164,6 +171,10 @@ export default function HeroCarousel({
       setHeroTrailerKey(null);
       setHeroTrailerReady(false);
       setHeroTrailerMuted(true);
+      if (inlineTrailerKey !== undefined) {
+        setHeroTrailerKey(inlineTrailerKey);
+        return;
+      }
       try {
         const mtype = "title" in m ? "movie" : "tv";
         const videos = await tmdbApi.getVideos(mtype, m.id);
@@ -178,12 +189,19 @@ export default function HeroCarousel({
       alive = false;
       clearTimeout(timer);
     };
-  }, [activeIndex, inlineTrailer, inView, movies, trailerDelayMs]);
+  }, [activeIndex, inlineTrailer, inlineTrailerKey, inView, movies, trailerDelayMs]);
 
   useEffect(() => {
     if (!heroTrailerKey) return;
+    const readyFallback = window.setTimeout(() => {
+      setHeroTrailerReady(true);
+    }, 2600);
     const onMessage = (e: MessageEvent) => {
-      if (e.origin !== "https://www.youtube.com") return;
+      if (
+        e.origin !== "https://www.youtube.com" &&
+        e.origin !== "https://www.youtube-nocookie.com"
+      )
+        return;
       let msg: { info?: { playerState?: number } };
       try {
         msg = JSON.parse(e.data);
@@ -191,7 +209,10 @@ export default function HeroCarousel({
         return;
       }
       const state = msg.info?.playerState;
-      if (state === YT_PLAYING) setHeroTrailerReady(true);
+      if (state === YT_PLAYING) {
+        window.clearTimeout(readyFallback);
+        setHeroTrailerReady(true);
+      }
       if (state === YT_ENDED)
         trailerRef.current?.contentWindow?.postMessage(
           JSON.stringify({ event: "command", func: "playVideo" }),
@@ -199,7 +220,14 @@ export default function HeroCarousel({
         );
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(readyFallback);
+      if (trailerReadyTimer.current) {
+        window.clearTimeout(trailerReadyTimer.current);
+        trailerReadyTimer.current = null;
+      }
+    };
   }, [heroTrailerKey]);
 
   if (movies.length === 0) return null;
@@ -231,7 +259,7 @@ export default function HeroCarousel({
               ? ""
               : `&origin=${encodeURIComponent(window.location.origin)}`;
           const trailerSrc = showInlineTrailer
-            ? `https://www.youtube.com/embed/${inlineTrailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1${trailerOrigin}`
+            ? `https://www.youtube.com/embed/${inlineTrailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0&vq=hd1080${trailerOrigin}`
             : "";
           // detay metasi
           const slideMeta =
@@ -261,10 +289,24 @@ export default function HeroCarousel({
                     title={`${title} fragman`}
                     allow="autoplay; encrypted-media; fullscreen"
                     onLoad={() =>
-                      trailerRef.current?.contentWindow?.postMessage(
-                        JSON.stringify({ event: "listening", channel: "widget" }),
-                        "*",
-                      )
+                      {
+                        const win = trailerRef.current?.contentWindow;
+                        if (!win) return;
+                        win.postMessage(
+                          JSON.stringify({ event: "listening", channel: "widget" }),
+                          "*",
+                        );
+                        window.setTimeout(() => {
+                          win.postMessage(
+                            JSON.stringify({ event: "command", func: "mute" }),
+                            "*",
+                          );
+                          win.postMessage(
+                            JSON.stringify({ event: "command", func: "playVideo" }),
+                            "*",
+                          );
+                        }, 350);
+                      }
                     }
                   />
                 </div>
@@ -334,12 +376,12 @@ export default function HeroCarousel({
                     size="lg"
                     onClick={() =>
                       navigate(`/${mtype}/${movie.id}/player`, {
-                        state: { title },
+                        state: { title, ...ctaNavState },
                       })
                     }
                   >
                     <Play size={20} fill="currentColor" className="play-icon" />{" "}
-                    Oynat
+                    {ctaLabel ?? "Oynat"}
                   </Button>
 
                   {inlineTrailer && (
@@ -366,6 +408,26 @@ export default function HeroCarousel({
                     </Link>
                   ) : null}
                 </div>
+
+                {multi && index === activeIndex && (
+                  <div className="hero-progress">
+                    {movies.map((_, i) => (
+                      <div key={i} className={`hero-progress__seg${i < activeIndex ? " is-past" : ""}`}>
+                        <div
+                          className={`hero-progress__seg-fill${i === activeIndex ? " active" : ""}`}
+                          style={{
+                            width:
+                              i < activeIndex
+                                ? "0%"
+                                : i === activeIndex
+                                  ? `${progress * 100}%`
+                                  : "0%",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -392,25 +454,6 @@ export default function HeroCarousel({
         </>
       )}
 
-      {multi && (
-        <div className="hero-progress">
-          {movies.map((_, i) => (
-            <div key={i} className={`hero-progress__seg${i < activeIndex ? " is-past" : ""}`}>
-              <div
-                className={`hero-progress__seg-fill${i === activeIndex ? " active" : ""}`}
-                style={{
-                  width:
-                    i < activeIndex
-                      ? "0%"
-                      : i === activeIndex
-                        ? `${progress * 100}%`
-                        : "0%",
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

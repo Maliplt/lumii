@@ -1,0 +1,285 @@
+@use "sass:color";
+@use "../base" as *;
+
+// arama butonu
+.search-btn {
+    color: rgba(255, 255, 255, 0.9) !important;
+    background-color: transparent !important;
+    border: none !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: var(--radius-1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease) !important;
+
+    svg {
+        pointer-events: none !important;
+        filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.5)) !important;
+    }
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        color: #ffffff !important;
+
+        svg { color: #ffffff !important; filter: none !important; }
+    }
+}
+
+// paket butonu
+.paket-btn {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    font-family: var(--font-header) !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    letter-spacing: 0.01em !important;
+    border-radius: var(--radius-1) !important;
+    height: 44px !important;
+    padding: 0 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36) !important;
+    transition: background-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--ease), scale 0.15s var(--ease) !important;
+
+    svg {
+        pointer-events: none !important;
+        transition: transform 0.25s var(--ease-out) !important;
+    }
+
+    &:hover {
+        background: #f1f1f1 !important;
+        color: #000000 !important;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42) !important;
+        transform: translateY(-1px) !important;
+
+        svg { transform: translateY(-2px) scale(1.08) !important; color: #000000 !important; }
+    }
+
+    &:active {
+        transform: translateY(0) scale(0.96) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.34) !important;
+    }
+}
+
+// giris butonu
+.giris-btn {
+    padding: 0 24px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: var(--radius-1) !important;
+    font-family: var(--font-header) !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease), box-shadow 0.25s var(--ease), scale 0.15s var(--ease) !important;
+
+    &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.48) !important;
+        box-shadow: none !important;
+    }
+
+    &:active {
+        background: rgba(255, 255, 255, 0.12) !important;
+        scale: 0.96 !important;
+    }
+}
+
+.cikis-btn,
+.search-btn,
+.mobile-nav-link,
+.mobile-nav-cta {
+    font-family: var(--font-header) !important;
+}
+
+// rsuite tema renkleri
+:root {
+    --rs-primary-50: #{color.mix($paper, $brand, 90%)};
+    --rs-primary-100: #{color.mix($paper, $brand, 80%)};
+    --rs-primary-200: #{color.mix($paper, $brand, 58%)};
+    --rs-primary-300: #{color.mix($paper, $brand, 32%)};
+    --rs-primary-400: #{color.mix($paper, $brand, 12%)};
+    --rs-primary-500: #{$brand};
+    --rs-primary-600: #{color.mix($ink, $brand, 14%)};
+    --rs-primary-700: #{$brand-active};
+    --rs-primary-800: #{color.mix($ink, $brand, 42%)};
+    --rs-primary-900: #{color.mix($ink, $brand, 58%)};
+
+    --rs-color-blue: #{$brand};
+    --rs-btn-primary-bg: #{$brand};
+    --rs-btn-primary-hover-bg: #{$brand-hover};
+    --rs-btn-primary-active-bg: #{$brand-active};
+    --rs-btn-ghost-text: #{$brand};
+    --rs-btn-ghost-border: #{$brand};
+    --rs-btn-ghost-hover-text: #{$brand-hover};
+    --rs-btn-ghost-hover-border: #{$brand-hover};
+    --rs-btn-ghost-active-text: #{$brand-active};
+    --rs-btn-ghost-active-border: #{$brand-active};
+    --rs-btn-link-text: #{$brand};
+    --rs-btn-link-hover-text: #{$brand-hover};
+    --rs-btn-link-active-text: #{$brand-active};
+    --rs-input-focus-border: #{$brand};
+    --rs-text-link: #{$brand};
+    --rs-text-link-hover: #{$brand-hover};
+    --rs-text-link-active: #{$brand-active};
+    --rs-toggle-checked-bg: #{$brand};
+    --rs-toggle-checked-hover-bg: #{$brand-hover};
+}
+
+.rs-btn {
+    border-radius: var(--radius-0);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    @include smooth(background-color color border-color transform, var(--dur-fast));
+
+    &:focus-visible { @include focus-ring; }
+
+    &.rs-btn-primary,
+    &[data-appearance="primary"] {
+        background-color: var(--accent);
+        color: #fff;
+        border: 1px solid var(--accent);
+
+        &:hover, &:focus {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: #fff;
+        }
+
+        &:active {
+            background-color: var(--accent-active);
+            border-color: var(--accent-active);
+        }
+    }
+
+    &.rs-btn-ghost,
+    &[data-appearance="ghost"] {
+        background-color: transparent;
+        border: 1px solid var(--border-strong);
+        color: var(--text-primary);
+
+        &:hover, &:focus {
+            background-color: var(--bg-2);
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+    }
+
+    &.rs-btn-subtle,
+    &[data-appearance="subtle"] {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+
+        &:hover, &:focus {
+            background-color: var(--bg-2);
+            color: var(--text-primary);
+        }
+    }
+
+    &.rs-btn-link,
+    &[data-appearance="link"] {
+        color: var(--text-primary);
+
+        &:hover, &:focus { color: #ffffff; }
+    }
+
+    &.rs-btn-lg {
+        padding: var(--space-3) var(--space-6);
+        font-size: var(--fs-md);
+    }
+}
+
+.rs-carousel-indicator,
+.rs-carousel-toolbar {
+    z-index: 50 !important;
+}
+
+// ilerleme cubugu
+.hero-progress {
+    display: flex;
+    gap: 6px;
+    width: 260px;
+    max-width: 100%;
+    margin-top: var(--space-5);
+    pointer-events: none;
+}
+
+.hero-progress__seg {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.24);
+    overflow: hidden;
+    transition: background-color 120ms linear;
+
+    &.is-past { background-color: var(--accent) !important; }
+}
+
+.hero-progress__seg-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    box-shadow: none;
+    transition: width 120ms linear;
+}
+
+// hero noktalari kapali
+.hero-carousel-wrapper .rs-carousel-toolbar {
+    display: none;
+}
+
+.rs-input {
+    background-color: var(--bg-3);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-0);
+    padding: var(--space-2) var(--space-3);
+    @include smooth(border-color background-color, var(--dur-fast));
+
+    &::placeholder { color: var(--text-muted); }
+
+    &:hover { border-color: var(--border-strong); }
+
+    &:focus {
+        border-color: var(--border-strong);
+        background-color: var(--bg-2);
+        outline: none;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
+}
+
+.rs-carousel {
+    background-color: transparent;
+    border-radius: var(--radius-0);
+    overflow: hidden;
+
+    .rs-carousel-slider-item { background-color: var(--bg-0); }
+
+    .rs-carousel-toolbar {
+        .rs-carousel-label-wrapper {
+            input:checked+label { background-color: var(--accent); }
+
+            label {
+                background-color: rgba(255, 255, 255, 0.3);
+                border-radius: var(--radius-0);
+                @include smooth(background-color);
+
+                &:hover { background-color: rgba(255, 255, 255, 0.55); }
+            }
+        }
+    }
+}
+
+.rs-stack {
+    align-items: center;
+}

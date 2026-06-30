@@ -4,7 +4,7 @@ import { Schema, Input, InputGroup, Button } from "rsuite";
 import { AlertCircle } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { animate } from "animejs";
-import Header from "../components/Header";
+import Header from "../components/header/Header";
 import Footer from "../components/Footer";
 import { useToast, toastText } from "../components/Toast";
 import { useFetch, useTitle } from "../helpers";
@@ -99,7 +99,7 @@ export default function LoginPage() {
     if (Object.keys(errs).length) return;
 
     submitted.current = true;
-    dispatch(login(formValue));
+    dispatch(login({ ...formValue, email: formValue.email.trim() }));
   };
 
   const setField = (key: keyof typeof formValue) => (value: string) => {

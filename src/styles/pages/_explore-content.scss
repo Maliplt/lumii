@@ -1,0 +1,50 @@
+@use "sass:color";
+@use "../base" as *;
+
+.explore-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.explore-main {
+    flex: 1;
+    // hero header arkasindan baslar
+    padding-top: 0;
+}
+
+// kaydirma cubugu
+// native scrollbar
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #020204;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-active);
+    border: 3px solid var(--bg-0);
+    border-radius: var(--radius-pill);
+    @include smooth(background-color);
+
+    &:hover {
+        background: var(--accent);
+    }
+
+    &:active {
+        background: var(--accent-hover);
+    }
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--bg-0);
+}
+
+// firefox scrollbar
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-active) var(--bg-0);
+}

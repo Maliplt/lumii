@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
@@ -12,6 +12,7 @@ import {
   withPoster,
   withMedia,
   heroFrom,
+  settleList,
   useLazyReveal,
 } from "../helpers";
 import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
@@ -27,11 +28,11 @@ export default function HomePage() {
   const activeProfile = useAppSelector(selectActiveProfile);
   const isKids = activeProfile?.kids ?? false;
 
-  // çocuk profili için içerik
+  // cocuk profili icin icerik
   const kidsData = useFetch(
     () =>
       isKids
-        ? Promise.all([
+        ? settleList([
             tmdbApi.getMoviesByGenre("16,10751"),
             tmdbApi.getMoviesByGenre(16),
             tmdbApi.getTVShowsByGenre(10762),
@@ -42,32 +43,55 @@ export default function HomePage() {
     `kids-${isKids}`,
   );
 
-  // normal içerik
-  const { data, loading, error } = useFetch(() =>
-    !isKids
-      ? Promise.all([
-          tmdbApi.getPopularMovies(),
-          tmdbApi.getPopularTVShows(),
-          tmdbApi.getTrendingMovies(),
-          tmdbApi.getTrendingTVShows(),
-          tmdbApi.getUpcomingMovies(),
-          tmdbApi.getTopRatedTVShows(),
-          tmdbApi.getNowPlayingMovies(),
-          tmdbApi.getAiringTodayTVShows(),
-          tmdbApi.getMoviesByGenre(12),
-          tmdbApi.getMoviesByGenre(16),
-          tmdbApi.getTopRatedMovies(),
-          tmdbApi.getMoviesByGenre(27, 1, "popularity.desc"),
-          tmdbApi.getMoviesByGenre(35, 1, "popularity.desc"),
-          tmdbApi.getMoviesByGenre(53, 1, "popularity.desc"),
-          tmdbApi.getMoviesByGenre(878, 1, "popularity.desc"),
-          tmdbApi.getTVShowsByGenre(80, 1, "popularity.desc"),
-          tmdbApi.getTVShowsByGenre(10765, 1, "popularity.desc"),
-          tmdbApi.getTVShowsByGenre(35, 1, "popularity.desc"),
-          tmdbApi.getTVShowsByGenre(18, 1, "popularity.desc"),
-        ])
-      : Promise.resolve(null),
-    `home-${isKids}`,
+  // ana satirlar
+  const critical = useFetch(
+    () =>
+      !isKids
+        ? settleList([
+            tmdbApi.getPopularMovies(),
+            tmdbApi.getNowPlayingMovies(),
+            tmdbApi.getTrendingMovies(),
+            tmdbApi.getPopularTVShows(),
+            tmdbApi.getTrendingTVShows(),
+          ])
+        : Promise.resolve(null),
+    `home-critical-${isKids}`,
+  );
+
+  // geri kalanlar idle sirasinda
+  const [deferReady, setDeferReady] = useState(false);
+  useEffect(() => {
+    if (isKids || !critical.data || deferReady) return;
+    const ric = window.requestIdleCallback;
+    if (ric) {
+      const handle = ric(() => setDeferReady(true), { timeout: 1500 });
+      return () => window.cancelIdleCallback?.(handle);
+    }
+    const t = setTimeout(() => setDeferReady(true), 400);
+    return () => clearTimeout(t);
+  }, [isKids, critical.data, deferReady]);
+
+  const rest = useFetch(
+    () =>
+      !isKids && deferReady
+        ? settleList([
+            tmdbApi.getUpcomingMovies(),
+            tmdbApi.getTopRatedTVShows(),
+            tmdbApi.getAiringTodayTVShows(),
+            tmdbApi.getMoviesByGenre(12),
+            tmdbApi.getMoviesByGenre(16),
+            tmdbApi.getTopRatedMovies(),
+            tmdbApi.getMoviesByGenre(27, 1, "popularity.desc"),
+            tmdbApi.getMoviesByGenre(35, 1, "popularity.desc"),
+            tmdbApi.getMoviesByGenre(53, 1, "popularity.desc"),
+            tmdbApi.getMoviesByGenre(878, 1, "popularity.desc"),
+            tmdbApi.getTVShowsByGenre(80, 1, "popularity.desc"),
+            tmdbApi.getTVShowsByGenre(10765, 1, "popularity.desc"),
+            tmdbApi.getTVShowsByGenre(35, 1, "popularity.desc"),
+            tmdbApi.getTVShowsByGenre(18, 1, "popularity.desc"),
+          ])
+        : Promise.resolve(null),
+    `home-rest-${isKids}-${deferReady}`,
   );
 
   const lists = useMemo(() => {
@@ -88,17 +112,15 @@ export default function HomePage() {
       };
     }
 
-    // data henüz gelmedi
-    if (!data) return null;
+    // kritik veri gelmedi
+    if (!critical.data) return null;
 
+    const [popularMovies, nowPlayingMovies, trending, popularTV, trendingShows] =
+      critical.data;
+    // veri gelmediginde bos diziye dus
     const [
-      popularMovies,
-      popularTV,
-      trending,
-      trendingShows,
       upcomingMovies,
       topRatedShows,
-      nowPlayingMovies,
       airingShows,
       adventureMovies,
       animationMovies,
@@ -111,7 +133,7 @@ export default function HomePage() {
       sciFiTV,
       comedyTV,
       dramaTV,
-    ] = data;
+    ] = rest.data ?? [];
 
     return {
       movies: withMedia(popularMovies?.results ?? []),
@@ -135,9 +157,9 @@ export default function HomePage() {
       comedyTV: withPoster(comedyTV?.results ?? []),
       dramaTV: withPoster(dramaTV?.results ?? []),
     };
-  }, [data, kidsData.data, isKids]);
+  }, [critical.data, rest.data, kidsData.data, isKids]);
 
-  // çocuk satırları
+  // cocuk satirlari
   const kidsRows = useMemo(() => {
     if (!isKids || !lists) return [];
     const l = lists as {
@@ -156,7 +178,7 @@ export default function HomePage() {
     ].filter(Boolean);
   }, [isKids, lists]);
 
-  // normal satırlar
+  // normal satirlari
   const rows = useMemo(() => {
     if (isKids || !lists) return [];
     const l = lists as {
@@ -208,8 +230,8 @@ export default function HomePage() {
   }, [isKids, lists, isLoggedIn, showContinueRow, continueWatching]);
 
   const activeRows = isKids ? kidsRows : rows;
-  const isLoading = isKids ? kidsData.loading : loading;
-  const isError = isKids ? kidsData.error : error;
+  const isLoading = isKids ? kidsData.loading : critical.loading;
+  const isError = isKids ? kidsData.error : critical.error;
   const heroMovies = (lists as { heroMovies?: ReturnType<typeof withPoster> } | null)?.heroMovies ?? [];
 
   const { visible, sentinelRef } = useLazyReveal(activeRows.length, 4, 3);

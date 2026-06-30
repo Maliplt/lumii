@@ -1,0 +1,348 @@
+@use "sass:color";
+@use "base" as *;
+
+// paket secim sayfasi
+.packages-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.packages-main {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    padding: calc(72px + var(--space-12)) var(--space-10) var(--space-16);
+
+    @include bp($bp-lg) {
+        padding: calc(72px + var(--space-8)) var(--space-6) var(--space-10);
+    }
+
+    @include bp($bp-md) {
+        padding: calc(60px + var(--space-6)) var(--space-4) var(--space-8);
+    }
+}
+
+// poster duvari arka plan
+.packages-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.packages-backdrop__grid {
+    position: absolute;
+    top: -6%;
+    left: -8%;
+    width: 116%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    transform: rotate(-5deg) scale(1.12);
+    transform-origin: top center;
+    opacity: 0.32;
+    filter: blur(1px);
+
+    img {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        border-radius: var(--radius-1);
+    }
+
+    @include bp($bp-md) {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 8px;
+        opacity: 0.24;
+    }
+}
+
+.packages-backdrop__veil {
+    position: absolute;
+    inset: 0;
+    background: rgba($surface-0, 0.85);
+}
+
+.packages-hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: var(--space-12);
+
+    .packages-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        font-size: var(--fs-xs);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 5px 16px;
+        border-radius: var(--radius-1);
+        margin-bottom: var(--space-4);
+    }
+
+    &__title {
+        font-size: clamp(28px, 4vw, var(--fs-4xl));
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: var(--space-3);
+
+        @include bp($bp-md) {
+            font-size: var(--fs-3xl);
+        }
+    }
+
+    &__subtitle {
+        font-size: var(--fs-md);
+        color: var(--text-secondary);
+        max-width: 520px;
+        margin: 0 auto;
+    }
+}
+
+.packages-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    max-width: 1080px;
+    margin: 0 auto;
+
+    @include bp($bp-lg) {
+        gap: var(--space-4);
+    }
+
+    @include bp($bp-md) {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+    }
+}
+
+.packages-footnote {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: var(--space-8) auto 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    line-height: 1.55;
+}
+
+.package-card {
+    background: rgba($surface-1, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    padding: var(--space-6) var(--space-6) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: relative;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+    @include smooth(transform border-color);
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: var(--border-strong);
+    }
+
+    &.package-card--active {
+        border-color: rgba($brand, 0.55);
+    }
+
+    .package-card__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+    }
+
+    .package-card__header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+
+        .package-icon {
+            color: var(--text-secondary);
+
+            &--accent {
+                color: var(--accent);
+            }
+        }
+    }
+
+    .package-name {
+        font-size: var(--fs-xl);
+        font-weight: 850;
+        color: #fff;
+        margin: 0;
+    }
+
+    .package-badge {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: 4px 11px;
+        border-radius: var(--radius-1);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: var(--fs-xs);
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+
+        &.package-badge--active {
+            background: rgba($brand, 0.18);
+            border-color: rgba($brand, 0.5);
+            color: var(--accent-hover);
+        }
+    }
+
+    .package-summary {
+        color: rgba(255, 255, 255, 0.74);
+        font-size: var(--fs-sm);
+        font-weight: 650;
+        line-height: 1.45;
+        margin: -2px 0 0;
+        min-height: 2.6em;
+    }
+
+    .package-price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .package-price {
+        font-size: clamp(2.1rem, 3vw, 2.6rem);
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .package-period {
+        font-size: var(--fs-md);
+        font-weight: 700;
+        color: var(--text-tertiary);
+    }
+
+    .package-specs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin: 0;
+        background: var(--border-subtle);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-1);
+        overflow: hidden;
+    }
+
+    .package-spec {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 13px 15px;
+        background: rgba(255, 255, 255, 0.025);
+
+        dt {
+            color: var(--text-tertiary);
+            font-size: var(--fs-xs);
+            font-weight: 750;
+            letter-spacing: 0.02em;
+        }
+
+        dd {
+            margin: 0;
+            color: #fff;
+            font-size: 0.92rem;
+            font-weight: 850;
+        }
+    }
+
+    .package-features {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        flex: 1;
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+            font-size: 0.95rem;
+            font-weight: 650;
+            color: rgba(255, 255, 255, 0.86);
+            line-height: 1.35;
+
+            svg {
+                color: var(--accent);
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+        }
+    }
+
+    .package-cta {
+        margin-top: var(--space-3);
+        height: 50px !important;
+        font-size: var(--fs-md) !important;
+        font-weight: 850 !important;
+        border-radius: var(--radius-1) !important;
+
+        &:not(.package-cta--accent) {
+            background-color: transparent !important;
+            border: 1.5px solid var(--border-strong) !important;
+            color: var(--text-primary) !important;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: rgba(255, 255, 255, 0.08) !important;
+                border-color: #ffffff !important;
+                color: #ffffff !important;
+            }
+        }
+
+        &.package-cta--accent {
+            background-color: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: #ffffff !important;
+
+            &:hover {
+                background-color: var(--accent-hover) !important;
+                border-color: var(--accent-hover) !important;
+            }
+        }
+
+        &.package-cta--active {
+            background-color: rgba($brand, 0.12) !important;
+            border: 1.5px solid rgba($brand, 0.68) !important;
+            color: var(--accent-hover) !important;
+            cursor: default !important;
+            font-weight: 700 !important;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: rgba($brand, 0.12) !important;
+                border-color: rgba($brand, 0.68) !important;
+                color: var(--accent-hover) !important;
+            }
+        }
+    }
+}

@@ -1,0 +1,106 @@
+@use "sass:color";
+@use "../../base" as *;
+
+.avatar-modal__hero {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+
+    > img {
+        width: 112px;
+        height: 140px;
+        object-fit: cover;
+        outline: 1px solid rgba(255, 255, 255, 0.12);
+        outline-offset: -1px;
+    }
+
+    h2 {
+        color: #fff;
+        font-size: clamp(1.8rem, 3vw, 2.2rem);
+        font-weight: 950;
+        letter-spacing: 0;
+        margin-bottom: 14px;
+    }
+
+    label {
+        display: grid;
+        gap: 8px;
+
+        span {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-weight: 900;
+        }
+    }
+
+    small {
+        display: block;
+        margin-top: 8px;
+        color: var(--danger);
+        font-weight: 800;
+    }
+}
+
+.avatar-modal__list {
+    display: grid;
+    gap: 22px;
+    max-height: min(48vh, 460px);
+    overflow: auto;
+    padding-right: 6px;
+}
+
+.avatar-modal__group {
+    display: grid;
+    gap: 12px;
+
+    h3 {
+        margin: 0;
+        color: #fff;
+        font-size: 1.08rem;
+        font-weight: 950;
+    }
+
+    > div {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    button {
+        display: grid;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.045);
+        color: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+        transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+
+        img {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+            outline: 1px solid rgba(255, 255, 255, 0.1);
+            outline-offset: -1px;
+        }
+
+        span {
+            font-size: 0.9rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        &:hover,
+        &.is-active {
+            border-color: rgba($brand, 0.8);
+            background: rgba($brand, 0.14);
+            color: #fff;
+        }
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+}

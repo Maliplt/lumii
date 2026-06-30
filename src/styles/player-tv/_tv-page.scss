@@ -1,0 +1,347 @@
+@use "sass:color";
+@use "../base" as *;
+
+// tv sayfasi
+.tv-page {
+    background: var(--bg-0);
+}
+
+.tv-main {
+    padding: calc(72px + var(--space-5)) clamp(12px, 2.4vw, 34px) var(--space-6);
+    height: 100vh;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+.tv-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: var(--space-5);
+    // oynatici yuksekligi
+    height: calc(100vh - 116px);
+    margin: 0 auto;
+
+    @include bp($bp-lg) {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
+
+// kanal listesi
+.tv-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    overflow: hidden;
+    min-height: 0;
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: var(--fs-lg);
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        color: #ffffff;
+        margin: 0;
+        flex-shrink: 0;
+    }
+}
+
+// kanal arama
+.tv-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    height: 42px;
+    padding: 0 8px 0 13px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-2);
+    @include smooth(border-color);
+
+    &:focus-within {
+        border-color: rgba($brand, 0.6);
+    }
+
+    &__glyph {
+        flex-shrink: 0;
+        color: var(--text-muted);
+    }
+
+    &__input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 0.94rem;
+        font-family: var(--font-body);
+        font-weight: 500;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    }
+
+    &__clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border: none;
+        border-radius: var(--radius-1);
+        background: rgba(255, 255, 255, 0.07);
+        color: var(--text-muted);
+        cursor: pointer;
+        @include smooth(background-color color);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+        }
+    }
+}
+
+.tv-channel-empty {
+    padding: var(--space-5) var(--space-3);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.92rem;
+    text-align: center;
+}
+
+.tv-channel-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-right: 6px;
+    @include accent-scroll;
+}
+
+.tv-channel-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.tv-channel-group__title {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0;
+    padding: var(--space-2) 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    background: var(--bg-0);
+}
+
+.tv-channel-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-1);
+    border-radius: var(--radius-2);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    @include smooth(background, border-color);
+
+    &:hover {
+        background: var(--bg-2);
+        border-color: var(--border-strong);
+    }
+
+    &:active {
+        transform: scale(0.99);
+    }
+
+    &.active {
+        background: rgba($brand, 0.12);
+        border-color: rgba($brand, 0.5);
+
+        .tv-channel-item__name {
+            color: #ffffff;
+        }
+
+        .tv-channel-item__no {
+            color: #ffffff;
+        }
+
+        // logo stili
+        .tv-channel-item__logo {
+            border-color: var(--accent);
+        }
+
+        .tv-channel-item__logo--text {
+            background: var(--accent);
+            color: #fff;
+        }
+    }
+
+    &__no {
+        flex-shrink: 0;
+        width: 18px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.95rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        @include smooth(color);
+    }
+
+    &__logo {
+        width: 60px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-1);
+        color: rgba(255, 255, 255, 0.92);
+        font-weight: 900;
+        font-size: 0.92rem;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        font-variant-numeric: tabular-nums;
+        @include smooth(background-color border-color color);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+    }
+
+    // logo yoksa koyu zemin
+    &__logo--text {
+        background: var(--bg-3);
+    }
+
+    &__texts {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    &__name {
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        @include smooth(color);
+    }
+
+    &__cat {
+        font-size: 0.76rem;
+        font-weight: 650;
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    &__live {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+        font-size: 0.66rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+        color: rgba(255, 255, 255, 0.62);
+    }
+
+    &__live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--danger);
+        animation: livePulse 1.5s ease-in-out infinite;
+    }
+}
+
+// oynatici alani
+.tv-featured {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--radius-2);
+    min-height: 0;
+
+    &__player {
+        flex: 1;
+        position: relative;
+        background: #000;
+        border-radius: var(--radius-2);
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        min-height: 0;
+
+        &.player-container {
+            position: relative;
+            inset: auto;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+
+            &:fullscreen {
+                border: none;
+                border-radius: 0;
+            }
+        }
+    }
+
+
+    &__video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    &__live-badge {
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-1);
+        background: var(--danger);
+        color: #fff;
+        font-size: var(--fs-xs);
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        z-index: 2;
+    }
+
+    &__channel-name {
+        position: absolute;
+        bottom: var(--space-4);
+        left: var(--space-4);
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        z-index: 2;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+}

@@ -4,7 +4,7 @@ import { Schema, Input, InputGroup, Button } from "rsuite";
 import { AlertCircle } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { animate } from "animejs";
-import Header from "../components/Header";
+import Header from "../components/header/Header";
 import Footer from "../components/Footer";
 import { useToast, toastText } from "../components/Toast";
 import { useFetch, useTitle } from "../helpers";
@@ -110,8 +110,8 @@ export default function RegisterPage() {
     submitted.current = true;
     dispatch(
       register({
-        name: formValue.name,
-        email: formValue.email,
+        name: formValue.name.trim(),
+        email: formValue.email.trim(),
         password: formValue.password,
       }),
     );

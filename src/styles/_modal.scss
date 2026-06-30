@@ -1,0 +1,118 @@
+@use "sass:color";
+@use "base" as *;
+
+// tenet modal
+.tenet-modal {
+    .rs-modal-dialog {
+        position: relative;
+        margin-top: 7vh;
+        background: var(--bg-elevated) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65) !important;
+        padding: 0 !important;
+        overflow: hidden;
+        animation: tenetModalIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .rs-modal-content {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    // ust accent hairline
+    .rs-modal-dialog::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 2px;
+        background: var(--accent);
+        z-index: 2;
+    }
+
+    // ustte yumusak isilti
+    .rs-modal-dialog::after {
+        content: '';
+        position: absolute;
+        top: -90px;
+        left: 50%;
+        width: 70%;
+        height: 180px;
+        transform: translateX(-50%);
+        background: rgba($brand, 0.1);
+        pointer-events: none;
+    }
+
+    .rs-modal-header {
+        padding: 22px 24px 10px !important;
+        background: transparent !important;
+        border-bottom: none !important;
+    }
+
+    .rs-modal-title {
+        font-family: var(--font-display);
+        font-weight: 700 !important;
+        font-size: var(--fs-xl) !important;
+        letter-spacing: -0.01em;
+        color: #fff !important;
+    }
+
+    .rs-modal-header .rs-btn-close {
+        top: 16px !important;
+        right: 16px !important;
+        width: 34px;
+        height: 34px;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: var(--text-secondary) !important;
+        @include smooth(background-color color transform);
+
+        &:hover {
+            background: var(--accent) !important;
+            color: #000 !important;
+            transform: rotate(90deg);
+        }
+    }
+
+    .rs-modal-body {
+        background: transparent !important;
+        color: #fff !important;
+        padding: 6px 24px 10px !important;
+    }
+
+    .rs-modal-footer {
+        background: transparent !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+        margin-top: 10px;
+        padding: 14px 24px 20px !important;
+    }
+}
+
+// modal arka plani
+.rs-modal-backdrop,
+.rs-backdrop {
+    background: rgba($surface-0, 0.72) !important;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+
+@keyframes tenetModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fieldIn {
+    from { transform: translateY(12px); }
+    to   { transform: translateY(0); }
+}

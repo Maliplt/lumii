@@ -7,7 +7,7 @@ import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
 import { useToast } from "../components/Toast";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useFetch, PACKAGES, useTitle, withPoster } from "../helpers";
+import { useFetch, PACKAGES, useTitle, withPoster, settleList } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
 
@@ -23,13 +23,16 @@ export default function PackagesPage() {
   const currentPlan = useAppSelector((s) => s.auth.currentUser?.plan);
 
   const { data } = useFetch(() =>
-    Promise.all([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()]),
+    settleList([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()]),
   );
 
   // posterlar
   const posters = useMemo(() => {
     if (!data) return [];
-    return withPoster([...data[0].results, ...data[1].results])
+    return withPoster([
+      ...(data[0]?.results ?? []),
+      ...(data[1]?.results ?? []),
+    ])
       .slice(0, 30)
       .map((m) => getImageUrl(m.poster_path, "w300"));
   }, [data]);

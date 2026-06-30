@@ -1,0 +1,198 @@
+@use "sass:color";
+@use "../base" as *;
+
+// kategori filtre
+.cat-dd {
+    position: relative;
+    flex-shrink: 0;
+    z-index: 60;
+}
+
+.cat-dd__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: auto;
+    min-width: 168px;
+    max-width: 320px;
+    padding: var(--btn-py) var(--btn-px);
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    font-family: var(--font-header);
+    font-size: var(--btn-fs);
+    font-weight: 700;
+    line-height: 1.2;
+    border-radius: var(--radius-2);
+    cursor: pointer;
+    @include smooth(background-color border-color box-shadow transform, var(--dur-fast));
+
+    // link hover
+    span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        border-bottom: 1.5px solid transparent;
+        transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    &:hover span {
+        border-color: currentColor;
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
+.cat-dd__caret {
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 0.2s var(--ease);
+    transform: translateY(0.5px);
+}
+
+.cat-dd.open .cat-dd__caret {
+    transform: translateY(0.5px) rotate(180deg);
+}
+
+.cat-dd__menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 1300;
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    gap: 2px 4px;
+    width: max-content;
+    max-width: min(540px, 92vw);
+    padding: var(--space-2);
+    background: var(--bg-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    box-shadow: var(--shadow-lg);
+    transform-origin: top right;
+    animation: catDdIn 0.16s ease both;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        left: 0;
+        right: 0;
+        height: 12px;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -7px;
+        right: 78px;
+        width: 13px;
+        height: 13px;
+        background: var(--bg-2);
+        border-left: 1px solid var(--border-default);
+        border-top: 1px solid var(--border-default);
+        border-top-left-radius: 3px;
+        transform: rotate(45deg);
+    }
+
+    @include bp($bp-sm) {
+        grid-template-columns: repeat(2, max-content);
+    }
+}
+
+.cat-dd--left .cat-dd__menu {
+    left: 0;
+    right: auto;
+    transform-origin: top left;
+
+    &::after {
+        left: 78px;
+        right: auto;
+    }
+}
+
+.cat-dd--up.cat-dd--left .cat-dd__menu {
+    transform-origin: bottom left;
+}
+
+.cat-dd--up .cat-dd__menu {
+    top: auto;
+    bottom: calc(100% + 12px);
+    transform-origin: bottom right;
+    animation-name: catDdInUp;
+
+    &::before {
+        top: auto;
+        bottom: -12px;
+    }
+
+    &::after {
+        top: auto;
+        bottom: -7px;
+        border-left: none;
+        border-top: none;
+        border-right: 1px solid var(--border-default);
+        border-bottom: 1px solid var(--border-default);
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 3px;
+    }
+}
+
+.cat-dd__item {
+    text-align: left;
+    padding: 9px 14px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    font-family: var(--font-header);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    line-height: 1.3;
+    border-radius: var(--radius-1);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--dur-fast) var(--ease);
+    position: relative;
+    z-index: 1;
+
+    // baglanti stili
+    &:hover {
+        color: #fff;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1.5px;
+    }
+
+    &.active {
+        color: var(--accent);
+        font-weight: 700;
+    }
+}
+
+@keyframes catDdIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes catDdInUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

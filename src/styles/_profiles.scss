@@ -1,0 +1,224 @@
+@use "sass:color";
+@use "base" as *;
+
+// kim izliyor sayfasi
+.profiles-page {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-0);
+
+    // sinematik atmosfer
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: rgba($brand, 0.045);
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-color: rgba(255, 255, 255, 0.035);
+        opacity: 0.14;
+    }
+}
+
+.profiles-page__top {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-5) var(--space-8);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    @include bp($bp-md) {
+        padding: var(--space-4) var(--space-5);
+        justify-content: flex-start;
+    }
+}
+
+.profiles-page__center {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-8);
+    padding: var(--space-4) var(--space-5) var(--space-16);
+    padding-top: clamp(32px, 5vh, 60px);
+}
+
+.profiles-head {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    animation: profileFade 0.5s var(--ease) both;
+}
+
+.profiles-title {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.05;
+}
+
+.profiles-subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.4vw, 17px);
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+}
+
+.profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(138px, 170px));
+    justify-content: center;
+    gap: clamp(14px, 2.4vw, 24px);
+    width: min(880px, 100%);
+}
+
+.profile-card {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-2);
+    background: rgba(255, 255, 255, 0.055);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 12px 30px rgba(0, 0, 0, 0.3);
+    animation: profileRise 0.5s var(--ease) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 120ms);
+    @include smooth(transform background-color border-color box-shadow, var(--dur-base));
+
+    &__avatar {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        border-radius: var(--radius-2);
+        overflow: hidden;
+        background: var(--bg-2);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        @include smooth(transform box-shadow filter, var(--dur-base));
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            outline: 1px solid rgba(255, 255, 255, 0.1);
+            outline-offset: -1px;
+        }
+
+        &--add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.76);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+        }
+    }
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.58);
+        color: #fff;
+        opacity: 0;
+        @include smooth(opacity);
+    }
+
+    &.is-managing .profile-card__overlay {
+        opacity: 1;
+    }
+
+    &__kids {
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        font-family: var(--font-body);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: #fff;
+        background: rgba($brand, 0.86);
+        border-radius: var(--radius-1);
+        padding: 2px 7px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+    }
+
+    &__name {
+        font-family: var(--font-body);
+        font-size: var(--fs-md);
+        min-width: 0;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.74);
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        @include smooth(color, var(--dur-base));
+    }
+
+    &:hover,
+    &:focus-visible {
+        outline: none;
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.26);
+        background: rgba(255, 255, 255, 0.09);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+            0 18px 38px rgba(0, 0, 0, 0.42);
+
+        .profile-card__avatar {
+            transform: scale(1.015);
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.56);
+        }
+
+        .profile-card__avatar--add {
+            color: var(--accent);
+            box-shadow: inset 0 0 0 2px rgba($brand, 0.8);
+        }
+
+        .profile-card__name {
+            color: var(--text-primary);
+        }
+    }
+}
+
+.profiles-manage-btn {
+    font-weight: 600 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase;
+    font-size: var(--fs-sm) !important;
+    padding: 10px 26px !important;
+    animation: profileFade 0.5s var(--ease) both;
+    animation-delay: 0.35s;
+}
+
+@keyframes profileFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes profileRise {
+    from { opacity: 0; transform: translateY(18px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

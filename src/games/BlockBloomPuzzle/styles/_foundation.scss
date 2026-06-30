@@ -1,0 +1,239 @@
+// ─── Pixel Pixie – Foundation ─────────────────────────────────────────────────
+
+.bb-root {
+  // ── Fonts ─────────────────────────────────────────────────────────────────
+  --px-font-pixel: "Press Start 2P", monospace;
+  --px-font-body: "Pixelify Sans", "Press Start 2P", monospace;
+
+  // ── Light mode (default) ──────────────────────────────────────────────────
+  --bb-bg: #f2edff;
+  --bb-panel: #ffffff;
+  --bb-panel-strong: #f5f1ff;
+  --bb-text: #160d33;
+  --bb-muted: #6b5d94;
+  --bb-line: rgba(80, 60, 160, 0.15);
+  --bb-focus: rgba(120, 80, 200, 0.4);
+  --bb-grid: rgba(120, 80, 200, 0.08);
+  --bb-board: #e4d9ff;
+  --bb-danger: #dc2626;
+  --bb-grid-line: rgba(80, 60, 200, 0.05);
+
+  // Glass overlays (theme-aware)
+  --bb-glass: rgba(100, 70, 200, 0.05);
+  --bb-glass-hover: rgba(100, 70, 200, 0.1);
+  --bb-glass-strong: rgba(100, 70, 200, 0.15);
+
+  // ── Layout ────────────────────────────────────────────────────────────────
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  isolation: isolate;
+  color: var(--bb-text);
+  background-color: var(--bb-bg);
+  background-image:
+    linear-gradient(var(--bb-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bb-grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: var(--px-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Dark mode override ────────────────────────────────────────────────────────
+.bb-root.bb-dark {
+  --bb-bg: #0a0818;
+  --bb-panel: #13103a;
+  --bb-panel-strong: #1c1848;
+  --bb-text: #edeaff;
+  --bb-muted: #7a6faa;
+  --bb-line: rgba(255, 255, 255, 0.1);
+  --bb-focus: rgba(255, 255, 255, 0.3);
+  --bb-grid: rgba(255, 255, 255, 0.04);
+  --bb-board: #05030f;
+  --bb-danger: #f43f5e;
+  --bb-grid-line: rgba(255, 255, 255, 0.018);
+
+  --bb-glass: rgba(255, 255, 255, 0.04);
+  --bb-glass-hover: rgba(255, 255, 255, 0.09);
+  --bb-glass-strong: rgba(255, 255, 255, 0.14);
+}
+
+.bb-root * {
+  box-sizing: border-box;
+}
+
+.bb-root button {
+  font-family: var(--px-font-body);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+.bb-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 10px 22px;
+  border-radius: 4px;
+  background: var(--bb-accent);
+  color: #fff;
+  font-family: var(--px-font-pixel);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 0 var(--bb-accent-dark), 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: px-toast-in 0.15s steps(3, end);
+}
+
+// ── Shared buttons ────────────────────────────────────────────────────────────
+
+.bb-btn-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 58px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 4px;
+  color: #080518;
+  background: var(--bb-accent);
+  font-family: var(--px-font-pixel);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  box-shadow: 0 5px 0 var(--bb-accent-dark), 0 10px 28px rgba(0, 0, 0, 0.2);
+  transition: transform 80ms, box-shadow 80ms;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 var(--bb-accent-dark), 0 14px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--bb-accent-dark);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--bb-focus);
+    outline-offset: 3px;
+  }
+}
+
+.bb-btn-ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 2px solid var(--bb-line);
+  border-radius: 4px;
+  color: var(--bb-text);
+  background: var(--bb-glass);
+  font-family: var(--px-font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  transition: background 80ms, border-color 80ms, transform 80ms;
+
+  &:hover {
+    background: var(--bb-glass-hover);
+    border-color: var(--bb-muted);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--bb-focus);
+    outline-offset: 2px;
+  }
+}
+
+.bb-danger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 16px;
+  border: 2px solid rgba(244, 63, 94, 0.35);
+  border-radius: 4px;
+  color: var(--bb-danger);
+  background: rgba(244, 63, 94, 0.07);
+  font-family: var(--px-font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  transition: background 80ms, transform 80ms;
+
+  &:hover {
+    background: rgba(244, 63, 94, 0.16);
+    transform: translateY(-1px);
+  }
+}
+
+// ── Screen wrapper ────────────────────────────────────────────────────────────
+
+.bb-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// ── Display mode selector (settings) ─────────────────────────────────────────
+
+.bb-display-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.bb-display-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 2px solid var(--bb-line);
+  border-radius: 4px;
+  background: var(--bb-glass);
+  text-align: center;
+  transition: border-color 80ms, background 80ms, transform 80ms;
+
+  strong {
+    display: block;
+    font-family: var(--px-font-pixel);
+    font-size: 0.45rem;
+    color: var(--bb-text);
+    letter-spacing: 0.04em;
+  }
+
+  &:hover {
+    background: var(--bb-glass-hover);
+    transform: translateY(-1px);
+  }
+
+  &.active {
+    border-color: var(--bb-accent);
+    background: var(--bb-glass-strong);
+  }
+}
+
+.bb-dp-preview {
+  height: 48px;
+  border-radius: 3px;
+  border: 1px solid var(--bb-line);
+}
+
+.bb-dp-light {
+  background: linear-gradient(135deg, #f2edff 60%, #e4d9ff);
+}
+
+.bb-dp-dark {
+  background: linear-gradient(135deg, #0a0818 60%, #1c1848);
+}

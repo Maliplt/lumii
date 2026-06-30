@@ -1,0 +1,178 @@
+@use "sass:list";
+@use "sass:color";
+
+// tema rengi
+$brand:        #A91D3A; // ana vurgu
+$brand-hover:  color.mix(#ffffff, $brand, 22%); // hover
+$brand-active: color.mix(#000000, $brand, 22%); // aktif
+$brand-mint:   color.mix(#ffffff, $brand, 50%); // parlak vurgu
+
+// koyu yuzeyler
+$surface-0: #000000; // sayfa zemini
+$surface-1: #080808; // kart panel
+$surface-2: #111111; // hover yuzeyi
+$surface-3: #1a1a1a; // aktif yuzey
+$surface-elevated: #121212; // yukseltilmis yuzey
+
+// metin
+$text:  #f5f5f7; // ana metin
+$paper: #ffffff; // beyaz renk
+$ink:   #000000; // siyah renk
+
+// durum renkleri
+$success: #2ecc71;
+$warning: #f2c94c; // sari renk
+$danger:  #ff4d4f;
+$gold:    #ffb800; // puan yildizi
+
+// tokenlar
+:root {
+    --bg-0: #{$surface-0};
+    --bg-1: #{$surface-1};
+    --bg-2: #{$surface-2};
+    --bg-3: #{$surface-3};
+    --bg-elevated: #{$surface-elevated};
+
+    --border-subtle: #{rgba($paper, 0.06)};
+    --border-default: #{rgba($paper, 0.1)};
+    --border-strong: #{rgba($paper, 0.18)};
+
+    --text-primary: #{$text};
+    --text-secondary: #{rgba($text, 0.72)};
+    --text-tertiary: #{rgba($text, 0.5)};
+    --text-muted: #{rgba($text, 0.32)};
+    --text-disabled: #{rgba($text, 0.2)};
+
+    --accent: #{$brand};
+    --accent-hover: #{$brand-hover};
+    --accent-active: #{$brand-active};
+    --accent-soft: #{rgba($brand, 0.12)};
+    --accent-glow: #{rgba($brand, 0.22)};
+
+    --success: #{$success};
+    --warning: #{$warning};
+    --danger: #{$danger};
+
+    --overlay-strong: #{rgba($ink, 0.85)};
+    --overlay-medium: #{rgba($ink, 0.55)};
+    --overlay-soft: #{rgba($ink, 0.3)};
+
+    --radius-0: 0px;
+    --radius-1: 2px;
+    --radius-2: 4px;
+    --radius-pill: 999px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    // govde ve paragraf metni
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-display: 'Archivo', system-ui, sans-serif;
+    // logo
+    --font-brand: 'Unbounded', cursive;
+    // hero baslik
+    --font-hero: 'Anton', 'Archivo', system-ui, sans-serif;
+    --font-header: 'Space Grotesk', 'Archivo', system-ui, sans-serif;
+
+    --fs-xs: 11px;
+    --fs-sm: 13px;
+    --fs-base: 14px;
+    --fs-md: 15px;
+    --fs-lg: 17px;
+    --fs-xl: 20px;
+    --fs-2xl: 24px;
+    --fs-3xl: 32px;
+    --fs-4xl: 40px;
+    --fs-hero: 48px;
+
+    // aksiyon butonlari
+    --btn-fs: clamp(14px, 0.5vw + 11px, 18px);
+    --btn-py: clamp(11px, 0.4vw + 8px, 16px);
+    --btn-px: clamp(22px, 1.6vw + 13px, 40px);
+
+    --shadow-sm: 0 1px 2px #{rgba($ink, 0.4)};
+    --shadow-md: 0 4px 12px #{rgba($ink, 0.5)};
+    --shadow-lg: 0 12px 32px #{rgba($ink, 0.6)};
+    --shadow-glow: 0 0 18px #{rgba($brand, 0.16)};
+
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-fast: 140ms;
+    --dur-base: 220ms;
+    --dur-slow: 380ms;
+
+    --z-base: 1;
+    --z-sticky: 100;
+    --z-header: 500;
+    --z-modal: 1000;
+    --z-spinner: 9999;
+}
+
+// mixinler
+@mixin solid-overlay-bottom($from: 0.9) {
+    background: rgba($ink, $from * 0.62);
+}
+
+@mixin truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@mixin focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 1px var(--accent);
+}
+
+@mixin smooth($props: all, $dur: var(--dur-base)) {
+    $transitions: ();
+    @each $prop in $props {
+        $transitions: list.append($transitions, $prop $dur var(--ease), comma);
+    }
+    transition: $transitions;
+}
+
+$bp-xl: 1200px;
+$bp-lg: 1024px;
+$bp-md: 768px;
+$bp-sm: 480px;
+
+@mixin bp($max) {
+    @media (max-width: $max) {
+        @content;
+    }
+}
+
+// ince scrollbar
+@mixin accent-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(255, 255, 255, 0.05);
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-hover);
+    }
+}
+

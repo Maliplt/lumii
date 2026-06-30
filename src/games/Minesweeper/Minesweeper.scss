@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ms-app {
+  min-height: 100vh;
+  background: #fef9f0;
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.doodle-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.doodle-shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.12;
+}
+
+.ms-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ms-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 46px;
+  color: #ff4757;
+  letter-spacing: -1px;
+  line-height: 1;
+  text-shadow:
+    3px 3px 0 #ffb3ba,
+    -1px -1px 0 rgba(255,71,87,0.3);
+  margin-bottom: 2px;
+}
+
+.ms-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.bomb-icon {
+  font-size: 36px;
+  animation: wiggle 3s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.ms-subtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff9a9a;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.diff-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ms-diff-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px;
+  padding: 6px 18px;
+  border: 2.5px solid #ddd;
+  background: white;
+  color: #888;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.ms-diff-btn.active-kolay {
+  border-color: #2ed573;
+  background: #f0fff5;
+  color: #2ed573;
+}
+.ms-diff-btn.active-orta {
+  border-color: #ffa502;
+  background: #fffbf0;
+  color: #ffa502;
+}
+.ms-diff-btn.active-zor {
+  border-color: #ff4757;
+  background: #fff5f5;
+  color: #ff4757;
+}
+.ms-diff-btn.active-uzman {
+  border-color: #5352ed;
+  background: #f5f5ff;
+  color: #5352ed;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 2px solid #ffe0e0;
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  color: #ff6b6b;
+  box-shadow: 0 2px 8px rgba(255,107,107,0.15);
+}
+
+.stat-pill.timer { border-color: #c0e8ff; color: #4a90d9; }
+.stat-pill.flags { border-color: #ffd0a0; color: #ff8c42; }
+.stat-pill.mines { border-color: #ffc0c0; color: #ff4757; }
+
+.stat-icon { font-size: 16px; }
+
+.board-container {
+  background: white;
+  border: 3px solid #ffe0e0;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow:
+    0 4px 0 #ffc0c0,
+    0 8px 20px rgba(255,100,100,0.15);
+  overflow: auto;
+  max-width: 98vw;
+}
+
+.ms-board {
+  display: inline-grid;
+  gap: 2px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ms-cell {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.12s;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ms-cell.hidden {
+  background: linear-gradient(135deg, #f8f0ff 0%, #f0e8ff 100%);
+  border: 2px solid #e0d0ff;
+  box-shadow: 0 2px 0 #c0a0e8, inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.ms-cell.hidden:hover:not(.flagged) {
+  background: linear-gradient(135deg, #fff0f8 0%, #ffe8f5 100%);
+  border-color: #ffb0d8;
+  box-shadow: 0 2px 0 #ff90c0, inset 0 1px 0 rgba(255,255,255,0.9);
+  transform: translateY(-1px);
+}
+
+.ms-cell.hidden:active:not(.flagged) {
+  transform: translateY(1px);
+  box-shadow: 0 0 0 #c0a0e8;
+}
+
+.ms-cell.flagged {
+  background: linear-gradient(135deg, #fff8e0 0%, #fff0c0 100%);
+  border: 2px solid #ffd060;
+  box-shadow: 0 2px 0 #e8b020, inset 0 1px 0 rgba(255,255,255,0.9);
+  font-size: 18px;
+}
+
+.ms-cell.revealed {
+  background: #f8f8ff;
+  border: 2px solid transparent;
+  cursor: default;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.ms-cell.revealed.empty { background: #f0f8f0; }
+
+.ms-cell.revealed.n1 { color: #2196F3; }
+.ms-cell.revealed.n2 { color: #4CAF50; }
+.ms-cell.revealed.n3 { color: #F44336; }
+.ms-cell.revealed.n4 { color: #9C27B0; }
+.ms-cell.revealed.n5 { color: #FF5722; }
+.ms-cell.revealed.n6 { color: #009688; }
+.ms-cell.revealed.n7 { color: #212121; }
+.ms-cell.revealed.n8 { color: #757575; }
+
+.ms-cell.mine-hit {
+  background: #ff4757 !important;
+  border-color: #ff1f30 !important;
+  animation: shake 0.4s ease;
+}
+
+.ms-cell.mine-revealed {
+  background: #ffe4e4;
+  border-color: #ffb0b0;
+}
+
+.ms-cell.mine-safe {
+  background: #e8ffe8;
+  border-color: #90e890;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-2deg); }
+  40% { transform: translateX(4px) rotate(2deg); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.ms-cell.just-revealed {
+  animation: pop 0.2s ease;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ms-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px;
+  padding: 8px 20px;
+  border: 2.5px solid #ddd;
+  background: white;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ms-btn-flag {
+  border-color: #ffd060;
+  color: #e8a000;
+  background: #fffce0;
+}
+.ms-btn-flag.active {
+  background: #ffd060;
+  color: #7a5000;
+  border-color: #e8a000;
+  box-shadow: 0 2px 8px rgba(255,208,96,0.4);
+}
+
+.ms-btn-new {
+  border-color: #ff9eb5;
+  color: #ff4757;
+  background: #fff5f7;
+}
+.ms-btn-new:hover {
+  background: #ff4757;
+  color: white;
+  border-color: #ff4757;
+  box-shadow: 0 3px 12px rgba(255,71,87,0.35);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.overlay-bg-lose { background: rgba(255,71,87,0.7); }
+.overlay-bg-win { background: rgba(46,213,115,0.7); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.result-card {
+  background: white;
+  border-radius: 20px;
+  padding: 36px 44px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  animation: bounceIn 0.4s ease;
+  border: 3px solid transparent;
+}
+
+.result-card.win { border-color: #2ed573; }
+.result-card.lose { border-color: #ff4757; }
+
+.result-emoji { font-size: 64px; margin-bottom: 12px; display: block; }
+.result-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.result-card.win .result-title { color: #2ed573; }
+.result-card.lose .result-title { color: #ff4757; }
+
+.result-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: #aaa;
+  margin-bottom: 20px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.result-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.result-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.result-stat-val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  color: #333;
+}
+
+.result-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #bbb;
+}
+
+.result-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.result-btn.win-btn {
+  background: #2ed573;
+  color: white;
+  box-shadow: 0 4px 0 #1aaf58;
+}
+.result-btn.win-btn:hover { background: #26c065; }
+.result-btn.lose-btn {
+  background: #ff4757;
+  color: white;
+  box-shadow: 0 4px 0 #cc1f30;
+}
+.result-btn.lose-btn:hover { background: #e83040; }

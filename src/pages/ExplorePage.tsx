@@ -6,7 +6,14 @@ import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import StateView from "../components/StateView";
 import { tmdbApi } from "../services/tmdb";
-import { useFetch, useTitle, withPoster, heroFrom, useLazyReveal } from "../helpers";
+import {
+  useFetch,
+  useTitle,
+  withPoster,
+  heroFrom,
+  settleList,
+  useLazyReveal,
+} from "../helpers";
 import type { Movie, TVShow } from "../types/types";
 
 type Media = Movie | TVShow;
@@ -139,7 +146,7 @@ async function loadAll(type: MediaType): Promise<ExploreData> {
       romance,
       horror,
       family,
-    ] = await Promise.all([
+    ] = await settleList([
       tmdbApi.getTrendingMovies(),
       tmdbApi.getTopRatedMovies(),
       tmdbApi.getNowPlayingMovies(),
@@ -152,18 +159,18 @@ async function loadAll(type: MediaType): Promise<ExploreData> {
       tmdbApi.getMoviesByGenre("16,10751"),
     ]);
     return {
-      hero: heroFrom(trending.results),
+      hero: heroFrom(trending?.results ?? []),
       rows: [
-        { title: "En Yüksek Puanlı Filmler", items: withPoster(topRated.results) },
-        { title: "Sinemalarda Vizyondakiler", items: withPoster(nowPlaying.results) },
-        { title: "Gündemdekiler", items: withPoster(trending.results) },
-        { title: "Aksiyon ve Macera", items: withPoster(action.results) },
-        { title: "Komedi Rüzgarı", items: withPoster(comedy.results) },
-        { title: "Bilim Kurgu ve Fantastik", items: withPoster(scifi.results) },
-        { title: "Gerilim ve Heyecan", items: withPoster(thriller.results) },
-        { title: "Aşk ve Romantizm", items: withPoster(romance.results) },
-        { title: "Korku ve Ürperti", items: withPoster(horror.results) },
-        { title: "Çocuklar ve Aile", items: withPoster(family.results) },
+        { title: "En Yüksek Puanlı Filmler", items: withPoster(topRated?.results ?? []) },
+        { title: "Sinemalarda Vizyondakiler", items: withPoster(nowPlaying?.results ?? []) },
+        { title: "Gündemdekiler", items: withPoster(trending?.results ?? []) },
+        { title: "Aksiyon ve Macera", items: withPoster(action?.results ?? []) },
+        { title: "Komedi Rüzgarı", items: withPoster(comedy?.results ?? []) },
+        { title: "Bilim Kurgu ve Fantastik", items: withPoster(scifi?.results ?? []) },
+        { title: "Gerilim ve Heyecan", items: withPoster(thriller?.results ?? []) },
+        { title: "Aşk ve Romantizm", items: withPoster(romance?.results ?? []) },
+        { title: "Korku ve Ürperti", items: withPoster(horror?.results ?? []) },
+        { title: "Çocuklar ve Aile", items: withPoster(family?.results ?? []) },
       ],
     };
   }
@@ -179,7 +186,7 @@ async function loadAll(type: MediaType): Promise<ExploreData> {
     scifiFan,
     crime,
     anim,
-  ] = await Promise.all([
+  ] = await settleList([
     tmdbApi.getTrendingTVShows(),
     tmdbApi.getTopRatedTVShows(),
     tmdbApi.getAiringTodayTVShows(),
@@ -192,18 +199,18 @@ async function loadAll(type: MediaType): Promise<ExploreData> {
     tmdbApi.getTVShowsByGenre(16),
   ]);
   return {
-    hero: heroFrom(trending.results),
+    hero: heroFrom(trending?.results ?? []),
     rows: [
-      { title: "En Beğenilen Diziler", items: withPoster(topRated.results) },
-      { title: "Bugün Yayında", items: withPoster(airing.results) },
-      { title: "Yeni Bölümler", items: withPoster(onAir.results) },
-      { title: "Gündemdeki Diziler", items: withPoster(trending.results) },
-      { title: "Aksiyon ve Macera", items: withPoster(actionAdv.results) },
-      { title: "Komedi Dizileri", items: withPoster(comedy.results) },
-      { title: "Dram", items: withPoster(drama.results) },
-      { title: "Bilim Kurgu ve Fantastik", items: withPoster(scifiFan.results) },
-      { title: "Suç ve Polisiye", items: withPoster(crime.results) },
-      { title: "Animasyon Dizileri", items: withPoster(anim.results) },
+      { title: "En Beğenilen Diziler", items: withPoster(topRated?.results ?? []) },
+      { title: "Bugün Yayında", items: withPoster(airing?.results ?? []) },
+      { title: "Yeni Bölümler", items: withPoster(onAir?.results ?? []) },
+      { title: "Gündemdeki Diziler", items: withPoster(trending?.results ?? []) },
+      { title: "Aksiyon ve Macera", items: withPoster(actionAdv?.results ?? []) },
+      { title: "Komedi Dizileri", items: withPoster(comedy?.results ?? []) },
+      { title: "Dram", items: withPoster(drama?.results ?? []) },
+      { title: "Bilim Kurgu ve Fantastik", items: withPoster(scifiFan?.results ?? []) },
+      { title: "Suç ve Polisiye", items: withPoster(crime?.results ?? []) },
+      { title: "Animasyon Dizileri", items: withPoster(anim?.results ?? []) },
     ],
   };
 }
@@ -218,7 +225,7 @@ async function loadCategory(
       ? tmdbApi.getMoviesByGenre(genre, page, sort)
       : tmdbApi.getTVShowsByGenre(genre, page, sort);
 
-  const [p1, top, p2, p3] = await Promise.all([
+  const [p1, top, p2, p3] = await settleList([
     byGenre(1),
     byGenre(1, "vote_average.desc"),
     byGenre(2),
@@ -226,10 +233,10 @@ async function loadCategory(
   ]);
   const noun = type === "movie" ? "Filmler" : "Diziler";
   return [
-    { title: `${label} — Öne Çıkan ${noun}`, items: withPoster(p1.results) },
-    { title: `${label} — En Yüksek Puanlı ${noun}`, items: withPoster(top.results) },
-    { title: `${label} — Daha Fazla ${noun}`, items: withPoster(p2.results) },
-    { title: `${label} — Keşfet`, items: withPoster(p3.results) },
+    { title: `${label} — Öne Çıkan ${noun}`, items: withPoster(p1?.results ?? []) },
+    { title: `${label} — En Yüksek Puanlı ${noun}`, items: withPoster(top?.results ?? []) },
+    { title: `${label} — Daha Fazla ${noun}`, items: withPoster(p2?.results ?? []) },
+    { title: `${label} — Keşfet`, items: withPoster(p3?.results ?? []) },
   ];
 }
 
