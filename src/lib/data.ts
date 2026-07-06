@@ -89,6 +89,10 @@ Object.assign(AVATARS, {
   a9: AVATARS["animated-toy"],
   a10: AVATARS["animated-robot"],
 });
+// avatar seçici
+export function avatarFor(profile?: { avatar?: string } | null): string {
+  return AVATARS[profile?.avatar ?? DEFAULT_AVATAR] ?? AVATARS[DEFAULT_AVATAR];
+}
 
 // paketler
 export const PACKAGES: PackageDef[] = [
@@ -167,3 +171,7 @@ export const PACKAGES: PackageDef[] = [
     cta: "Premium'a Geç",
   },
 ];
+
+export function findPackage(id?: string | null): PackageDef | undefined {
+  return PACKAGES.find((pkg) => pkg.id === id);
+}

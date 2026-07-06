@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Movie, TVShow } from "../types/types";
 import { auth } from "./authSlice";
 
-// kitaplik
+// kütüphane tanımı
 export interface WatchProgress {
   position: number; // saniye
   duration: number; // saniye
@@ -66,7 +66,7 @@ const libraryInitial: LibraryState = {
   byProfile: {},
 };
 
-// aktif profil kovasi
+// profil kütüphanesi
 function bucket(state: LibraryState): LibraryData | null {
   if (!state.activeId) return null;
   if (!state.byProfile[state.activeId]) {
@@ -75,7 +75,7 @@ function bucket(state: LibraryState): LibraryData | null {
   return state.byProfile[state.activeId];
 }
 
-// toggle helper
+// liste düzenleme
 function toggle(list: SavedItem[], item: SavedItem): SavedItem[] {
   return list.some((x) => sameSavedItem(x, item))
     ? list.filter((x) => !sameSavedItem(x, item))

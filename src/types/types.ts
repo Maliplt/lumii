@@ -67,6 +67,7 @@ export interface Credits {
 }
 
 export interface MovieDetail extends Movie {
+  media_type: "movie";
   genres: Genre[];
   runtime: number | null;
   tagline: string;
@@ -76,6 +77,7 @@ export interface MovieDetail extends Movie {
 }
 
 export interface TVShowDetail extends TVShow {
+  media_type: "tv";
   genres: Genre[];
   episode_run_time: number[];
   tagline: string;
@@ -85,6 +87,9 @@ export interface TVShowDetail extends TVShow {
   credits?: Credits;
   videos?: VideosResponse;
 }
+
+// film ve dizi detayini media_type alanina gore ayirt eden birlesim tipi
+export type ContentDetail = MovieDetail | TVShowDetail;
 
 export interface Episode {
   id: number;

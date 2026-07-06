@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Input, Modal } from "rsuite";
-import { X } from "lucide-react";
+import { isValidEmail } from "../../lib/utils";
+import ModalCloseButton from "./ModalCloseButton";
+import ModalHero from "./ModalHero";
 
 interface Props {
   email: string;
@@ -14,7 +16,7 @@ export default function EmailChangeModal({ email, onClose, onSave }: Props) {
 
   const save = () => {
     const next = value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) {
+    if (!isValidEmail(next)) {
       setError("Geçerli bir e-posta adresi gir.");
       return;
     }
@@ -23,22 +25,14 @@ export default function EmailChangeModal({ email, onClose, onSave }: Props) {
 
   return (
     <Modal open onClose={onClose} size="sm" className="profile-modal email-modal">
-      <div className="profile-modal__head">
-        <button
-          type="button"
-          className="profile-modal__close"
-          onClick={onClose}
-          aria-label="Kapat"
-        >
-          <X size={22} />
-        </button>
-      </div>
+      <ModalCloseButton onClose={onClose} />
 
       <Modal.Body>
-        <div className="email-modal__hero">
-          <h2>E-posta adresi</h2>
-          <p>Hesabınla ilgili bildirimler ve faturalar bu adrese gönderilir.</p>
-        </div>
+        <ModalHero
+          className="email-modal__hero"
+          title="E-posta adresi"
+          description="Hesabınla ilgili bildirimler ve faturalar bu adrese gönderilir."
+        />
         <label className="profile-edit__field" htmlFor="account-email">
           <span>Yeni e-posta</span>
           <Input

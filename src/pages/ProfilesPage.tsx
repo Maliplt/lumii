@@ -6,18 +6,8 @@ import { Plus, Pencil } from "lucide-react";
 import Logo from "../components/header/Logo";
 import ProfileEditorModal from "../components/modals/ProfileEditorModal";
 import ProfileUnlockModal from "../components/modals/ProfileUnlockModal";
-import { useToast, toastText } from "../components/Toast";
-import { AVATARS, useTitle } from "../helpers";
-import {
-  useAppSelector,
-  useAppDispatch,
-  selectProfile,
-  addProfile,
-  updateProfile,
-  deleteProfile,
-  MAX_PROFILES,
-  type Profile,
-} from "../store/store";
+import { avatarFor, useTitle, useToast, toastText } from "../helpers";
+import { useAppSelector, useAppDispatch, selectProfile, addProfile, updateProfile, deleteProfile, MAX_PROFILES, type Profile } from "../store/store";
 
 type EditorState =
   | { mode: "create" }
@@ -44,7 +34,7 @@ export default function ProfilesPage() {
 
   if (!currentUser) return null;
 
-  // pin sonrasi gecis animasyonu
+  // profil geçişi
   const goToProfile = (p: Profile, el: HTMLElement | null) => {
     if (leaving) return;
     setLeaving(true);
@@ -108,7 +98,7 @@ export default function ProfilesPage() {
               onClick={(e) => enter(p, e.currentTarget)}
             >
               <span className="profile-card__avatar">
-                <img src={AVATARS[p.avatar]} alt="" />
+                <img src={avatarFor(p)} alt="" />
                 {manage && (
                   <span className="profile-card__overlay">
                     <Pencil size={22} />

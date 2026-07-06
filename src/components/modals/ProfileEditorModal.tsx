@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button, Input, Modal, Toggle } from "rsuite";
-import { X } from "lucide-react";
 import { AVATAR_CATEGORIES, AVATARS, DEFAULT_AVATAR } from "../../helpers";
+import ModalCloseButton from "./ModalCloseButton";
+import ModalHero from "./ModalHero";
 import type { Profile } from "../../store/store";
 
 interface Props {
@@ -43,22 +44,14 @@ export default function ProfileEditorModal({
       size={isEdit ? "lg" : "sm"}
       className={`profile-modal profile-edit-modal${isEdit ? " profile-edit-modal--full" : ""}`}
     >
-      <div className="profile-modal__head">
-        <button
-          type="button"
-          className="profile-modal__close"
-          onClick={onClose}
-          aria-label="Kapat"
-        >
-          <X size={22} />
-        </button>
-      </div>
+      <ModalCloseButton onClose={onClose} />
 
       <Modal.Body>
-        <div className="profile-edit__hero">
-          <h2>{isEdit ? "Profili düzenle" : "Profil ekle"}</h2>
-          <p>Bu hesabı izleyecek kişi için profil bilgilerini düzenle.</p>
-        </div>
+        <ModalHero
+          className="profile-edit__hero"
+          title={isEdit ? "Profili düzenle" : "Profil ekle"}
+          description="Bu hesabı izleyecek kişi için profil bilgilerini düzenle."
+        />
 
         <div className="profile-edit__identity">
           <img src={AVATARS[avatar]} alt="" />

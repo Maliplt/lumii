@@ -3,15 +3,10 @@ import { ChevronRight, Film, Tv } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
-import { useToast, toastText } from "../Toast";
-import { AVATARS } from "../../helpers";
-import {
-  useAppSelector,
-  useAppDispatch,
-  logout,
-  selectActiveProfile,
-} from "../../store/store";
+import { useLogout } from "../../helpers";
+import { useAppSelector, selectShownProfile } from "../../store/store";
 import { NAV_LINKS } from "./headerLinks";
+import AvatarOrInitial from "./AvatarOrInitial";
 
 interface Props {
   open: boolean;
@@ -21,11 +16,9 @@ interface Props {
 export default function HeaderMobileNav({ open, onClose }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const toast = useToast();
+  const logoutUser = useLogout();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const activeProfile = useAppSelector(selectActiveProfile);
-  const shownProfile = activeProfile ?? currentUser?.profiles[0] ?? null;
+  const shownProfile = useAppSelector(selectShownProfile);
   const exploreType = new URLSearchParams(location.search).get("type");
 
   if (!open) return null;
@@ -36,10 +29,8 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    logoutUser();
     onClose();
-    toast(toastText.loggedOut, "info");
-    navigate("/");
   };
 
   return (
@@ -71,11 +62,7 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
             onClick={() => go("/account")}
           >
             <span className="mobile-nav-account__avatar">
-              {shownProfile?.avatar ? (
-                <img src={AVATARS[shownProfile.avatar]} alt="" />
-              ) : (
-                currentUser.name.charAt(0).toUpperCase()
-              )}
+              <AvatarOrInitial profile={shownProfile} fallbackName={currentUser.name} />
             </span>
             <span className="mobile-nav-account__text">
               <strong>{shownProfile?.name ?? currentUser.name}</strong>

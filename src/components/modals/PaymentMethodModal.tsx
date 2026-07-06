@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { Button, Input, Modal, Toggle } from "rsuite";
-import { X } from "lucide-react";
-import {
-  formatCardNumber,
-  formatCvc,
-  formatExpiry,
-  isValidCardNumber,
-  isValidCvc,
-  isValidExpiry,
-} from "../../services/card";
+import ModalCloseButton from "./ModalCloseButton";
+import ModalHero from "./ModalHero";
+import { formatCardNumber, formatCvc, formatExpiry, isValidCardNumber, isValidCvc, isValidExpiry } from "../../services/card";
+import { isValidEmail } from "../../lib/utils";
 import type { Receipt } from "../../store/store";
 
 interface Props {
@@ -59,6 +54,10 @@ export default function PaymentMethodModal({
       setError("Fatura adresi gerekli.");
       return;
     }
+    if (!isValidEmail(billingEmail)) {
+      setError("Geçerli bir fatura e-postası gir.");
+      return;
+    }
 
     const last4 = cardNumber.replace(/\D/g, "").slice(-4);
     onSave({
@@ -71,22 +70,14 @@ export default function PaymentMethodModal({
 
   return (
     <Modal open onClose={onClose} size="md" className="profile-modal payment-method-modal">
-      <div className="profile-modal__head">
-        <button
-          type="button"
-          className="profile-modal__close"
-          onClick={onClose}
-          aria-label="Kapat"
-        >
-          <X size={22} />
-        </button>
-      </div>
+      <ModalCloseButton onClose={onClose} />
 
       <Modal.Body>
-        <div className="email-modal__hero">
-          <h2>Ödeme yöntemi</h2>
-          <p>Kart ve fatura bilgilerini güncelle.</p>
-        </div>
+        <ModalHero
+          className="email-modal__hero"
+          title="Ödeme yöntemi"
+          description="Kart ve fatura bilgilerini güncelle."
+        />
 
         {receipt?.paymentMethod && (
           <div className="payment-method-current">

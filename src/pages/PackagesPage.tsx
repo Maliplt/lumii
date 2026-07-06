@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "rsuite";
-import { Check } from "lucide-react";
-import { MotionIcon } from "motion-icons-react";
 import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
-import { useToast } from "../components/Toast";
+import PackageCard from "../components/PackageCard";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useFetch, PACKAGES, useTitle, withPoster, settleList } from "../helpers";
+import { useFetch, PACKAGES, useTitle, withPoster, settleList, useToast } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
 
@@ -16,7 +13,6 @@ export default function PackagesPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const heroRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
 
   // redux
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
@@ -45,17 +41,6 @@ export default function PackagesPage() {
         duration: 500,
         easing: "easeOutQuart",
       });
-
-    if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll(".package-card");
-      animate(cards, {
-        opacity: [0, 1],
-        translateY: [32, 0],
-        duration: 480,
-        easing: "easeOutQuart",
-        delay: (_el: Element, i: number) => 160 + i * 100,
-      });
-    }
   }, []);
 
   // secim
@@ -94,83 +79,16 @@ export default function PackagesPage() {
         </p>
       </div>
 
-      <div className="packages-grid" ref={gridRef}>
-        {PACKAGES.map((pkg) => {
-          const isActive = currentPlan === pkg.id;
-          const specs = [
-            { label: "Görüntü", value: pkg.quality },
-            { label: "Eş zamanlı", value: pkg.screens },
-            { label: "İndirme", value: pkg.downloads },
-            { label: "Destek", value: pkg.support },
-          ].filter((s) => s.value);
-
-          return (
-            <div
-              key={pkg.id}
-              className={`package-card${isActive ? " package-card--active" : ""}`}
-              style={{ opacity: 0 }}
-            >
-              <div className="package-card__top">
-                <div className="package-card__header">
-                  <MotionIcon
-                    name={pkg.icon}
-                    size={20}
-                    className="package-icon"
-                    trigger="hover"
-                    animation="pop"
-                  />
-                  <h3 className="package-name">{pkg.name}</h3>
-                </div>
-                {isActive ? (
-                  <span className="package-badge package-badge--active">
-                    Mevcut Plan
-                  </span>
-                ) : (
-                  pkg.badge && <span className="package-badge">{pkg.badge}</span>
-                )}
-              </div>
-
-              {pkg.summary && <p className="package-summary">{pkg.summary}</p>}
-
-              <div className="package-price-row">
-                <span className="package-price">{pkg.price}</span>
-                {pkg.period && (
-                  <span className="package-period">{pkg.period}</span>
-                )}
-              </div>
-
-              {specs.length > 0 && (
-                <dl className="package-specs">
-                  {specs.map((s) => (
-                    <div className="package-spec" key={s.label}>
-                      <dt>{s.label}</dt>
-                      <dd>{s.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-
-              <ul className="package-features">
-                {pkg.features.map((f) => (
-                  <li key={f}>
-                    <Check size={15} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                appearance="primary"
-                className={`package-cta package-cta--accent${isActive ? " package-cta--active" : ""}`}
-                onClick={() => !isActive && handleSelect(pkg)}
-                disabled={isActive}
-                block
-              >
-                {isActive ? "Aktif Planın" : pkg.cta}
-              </Button>
-            </div>
-          );
-        })}
+      <div className="packages-grid">
+        {PACKAGES.map((pkg, i) => (
+          <PackageCard
+            key={pkg.id}
+            pkg={pkg}
+            isActive={currentPlan === pkg.id}
+            index={i}
+            onSelect={handleSelect}
+          />
+        ))}
       </div>
 
       <p className="packages-footnote">

@@ -27,6 +27,27 @@
         height: 65dvh !important;
     }
 
+    // kisa hero'da icerik sabit header'in arkasinda kalmasin
+    .hero-carousel-inner {
+        min-height: 440px !important;
+    }
+
+    .overview-page .hero-carousel-inner {
+        min-height: 460px !important;
+    }
+
+    .hero-slide .hero-info {
+        bottom: 100px;
+        max-width: 520px;
+    }
+
+    // kisa hero'da -160px'lik cekme icerigin hero-info'nun ustune binmesine sebep oluyordu
+    .home-content,
+    .explore-content,
+    .overview-content {
+        margin-top: -60px !important;
+    }
+
     .hero-nav-btn {
         width: 46px !important;
         height: 46px !important;

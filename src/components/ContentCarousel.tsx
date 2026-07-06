@@ -1,36 +1,11 @@
-import {
-  memo,
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { memo, useRef, useState, useMemo, useEffect, type ReactNode } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
-import {
-  getImageUrl,
-  tmdbApi,
-  pickTrailer,
-  genreNames,
-  formatRuntime,
-} from "../services/tmdb";
-import {
-  useSwipe,
-  mediaName,
-  mediaYear,
-  useLibraryActions,
-  popButton,
-  formatTime,
-} from "../helpers";
-import {
-  useAppSelector,
-  resumeLabel,
-  canResumeProgress,
-  type SavedItem,
-} from "../store/store";
+import { getImageUrl, tmdbApi, pickTrailer, genreNames, formatRuntime } from "../services/tmdb";
+import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton, formatTime, useYouTubeEmbed, buildYoutubeEmbedUrl } from "../helpers";
+import { useAppSelector, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
 import type { Movie, TVShow } from "../types/types";
 
 type Media = Movie | TVShow;
@@ -78,8 +53,6 @@ export function MediaActionButtons({
 }
 
 const HOVER_EXPAND_DELAY = 500;
-const YT_ENDED = 0;
-const YT_PLAYING = 1;
 
 const detailCache = new Map<
   string,
@@ -135,16 +108,14 @@ const ItemCard = memo(function ItemCard({
   const ref = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const readyTimer = useRef<number | null>(null);
   const token = useRef({});
-  const openRef = useRef(false);
   const [open, setOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [runtime, setRuntime] = useState(0);
   const [seasons, setSeasons] = useState(0);
-  const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(true);
   const navigate = useNavigate();
+  const { ready, muted, onFrameLoad, toggleMute: toggleTrailerMute } =
+    useYouTubeEmbed(frameRef, open ? trailerKey : null);
 
   const cardType = (item as SavedItem).media_type ?? type;
   const previewsEnabled = useAppSelector((s) => s.settings.previews);
@@ -160,58 +131,68 @@ const ItemCard = memo(function ItemCard({
       : seasons > 0
         ? `${seasons} Sezon`
         : "";
-
-  const apply = (d: { trailer: string | null; runtime: number; seasons: number }) => {
-    if (!openRef.current) return;
-    setTrailerKey(d.trailer);
-    setRuntime(d.runtime);
-    setSeasons(d.seasons);
-  };
-
-  const loadDetail = async () => {
+  // fragman yükle
+  useEffect(() => {
+    if (!open) return;
     const key = `${cardType}-${item.id}`;
     const cached = detailCache.get(key);
     if (cached) {
-      apply(cached);
+      queueMicrotask(() => {
+        setTrailerKey(cached.trailer);
+        setRuntime(cached.runtime);
+        setSeasons(cached.seasons);
+      });
       return;
     }
-    try {
-      const videos = await tmdbApi.getVideos(cardType, item.id);
-      const d = {
-        trailer: pickTrailer(videos.results ?? []),
-        runtime: 0,
-        seasons: 0,
-      };
-      detailCache.set(key, d);
-      apply(d);
-    } catch {
-      detailCache.set(key, { trailer: null, runtime: 0, seasons: 0 });
-    }
-  };
+    let cancelled = false;
+    tmdbApi
+      .getVideos(cardType, item.id)
+      .then((videos) => {
+        const detail = {
+          trailer: pickTrailer(videos.results ?? []),
+          runtime: 0,
+          seasons: 0,
+        };
+        detailCache.set(key, detail);
+        if (cancelled) return;
+        setTrailerKey(detail.trailer);
+        setRuntime(detail.runtime);
+        setSeasons(detail.seasons);
+      })
+      .catch(() => {
+        detailCache.set(key, { trailer: null, runtime: 0, seasons: 0 });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, cardType, item.id]);
+
+  // hover temizliği
+  useEffect(() => {
+    const myToken = token.current;
+    return () => {
+      if (hoverTimer.current) clearTimeout(hoverTimer.current);
+      if (openToken === myToken) {
+        openToken = null;
+        closeOpenCard = null;
+      }
+    };
+  }, []);
 
   const expand = () => {
     if (closeOpenCard && openToken !== token.current) closeOpenCard();
     openToken = token.current;
     closeOpenCard = collapse;
-    openRef.current = true;
     setOpen(true);
-    loadDetail();
   };
 
   const collapse = () => {
-    if (readyTimer.current) {
-      window.clearTimeout(readyTimer.current);
-      readyTimer.current = null;
-    }
     if (openToken === token.current) {
       openToken = null;
       closeOpenCard = null;
     }
-    openRef.current = false;
     setOpen(false);
     setTrailerKey(null);
-    setReady(false);
-    setMuted(true);
     setSeasons(0);
     setRuntime(0);
   };
@@ -226,84 +207,17 @@ const ItemCard = memo(function ItemCard({
       clearTimeout(hoverTimer.current);
       hoverTimer.current = null;
     }
-    if (openRef.current) collapse();
+    if (open) collapse();
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     popButton(e.currentTarget as HTMLElement);
-    const win = frameRef.current?.contentWindow;
-    if (!win) return;
-    win.postMessage(
-      JSON.stringify({ event: "command", func: muted ? "unMute" : "mute" }),
-      "*",
-    );
-    setMuted((m) => !m);
+    toggleTrailerMute();
   };
 
-  const trailerSrc = trailerKey
-    ? `https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0&vq=hd720`
-    : "";
-
-  const startTrailer = () => {
-    const win = frameRef.current?.contentWindow;
-    if (!win) return;
-    win.postMessage(
-      JSON.stringify({ event: "listening", channel: "widget" }),
-      "*",
-    );
-    window.setTimeout(() => {
-      win.postMessage(
-        JSON.stringify({ event: "command", func: "mute" }),
-        "*",
-      );
-      win.postMessage(
-        JSON.stringify({ event: "command", func: "playVideo" }),
-        "*",
-      );
-    }, 350);
-  };
-
-  useEffect(() => {
-    if (!open || !trailerKey) return;
-    const readyFallback = window.setTimeout(() => {
-      setReady(true);
-    }, 2400);
-    const onMessage = (e: MessageEvent) => {
-      if (
-        e.origin !== "https://www.youtube.com" &&
-        e.origin !== "https://www.youtube-nocookie.com"
-      )
-        return;
-      let msg: { info?: { playerState?: number } };
-      try {
-        msg = JSON.parse(e.data);
-      } catch {
-        return;
-      }
-      const state = msg.info?.playerState;
-      if (state === undefined) return;
-      if (state === YT_PLAYING) {
-        window.clearTimeout(readyFallback);
-        setReady(true);
-      }
-      if (state === YT_ENDED)
-        frameRef.current?.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "playVideo" }),
-          "*",
-        );
-    };
-    window.addEventListener("message", onMessage);
-    return () => {
-      window.removeEventListener("message", onMessage);
-      window.clearTimeout(readyFallback);
-      if (readyTimer.current) {
-        window.clearTimeout(readyTimer.current);
-        readyTimer.current = null;
-      }
-    };
-  }, [open, trailerKey]);
+  const trailerSrc = trailerKey ? buildYoutubeEmbedUrl(trailerKey) : "";
 
   const wp = (item as SavedItem).watchProgress;
   const actionLabel = resumeLabel(cardType, wp, formatTime) ?? "Oynat";
@@ -350,7 +264,7 @@ const ItemCard = memo(function ItemCard({
               src={trailerSrc}
               title={name}
               allow="autoplay"
-              onLoad={startTrailer}
+              onLoad={onFrameLoad}
             />
           </div>
           <div

@@ -1,21 +1,7 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type TouchEvent,
-  type MouseEvent,
-} from "react";
+import { useState, useEffect, useMemo, useRef, type TouchEvent, type MouseEvent, type RefObject } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  useAppDispatch,
-  useAppSelector,
-  toggleWatchlist,
-  toggleLiked,
-  selectLibrary,
-  sameSavedItem,
-  type SavedItem,
-} from "../store/store";
-import { useToast, toastText } from "../components/Toast";
+import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, selectLibrary, sameSavedItem, logout, type SavedItem } from "../store/store";
+import { useToast, toastText } from "./toast";
 import type { Movie, TVShow } from "../types/types";
 import { popButton } from "./utils";
 
@@ -66,7 +52,7 @@ export function useFetch<T>(
 // sekme basligi
 export function useTitle(title: string) {
   useEffect(() => {
-    document.title = title ? `TENET — ${title}` : "TENET";
+    document.title = title ? `TENET - ${title}` : "TENET";
   }, [title]);
 }
 
@@ -135,6 +121,145 @@ export function useLibraryActions(
   };
 
   return { inWatchlist, isLiked, onWatchlist, onLike };
+}
+
+// youtube embed protokolu
+const YT_PLAYING = 1;
+const YT_ENDED = 0;
+
+export function useYouTubeEmbed(
+  frameRef: RefObject<HTMLIFrameElement | null>,
+  videoKey: string | null,
+) {
+  const [ready, setReady] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [prevVideoKey, setPrevVideoKey] = useState(videoKey);
+  const readyTimer = useRef<number | null>(null);
+
+  // video sıfırlama
+  if (videoKey !== prevVideoKey) {
+    setPrevVideoKey(videoKey);
+    setReady(false);
+    setMuted(true);
+  }
+
+  useEffect(() => {
+    if (!videoKey) return;
+
+    readyTimer.current = window.setTimeout(() => setReady(true), 2600);
+    const onMessage = (e: MessageEvent) => {
+      if (
+        e.origin !== "https://www.youtube.com" &&
+        e.origin !== "https://www.youtube-nocookie.com"
+      )
+        return;
+      let msg: { info?: { playerState?: number } };
+      try {
+        msg = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      const state = msg.info?.playerState;
+      if (state === YT_PLAYING) {
+        if (readyTimer.current) window.clearTimeout(readyTimer.current);
+        setReady(true);
+      }
+      if (state === YT_ENDED)
+        frameRef.current?.contentWindow?.postMessage(
+          JSON.stringify({ event: "command", func: "playVideo" }),
+          "*",
+        );
+    };
+    window.addEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      if (readyTimer.current) window.clearTimeout(readyTimer.current);
+    };
+  }, [videoKey, frameRef]);
+
+  const onFrameLoad = () => {
+    const win = frameRef.current?.contentWindow;
+    if (!win) return;
+    win.postMessage(JSON.stringify({ event: "listening", channel: "widget" }), "*");
+    window.setTimeout(() => {
+      win.postMessage(JSON.stringify({ event: "command", func: "mute" }), "*");
+      win.postMessage(JSON.stringify({ event: "command", func: "playVideo" }), "*");
+    }, 350);
+  };
+
+  const toggleMute = () => {
+    const win = frameRef.current?.contentWindow;
+    if (!win) return;
+    win.postMessage(
+      JSON.stringify({ event: "command", func: muted ? "unMute" : "mute" }),
+      "*",
+    );
+    setMuted((m) => !m);
+  };
+
+  return { ready, muted, onFrameLoad, toggleMute };
+}
+
+// cikis akisi
+export function useLogout() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  return () => {
+    dispatch(logout());
+    toast(toastText.loggedOut, "info");
+    navigate("/");
+  };
+}
+
+const ROTATE_INTERVAL_MS = 5000;
+const ROTATE_LIMIT = 8;
+
+// login/register arka planindaki donen film galerisi
+export function useRotatingBackdrop(
+  fetcher: () => Promise<{ results: Movie[] }>,
+  intervalMs = ROTATE_INTERVAL_MS,
+  limit = ROTATE_LIMIT,
+) {
+  const [bgIdx, setBgIdx] = useState(0);
+  const { data } = useFetch(fetcher);
+
+  const movies = useMemo(
+    () =>
+      (data?.results ?? [])
+        .filter((movie) => movie.backdrop_path && movie.overview)
+        .slice(0, limit),
+    [data, limit],
+  );
+
+  useEffect(() => {
+    if (movies.length <= 1) return;
+    const id = window.setInterval(
+      () => setBgIdx((index) => (index + 1) % movies.length),
+      intervalMs,
+    );
+    return () => window.clearInterval(id);
+  }, [movies.length, intervalMs]);
+
+  return { movies, bgIdx, currentMovie: movies[bgIdx] ?? null };
+}
+
+// giriş yönlendirmesi
+export function useAuthRedirectOnSuccess(
+  currentUser: { name: string } | null | undefined,
+  submitted: RefObject<boolean>,
+  welcomeMessage: (name: string) => string,
+) {
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  useEffect(() => {
+    if (currentUser) {
+      if (submitted.current) toast(welcomeMessage(currentUser.name));
+      navigate("/profiles");
+    }
+  }, [currentUser, navigate, toast, submitted, welcomeMessage]);
 }
 
 export function useLazyReveal(total: number, initial = 3, step = 2) {

@@ -1,16 +1,5 @@
-import {
-  Bookmark,
-  Crown,
-  CreditCard,
-  History,
-  Settings,
-  ShieldCheck,
-  ThumbsUp,
-  UserRound,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-import { AVATARS, DEFAULT_AVATAR, PACKAGES } from "../../helpers";
+import { Bookmark, Crown, CreditCard, History, Settings, ShieldCheck, ThumbsUp, UserRound, Users, type LucideIcon } from "lucide-react";
+import { PACKAGES, findPackage } from "../../helpers";
 import type { Profile } from "../../store/store";
 
 export type SectionKey =
@@ -57,14 +46,33 @@ export const LIBRARY_NAV: NavItem[] = [
   { key: "history", label: "Geçmiş", helper: "Son izlenenler", icon: History },
 ];
 
-export const PLAN_FALLBACK =
-  PACKAGES.find((pkg) => pkg.id === "free") ?? PACKAGES[0];
+export const PLAN_FALLBACK = findPackage("free") ?? PACKAGES[0];
 
 export function formatPlan(plan: (typeof PACKAGES)[number]) {
   if (plan.free || plan.price === "₺0") return plan.name;
   return `${plan.name} ${plan.price}${plan.period}`;
 }
 
-export function avatarFor(profile?: Profile | null) {
-  return AVATARS[profile?.avatar ?? DEFAULT_AVATAR] ?? AVATARS[DEFAULT_AVATAR];
+export function validatePassword(
+  current: string,
+  next: string,
+  confirm: string,
+  actualPassword: string,
+): { message: string; type: "warning" | "error" } | null {
+  if (!current || !next || !confirm) {
+    return { message: "Tüm şifre alanlarını doldurmalısın.", type: "warning" };
+  }
+  if (actualPassword !== current) {
+    return { message: "Mevcut şifre hatalı.", type: "error" };
+  }
+  if (next.length < 8 || next === current) {
+    return {
+      message: "Yeni şifre en az 8 karakter olmalı ve eskisinden farklı olmalı.",
+      type: "warning",
+    };
+  }
+  if (next !== confirm) {
+    return { message: "Yeni şifreler eşleşmiyor.", type: "warning" };
+  }
+  return null;
 }

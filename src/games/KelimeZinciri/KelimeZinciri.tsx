@@ -2,9 +2,7 @@ import "./KelimeZinciri.scss";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type React from "react";
 
-
-// Sözlük (~45K kelime) ayrı bir chunk olarak lazy yüklenir; oyun shell'i
-// hemen render olsun, dev sözlük dosyası oyun chunk'ını şişirmesin diye.
+// sözlük yükleme
 interface Dict {
   allWords: string[];
   wordSet: Set<string>;

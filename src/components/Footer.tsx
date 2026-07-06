@@ -5,7 +5,7 @@ import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Input, Button } from "rsuite";
 import Logo from "./header/Logo";
-import { useToast } from "./Toast";
+import { useToast } from "../lib/toast";
 
 const SOCIALS = [
   {

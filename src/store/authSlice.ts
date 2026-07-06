@@ -3,7 +3,7 @@ import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 export const MAX_PROFILES = 5;
 const DEFAULT_PROFILE_AVATAR = "default-blue";
 
-// profil
+// profil tanımı
 export interface Profile {
   id: string;
   name: string;
@@ -28,7 +28,7 @@ export interface Receipt {
   termsAccepted?: boolean;
 }
 
-// giris ve kayit
+// hesap tanımı
 interface Account {
   name: string;
   email: string;
@@ -64,7 +64,7 @@ const authInitial: AuthState = {
   receipt: null,
 };
 
-// varsayilan profil
+// profil oluşturucu
 function makeProfile(
   name: string,
   avatar = DEFAULT_PROFILE_AVATAR,

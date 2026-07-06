@@ -3,20 +3,10 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import MediaPlayer from "../components/player/MediaPlayer";
 import TrailerPlayer from "../components/player/TrailerPlayer";
 import Spinner from "../components/Spinner";
-import { useToast } from "../components/Toast";
 import { resolvePlaybackSource, type PlaybackSource } from "../services/player";
 import { tmdbApi } from "../services/tmdb";
-import { PACKAGES } from "../helpers";
-import {
-  useAppDispatch,
-  useAppSelector,
-  startWatching,
-  updateWatchProgress,
-  selectActiveProfile,
-  selectLibrary,
-  type SavedItem,
-} from "../store/store";
-import type { MovieDetail, TVShowDetail } from "../types/types";
+import { PACKAGES, findPackage, useToast } from "../helpers";
+import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectActiveProfile, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
   title?: string;
@@ -36,13 +26,11 @@ export default function PlayerPage() {
 
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
   const planDef =
-    PACKAGES.find((p) => p.id === userPlan) ??
-    PACKAGES.find((p) => p.id === "standard") ??
-    PACKAGES[0];
+    findPackage(userPlan) ?? findPackage("standard") ?? PACKAGES[0];
   const qualityLabel = planDef?.quality ?? "Full HD 1080p";
   const isFreeTier = userPlan ? !!planDef?.free : false;
 
-  // otomatik oynatma ayari
+  // otomatik oynatma
   const activeProfile = useAppSelector(selectActiveProfile);
   const settingsAutoplay = useAppSelector((s) => s.settings.autoplay);
   const autoplay = activeProfile?.playback
@@ -53,14 +41,13 @@ export default function PlayerPage() {
   const [title, setTitle] = useState(navState.title ?? "");
   const { season, episode } = navState;
 
-  // kayitli pozisyon
+  // kayıtlı pozisyon
   const numId = Number(id);
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
   const [startPosition] = useState(() => {
     const p = savedItem?.watchProgress;
-    // bittiginde bastan baslat
     if (!p || p.position >= p.duration - 15) return 0;
     return p.position;
   });
@@ -79,10 +66,10 @@ export default function PlayerPage() {
       alive = false;
     };
   }, [type, id]);
-  // farkli baslik secilirse eski kaynagi gosterme
+  // oynatma kaynağı
   const source = resolved?.key === sourceKey ? resolved.src : null;
 
-  // baslik ve izleme kaydi
+  // içerik bilgisi
   useEffect(() => {
     if (!type || !id) return;
     const request =
@@ -91,18 +78,9 @@ export default function PlayerPage() {
         : tmdbApi.getTVShowDetail(numId);
     request
       .then((detail) => {
-        setTitle(
-          type === "movie"
-            ? (detail as MovieDetail).title
-            : (detail as TVShowDetail).name,
-        );
+        setTitle(detail.media_type === "movie" ? detail.title : detail.name);
         if (isLoggedIn) {
-          dispatch(
-            startWatching({
-              ...detail,
-              media_type: type as "movie" | "tv",
-            } as SavedItem),
-          );
+          dispatch(startWatching({ ...detail } as SavedItem));
         }
       })
       .catch(() => {
@@ -157,7 +135,7 @@ export default function PlayerPage() {
       ) : (
         <MediaPlayer
           src={source.url}
-          title={episodeInfo ? `${title} — ${episodeInfo}` : title}
+          title={episodeInfo ? `${title} - ${episodeInfo}` : title}
           autoPlay={autoplay}
           startPosition={startPosition}
           qualityLabel={qualityLabel}

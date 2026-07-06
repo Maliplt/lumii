@@ -2,45 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Receipt } from "lucide-react";
 import PageLayout from "../components/PageLayout";
+import NavButton from "../components/account/NavButton";
 import EmailChangeModal from "../components/modals/EmailChangeModal";
 import PaymentMethodModal from "../components/modals/PaymentMethodModal";
 import ProfileEditorModal from "../components/modals/ProfileEditorModal";
 import ProfileLockModal from "../components/modals/ProfileLockModal";
-import { useToast, toastText } from "../components/Toast";
-import {
-  ACCOUNT_NAV,
-  LIBRARY_NAV,
-  PLAN_FALLBACK,
-  formatPlan,
-  avatarFor,
-  type SectionKey,
-  type NavItem,
-  type EditorState,
-  type PasswordForm,
-} from "../components/account/accountData";
-import {
-  OverviewTab,
-  ProfilesTab,
-  MembershipTab,
-  SecurityTab,
-  BillingTab,
-  SettingsTab,
-  LibraryTab,
-} from "../components/account/AccountTabs";
-import { PACKAGES, useTitle } from "../helpers";
-import {
-  addProfile,
-  changePassword,
-  clearHistory,
-  selectActiveProfile,
-  setReceipt,
-  updateEmail,
-  updatePaymentMethod,
-  updateProfile,
-  useAppDispatch,
-  useAppSelector,
-  type Profile,
-} from "../store/store";
+import OverviewTab from "../components/account/tabs/OverviewTab";
+import ProfilesTab from "../components/account/tabs/ProfilesTab";
+import MembershipTab from "../components/account/tabs/MembershipTab";
+import SecurityTab from "../components/account/tabs/SecurityTab";
+import BillingTab from "../components/account/tabs/BillingTab";
+import SettingsTab from "../components/account/tabs/SettingsTab";
+import LibraryTab from "../components/account/tabs/LibraryTab";
+import { ACCOUNT_NAV, LIBRARY_NAV, PLAN_FALLBACK, formatPlan, validatePassword, type SectionKey, type EditorState } from "../components/account/accountData";
+import { findPackage, avatarFor, useTitle, useToast, toastText } from "../helpers";
+import { addProfile, changePassword, clearHistory, selectLibrary, selectShownProfile, setReceipt, updateEmail, updatePaymentMethod, updateProfile, useAppDispatch, useAppSelector, type Profile } from "../store/store";
 
 export default function AccountPage() {
   useTitle("Hesap");
@@ -52,25 +28,17 @@ export default function AccountPage() {
   const [lockProfile, setLockProfile] = useState<Profile | null>(null);
   const [emailOpen, setEmailOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
-  const [showDevices, setShowDevices] = useState(false);
-  const [passwordForm, setPasswordForm] = useState<PasswordForm>({
-    current: "",
-    next: "",
-    confirm: "",
-  });
 
-  const user = useAppSelector((s) => s.auth.currentUser);
-  const activeProfile = useAppSelector(selectActiveProfile);
+  const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const shownProfile = useAppSelector(selectShownProfile);
   const accounts = useAppSelector((s) => s.auth.accounts);
   const receipt = useAppSelector((s) => s.auth.receipt);
-  const library = useAppSelector((s) =>
-    s.library.activeId ? s.library.byProfile[s.library.activeId] : null,
-  );
-  const account = accounts.find((item) => item.email === user?.email);
+  const selectedLibrary = useAppSelector(selectLibrary);
+  const account = accounts.find((item) => item.email === currentUser?.email);
 
   const plan = useMemo(
-    () => PACKAGES.find((pkg) => pkg.id === user?.plan) ?? PLAN_FALLBACK,
-    [user?.plan],
+    () => findPackage(currentUser?.plan) ?? PLAN_FALLBACK,
+    [currentUser?.plan],
   );
 
   const navMeta = useMemo(
@@ -80,20 +48,13 @@ export default function AccountPage() {
     [active],
   );
 
-  const profileCount = user?.profiles.length ?? 0;
-  const shownProfile = activeProfile ?? user?.profiles[0] ?? null;
-  const selectedLibrary = library ?? {
-    watchlist: [],
-    liked: [],
-    history: [],
-    continueWatching: [],
-  };
+  const profileCount = currentUser?.profiles.length ?? 0;
 
   useEffect(() => {
-    if (!user) navigate("/login");
-  }, [navigate, user]);
+    if (!currentUser) navigate("/login");
+  }, [navigate, currentUser]);
 
-  if (!user) return null;
+  if (!currentUser) return null;
 
   const saveProfile = (data: { name: string; kids: boolean; avatar: string }) => {
     if (editor?.mode === "edit" && editor.profile) {
@@ -106,10 +67,6 @@ export default function AccountPage() {
     setEditor(null);
   };
 
-  const updatePasswordField = (key: keyof PasswordForm, value: string) => {
-    setPasswordForm((prev) => ({ ...prev, [key]: value }));
-  };
-
   const updateProfileSettings = (
     profile: Profile,
     changes: Partial<Profile>,
@@ -119,61 +76,14 @@ export default function AccountPage() {
     toast(message, "info");
   };
 
-  const submitPassword = () => {
-    const current = passwordForm.current.trim();
-    const next = passwordForm.next.trim();
-    const confirm = passwordForm.confirm.trim();
-
-    if (!current || !next || !confirm) {
-      toast("Tüm şifre alanlarını doldurmalısın.", "warning");
-      return;
-    }
-    if (account?.password !== current) {
-      toast("Mevcut şifre hatalı.", "error");
-      return;
-    }
-    if (next.length < 8 || next === current) {
-      toast(
-        "Yeni şifre en az 8 karakter olmalı ve eskisinden farklı olmalı.",
-        "warning",
-      );
-      return;
-    }
-    if (next !== confirm) {
-      toast("Yeni şifreler eşleşmiyor.", "warning");
-      return;
-    }
-
-    dispatch(changePassword({ current, next }));
-    setPasswordForm({ current: "", next: "", confirm: "" });
-    toast("Şifre güncellendi.");
-  };
-
-  const NavButton = ({ item }: { item: NavItem }) => {
-    const Icon = item.icon;
-    return (
-      <button
-        type="button"
-        className={`acct-nav__item${active === item.key ? " is-active" : ""}`}
-        onClick={() => setActive(item.key)}
-      >
-        <Icon size={18} />
-        <span>
-          <strong>{item.label}</strong>
-          <small>{item.helper}</small>
-        </span>
-      </button>
-    );
-  };
-
   const renderActiveTab = () => {
     switch (active) {
       case "overview":
         return (
           <OverviewTab
-            user={user}
+            user={currentUser}
             plan={plan}
-            shownProfileName={shownProfile?.name ?? user.name}
+            shownProfileName={shownProfile?.name ?? currentUser.name}
             profileCount={profileCount}
             onChangeEmail={() => setEmailOpen(true)}
             onManagePlan={() => setActive("membership")}
@@ -182,7 +92,7 @@ export default function AccountPage() {
       case "profiles":
         return (
           <ProfilesTab
-            profiles={user.profiles}
+            profiles={currentUser.profiles}
             profileCount={profileCount}
             onEdit={(profile) => setEditor({ mode: "edit", profile })}
             onCreate={() => setEditor({ mode: "create" })}
@@ -199,7 +109,7 @@ export default function AccountPage() {
       case "membership":
         return (
           <MembershipTab
-            user={user}
+            user={currentUser}
             plan={plan}
             paymentMethod={receipt?.paymentMethod}
             billingAddress={receipt?.billingAddress}
@@ -211,24 +121,34 @@ export default function AccountPage() {
       case "security":
         return (
           <SecurityTab
-            email={user.email}
-            showDevices={showDevices}
-            onToggleDevices={() => {
-              setShowDevices((prev) => !prev);
+            email={currentUser.email}
+            onToggleDevices={(shown) =>
               toast(
-                showDevices ? "Cihaz listesi kapatıldı." : "Cihaz listesi açıldı.",
+                shown ? "Cihaz listesi açıldı." : "Cihaz listesi kapatıldı.",
                 "info",
+              )
+            }
+            onSubmitPassword={(current, next, confirm) => {
+              const error = validatePassword(
+                current,
+                next,
+                confirm,
+                account?.password ?? "",
               );
+              if (error) {
+                toast(error.message, error.type);
+                return false;
+              }
+              dispatch(changePassword({ current, next }));
+              toast("Şifre güncellendi.");
+              return true;
             }}
-            passwordForm={passwordForm}
-            onPasswordField={updatePasswordField}
-            onSubmitPassword={submitPassword}
           />
         );
       case "billing":
         return (
           <BillingTab
-            user={user}
+            user={currentUser}
             paymentMethod={receipt?.paymentMethod}
             billingAddress={receipt?.billingAddress}
             billingEmail={receipt?.email}
@@ -242,7 +162,7 @@ export default function AccountPage() {
         return (
           <SettingsTab
             profile={shownProfile}
-            fallbackName={user.name}
+            fallbackName={currentUser.name}
             historyCount={selectedLibrary.history.length}
             onSetting={(changes, message) => {
               if (shownProfile)
@@ -276,7 +196,7 @@ export default function AccountPage() {
           <div className="acct-sidebar__profile">
             <img src={avatarFor(shownProfile)} alt="" />
             <div>
-              <strong>{shownProfile?.name ?? user.name}</strong>
+              <strong>{shownProfile?.name ?? currentUser.name}</strong>
               <span>{formatPlan(plan)}</span>
             </div>
           </div>
@@ -284,11 +204,21 @@ export default function AccountPage() {
           <nav className="acct-nav" aria-label="Hesap ayarları">
             <span className="acct-nav__title">Hesap</span>
             {ACCOUNT_NAV.map((item) => (
-              <NavButton key={item.key} item={item} />
+              <NavButton
+                key={item.key}
+                item={item}
+                active={active === item.key}
+                onSelect={setActive}
+              />
             ))}
             <span className="acct-nav__title">Kitaplık</span>
             {LIBRARY_NAV.map((item) => (
-              <NavButton key={item.key} item={item} />
+              <NavButton
+                key={item.key}
+                item={item}
+                active={active === item.key}
+                onSelect={setActive}
+              />
             ))}
           </nav>
         </aside>
@@ -325,7 +255,7 @@ export default function AccountPage() {
 
       {emailOpen && (
         <EmailChangeModal
-          email={user.email}
+          email={currentUser.email}
           onClose={() => setEmailOpen(false)}
           onSave={(email) => {
             dispatch(updateEmail(email));
@@ -337,7 +267,7 @@ export default function AccountPage() {
 
       {paymentOpen && (
         <PaymentMethodModal
-          email={user.email}
+          email={currentUser.email}
           receipt={receipt}
           onClose={() => setPaymentOpen(false)}
           onSave={(data) => {
@@ -350,7 +280,8 @@ export default function AccountPage() {
                   planId: plan.id,
                   amount: plan.price,
                   period: plan.period,
-                  date: user.createdAt ?? new Date().toLocaleDateString("tr-TR"),
+                  date:
+                    currentUser.createdAt ?? new Date().toLocaleDateString("tr-TR"),
                   email: data.email,
                   paymentMethod: data.paymentMethod,
                   billingAddress: data.billingAddress,

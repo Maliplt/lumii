@@ -1,49 +1,17 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
 import Spinner from "../components/Spinner";
-
-const SudokuApp = lazy(() => import("../games/Sudoku/Sudoku"));
-const MinesweeperApp = lazy(() => import("../games/Minesweeper/Minesweeper"));
-const Game2048 = lazy(() => import("../games/Game2048/Game2048"));
-const KelimeZinciri = lazy(() => import("../games/KelimeZinciri/KelimeZinciri"));
-const BlockBloomPuzzle = lazy(() =>
-  import("../games/BlockBloomPuzzle/BlockBloomPuzzle"),
-);
-const MahjongSanctuary = lazy(() =>
-  import("../games/MahjongSanctuary/MahjongSanctuary"),
-);
-
-const SCORE_KEYS: Record<string, string> = {
-  sudoku: "sudoku_best_time",
-  minesweeper: "minesweeper_best_time",
-  "2048": "game2048_best_score",
-  kelimezinciri: "kelimezinciri_best",
-  blockbloom: "blockbloom_best_score",
-  mahjong: "mahjong_best_score",
-};
-
-const SCORE_LABELS: Record<string, string> = {
-  sudoku: "En İyi Süre",
-  minesweeper: "En İyi Süre",
-  "2048": "En İyi Skor",
-  kelimezinciri: "En İyi Skor",
-  blockbloom: "En İyi Skor",
-  mahjong: "En İyi Skor",
-};
-
-const SCORE_GAMES = new Set(["2048", "kelimezinciri", "blockbloom", "mahjong"]);
+import { findGame } from "../lib/games";
 
 function readBestScore(gameId: string): string {
-  const key = SCORE_KEYS[gameId];
-  if (!key) return "";
-  const raw = localStorage.getItem(key);
+  const game = findGame(gameId);
+  if (!game) return "";
+  const raw = localStorage.getItem(game.storageKey);
   if (!raw) return "Henüz skor yok";
   const val = parseInt(raw, 10);
-  return SCORE_GAMES.has(gameId)
-    ? `${val.toLocaleString("tr-TR")} puan`
-    : `${raw} saniye`;
+  return game.isScore ? `${val.toLocaleString("tr-TR")} puan` : `${raw} saniye`;
 }
 
 export default function PlayGamePage() {
@@ -61,7 +29,7 @@ export default function PlayGamePage() {
     };
   }, [gameId]);
 
-  const scoreLabel = SCORE_LABELS[gameId ?? ""] ?? "En İyi Skor";
+  const game = findGame(gameId);
 
   return (
     <div className="play-game-page">
@@ -85,27 +53,13 @@ export default function PlayGamePage() {
             className="pg-score-icon"
           />
           <span>
-            {scoreLabel}: <strong>{bestScore}</strong>
+            {game?.scoreLabel ?? "En İyi Skor"}: <strong>{bestScore}</strong>
           </span>
         </div>
       </header>
       <main className="pg-main-content">
         <Suspense fallback={<Spinner inline />}>
-          {gameId === "sudoku" ? (
-            <SudokuApp />
-          ) : gameId === "minesweeper" ? (
-            <MinesweeperApp />
-          ) : gameId === "2048" ? (
-            <Game2048 />
-          ) : gameId === "kelimezinciri" ? (
-            <KelimeZinciri />
-          ) : gameId === "blockbloom" ? (
-            <BlockBloomPuzzle />
-          ) : gameId === "mahjong" ? (
-            <MahjongSanctuary />
-          ) : (
-            <div className="pg-error">Oyun bulunamadı.</div>
-          )}
+          {game ? <game.Component /> : <div className="pg-error">Oyun bulunamadı.</div>}
         </Suspense>
       </main>
     </div>

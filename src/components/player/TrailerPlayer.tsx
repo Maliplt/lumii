@@ -1,19 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import {
-  ArrowLeft,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Volume1,
-  Maximize,
-  Minimize,
-  SkipBack,
-  SkipForward,
-  Settings,
-} from "lucide-react";
+import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward } from "lucide-react";
+import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
+import { usePlayerChrome } from "./usePlayerChrome";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
-import { formatTime } from "../../helpers";
 
 // youtube api tipleri
 interface YTPlayer {
@@ -49,8 +38,7 @@ declare global {
     onYouTubeIframeAPIReady?: () => void;
   }
 }
-
-// youtube api bir kez yukle
+// youtube api
 let apiPromise: Promise<YTNamespace> | null = null;
 function loadYouTubeApi(): Promise<YTNamespace> {
   if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -100,18 +88,16 @@ export default function TrailerPlayer({
   const mountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const progressRef = useRef(onProgress);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [fullscreen, setFullscreen] = useState(false);
-  const [controlsVisible, setControlsVisible] = useState(true);
   const [ready, setReady] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const { fullscreen, controlsVisible, showControlsNow, toggleFullscreen } =
+    usePlayerChrome(containerRef);
 
   useEffect(() => {
     progressRef.current = onProgress;
@@ -182,25 +168,6 @@ export default function TrailerPlayer({
     };
   }, [youtubeKey, autoPlay, startPosition]);
 
-  useEffect(() => {
-    const onChange = () => setFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  useEffect(
-    () => () => {
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-    },
-    [],
-  );
-
-  const showControlsNow = useCallback(() => {
-    setControlsVisible(true);
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setControlsVisible(false), 3000);
-  }, []);
-
   const togglePlay = useCallback(() => {
     const p = playerRef.current;
     if (!p) return;
@@ -245,7 +212,6 @@ export default function TrailerPlayer({
   const selectSpeed = (rate: number) => {
     playerRef.current?.setPlaybackRate(rate);
     setPlaybackRate(rate);
-    setShowSettings(false);
   };
 
   const skip = (seconds: number) => {
@@ -253,34 +219,6 @@ export default function TrailerPlayer({
     if (!p) return;
     p.seekTo(Math.max(0, (p.getCurrentTime() || 0) + seconds), true);
   };
-
-  const toggleFullscreen = () => {
-    const el = containerRef.current;
-    if (!el) return;
-    try {
-      if (!document.fullscreenElement) {
-        el.requestFullscreen({ navigationUI: "hide" }).catch(() => {
-          (el as { webkitRequestFullscreen?: () => void })
-            .webkitRequestFullscreen?.();
-        });
-      } else {
-        document.exitFullscreen().catch(() => setFullscreen(false));
-      }
-    } catch {
-      (el as { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.();
-    }
-  };
-
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const volPct = (muted ? 0 : volume) * 100;
-  const volIcon =
-    muted || volume === 0 ? (
-      <VolumeX size={20} />
-    ) : volume < 0.5 ? (
-      <Volume1 size={20} />
-    ) : (
-      <Volume2 size={20} />
-    );
 
   return (
     <div
@@ -334,32 +272,12 @@ export default function TrailerPlayer({
         </div>
 
         <div className="player-controls__bottom">
-          <div className="player-progress-wrap">
-            <div className="player-progress-track">
-              <div
-                className="player-progress-played"
-                style={{ width: `${progress}%` }}
-              />
-              <div
-                className="player-progress-thumb"
-                style={{ left: `${progress}%` }}
-              />
-              <input
-                type="range"
-                className="player-progress-input"
-                min={0}
-                max={duration || 100}
-                step={0.25}
-                value={currentTime}
-                onChange={onSeek}
-                aria-label="ilerleme"
-              />
-            </div>
-            <div className="player-time">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+          <ProgressBar
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={onSeek}
+            ariaLabel="ilerleme"
+          />
 
           <div className="player-controls__row">
             <div className="player-controls__left">
@@ -389,66 +307,43 @@ export default function TrailerPlayer({
                 <SkipForward size={20} />
               </button>
 
-              <div className="player-volume">
-                <button
-                  className="player-btn"
-                  onClick={toggleMute}
-                  aria-label="ses"
-                >
-                  {volIcon}
-                </button>
-                <div className="player-volume-bar-wrap">
-                  <div
-                    className="player-volume-bar-fill"
-                    style={{ width: `${volPct}%` }}
-                  />
-                  <div
-                    className="player-volume-thumb"
-                    style={{ left: `${volPct}%` }}
-                  />
-                  <input
-                    type="range"
-                    className="player-volume-input"
-                    min={0}
-                    max={1}
-                    step={0.02}
-                    value={muted ? 0 : volume}
-                    onChange={onVolumeChange}
-                    aria-label="ses seviyesi"
-                  />
-                </div>
-                <span className="player-volume-pct">{Math.round(volPct)}%</span>
-              </div>
+              <VolumeControl
+                muted={muted}
+                volume={volume}
+                onToggleMute={toggleMute}
+                onVolumeChange={onVolumeChange}
+                muteButtonLabel="ses"
+                sliderLabel="ses seviyesi"
+              />
             </div>
 
             <div className="player-controls__right">
-              <div className="player-settings-wrap">
-                <button
-                  className="player-btn"
-                  onClick={() => setShowSettings((p) => !p)}
-                  aria-label="Ayarlar"
-                >
-                  <Settings size={20} />
-                </button>
-                {showSettings && (
-                  <div className="player-settings-menu">
-                    <p className="player-settings-menu__label">Kalite</p>
-                    <button className="player-settings-menu__item active" disabled>
-                      Otomatik (YouTube)
-                    </button>
-                    <p className="player-settings-menu__label">Hız</p>
-                    {[0.75, 1, 1.25, 1.5, 2].map((rate) => (
-                      <button
-                        key={rate}
-                        className={`player-settings-menu__item${playbackRate === rate ? " active" : ""}`}
-                        onClick={() => selectSpeed(rate)}
-                      >
-                        {rate === 1 ? "Normal" : `${rate}×`}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <SettingsDropdown
+                ariaLabel="Ayarlar"
+                sections={[
+                  {
+                    label: "Kalite",
+                    items: [
+                      {
+                        key: "auto",
+                        label: "Otomatik (YouTube)",
+                        active: true,
+                        disabled: true,
+                      },
+                    ],
+                  },
+                  {
+                    label: "Hız",
+                    items: [0.75, 1, 1.25, 1.5, 2].map((rate) => ({
+                      key: rate,
+                      label: rate === 1 ? "Normal" : `${rate}×`,
+                      active: playbackRate === rate,
+                      // eslint-disable-next-line react-hooks/refs
+                      onClick: () => selectSpeed(rate),
+                    })),
+                  },
+                ]}
+              />
               <button
                 className="player-btn"
                 onClick={toggleFullscreen}

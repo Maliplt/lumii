@@ -1,6 +1,6 @@
 import type { Movie, TVShow, SearchResult } from "../types/types";
 
-// tek istek hatasinda sayfa bosalmasin
+// liste çözümleme
 export async function settleList<T extends readonly unknown[]>(
   requests: readonly [...T],
 ): Promise<{ [K in keyof T]: Awaited<T[K]> | null }> {
@@ -15,6 +15,50 @@ export async function settleList<T extends readonly unknown[]>(
 
 export function isLatinTitle(text: string): boolean {
   return !/[^ -ɏḀ-ỿ\s]/.test(text);
+}
+
+export function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+// uzun tarih formati
+export function formatLongDate(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString("tr-TR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+interface YoutubeEmbedOptions {
+  quality?: string;
+  origin?: string;
+}
+
+// youtube embed
+export function buildYoutubeEmbedUrl(
+  key: string,
+  { quality = "hd720", origin }: YoutubeEmbedOptions = {},
+): string {
+  const domain = "www.youtube-nocookie.com";
+  const params = new URLSearchParams({
+    autoplay: "1",
+    mute: "1",
+    controls: "0",
+    disablekb: "1",
+    fs: "0",
+    modestbranding: "1",
+    rel: "0",
+    iv_load_policy: "3",
+    playsinline: "1",
+    enablejsapi: "1",
+    showinfo: "0",
+    cc_load_policy: "0",
+    vq: quality,
+  });
+  const originPart = origin ? `&origin=${encodeURIComponent(origin)}` : "";
+  return `https://${domain}/embed/${key}?${params.toString()}${originPart}`;
 }
 
 export const mediaName = (m: Movie | TVShow): string =>

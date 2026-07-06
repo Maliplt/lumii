@@ -1,21 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Hls from "hls.js";
-import {
-  ArrowLeft,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Volume1,
-  Maximize,
-  Minimize,
-  Settings,
-  SkipBack,
-  SkipForward,
-  Wifi,
-} from "lucide-react";
+import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward, Wifi } from "lucide-react";
+import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
+import { usePlayerChrome } from "./usePlayerChrome";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
-import { formatTime } from "../../helpers";
 
 const LIVE_AUTO_SYNC_GAP = 18;
 const LIVE_BEHIND_GAP = 45;
@@ -60,7 +48,6 @@ export default function MediaPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(startMuted);
@@ -68,9 +55,8 @@ export default function MediaPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [buffered, setBuffered] = useState(0);
-  const [fullscreen, setFullscreen] = useState(false);
-  const [controlsVisible, setControlsVisible] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
+  const { fullscreen, controlsVisible, showControlsNow, toggleFullscreen } =
+    usePlayerChrome(containerRef);
   const [levels, setLevels] = useState<{ height: number; bitrate: number }[]>(
     [],
   );
@@ -124,8 +110,7 @@ export default function MediaPlayer({
       hlsRef.current = hls;
       hls.loadSource(src);
       hls.attachMedia(video);
-
-      // sure asimi kontrolu
+      // zaman aşımı
       readyTimer = setTimeout(() => {
         if (!cancelled) setStreamError(true);
       }, 15000);
@@ -151,7 +136,7 @@ export default function MediaPlayer({
         video.currentTime = getLiveEdge(video, hlsRef.current);
         setAtLive(true);
       });
-      // deneme sayisi ve hata
+      // yeniden deneme
       let networkRetries = 0;
       let mediaRetries = 0;
       hls.on(Hls.Events.FRAG_BUFFERED, () => {
@@ -264,25 +249,6 @@ export default function MediaPlayer({
     };
   }, [src, startPosition, live]);
 
-  useEffect(() => {
-    const onChange = () => setFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  useEffect(
-    () => () => {
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-    },
-    [],
-  );
-
-  const showControlsNow = useCallback(() => {
-    setControlsVisible(true);
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setControlsVisible(false), 3000);
-  }, []);
-
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -339,27 +305,6 @@ export default function MediaPlayer({
   const selectLevel = (idx: number) => {
     if (hlsRef.current) hlsRef.current.currentLevel = idx;
     setCurrentLevel(idx);
-    setShowSettings(false);
-  };
-
-  const toggleFullscreen = () => {
-    const container = containerRef.current;
-    if (!container) return;
-    try {
-      if (!document.fullscreenElement) {
-        container
-          .requestFullscreen({ navigationUI: "hide" })
-          .catch(() =>
-            (container as { webkitRequestFullscreen?: () => void })
-              .webkitRequestFullscreen?.(),
-          );
-      } else {
-        document.exitFullscreen().catch(() => setFullscreen(false));
-      }
-    } catch {
-      (container as { webkitRequestFullscreen?: () => void })
-        .webkitRequestFullscreen?.();
-    }
   };
 
   useEffect(() => {
@@ -407,23 +352,12 @@ export default function MediaPlayer({
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [togglePlay, showControlsNow]);
+  }, [togglePlay, showControlsNow, toggleFullscreen]);
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const bufferedPct = duration > 0 ? (buffered / duration) * 100 : 0;
-  const volPct = (muted ? 0 : volume) * 100;
   const currentLevelInfo =
     currentLevel >= 0 && levels[currentLevel]
       ? `${levels[currentLevel].height}p`
       : "Oto";
-  const volIcon =
-    muted || volume === 0 ? (
-      <VolumeX size={20} />
-    ) : volume < 0.5 ? (
-      <Volume1 size={20} />
-    ) : (
-      <Volume2 size={20} />
-    );
 
   return (
     <div
@@ -491,36 +425,13 @@ export default function MediaPlayer({
               </div>
             </div>
           ) : (
-            <div className="player-progress-wrap">
-              <div className="player-progress-track">
-                <div
-                  className="player-progress-buffered"
-                  style={{ width: `${bufferedPct}%` }}
-                />
-                <div
-                  className="player-progress-played"
-                  style={{ width: `${progress}%` }}
-                />
-                <div
-                  className="player-progress-thumb"
-                  style={{ left: `${progress}%` }}
-                />
-                <input
-                  type="range"
-                  className="player-progress-input"
-                  min={0}
-                  max={duration || 100}
-                  step={0.25}
-                  value={currentTime}
-                  onChange={onSeek}
-                  aria-label="İlerleme"
-                />
-              </div>
-              <div className="player-time">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
+            <ProgressBar
+              currentTime={currentTime}
+              duration={duration}
+              buffered={buffered}
+              onSeek={onSeek}
+              ariaLabel="İlerleme"
+            />
           )}
 
           <div className="player-controls__row">
@@ -555,36 +466,14 @@ export default function MediaPlayer({
                 </button>
               )}
 
-              <div className="player-volume">
-                <button
-                  className="player-btn"
-                  onClick={toggleMute}
-                  aria-label="Ses"
-                >
-                  {volIcon}
-                </button>
-                <div className="player-volume-bar-wrap">
-                  <div
-                    className="player-volume-bar-fill"
-                    style={{ width: `${volPct}%` }}
-                  />
-                  <div
-                    className="player-volume-thumb"
-                    style={{ left: `${volPct}%` }}
-                  />
-                  <input
-                    type="range"
-                    className="player-volume-input"
-                    min={0}
-                    max={1}
-                    step={0.02}
-                    value={muted ? 0 : volume}
-                    onChange={onVolumeChange}
-                    aria-label="Ses seviyesi"
-                  />
-                </div>
-                <span className="player-volume-pct">{Math.round(volPct)}%</span>
-              </div>
+              <VolumeControl
+                muted={muted}
+                volume={volume}
+                onToggleMute={toggleMute}
+                onVolumeChange={onVolumeChange}
+                muteButtonLabel="Ses"
+                sliderLabel="Ses seviyesi"
+              />
             </div>
 
             <div className="player-controls__right">
@@ -609,35 +498,28 @@ export default function MediaPlayer({
                 </>
               )}
               {!live && (
-                <div className="player-settings-wrap">
-                  <button
-                    className="player-btn"
-                    onClick={() => setShowSettings((p) => !p)}
-                    aria-label="Kalite"
-                  >
-                    <Settings size={20} />
-                  </button>
-                  {showSettings && (
-                    <div className="player-settings-menu">
-                      <p className="player-settings-menu__label">Kalite</p>
-                      <button
-                        className={`player-settings-menu__item${currentLevel === -1 ? " active" : ""}`}
-                        onClick={() => selectLevel(-1)}
-                      >
-                        Otomatik (ABR)
-                      </button>
-                      {levels.map((l, i) => (
-                        <button
-                          key={i}
-                          className={`player-settings-menu__item${currentLevel === i ? " active" : ""}`}
-                          onClick={() => selectLevel(i)}
-                        >
-                          {l.height}p — {Math.round(l.bitrate / 1000)} kbps
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <SettingsDropdown
+                  ariaLabel="Kalite"
+                  sections={[
+                    {
+                      label: "Kalite",
+                      items: [
+                        {
+                          key: -1,
+                          label: "Otomatik (ABR)",
+                          active: currentLevel === -1,
+                          onClick: () => selectLevel(-1),
+                        },
+                        ...levels.map((l, i) => ({
+                          key: i,
+                          label: `${l.height}p - ${Math.round(l.bitrate / 1000)} kbps`,
+                          active: currentLevel === i,
+                          onClick: () => selectLevel(i),
+                        })),
+                      ],
+                    },
+                  ]}
+                />
               )}
               <button
                 className="player-btn"

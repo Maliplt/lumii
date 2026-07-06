@@ -3,16 +3,10 @@ import { Button } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
 import { Play, Info, Film, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
-import {
-  getImageUrl,
-  genreNames,
-  tmdbApi,
-  formatRuntime,
-  pickTrailer,
-} from "../services/tmdb";
-import { useSwipe, mediaName, mediaYear, popButton } from "../helpers";
 import { MediaActionButtons } from "./ContentCarousel";
-import type { Movie, TVShow, MovieDetail, TVShowDetail } from "../types/types";
+import { getImageUrl, genreNames, tmdbApi, formatRuntime, pickTrailer } from "../services/tmdb";
+import { useSwipe, mediaName, mediaYear, popButton, useYouTubeEmbed, buildYoutubeEmbedUrl } from "../helpers";
+import type { Movie, TVShow } from "../types/types";
 
 type HeroItem = Movie | TVShow;
 
@@ -33,8 +27,6 @@ interface HeroCarouselProps {
 }
 
 const AUTO_SLIDE_DELAY = 6000;
-const YT_ENDED = 0;
-const YT_PLAYING = 1;
 
 export default function HeroCarousel({
   movies,
@@ -56,13 +48,17 @@ export default function HeroCarousel({
   const [inView, setInView] = useState(true);
   const [autoMeta, setAutoMeta] = useState<string[]>([]);
   const [heroTrailerKey, setHeroTrailerKey] = useState<string | null>(null);
-  const [heroTrailerReady, setHeroTrailerReady] = useState(false);
-  const [heroTrailerMuted, setHeroTrailerMuted] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const trailerRef = useRef<HTMLIFrameElement>(null);
-  const trailerReadyTimer = useRef<number | null>(null);
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
+
+  const {
+    ready: heroTrailerReady,
+    muted: heroTrailerMuted,
+    onFrameLoad: onTrailerFrameLoad,
+    toggleMute: toggleTrailerMute,
+  } = useYouTubeEmbed(trailerRef, heroTrailerKey);
 
   const handlePrev = () => {
     setProgress(0);
@@ -79,14 +75,7 @@ export default function HeroCarousel({
   const toggleHeroSound = (e: React.MouseEvent) => {
     e.stopPropagation();
     popButton(e.currentTarget as HTMLElement);
-    trailerRef.current?.contentWindow?.postMessage(
-      JSON.stringify({
-        event: "command",
-        func: heroTrailerMuted ? "unMute" : "mute",
-      }),
-      "*",
-    );
-    setHeroTrailerMuted((m) => !m);
+    toggleTrailerMute();
   };
 
   useEffect(() => {
@@ -112,10 +101,10 @@ export default function HeroCarousel({
             ? await tmdbApi.getMovieDetail(m.id)
             : await tmdbApi.getTVShowDetail(m.id);
         const text =
-          mtype === "movie"
-            ? formatRuntime((d as MovieDetail).runtime ?? 0)
-            : (d as TVShowDetail).number_of_seasons
-              ? `${(d as TVShowDetail).number_of_seasons} Sezon`
+          d.media_type === "movie"
+            ? formatRuntime(d.runtime ?? 0)
+            : d.number_of_seasons
+              ? `${d.number_of_seasons} Sezon`
               : "";
         heroMetaCache.set(key, text);
         if (alive) setAutoMeta(text ? [text] : []);
@@ -169,8 +158,6 @@ export default function HeroCarousel({
     let alive = true;
     const timer = setTimeout(async () => {
       setHeroTrailerKey(null);
-      setHeroTrailerReady(false);
-      setHeroTrailerMuted(true);
       if (inlineTrailerKey !== undefined) {
         setHeroTrailerKey(inlineTrailerKey);
         return;
@@ -190,45 +177,6 @@ export default function HeroCarousel({
       clearTimeout(timer);
     };
   }, [activeIndex, inlineTrailer, inlineTrailerKey, inView, movies, trailerDelayMs]);
-
-  useEffect(() => {
-    if (!heroTrailerKey) return;
-    const readyFallback = window.setTimeout(() => {
-      setHeroTrailerReady(true);
-    }, 2600);
-    const onMessage = (e: MessageEvent) => {
-      if (
-        e.origin !== "https://www.youtube.com" &&
-        e.origin !== "https://www.youtube-nocookie.com"
-      )
-        return;
-      let msg: { info?: { playerState?: number } };
-      try {
-        msg = JSON.parse(e.data);
-      } catch {
-        return;
-      }
-      const state = msg.info?.playerState;
-      if (state === YT_PLAYING) {
-        window.clearTimeout(readyFallback);
-        setHeroTrailerReady(true);
-      }
-      if (state === YT_ENDED)
-        trailerRef.current?.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "playVideo" }),
-          "*",
-        );
-    };
-    window.addEventListener("message", onMessage);
-    return () => {
-      window.removeEventListener("message", onMessage);
-      window.clearTimeout(readyFallback);
-      if (trailerReadyTimer.current) {
-        window.clearTimeout(trailerReadyTimer.current);
-        trailerReadyTimer.current = null;
-      }
-    };
-  }, [heroTrailerKey]);
 
   if (movies.length === 0) return null;
 
@@ -254,12 +202,11 @@ export default function HeroCarousel({
           const inlineTrailerKey =
             inlineTrailer && index === activeIndex ? heroTrailerKey : null;
           const showInlineTrailer = !!inlineTrailerKey;
-          const trailerOrigin =
-            typeof window === "undefined"
-              ? ""
-              : `&origin=${encodeURIComponent(window.location.origin)}`;
           const trailerSrc = showInlineTrailer
-            ? `https://www.youtube.com/embed/${inlineTrailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1&showinfo=0&cc_load_policy=0&vq=hd1080${trailerOrigin}`
+            ? buildYoutubeEmbedUrl(inlineTrailerKey, {
+                quality: "hd1080",
+                origin: typeof window === "undefined" ? undefined : window.location.origin,
+              })
             : "";
           // detay metasi
           const slideMeta =
@@ -288,26 +235,7 @@ export default function HeroCarousel({
                     src={trailerSrc}
                     title={`${title} fragman`}
                     allow="autoplay; encrypted-media; fullscreen"
-                    onLoad={() =>
-                      {
-                        const win = trailerRef.current?.contentWindow;
-                        if (!win) return;
-                        win.postMessage(
-                          JSON.stringify({ event: "listening", channel: "widget" }),
-                          "*",
-                        );
-                        window.setTimeout(() => {
-                          win.postMessage(
-                            JSON.stringify({ event: "command", func: "mute" }),
-                            "*",
-                          );
-                          win.postMessage(
-                            JSON.stringify({ event: "command", func: "playVideo" }),
-                            "*",
-                          );
-                        }, 350);
-                      }
-                    }
+                    onLoad={onTrailerFrameLoad}
                   />
                 </div>
               )}
@@ -329,6 +257,7 @@ export default function HeroCarousel({
               <div className="hero-overlay" />
               <div className="hero-bottom-fade" />
 
+              {/* key degisince hero-info yeniden mount olur, giris animasyonu tekrar oynar */}
               <div
                 className="hero-info"
                 key={index === activeIndex ? `active-${activeIndex}` : `idle-${index}`}

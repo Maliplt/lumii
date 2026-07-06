@@ -1,86 +1,28 @@
 import { Link } from "react-router-dom";
-import { RiGamepadLine } from "react-icons/ri";
+import { Gamepad2 } from "lucide-react";
+import { GAMES, type GameDef } from "../lib/games";
 
-import sudokuImg from "../assets/images/sudoku.webp";
-import minesweepImg from "../assets/images/minesweeper.webp";
-import blockblastImg from "../assets/images/blockblast.webp";
-import mahjongImg from "../assets/images/mahjong.webp";
-import game2048Img from "../assets/images/2048.webp";
-import kelimezinciriImg from "../assets/images/kelimezinciri.webp";
-
-interface GameDef {
-  id: string;
-  name: string;
-  path: string;
-  image: string;
-  description: string;
-  tag: string;
+interface GameCarouselProps {
+  games?: GameDef[];
+  title?: string;
 }
 
-const GAMES: GameDef[] = [
-  {
-    id: "2048",
-    name: "2048",
-    path: "/play/2048",
-    image: game2048Img,
-    description: "Sayıları Birleştir",
-    tag: "Strateji",
-  },
-  {
-    id: "kelimezinciri",
-    name: "Kelime Zinciri",
-    path: "/play/kelimezinciri",
-    image: kelimezinciriImg,
-    description: "Zeka ve Hafıza Oyunu",
-    tag: "Dil",
-  },
-  {
-    id: "sudoku",
-    name: "Sudoku",
-    path: "/play/sudoku",
-    image: sudokuImg,
-    description: "Zeka ve Mantık Oyunu",
-    tag: "Bulmaca",
-  },
-  {
-    id: "minesweeper",
-    name: "Mayın Tarlası",
-    path: "/play/minesweeper",
-    image: minesweepImg,
-    description: "Klasik Mayın Bulma",
-    tag: "Klasik",
-  },
-  {
-    id: "blockbloom",
-    name: "Block Bloom",
-    path: "/play/blockbloom",
-    image: blockblastImg,
-    description: "Blok Yerleştirme Bulmacası",
-    tag: "Bulmaca",
-  },
-  {
-    id: "mahjong",
-    name: "Mahjong",
-    path: "/play/mahjong",
-    image: mahjongImg,
-    description: "Taş Eşleştirme",
-    tag: "Klasik",
-  },
-];
-
-export default function GameCarousel() {
+export default function GameCarousel({
+  games = GAMES,
+  title = "TENET Oyunlar",
+}: GameCarouselProps) {
   return (
     <div className="game-carousel">
       <div className="gc-header">
         <div className="gc-header__left">
-          <RiGamepadLine className="gc-header__icon" size={20} />
-          <h3>TENET Oyunlar</h3>
+          <Gamepad2 className="gc-header__icon" size={20} />
+          <h3>{title}</h3>
         </div>
       </div>
 
       <div className="gc-wrapper">
         <div className="gc-track">
-          {GAMES.map((game) => (
+          {games.map((game) => (
             <div key={game.id} className="gc-item">
               <Link
                 className="gc-card__link"

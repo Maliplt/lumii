@@ -1,29 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  Users,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Users, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast, toastText } from "../Toast";
-import { AVATARS } from "../../helpers";
-import {
-  useAppSelector,
-  useAppDispatch,
-  logout,
-  selectProfile,
-  selectActiveProfile,
-} from "../../store/store";
+import { avatarFor, useLogout } from "../../helpers";
+import { useAppSelector, useAppDispatch, selectProfile, selectShownProfile } from "../../store/store";
+import AvatarOrInitial from "./AvatarOrInitial";
 
 export default function HeaderAccountMenu() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const toast = useToast();
+  const logoutUser = useLogout();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const activeProfile = useAppSelector(selectActiveProfile);
-  const shownProfile = activeProfile ?? currentUser?.profiles[0] ?? null;
+  const shownProfile = useAppSelector(selectShownProfile);
   const otherProfiles = (currentUser?.profiles ?? []).filter(
     (p) => p.id !== shownProfile?.id,
   );
@@ -83,17 +70,9 @@ export default function HeaderAccountMenu() {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    logoutUser();
     setOpen(false);
-    toast(toastText.loggedOut, "info");
-    navigate("/");
   };
-
-  const avatarNode = shownProfile?.avatar ? (
-    <img src={AVATARS[shownProfile.avatar]} alt="" />
-  ) : (
-    currentUser.name.charAt(0).toUpperCase()
-  );
 
   return (
     <div
@@ -109,7 +88,9 @@ export default function HeaderAccountMenu() {
         aria-label="Hesap"
         onClick={() => setOpen((p) => !p)}
       >
-        <span className="account-avatar">{avatarNode}</span>
+        <span className="account-avatar">
+          <AvatarOrInitial profile={shownProfile} fallbackName={currentUser.name} />
+        </span>
         <span className="account-trigger__name">
           {shownProfile?.name ?? currentUser.name}
         </span>
@@ -119,7 +100,9 @@ export default function HeaderAccountMenu() {
       {open && (
         <div className="account-menu__panel">
           <div className="account-menu__current">
-            <span className="account-menu__current-avatar">{avatarNode}</span>
+            <span className="account-menu__current-avatar">
+              <AvatarOrInitial profile={shownProfile} fallbackName={currentUser.name} />
+            </span>
             <div className="account-menu__current-info">
               <strong>{shownProfile?.name ?? currentUser.name}</strong>
               <span>{currentUser.email}</span>
@@ -151,7 +134,7 @@ export default function HeaderAccountMenu() {
                   onClick={() => switchProfile(p.id)}
                 >
                   <span className="account-menu__profile-avatar">
-                    <img src={AVATARS[p.avatar]} alt="" />
+                    <img src={avatarFor(p)} alt="" />
                   </span>
                   <span>{p.name}</span>
                   {p.kids && (

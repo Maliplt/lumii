@@ -1,19 +1,7 @@
 import "./MahjongSanctuary.scss";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import {
-  Coins,
-  Home,
-  Lightbulb,
-  Palette,
-  Pause,
-  Play,
-  RotateCcw,
-  Settings,
-  ShoppingBag,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Coins, Home, Lightbulb, Palette, Pause, Play, RotateCcw, Settings, ShoppingBag, Sparkles, X } from "lucide-react";
 
 type Screen = "start" | "rules" | "playing" | "result";
 type Status = "idle" | "playing" | "paused" | "won" | "lost";
