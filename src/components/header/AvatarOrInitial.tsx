@@ -5,7 +5,7 @@ interface AvatarOrInitialProps {
   fallbackName: string;
 }
 
-// avatar fallback
+// avatar yedeği
 export default function AvatarOrInitial({ profile, fallbackName }: AvatarOrInitialProps) {
   if (profile?.avatar) return <img src={avatarFor(profile)} alt="" />;
   return <>{fallbackName.charAt(0).toUpperCase()}</>;

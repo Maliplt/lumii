@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Play } from "lucide-react";
+import { Lock, Play } from "lucide-react";
 import PageLayout from "../../components/PageLayout";
 import HeroCarousel from "../../components/HeroCarousel";
 import ContentCarousel from "../../components/ContentCarousel";
 import Spinner from "../../components/Spinner";
-import StateView from "../../components/StateView";
+import ServiceErrorView from "../../components/ServiceErrorView";
 import { tmdbApi, getImageUrl, formatRuntime, pickTrailer } from "../../services/tmdb";
-import { useFetch, useTitle, formatTime, formatLongDate, settleList } from "../../helpers";
+import { ServiceError, serviceErrorMessage } from "../../services/serviceError";
+import { canUseLevel, contentAccessLevel, navigateToPlayback, useFetch, useTitle, formatTime, formatLongDate } from "../../helpers";
 import { useAppSelector, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
 import type { Movie, TVShow, Episode } from "../../types/types";
 
@@ -22,17 +23,23 @@ export default function OverviewContent({
   const [selectedSeason, setSelectedSeason] = useState(1);
   const numId = Number(id);
   const isMovie = type === "movie";
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const requiredLevel = contentAccessLevel(type, id);
+  const contentLocked = !canUseLevel(userPlan, requiredLevel);
 
-  const { data, loading, error } = useFetch(() =>
-    Number.isFinite(numId)
-      ? settleList([
-          isMovie ? tmdbApi.getMovieDetail(numId) : tmdbApi.getTVShowDetail(numId),
-          isMovie
-            ? tmdbApi.getSimilarMovies(numId)
-            : tmdbApi.getSimilarTVShows(numId),
-        ])
-        : Promise.reject(new Error("Geçersiz içerik ID")),
-  );
+  const { data, loading, error, retry } = useFetch(async () => {
+    if (!Number.isFinite(numId)) {
+      throw new ServiceError("not-found", serviceErrorMessage("not-found"));
+    }
+    const detail = isMovie
+      ? await tmdbApi.getMovieDetail(numId)
+      : await tmdbApi.getTVShowDetail(numId);
+    const similar = await (isMovie
+      ? tmdbApi.getSimilarMovies(numId)
+      : tmdbApi.getSimilarTVShows(numId)
+    ).catch(() => null);
+    return [detail, similar] as const;
+  }, `${type}-${id}`);
 
   const detail = data?.[0] ?? null;
   const similar = (data?.[1]?.results.filter((item) => item.poster_path) ??
@@ -94,11 +101,11 @@ export default function OverviewContent({
       mainClassName="overview-main"
       loading={loading}
     >
-      {(error || !detail) && (
-        <StateView
-          Icon={AlertTriangle}
-          title="İçerik yüklenemedi"
-          description="Bu içeriğe şu anda ulaşılamıyor. Lütfen daha sonra tekrar dene."
+      {error && (
+        <ServiceErrorView
+          error={error}
+          onRetry={retry}
+          onBack={() => navigate(-1)}
         />
       )}
 
@@ -147,16 +154,16 @@ export default function OverviewContent({
                       {season.data.episodes.map((episode: Episode) => (
                         <article
                           key={episode.id}
-                          className="ep-card"
-                          onClick={() =>
-                            navigate(`/${type}/${id}/player`, {
-                              state: {
-                                title,
-                                season: selectedSeason,
-                                episode: episode.episode_number,
-                              },
-                            })
-                          }
+                          className={`ep-card${contentLocked ? " is-locked" : ""}`}
+                          onClick={() => navigateToPlayback({
+                            navigate,
+                            type,
+                            id,
+                            planId: userPlan,
+                            title,
+                            season: selectedSeason,
+                            episode: episode.episode_number,
+                          })}
                         >
                           <div className="ep-card__thumb">
                             <img
@@ -171,7 +178,7 @@ export default function OverviewContent({
                               {String(episode.episode_number).padStart(2, "0")}
                             </span>
                             <span className="ep-card__play">
-                              <Play size={16} fill="currentColor" />
+                              {contentLocked ? <Lock size={16} /> : <Play size={16} fill="currentColor" />}
                             </span>
                           </div>
 
@@ -200,10 +207,15 @@ export default function OverviewContent({
                         </article>
                       ))}
                     </div>
+                  ) : season.error ? (
+                    <ServiceErrorView
+                      error={season.error}
+                      title="Bölümler yüklenemedi"
+                      onRetry={season.retry}
+                      compact
+                    />
                   ) : (
-                    <div className="seasons-empty">
-                      Bölüm bilgilerine şu anda ulaşılamıyor.
-                    </div>
+                    <div className="seasons-empty">Bu sezonda bölüm bulunmuyor.</div>
                   )}
                 </div>
               </section>

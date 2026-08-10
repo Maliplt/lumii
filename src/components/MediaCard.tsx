@@ -1,9 +1,10 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl } from "../services/tmdb";
-import { mediaName, mediaYear } from "../helpers";
+import { canUseLevel, contentAccessLevel, mediaName, mediaYear, requiredPlanName } from "../helpers";
+import { useAppSelector } from "../store/store";
 import type { Movie, TVShow } from "../types/types";
 
 interface MediaCardProps {
@@ -16,9 +17,12 @@ function MediaCard({ item, type, onRemove }: MediaCardProps) {
   const name = mediaName(item);
   const year = mediaYear(item);
   const rating = item.vote_average ? item.vote_average.toFixed(1) : "";
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const requiredLevel = contentAccessLevel(type, item.id);
+  const locked = !canUseLevel(userPlan, requiredLevel);
 
   return (
-    <Link to={`/${type}/${item.id}`} className="media-card">
+    <Link to={`/${type}/${item.id}`} className={`media-card${locked ? " is-locked" : ""}`}>
       <div className="media-card__poster">
         <img
           src={getImageUrl(item.poster_path, "w300")}
@@ -30,6 +34,9 @@ function MediaCard({ item, type, onRemove }: MediaCardProps) {
             <Star size={11} fill="currentColor" />
             {rating}
           </span>
+        )}
+        {locked && (
+          <span className="media-card__lock" title={`${requiredPlanName(requiredLevel)} paketine dahil`}><Lock size={15} /></span>
         )}
         {onRemove && (
           <button

@@ -1,12 +1,12 @@
 import { memo, useRef, useState, useMemo, useEffect, type ReactNode } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl, tmdbApi, pickTrailer, genreNames, formatRuntime } from "../services/tmdb";
-import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton, formatTime, useYouTubeEmbed, buildYoutubeEmbedUrl } from "../helpers";
+import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton, formatTime, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, requiredPlanName, upgradeCtaLabel } from "../helpers";
 import { useAppSelector, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
-import type { Movie, TVShow } from "../types/types";
+import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
 
 type Media = Movie | TVShow;
 
@@ -96,14 +96,17 @@ interface ContentCarouselProps {
   title: string;
   items: Media[];
   headerExtra?: ReactNode;
+  accessLevel?: ContentAccessLevel;
 }
 
 const ItemCard = memo(function ItemCard({
   item,
   type,
+  accessLevel,
 }: {
   item: Media;
   type: "movie" | "tv";
+  accessLevel?: ContentAccessLevel;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -118,6 +121,9 @@ const ItemCard = memo(function ItemCard({
     useYouTubeEmbed(frameRef, open ? trailerKey : null);
 
   const cardType = (item as SavedItem).media_type ?? type;
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const requiredLevel = contentAccessLevel(cardType, item.id, accessLevel);
+  const locked = !canUseLevel(userPlan, requiredLevel);
   const previewsEnabled = useAppSelector((s) => s.settings.previews);
 
   const name = mediaName(item);
@@ -221,7 +227,8 @@ const ItemCard = memo(function ItemCard({
 
   const wp = (item as SavedItem).watchProgress;
   const actionLabel = resumeLabel(cardType, wp, formatTime) ?? "Oynat";
-  const isResumeAction = actionLabel !== "Oynat";
+  const visibleActionLabel = locked ? upgradeCtaLabel(requiredLevel) : actionLabel;
+  const isResumeAction = locked || actionLabel !== "Oynat";
   const playerState =
     cardType === "tv" && canResumeProgress(wp) && wp.season && wp.episode
       ? { title: name, season: wp.season, episode: wp.episode }
@@ -234,12 +241,16 @@ const ItemCard = memo(function ItemCard({
   return (
     <div
       ref={ref}
-      className={`cc-item${open ? " is-open" : ""}${ready ? " is-playing" : ""}`}
+      className={`cc-item${open ? " is-open" : ""}${ready ? " is-playing" : ""}${locked ? " is-locked" : ""}`}
       style={{ flexGrow: open ? 2 : 1 }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <Link className="cc-item__link" to={`/${cardType}/${item.id}`}>
+      <Link
+        className="cc-item__link"
+        to={`/${cardType}/${item.id}`}
+        aria-label={name}
+      >
         <img
           className="cc-item__poster"
           src={getImageUrl(item.poster_path, "w300")}
@@ -248,6 +259,13 @@ const ItemCard = memo(function ItemCard({
           decoding="async"
         />
       </Link>
+      {locked && (
+        <span
+          className="cc-item__access-badge"
+          title={`${requiredPlanName(requiredLevel)} paketine dahil`}
+          aria-label={`${requiredPlanName(requiredLevel)} paketine dahil`}
+        ><Lock size={15} /></span>
+      )}
       {watchPct > 0 && (
         <div className="cc-progress-bar">
           <div className="cc-progress-bar__fill" style={{ width: `${watchPct}%` }} />
@@ -300,14 +318,21 @@ const ItemCard = memo(function ItemCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/${cardType}/${item.id}/player`, { state: playerState });
+                  navigateToPlayback({
+                    navigate,
+                    type: cardType,
+                    id: item.id,
+                    planId: userPlan,
+                    accessLevel,
+                    ...playerState,
+                  });
                 }}
-                aria-label={actionLabel}
-                data-action-label={actionLabel}
+                aria-label={visibleActionLabel}
+                data-action-label={visibleActionLabel}
               >
-                <MotionIcon name="Play" size={18} trigger="click" animation="nudge" />
+                <MotionIcon name={locked ? "Lock" : "Play"} size={18} trigger="click" animation="nudge" />
                 {isResumeAction && (
-                  <span className="cc-item__action-text">{actionLabel}</span>
+                  <span className="cc-item__action-text">{visibleActionLabel}</span>
                 )}
               </button>
               <MediaActionButtons item={item} type={cardType} />
@@ -388,6 +413,7 @@ export default function ContentCarousel({
   title,
   items,
   headerExtra,
+  accessLevel,
 }: ContentCarouselProps) {
   const [page, setPage] = useState(0);
   const visible = useVisibleCount();
@@ -464,7 +490,7 @@ export default function ContentCarousel({
             {pages.map((slide, si) => (
               <div key={si} className="cc-slide">
                 {slide.map((it) => (
-                  <ItemCard key={`${type}-${it.id}`} item={it} type={type} />
+                  <ItemCard key={`${type}-${it.id}`} item={it} type={type} accessLevel={accessLevel} />
                 ))}
                 {Array.from({ length: visible - slide.length }).map((_, i) => (
                   <div

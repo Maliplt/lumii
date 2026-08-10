@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef, type CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, type CSSProperties } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { animate } from "animejs";
 import { Button } from "rsuite";
 import { Plus, Pencil } from "lucide-react";
 import Logo from "../components/header/Logo";
 import ProfileEditorModal from "../components/modals/ProfileEditorModal";
 import ProfileUnlockModal from "../components/modals/ProfileUnlockModal";
-import { avatarFor, useTitle, useToast, toastText } from "../helpers";
-import { useAppSelector, useAppDispatch, selectProfile, addProfile, updateProfile, deleteProfile, MAX_PROFILES, type Profile } from "../store/store";
+import { avatarFor, safeAuthReturnTo, useProtectedUser, useTitle, useToast, toastText } from "../helpers";
+import { useAppDispatch, selectProfile, addProfile, updateProfile, deleteProfile, MAX_PROFILES, type Profile } from "../store/store";
 
 type EditorState =
   | { mode: "create" }
@@ -16,10 +16,11 @@ type EditorState =
 
 export default function ProfilesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const profiles = currentUser?.profiles ?? [];
+  const currentUser = useProtectedUser();
+  const profiles = currentUser.profiles;
 
   const [manage, setManage] = useState(false);
   const [editor, setEditor] = useState<EditorState>(null);
@@ -28,11 +29,7 @@ export default function ProfilesPage() {
   const centerRef = useRef<HTMLDivElement>(null);
   useTitle(manage ? "Profilleri Yönet" : "Kim izliyor?");
 
-  useEffect(() => {
-    if (!currentUser) navigate("/", { replace: true });
-  }, [currentUser, navigate]);
-
-  if (!currentUser) return null;
+  const returnTo = safeAuthReturnTo(location.state);
 
   // profil geçişi
   const goToProfile = (p: Profile, el: HTMLElement | null) => {
@@ -51,7 +48,7 @@ export default function ProfilesPage() {
 
     window.setTimeout(() => {
       dispatch(selectProfile(p.id));
-      navigate("/");
+      navigate(returnTo, { replace: true });
     }, 470);
   };
 

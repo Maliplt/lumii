@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
+import { MonitorX } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 
 export default function NotFoundPage() {
@@ -8,6 +9,7 @@ export default function NotFoundPage() {
 
   return (
     <PageLayout className="notfound-page" mainClassName="notfound-container">
+      <MonitorX className="notfound-broken" size={28} strokeWidth={1.5} aria-hidden="true" />
       <p className="notfound-code">404</p>
       <h1 className="notfound-title">Sayfa bulunamadı</h1>
       <p className="notfound-desc">

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Schema, Button } from "rsuite";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
@@ -25,6 +25,7 @@ const registerModel = Schema.Model({
 export default function RegisterPage() {
   useTitle("Üye Ol");
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const authError = useAppSelector((s) => s.auth.error);
@@ -128,7 +129,7 @@ export default function RegisterPage() {
               appearance="ghost"
               block
               className="login-register"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/login", { state: location.state })}
             >
               Zaten Hesabım Var
             </Button>

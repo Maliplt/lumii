@@ -1,4 +1,5 @@
 import type { Movie, TVShow, SearchResult } from "../types/types";
+import { normalizeServiceError } from "../services/serviceError";
 
 // liste çözümleme
 export async function settleList<T extends readonly unknown[]>(
@@ -6,7 +7,10 @@ export async function settleList<T extends readonly unknown[]>(
 ): Promise<{ [K in keyof T]: Awaited<T[K]> | null }> {
   const results = await Promise.allSettled(requests);
   if (results.every((result) => result.status === "rejected")) {
-    throw new Error("Tum liste istekleri basarisiz oldu.");
+    const firstFailure = results.find(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    throw normalizeServiceError(firstFailure?.reason);
   }
   return results.map((result) =>
     result.status === "fulfilled" ? result.value : null,

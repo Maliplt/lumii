@@ -51,6 +51,31 @@
     }
 }
 
+.cc-item.is-locked {
+    .cc-item__action-btn.cc-item__mute {
+        top: 52px;
+    }
+}
+
+.cc-item__access-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--radius-1);
+    color: #fff;
+    background: rgba(8, 10, 15, 0.78);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
 // hover fragmani
 .cc-item__trailer {
     position: absolute;
@@ -178,7 +203,7 @@
     inset: 0;
     z-index: 2;
     padding: var(--space-4);
-    // overlay
+    // karartma katmanı
     background: rgba($ink, 0.32);
     color: #ffffff;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85), 0 0 3px rgba(0, 0, 0, 0.55);

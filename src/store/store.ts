@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 import { auth, type AuthState, type Profile } from "./authSlice";
 import { library, emptyLibrary, type LibraryState, type LibraryData } from "./librarySlice";
-import { settings, type SettingsState } from "./settingsSlice";
+import { settings, settingsInitial, type SettingsState } from "./settingsSlice";
 export * from "./authSlice";
 export * from "./librarySlice";
 export * from "./settingsSlice";
@@ -18,7 +18,28 @@ function loadState(): PersistedState | undefined {
   try {
     const raw = localStorage.getItem("tenet-state");
     if (!raw) return undefined;
-    return JSON.parse(raw) as PersistedState;
+    const parsed = JSON.parse(raw) as PersistedState & {
+      settings?: SettingsState & { autoplay?: boolean };
+    };
+
+    // eski autoplay ayarini profillere tasi
+    const legacyAutoplay = parsed.settings?.autoplay;
+    const fallbackPlayback = legacyAutoplay === false ? "manual" : "auto";
+    const migrateProfiles = (profiles?: Profile[]) => {
+      profiles?.forEach((profile) => {
+        if (!profile.playback) profile.playback = fallbackPlayback;
+      });
+    };
+    migrateProfiles(parsed.auth?.currentUser?.profiles);
+    parsed.auth?.accounts?.forEach((account) => migrateProfiles(account.profiles));
+
+    if (parsed.settings) {
+      const currentSettings = { ...parsed.settings };
+      delete currentSettings.autoplay;
+      parsed.settings = { ...settingsInitial, ...currentSettings };
+    }
+
+    return parsed;
   } catch (err) {
     console.warn("Kaydedilmiş durum okunamadı, sıfırdan başlanıyor:", err);
     return undefined;
@@ -72,6 +93,10 @@ export const selectActiveProfile = (s: RootState): Profile | null =>
 
 export const selectShownProfile = (s: RootState): Profile | null =>
   selectActiveProfile(s) ?? s.auth.currentUser?.profiles[0] ?? null;
+
+// profil otomatik oynatma ayari
+export const selectAutoplayEnabled = (s: RootState): boolean =>
+  (selectShownProfile(s)?.playback ?? "auto") === "auto";
 
 // kütüphane seçici
 export const selectLibrary = (s: RootState): LibraryData =>

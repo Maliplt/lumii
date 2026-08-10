@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward } from "lucide-react";
 import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
 import { usePlayerChrome } from "./usePlayerChrome";
+import ServiceErrorView from "../ServiceErrorView";
+import { playbackError, type ServiceError } from "../../services/serviceError";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
 
 // youtube api tipleri
@@ -28,6 +30,7 @@ interface YTNamespace {
       events?: {
         onReady?: (e: { target: YTPlayer }) => void;
         onStateChange?: (e: { data: number }) => void;
+        onError?: () => void;
       };
     },
   ) => YTPlayer;
@@ -43,15 +46,29 @@ let apiPromise: Promise<YTNamespace> | null = null;
 function loadYouTubeApi(): Promise<YTNamespace> {
   if (window.YT?.Player) return Promise.resolve(window.YT);
   if (!apiPromise) {
-    apiPromise = new Promise<YTNamespace>((resolve) => {
+    apiPromise = new Promise<YTNamespace>((resolve, reject) => {
+      const timer = window.setTimeout(
+        () => reject(new Error("YouTube API zaman aşımına uğradı.")),
+        12000,
+      );
       const prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         prev?.();
-        if (window.YT) resolve(window.YT);
+        if (window.YT) {
+          window.clearTimeout(timer);
+          resolve(window.YT);
+        }
       };
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
+      tag.onerror = () => {
+        window.clearTimeout(timer);
+        reject(new Error("YouTube API yüklenemedi."));
+      };
       document.head.appendChild(tag);
+    }).catch((error) => {
+      apiPromise = null;
+      throw error;
     });
   }
   return apiPromise;
@@ -95,6 +112,8 @@ export default function TrailerPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState<ServiceError | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
   const { fullscreen, controlsVisible, showControlsNow, toggleFullscreen } =
     usePlayerChrome(containerRef);
@@ -107,52 +126,60 @@ export default function TrailerPlayer({
     let cancelled = false;
     let poll: ReturnType<typeof setInterval> | null = null;
 
-    loadYouTubeApi().then((YT) => {
-      if (cancelled || !mountRef.current) return;
-      const host = document.createElement("div");
-      mountRef.current.appendChild(host);
-      playerRef.current = new YT.Player(host, {
-        videoId: youtubeKey,
-        playerVars: {
-          autoplay: autoPlay ? 1 : 0,
-          start: Math.floor(startPosition) || 0,
-          controls: 0,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          disablekb: 1,
-          fs: 0,
-          iv_load_policy: 3,
-          cc_load_policy: 0,
-        },
-        events: {
-          onReady: (e) => {
-            if (cancelled) return;
-            const p = e.target;
-            setReady(true);
-            setDuration(p.getDuration() || 0);
-            setMuted(p.isMuted());
-            setVolume((p.getVolume() || 100) / 100);
-            poll = setInterval(() => {
-              const cur = playerRef.current;
-              if (!cur) return;
-              const pos = cur.getCurrentTime?.() ?? 0;
-              const dur = cur.getDuration?.() ?? 0;
-              setCurrentTime(pos);
-              if (dur > 0) {
-                setDuration(dur);
-                progressRef.current?.(pos, dur);
-              }
-            }, 1000);
+    loadYouTubeApi()
+      .then((YT) => {
+        if (cancelled || !mountRef.current) return;
+        const host = document.createElement("div");
+        mountRef.current.appendChild(host);
+        playerRef.current = new YT.Player(host, {
+          videoId: youtubeKey,
+          playerVars: {
+            autoplay: autoPlay ? 1 : 0,
+            start: Math.floor(startPosition) || 0,
+            controls: 0,
+            rel: 0,
+            modestbranding: 1,
+            playsinline: 1,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            cc_load_policy: 0,
           },
-          onStateChange: (e) => {
-            if (cancelled) return;
-            if (e.data === YT_PLAYING) setPlaying(true);
-            if (e.data === YT_PAUSED || e.data === YT_ENDED) setPlaying(false);
+          events: {
+            onReady: (e) => {
+              if (cancelled) return;
+              const p = e.target;
+              setReady(true);
+              setDuration(p.getDuration() || 0);
+              setMuted(p.isMuted());
+              setVolume((p.getVolume() || 100) / 100);
+              poll = setInterval(() => {
+                const cur = playerRef.current;
+                if (!cur) return;
+                const pos = cur.getCurrentTime?.() ?? 0;
+                const dur = cur.getDuration?.() ?? 0;
+                setCurrentTime(pos);
+                if (dur > 0) {
+                  setDuration(dur);
+                  progressRef.current?.(pos, dur);
+                }
+              }, 1000);
+            },
+            onStateChange: (e) => {
+              if (cancelled) return;
+              if (e.data === YT_PLAYING) setPlaying(true);
+              if (e.data === YT_PAUSED || e.data === YT_ENDED)
+                setPlaying(false);
+            },
+            onError: () => {
+              if (!cancelled) setLoadError(playbackError());
+            },
           },
-        },
+        });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setLoadError(playbackError(error));
       });
-    });
 
     return () => {
       cancelled = true;
@@ -166,7 +193,7 @@ export default function TrailerPlayer({
       }
       playerRef.current = null;
     };
-  }, [youtubeKey, autoPlay, startPosition]);
+  }, [youtubeKey, autoPlay, startPosition, attempt]);
 
   const togglePlay = useCallback(() => {
     const p = playerRef.current;
@@ -238,9 +265,25 @@ export default function TrailerPlayer({
         onDoubleClick={toggleFullscreen}
       />
 
-      {!ready && (
+      {!ready && !loadError && (
         <div className="player-loading">
           <img src={tenetLogo} alt="" className="player-loading__logo" />
+        </div>
+      )}
+
+      {loadError && (
+        <div className="player-error">
+          <ServiceErrorView
+            error={loadError}
+            title="İçerik oynatılamadı"
+            onRetry={() => {
+              setLoadError(null);
+              setReady(false);
+              setAttempt((value) => value + 1);
+            }}
+            onBack={onBack}
+            compact
+          />
         </div>
       )}
 

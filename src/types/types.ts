@@ -142,4 +142,17 @@ export interface PackageDef {
   support?: string;
   cta: string;
   free: boolean;
+  capabilities: PlanCapabilities;
+}
+
+export type PlanId = "free" | "standard" | "premium";
+export type ContentAccessLevel = PlanId;
+
+export interface PlanCapabilities {
+  maxVideoHeight: 480 | 720 | 1080;
+  contentLevel: ContentAccessLevel;
+  liveTvChannelLimit: number | null;
+  concurrentStreams: number;
+  hasAds: boolean;
+  canDownload: boolean;
 }

@@ -12,8 +12,10 @@ export default function RootLayout() {
   const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
 
   // kim izliyor
-  if (currentUser && !activeProfileId)
-    return <Navigate to="/profiles" replace />;
+  if (currentUser && !activeProfileId) {
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/profiles" replace state={{ returnTo }} />;
+  }
 
   return (
     <div className="app-shell">

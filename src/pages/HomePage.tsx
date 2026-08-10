@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import GameCarousel from "../components/GameCarousel";
-import StateView from "../components/StateView";
-import { loadCriticalHome, loadRestHome, loadKidsHome } from "../services/home";
-import { useFetch, useTitle, useLazyReveal } from "../helpers";
+import ServiceErrorView from "../components/ServiceErrorView";
+import { loadCriticalHome, loadRestHome, loadKidsHome, loadFreeCatalog } from "../services/home";
+import { useFetch, useTitle, useLazyReveal, effectivePlanId } from "../helpers";
 import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
 
 export default function HomePage() {
@@ -14,9 +13,16 @@ export default function HomePage() {
 
   const continueWatching = useAppSelector((s) => selectLibrary(s).continueWatching);
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const isFreeExperience = effectivePlanId(userPlan) === "free";
   const showContinueRow = useAppSelector((s) => s.settings.continueRow);
   const activeProfile = useAppSelector(selectActiveProfile);
   const isKids = activeProfile?.kids ?? false;
+
+  const freeCatalog = useFetch(
+    () => (isFreeExperience && !isKids ? loadFreeCatalog() : Promise.resolve([])),
+    `free-catalog-${isFreeExperience}-${isKids}`,
+  );
 
   // çocuk profili
   const kidsData = useFetch(
@@ -65,9 +71,12 @@ export default function HomePage() {
   const rows = isKids || !critical.data
     ? []
     : [
+        isFreeExperience ? (
+          <ContentCarousel key="free" type="movie" title="Ücretsiz İçerikler" items={freeCatalog.data ?? []} accessLevel="free" />
+        ) : null,
         <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler Filmler" items={critical.data.popular} />,
-        <GameCarousel key="games" />,
-        isLoggedIn && showContinueRow && continueWatching.length > 0 ? (
+        !isFreeExperience ? <GameCarousel key="games" /> : null,
+        !isFreeExperience && isLoggedIn && showContinueRow && continueWatching.length > 0 ? (
           <ContentCarousel key="continue" type="movie" title="İzlemeye Devam Et" items={continueWatching} />
         ) : null,
         <ContentCarousel key="nowplaying" type="movie" title="Sinemalarda Vizyondakiler" items={critical.data.nowPlaying} />,
@@ -92,7 +101,8 @@ export default function HomePage() {
 
   const activeRows = isKids ? kidsRows : rows;
   const isLoading = isKids ? kidsData.loading : critical.loading;
-  const isError = isKids ? kidsData.error : critical.error;
+  const pageError = isKids ? kidsData.error : critical.error;
+  const retryPage = isKids ? kidsData.retry : critical.retry;
 
   const { visible, sentinelRef } = useLazyReveal(activeRows.length, 4, 3);
 
@@ -102,12 +112,8 @@ export default function HomePage() {
       mainClassName="home-main"
       loading={isLoading}
     >
-      {isError ? (
-        <StateView
-          Icon={AlertTriangle}
-          title="İçerik yüklenemedi"
-          description="Veriler getirilirken bir sorun oluştu. Lütfen sayfayı yenileyin."
-        />
+      {pageError ? (
+        <ServiceErrorView error={pageError} onRetry={retryPage} />
       ) : (
         <>
           <HeroCarousel movies={heroMovies} />

@@ -9,7 +9,7 @@ export interface Channel {
   url: string;
 }
 
-// logo fallback
+// logo yedeği
 export default function ChannelLogo({ channel }: { channel: Channel }) {
   const [failed, setFailed] = useState(false);
   if (failed) {

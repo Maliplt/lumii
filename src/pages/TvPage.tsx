@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Lock, Search, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import PageLayout from "../components/PageLayout";
 import MediaPlayer from "../components/player/MediaPlayer";
 import ChannelLogo, { type Channel } from "../components/ChannelLogo";
-import { useTitle } from "../helpers";
+import { canAccessChannel, channelAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useTitle } from "../helpers";
+import { useAppSelector } from "../store/store";
 import channelsData from "../data/channels.json";
 
 // yayin akisi listesi
@@ -11,7 +13,15 @@ const CHANNELS: Channel[] = channelsData;
 
 export default function TvPage() {
   useTitle("TV İzle");
+  const navigate = useNavigate();
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const plan = getPlan(userPlan);
   const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
+  const [lockedChannel, setLockedChannel] = useState<Channel | null>(null);
+  const lockedChannelIndex = lockedChannel
+    ? CHANNELS.findIndex((channel) => channel.id === lockedChannel.id)
+    : -1;
+  const lockedChannelLevel = channelAccessLevel(Math.max(0, lockedChannelIndex), lockedChannel?.category);
   const [query, setQuery] = useState("");
 
   const groups = useMemo(() => {
@@ -43,14 +53,12 @@ export default function TvPage() {
     <PageLayout className="tv-page" mainClassName="tv-main">
       <div className="tv-layout">
         <div className="tv-sidebar">
-          <h2 className="tv-sidebar__title">Kanal Listesi</h2>
-
           <div className="tv-search">
             <Search size={17} className="tv-search__glyph" />
             <input
               type="text"
               className="tv-search__input"
-              placeholder={`Kanal veya kategori ara · ${CHANNELS.length} kanal`}
+              placeholder="Kanal veya kategori ara"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -73,8 +81,15 @@ export default function TvPage() {
                 {group.items.map(({ channel, no }) => (
                   <button
                     key={channel.id}
-                    className={`tv-channel-item${selected.id === channel.id ? " active" : ""}`}
-                    onClick={() => setSelected(channel)}
+                    className={`tv-channel-item${selected.id === channel.id && !lockedChannel ? " active" : ""}${canAccessChannel(userPlan, no - 1, channel.category) ? "" : " is-locked"}`}
+                    onClick={() => {
+                      if (!canAccessChannel(userPlan, no - 1, channel.category)) {
+                        setLockedChannel(channel);
+                        return;
+                      }
+                      setLockedChannel(null);
+                      setSelected(channel);
+                    }}
                   >
                     <span className="tv-channel-item__no">{no}</span>
                     <ChannelLogo channel={channel} />
@@ -84,8 +99,13 @@ export default function TvPage() {
                       </span>
                     </span>
                     <span className="tv-channel-item__live">
-                      <span className="tv-channel-item__live-dot" />
-                      CANLI
+                      {canAccessChannel(userPlan, no - 1, channel.category) ? (
+                        <span className="tv-channel-item__live-dot" title="Canlı yayın" aria-label="Canlı yayın" />
+                      ) : (
+                        <span className="tv-channel-item__lock" title={`${requiredPlanName(channelAccessLevel(no - 1, channel.category))} paketine dahil`}>
+                          <Lock size={15} />
+                        </span>
+                      )}
                     </span>
                   </button>
                 ))}
@@ -105,7 +125,18 @@ export default function TvPage() {
             live
             startMuted
             className="tv-featured__player"
+            maxVideoHeight={plan.capabilities.maxVideoHeight}
+            qualityLabel={plan.quality}
           />
+          {lockedChannel && (
+            <div className="tv-access-gate" role="status">
+              <span className="tv-access-gate__icon" aria-hidden="true"><Lock size={26} /></span>
+              <h2>{lockedChannel.name}</h2>
+              <p>Bu kanal {requiredPlanName(lockedChannelLevel)} paketine dahildir.</p>
+              <button type="button" onClick={() => navigate("/packages")}>{upgradeCtaLabel(lockedChannelLevel)}</button>
+              <button type="button" className="is-secondary" onClick={() => setLockedChannel(null)}>Yayına Dön</button>
+            </div>
+          )}
         </div>
       </div>
     </PageLayout>

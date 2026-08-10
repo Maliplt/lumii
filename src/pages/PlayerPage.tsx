@@ -3,10 +3,12 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import MediaPlayer from "../components/player/MediaPlayer";
 import TrailerPlayer from "../components/player/TrailerPlayer";
 import Spinner from "../components/Spinner";
-import { resolvePlaybackSource, type PlaybackSource } from "../services/player";
+import ServiceErrorView from "../components/ServiceErrorView";
+import { resolvePlaybackSource } from "../services/player";
 import { tmdbApi } from "../services/tmdb";
-import { PACKAGES, findPackage, useToast } from "../helpers";
-import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectActiveProfile, selectLibrary, type SavedItem } from "../store/store";
+import { ServiceError, serviceErrorMessage } from "../services/serviceError";
+import { canUseLevel, contentAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
+import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectAutoplayEnabled, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
   title?: string;
@@ -19,30 +21,28 @@ export default function PlayerPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const toast = useToast();
-
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const library = useAppSelector(selectLibrary);
 
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
-  const planDef =
-    findPackage(userPlan) ?? findPackage("standard") ?? PACKAGES[0];
+  const planDef = getPlan(userPlan);
   const qualityLabel = planDef?.quality ?? "Full HD 1080p";
-  const isFreeTier = userPlan ? !!planDef?.free : false;
+  const isFreeTier = planDef.free;
+  const requiredLevel = contentAccessLevel(type ?? "", id ?? "");
+  const canPlay = canUseLevel(userPlan, requiredLevel);
 
   // otomatik oynatma
-  const activeProfile = useAppSelector(selectActiveProfile);
-  const settingsAutoplay = useAppSelector((s) => s.settings.autoplay);
-  const autoplay = activeProfile?.playback
-    ? activeProfile.playback === "auto"
-    : settingsAutoplay;
+  const autoplay = useAppSelector(selectAutoplayEnabled);
 
   const navState = (location.state as PlayerNavState | null) ?? {};
-  const [title, setTitle] = useState(navState.title ?? "");
   const { season, episode } = navState;
 
   // kayıtlı pozisyon
   const numId = Number(id);
+  const invalidRequest =
+    (type !== "movie" && type !== "tv") ||
+    !Number.isFinite(numId) ||
+    numId <= 0;
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
@@ -52,41 +52,34 @@ export default function PlayerPage() {
     return p.position;
   });
 
-  const sourceKey = `${type}-${id}`;
-  const [resolved, setResolved] = useState<{
-    key: string;
-    src: PlaybackSource;
-  } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    resolvePlaybackSource({ type, id }).then((src) => {
-      if (alive) setResolved({ key: `${type}-${id}`, src });
-    });
-    return () => {
-      alive = false;
-    };
-  }, [type, id]);
-  // oynatma kaynağı
-  const source = resolved?.key === sourceKey ? resolved.src : null;
-
-  // içerik bilgisi
-  useEffect(() => {
-    if (!type || !id) return;
-    const request =
+  const sourceKey = `${type}-${id}-${canPlay}`;
+  const playback = useFetch(async () => {
+    if (!canPlay) return null;
+    if (invalidRequest) {
+      throw new ServiceError("not-found", serviceErrorMessage("not-found"));
+    }
+    const [source, detail] = await Promise.all([
+      resolvePlaybackSource({ type, id }),
       type === "movie"
         ? tmdbApi.getMovieDetail(numId)
-        : tmdbApi.getTVShowDetail(numId);
-    request
-      .then((detail) => {
-        setTitle(detail.media_type === "movie" ? detail.title : detail.name);
-        if (isLoggedIn) {
-          dispatch(startWatching({ ...detail } as SavedItem));
-        }
-      })
-      .catch(() => {
-        toast("İçerik bilgisi yüklenemedi, oynatma devam ediyor.", "warning");
-      });
-  }, [type, id, numId, isLoggedIn, dispatch, toast]);
+        : tmdbApi.getTVShowDetail(numId),
+    ]);
+    return { source, detail };
+  }, `${sourceKey}-${invalidRequest}`);
+
+  const detail = playback.data?.detail;
+  const source = playback.data?.source;
+  const title = detail
+    ? detail.media_type === "movie"
+      ? detail.title
+      : detail.name
+    : (navState.title ?? "");
+
+  useEffect(() => {
+    if (detail && isLoggedIn && canPlay) {
+      dispatch(startWatching({ ...detail } as SavedItem));
+    }
+  }, [detail, isLoggedIn, canPlay, dispatch]);
 
   const handleProgress = useCallback(
     (position: number, duration: number) => {
@@ -109,8 +102,47 @@ export default function PlayerPage() {
     type === "tv" && season != null && episode != null
       ? `${season}. Sezon · ${episode}. Bölüm`
       : "";
+  const openPlanOptions = () => navigate("/packages");
 
-  if (!source) {
+  if (invalidRequest) {
+    return (
+      <div className="player-page">
+        <ServiceErrorView
+          error={new ServiceError("not-found", serviceErrorMessage("not-found"))}
+          title="İçerik bulunamadı"
+          onBack={() => navigate(-1)}
+        />
+      </div>
+    );
+  }
+
+  if (!canPlay) {
+    return (
+      <div className="player-page player-access-gate">
+        <div className="player-access-gate__card">
+          <h1>{requiredPlanName(requiredLevel)} paketine dahil</h1>
+          <p>Bu yapımın tamamını izlemek için paketini değiştirebilirsin.</p>
+          <button type="button" onClick={openPlanOptions}>{upgradeCtaLabel(requiredLevel)}</button>
+          <button type="button" className="is-secondary" onClick={() => navigate(-1)}>Geri Dön</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (playback.error) {
+    return (
+      <div className="player-page">
+        <ServiceErrorView
+          error={playback.error}
+          title="Oynatma başlatılamadı"
+          onRetry={playback.retry}
+          onBack={() => navigate(-1)}
+        />
+      </div>
+    );
+  }
+
+  if (playback.loading || !source) {
     return (
       <div className="player-page">
         <Spinner />
@@ -122,13 +154,14 @@ export default function PlayerPage() {
     <div className="player-page">
       {source.kind === "youtube" ? (
         <TrailerPlayer
+          key={source.key}
           youtubeKey={source.key}
           title={title}
           subtitle={episodeInfo || source.name}
           startPosition={startPosition}
           autoPlay={autoplay}
           qualityLabel={qualityLabel}
-          onUpgrade={!isLoggedIn || isFreeTier ? () => navigate("/packages") : undefined}
+          onUpgrade={!isLoggedIn || isFreeTier ? openPlanOptions : undefined}
           onBack={() => navigate(-1)}
           onProgress={handleProgress}
         />
@@ -139,7 +172,8 @@ export default function PlayerPage() {
           autoPlay={autoplay}
           startPosition={startPosition}
           qualityLabel={qualityLabel}
-          onUpgrade={!isLoggedIn || isFreeTier ? () => navigate("/packages") : undefined}
+          maxVideoHeight={planDef.capabilities.maxVideoHeight}
+          onUpgrade={!isLoggedIn || isFreeTier ? openPlanOptions : undefined}
           onBack={() => navigate(-1)}
           onProgress={handleProgress}
         />

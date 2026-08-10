@@ -1,4 +1,4 @@
-// ─── Pixel Pixie – Menu Screen ───────────────────────────────────────────────
+// oyun menüsü
 
 .bb-menu-screen {
   position: relative;
@@ -18,7 +18,7 @@
   }
 }
 
-// ── Sparkles ─────────────────────────────────────────────────────────────────
+// parıltılar
 
 .bb-sparkles {
   position: absolute;
@@ -40,7 +40,7 @@
 .bb-sp-md { font-size: 1rem; }
 .bb-sp-sm { font-size: 0.7rem; }
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
+// tanıtım alanı
 
 .bb-menu-hero {
   position: relative;
@@ -119,7 +119,7 @@
   background: var(--bb-glass);
 }
 
-// ── Mode picker ───────────────────────────────────────────────────────────────
+// mod seçici
 
 .bb-mode-picker {
   position: relative;
@@ -179,7 +179,7 @@
   }
 }
 
-// ── CTA Buttons ───────────────────────────────────────────────────────────────
+// ana butonlar
 
 .bb-menu-cta {
   position: relative;
@@ -196,7 +196,7 @@
   gap: 10px;
 }
 
-// ── Stats bar ─────────────────────────────────────────────────────────────────
+// istatistik çubuğu
 
 .bb-menu-stats-bar {
   position: relative;
@@ -238,7 +238,7 @@
   }
 }
 
-// ── Nav ───────────────────────────────────────────────────────────────────────
+// menü bağlantıları
 
 .bb-menu-nav {
   position: relative;
@@ -267,7 +267,7 @@
   }
 }
 
-// ── Sub-screens (settings / stats / how) ─────────────────────────────────────
+// alt ekranlar
 
 .bb-sub-screen {
   width: 100%;
@@ -312,7 +312,7 @@
   }
 }
 
-// ── Settings ─────────────────────────────────────────────────────────────────
+// ayarlar
 
 .bb-setting-group {
   margin-bottom: 24px;
@@ -452,7 +452,7 @@
   margin-bottom: 4px;
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// istatistikler
 
 .bb-stats-grid {
   display: grid;
@@ -484,7 +484,7 @@
   }
 }
 
-// ── How to play ───────────────────────────────────────────────────────────────
+// nasıl oynanır
 
 .bb-how-list {
   display: flex;

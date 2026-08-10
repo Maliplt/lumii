@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
-import { Play, Info, Film, Star } from "lucide-react";
+import { Play, Info, Film, Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { MediaActionButtons } from "./ContentCarousel";
 import { getImageUrl, genreNames, tmdbApi, formatRuntime, pickTrailer } from "../services/tmdb";
-import { useSwipe, mediaName, mediaYear, popButton, useYouTubeEmbed, buildYoutubeEmbedUrl } from "../helpers";
-import type { Movie, TVShow } from "../types/types";
+import { useSwipe, mediaName, mediaYear, popButton, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, upgradeCtaLabel } from "../helpers";
+import { useAppSelector } from "../store/store";
+import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
 
 type HeroItem = Movie | TVShow;
 
@@ -24,6 +25,7 @@ interface HeroCarouselProps {
   hideMoreInfo?: boolean;
   ctaLabel?: string;
   ctaNavState?: { season?: number; episode?: number };
+  accessLevel?: ContentAccessLevel;
 }
 
 const AUTO_SLIDE_DELAY = 6000;
@@ -40,6 +42,7 @@ export default function HeroCarousel({
   inlineTrailerKey,
   ctaLabel,
   ctaNavState,
+  accessLevel,
 }: HeroCarouselProps) {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -52,6 +55,7 @@ export default function HeroCarousel({
   const trailerRef = useRef<HTMLIFrameElement>(null);
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
+  const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
 
   const {
     ready: heroTrailerReady,
@@ -199,6 +203,8 @@ export default function HeroCarousel({
           const title = mediaName(movie);
           const year = mediaYear(movie);
           const mtype = "title" in movie ? "movie" : "tv";
+          const requiredLevel = contentAccessLevel(mtype, movie.id, accessLevel);
+          const locked = !canUseLevel(userPlan, requiredLevel);
           const inlineTrailerKey =
             inlineTrailer && index === activeIndex ? heroTrailerKey : null;
           const showInlineTrailer = !!inlineTrailerKey;
@@ -208,7 +214,7 @@ export default function HeroCarousel({
                 origin: typeof window === "undefined" ? undefined : window.location.origin,
               })
             : "";
-          // detay metasi
+          // detay bilgileri
           const slideMeta =
             meta && meta.length
               ? meta
@@ -303,14 +309,18 @@ export default function HeroCarousel({
                   <Button
                     className="btn-play"
                     size="lg"
-                    onClick={() =>
-                      navigate(`/${mtype}/${movie.id}/player`, {
-                        state: { title, ...ctaNavState },
-                      })
-                    }
+                    onClick={() => navigateToPlayback({
+                      navigate,
+                      type: mtype,
+                      id: movie.id,
+                      planId: userPlan,
+                      accessLevel,
+                      title,
+                      ...ctaNavState,
+                    })}
                   >
-                    <Play size={20} fill="currentColor" className="play-icon" />{" "}
-                    {ctaLabel ?? "Oynat"}
+                    {locked ? <Lock size={19} /> : <Play size={20} fill="currentColor" className="play-icon" />}{" "}
+                    {locked ? upgradeCtaLabel(requiredLevel) : (ctaLabel ?? "Oynat")}
                   </Button>
 
                   {inlineTrailer && (

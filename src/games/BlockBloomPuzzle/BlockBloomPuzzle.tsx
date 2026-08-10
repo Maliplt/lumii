@@ -86,7 +86,7 @@ const STORAGE_STATS = "block-bloom-stats-v1";
 const STORAGE_SAVE = "block-bloom-save-v2";
 const BEST_SCORE_KEY = "blockbloom_best_score";
 
-// 15 score-based accent colors cycling as score climbs
+// skor seviye renkleri
 const SCORE_LEVELS = [
   { accent: "#ff5ea3", accentDark: "#b52668" },  // L0  Pembe
   { accent: "#ff6b35", accentDark: "#c23d10" },  // L1  Turuncu
@@ -770,17 +770,17 @@ export default function BlockBloomPuzzle() {
       playSfx(lines > 0 ? "clear" : "place");
       vibrate(lines > 0 ? [15, 25, 15] : 12);
 
-      // Landing bounce effect on placed cells
+      // yerleşme animasyonu
       const newLanding = new Set<string>();
       piece.cells.forEach(({ x, y }) => newLanding.add(`${row + y},${col + x}`));
       setLandingCells(newLanding);
       if (landingTimer.current) clearTimeout(landingTimer.current);
       landingTimer.current = window.setTimeout(() => setLandingCells(new Set()), settings.reducedMotion ? 0 : 450);
 
-      // Score bump animation
+      // skor animasyonu
       setScoreBumpKey((k) => k + 1);
 
-      // Combo flash badge
+      // kombo rozeti
       if (nextCombo >= 2) {
         comboFlashId.current += 1;
         setComboFlash({ value: nextCombo, id: comboFlashId.current });

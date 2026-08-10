@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Hls from "hls.js";
-import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward, Wifi } from "lucide-react";
+import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward } from "lucide-react";
 import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
 import { usePlayerChrome } from "./usePlayerChrome";
+import ServiceErrorView from "../ServiceErrorView";
+import { playbackError } from "../../services/serviceError";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
 
 const LIVE_AUTO_SYNC_GAP = 18;
@@ -26,6 +28,7 @@ interface MediaPlayerProps {
   autoPlay?: boolean;
   startPosition?: number;
   qualityLabel?: string;
+  maxVideoHeight?: number;
   onBack?: () => void;
   onUpgrade?: () => void;
   onProgress?: (position: number, duration: number) => void;
@@ -40,6 +43,7 @@ export default function MediaPlayer({
   autoPlay = true,
   startPosition = 0,
   qualityLabel = "",
+  maxVideoHeight = 1080,
   onBack,
   onUpgrade,
   onProgress,
@@ -63,6 +67,7 @@ export default function MediaPlayer({
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [streamReady, setStreamReady] = useState(false);
   const [streamError, setStreamError] = useState(false);
+  const [streamAttempt, setStreamAttempt] = useState(0);
   const [atLive, setAtLive] = useState(true);
 
   useEffect(() => {
@@ -124,6 +129,13 @@ export default function MediaPlayer({
         setLevels(
           data.levels.map((l) => ({ height: l.height, bitrate: l.bitrate })),
         );
+        const allowed = data.levels
+          .map((level, index) => ({ level, index }))
+          .filter(({ level }) => !level.height || level.height <= maxVideoHeight);
+        const cap = allowed.length
+          ? allowed.reduce((best, item) => item.level.height >= best.level.height ? item : best).index
+          : 0;
+        if (hls) hls.autoLevelCapping = cap;
         setStreamReady(true);
         tryPlay();
       });
@@ -172,7 +184,7 @@ export default function MediaPlayer({
       hls?.destroy();
       hlsRef.current = null;
     };
-  }, [src, startMuted, autoPlay, live]);
+  }, [src, startMuted, autoPlay, live, maxVideoHeight, streamAttempt]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -303,6 +315,10 @@ export default function MediaPlayer({
   }, []);
 
   const selectLevel = (idx: number) => {
+    if (idx >= 0 && levels[idx]?.height > maxVideoHeight) {
+      onUpgrade?.();
+      return;
+    }
     if (hlsRef.current) hlsRef.current.currentLevel = idx;
     setCurrentLevel(idx);
   };
@@ -390,9 +406,13 @@ export default function MediaPlayer({
 
       {streamError && (
         <div className="player-error">
-          <Wifi size={48} />
-          <p>Yayın şu anda oynatılamıyor. Lütfen daha sonra tekrar deneyin.</p>
-          {onBack && <button onClick={onBack}>Geri Dön</button>}
+          <ServiceErrorView
+            error={playbackError()}
+            title={live ? "Canlı yayın açılamadı" : "İçerik oynatılamadı"}
+            onRetry={() => setStreamAttempt((value) => value + 1)}
+            onBack={onBack}
+            compact
+          />
         </div>
       )}
 
@@ -421,7 +441,7 @@ export default function MediaPlayer({
               </div>
               <div className="player-live-rail__meta">
                 <span>CANLI YAYIN</span>
-                <span>{atLive ? "SENKRON" : "GERİDESİN"}</span>
+                {!atLive && <span>GERİDESİN</span>}
               </div>
             </div>
           ) : (
@@ -489,7 +509,7 @@ export default function MediaPlayer({
                 </button>
               ) : (
                 <>
-                  <span className="player-quality-badge">{currentLevelInfo || qualityLabel}</span>
+                  <span className="player-quality-badge">{currentLevel >= 0 ? currentLevelInfo : qualityLabel}</span>
                   {onUpgrade && (
                     <button className="player-upgrade-btn" onClick={onUpgrade} title="Planını yükselt">
                       Yükselt
@@ -506,7 +526,7 @@ export default function MediaPlayer({
                       items: [
                         {
                           key: -1,
-                          label: "Otomatik (ABR)",
+                          label: `Otomatik · ${qualityLabel || `${maxVideoHeight}p`}`,
                           active: currentLevel === -1,
                           onClick: () => selectLevel(-1),
                         },
@@ -514,6 +534,7 @@ export default function MediaPlayer({
                           key: i,
                           label: `${l.height}p - ${Math.round(l.bitrate / 1000)} kbps`,
                           active: currentLevel === i,
+                          disabled: l.height > maxVideoHeight,
                           onClick: () => selectLevel(i),
                         })),
                       ],

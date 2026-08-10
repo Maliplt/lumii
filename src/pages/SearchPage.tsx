@@ -5,6 +5,7 @@ import PageLayout from "../components/PageLayout";
 import ContentCarousel from "../components/ContentCarousel";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
+import ServiceErrorView from "../components/ServiceErrorView";
 import { tmdbApi } from "../services/tmdb";
 import { isPlayableSearchResult, useFetch, useTitle } from "../helpers";
 
@@ -13,7 +14,7 @@ export default function SearchPage() {
   const query = (searchParams.get("q") ?? "").trim();
   useTitle(query ? `"${query}" araması` : "Arama");
 
-  const { data, loading, error } = useFetch(
+  const { data, loading, error, retry } = useFetch(
     () => (query ? tmdbApi.search(query) : Promise.resolve(null)),
     query,
   );
@@ -46,10 +47,10 @@ export default function SearchPage() {
     if (loading) return <Spinner inline />;
     if (error) {
       return (
-        <StateView
-          Icon={SearchX}
+        <ServiceErrorView
+          error={error}
           title="Arama başarısız oldu"
-          description="Sonuçlar getirilirken bir sorun oluştu. Lütfen tekrar deneyin."
+          onRetry={retry}
         />
       );
     }

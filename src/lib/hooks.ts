@@ -1,15 +1,18 @@
 import { useState, useEffect, useMemo, useRef, type TouchEvent, type MouseEvent, type RefObject } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, selectLibrary, sameSavedItem, logout, type SavedItem } from "../store/store";
 import { useToast, toastText } from "./toast";
 import type { Movie, TVShow } from "../types/types";
 import { popButton } from "./utils";
+import { safeAuthReturnTo } from "./authRouting";
+import { normalizeServiceError, type ServiceError } from "../services/serviceError";
 
-// fetch hook
+// veri isteği
 interface FetchResult<T> {
   key: string | number;
+  attempt: number;
   data: T | null;
-  error: boolean;
+  error: ServiceError | null;
 }
 
 export function useFetch<T>(
@@ -17,8 +20,9 @@ export function useFetch<T>(
   key: string | number = 0,
 ) {
   const [result, setResult] = useState<FetchResult<T> | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
-  // fetcher ref
+  // güncel fetcher
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
     fetcherRef.current = fetcher;
@@ -30,22 +34,30 @@ export function useFetch<T>(
     fetcherRef
       .current()
       .then((data) => {
-        if (!cancelled) setResult({ key, data, error: false });
+        if (!cancelled) setResult({ key, attempt, data, error: null });
       })
-      .catch(() => {
-        if (!cancelled) setResult({ key, data: null, error: true });
+      .catch((error: unknown) => {
+        if (!cancelled)
+          setResult({
+            key,
+            attempt,
+            data: null,
+            error: normalizeServiceError(error),
+          });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [key]);
+  }, [key, attempt]);
 
-  const ready = result !== null && result.key === key;
+  const ready =
+    result !== null && result.key === key && result.attempt === attempt;
   return {
     data: ready ? result.data : null,
     loading: !ready,
-    error: ready ? result.error : false,
+    error: ready ? result.error : null,
+    retry: () => setAttempt((value) => value + 1),
   };
 }
 
@@ -58,7 +70,7 @@ export function useTitle(title: string) {
 
 const SWIPE_THRESHOLD = 50;
 
-// swipe hook
+// kaydırma hareketi
 export function useSwipe(onLeft: () => void, onRight: () => void) {
   const startX = useRef<number | null>(null);
 
@@ -85,6 +97,7 @@ export function useLibraryActions(
   type: "movie" | "tv",
 ) {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const toast = useToast();
   const mediaType = (item as SavedItem).media_type ?? type;
@@ -100,7 +113,11 @@ export function useLibraryActions(
   const requireLogin = (message: string) => {
     if (isLoggedIn) return true;
     toast(message, "warning");
-    navigate("/login");
+    navigate("/login", {
+      state: {
+        returnTo: `${location.pathname}${location.search}${location.hash}`,
+      },
+    });
     return false;
   };
 
@@ -252,14 +269,16 @@ export function useAuthRedirectOnSuccess(
   welcomeMessage: (name: string) => string,
 ) {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
+  const returnTo = safeAuthReturnTo(location.state);
 
   useEffect(() => {
     if (currentUser) {
       if (submitted.current) toast(welcomeMessage(currentUser.name));
-      navigate("/profiles");
+      navigate("/profiles", { replace: true, state: { returnTo } });
     }
-  }, [currentUser, navigate, toast, submitted, welcomeMessage]);
+  }, [currentUser, navigate, returnTo, toast, submitted, welcomeMessage]);
 }
 
 export function useLazyReveal(total: number, initial = 3, step = 2) {
@@ -267,7 +286,7 @@ export function useLazyReveal(total: number, initial = 3, step = 2) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const safeVisible = Math.min(visible, total);
 
-  // data gelince artir
+  // veri sonradan gelirse ilk grubu göster
   useEffect(() => {
     if (total > 0 && visible === 0) {
       const id = window.setTimeout(() => {

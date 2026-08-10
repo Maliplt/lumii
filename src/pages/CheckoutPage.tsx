@@ -1,25 +1,17 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Navigate, useParams, useNavigate } from "react-router-dom";
 import PageLayout from "../components/PageLayout";
 import CheckoutBody from "./checkout/CheckoutBody";
 import SuccessScreen from "./checkout/SuccessScreen";
-import { PACKAGES } from "../helpers";
-import { useAppSelector } from "../store/store";
+import { PACKAGES, useProtectedUser } from "../helpers";
 
 export default function CheckoutPage() {
   const { planId } = useParams<{ planId: string }>();
   const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
 
-  //redux
-  const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const currentUser = useProtectedUser();
   const pkg = PACKAGES.find((p) => p.id === planId && !p.free);
-
-  // yönlendirme
-  useEffect(() => {
-    if (!currentUser) navigate("/login");
-    else if (!pkg) navigate("/packages");
-  }, [currentUser, pkg, navigate]);
 
   // hesaba dönüş
   useEffect(() => {
@@ -28,7 +20,7 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer);
   }, [success, navigate]);
 
-  if (!currentUser || !pkg) return null;
+  if (!pkg) return <Navigate to="/packages" replace />;
 
   return (
     <PageLayout className="checkout-page" mainClassName="checkout-main">

@@ -1,7 +1,13 @@
 import axios from "axios";
 import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Video, VideosResponse } from "../types/types";
+import {
+  normalizeServiceError,
+  ServiceError,
+  serviceErrorMessage,
+} from "./serviceError";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY?.trim();
 
 // tür çevirisi
 export const GENRES: Record<number, string> = {
@@ -30,10 +36,24 @@ export function formatRuntime(mins?: number | null): string {
 const tmdbClient = axios.create({
   baseURL: "https://api.themoviedb.org/3",
   params: {
-    api_key: import.meta.env.VITE_TMDB_API_KEY,
+    api_key: TMDB_API_KEY,
     language: "tr-TR",
   },
 });
+
+tmdbClient.interceptors.request.use((config) => {
+  if (!TMDB_API_KEY) {
+    return Promise.reject(
+      new ServiceError("configuration", serviceErrorMessage("configuration")),
+    );
+  }
+  return config;
+});
+
+tmdbClient.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => Promise.reject(normalizeServiceError(error)),
+);
 
 // veri çekme
 async function tmdbFetch<T>(

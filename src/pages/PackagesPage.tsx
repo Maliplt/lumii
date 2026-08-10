@@ -1,25 +1,28 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
 import PackageCard from "../components/PackageCard";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
-import { useFetch, PACKAGES, useTitle, withPoster, settleList, useToast } from "../helpers";
+import { effectivePlanId, useFetch, PACKAGES, useTitle, withPoster, settleList } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
 
 export default function PackagesPage() {
   useTitle("Paketler");
   const navigate = useNavigate();
-  const toast = useToast();
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // redux
-  const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
-  const currentPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const currentPlan = currentUser ? effectivePlanId(currentUser.plan) : undefined;
 
   const { data } = useFetch(() =>
-    settleList([tmdbApi.getPopularMovies(), tmdbApi.getTopRatedMovies()]),
+    settleList([
+      tmdbApi.getPopularMovies(),
+      tmdbApi.getTopRatedMovies(),
+      tmdbApi.getPopularTVShows(),
+      tmdbApi.getTopRatedTVShows(),
+    ]),
   );
 
   // posterlar
@@ -28,8 +31,10 @@ export default function PackagesPage() {
     return withPoster([
       ...(data[0]?.results ?? []),
       ...(data[1]?.results ?? []),
+      ...(data[2]?.results ?? []),
+      ...(data[3]?.results ?? []),
     ])
-      .slice(0, 30)
+      .slice(0, 48)
       .map((m) => getImageUrl(m.poster_path, "w300"));
   }, [data]);
 
@@ -49,11 +54,6 @@ export default function PackagesPage() {
       navigate("/register");
       return;
     }
-    if (!isLoggedIn) {
-      toast("Paket satın almak için önce giriş yapmalısın.", "warning");
-      navigate("/login");
-      return;
-    }
     navigate(`/checkout/${pkg.id}`);
   };
 
@@ -62,7 +62,13 @@ export default function PackagesPage() {
       <div className="packages-backdrop" aria-hidden="true">
         <div className="packages-backdrop__grid">
           {posters.map((src, i) => (
-            <img key={i} src={src} alt="" loading="lazy" />
+            <img
+              key={`${src}-${i}`}
+              src={src}
+              alt=""
+              loading={i < 18 ? "eager" : "lazy"}
+              style={{ "--poster-index": i } as CSSProperties}
+            />
           ))}
         </div>
         <div className="packages-backdrop__veil" />
@@ -74,8 +80,8 @@ export default function PackagesPage() {
           Binlerce Film, Dizi ve Oyun Seni Bekliyor
         </h1>
         <p className="packages-hero__subtitle">
-          Reklamsız, 4K kalitede, sınırsız erişim. Ücretsiz başla, istediğin
-          zaman yükselt.
+          Ücretsiz seçkiden Full HD deneyimine uzanan paketler. İhtiyacına uygun
+          planı seç, istediğin zaman değiştir.
         </p>
       </div>
 

@@ -39,7 +39,7 @@ interface Account {
   profiles: Profile[];
 }
 
-interface CurrentUser {
+export interface CurrentUser {
   name: string;
   email: string;
   createdAt?: string;

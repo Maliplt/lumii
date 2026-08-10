@@ -13,6 +13,43 @@
     overflow: hidden;
 }
 
+.player-access-gate {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: var(--space-5);
+    background: radial-gradient(circle at 50% 20%, rgba($brand, 0.2), transparent 42%), #07090d;
+}
+
+.player-access-gate__card {
+    width: min(520px, 100%);
+    padding: clamp(28px, 5vw, 48px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-3);
+    text-align: center;
+    background: rgba(18, 21, 29, 0.92);
+
+    h1 { margin: 0 0 var(--space-3); color: #fff; }
+    p { margin: 0 0 var(--space-5); color: var(--text-secondary); line-height: 1.6; }
+
+    button {
+        width: 100%;
+        padding: 12px 18px;
+        border: 0;
+        border-radius: var(--radius-2);
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    button.is-secondary {
+        margin-top: var(--space-2);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+    }
+}
+
 .player-video {
     width: 100%;
     height: 100%;
@@ -142,32 +179,8 @@
     z-index: 5;
     color: var(--text-primary);
 
-    // icerik
-    p {
-        font-size: var(--fs-lg);
-        color: var(--text-secondary);
-        margin: 0;
-    }
-
     .spinner-overlay--inline {
         flex: 0 0 auto;
         min-height: auto;
-    }
-
-    button {
-        margin-top: var(--space-2);
-        padding: var(--space-3) var(--space-6);
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: var(--radius-1);
-        font-size: var(--fs-base);
-        font-weight: 600;
-        cursor: pointer;
-        @include smooth(background);
-
-        &:hover {
-            background: var(--accent-hover);
-        }
     }
 }

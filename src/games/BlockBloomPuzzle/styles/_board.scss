@@ -1,6 +1,6 @@
-// ─── Pixel Pixie – Game Screen & Board ───────────────────────────────────────
+// oyun tahtası
 
-// ── Game Screen ───────────────────────────────────────────────────────────────
+// oyun ekranı
 
 .bb-game-screen {
   width: 100%;
@@ -11,7 +11,7 @@
   align-items: stretch;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// başlık
 
 .bb-game-header {
   display: flex;
@@ -96,13 +96,13 @@
   }
 }
 
-// Score number bump animation – triggered via React key change
+// skor animasyonu
 .bb-score-anim {
   display: inline-block;
   animation: px-score-bump 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-// ── Combo badge (floating) ────────────────────────────────────────────────────
+// kombo rozeti
 
 .bb-combo-badge {
   position: fixed;
@@ -118,7 +118,7 @@
   animation: px-combo-pop 1.3s ease-out forwards;
 }
 
-// ── Progress bar ──────────────────────────────────────────────────────────────
+// ilerleme çubuğu
 
 .bb-px-progress {
   height: 6px;
@@ -134,7 +134,7 @@
   box-shadow: 2px 0 8px var(--bb-accent);
 }
 
-// ── Board ─────────────────────────────────────────────────────────────────────
+// tahta
 
 .bb-board-container {
   display: flex;
@@ -173,7 +173,7 @@
   }
 }
 
-// ── Cells ─────────────────────────────────────────────────────────────────────
+// hücreler
 
 .bb-cell {
   min-width: 0;
@@ -233,14 +233,14 @@
     animation: px-hint 0.75s steps(2, end) infinite;
   }
 
-  // Landing / bounce-on-place effect
+  // yerleşme animasyonu
   &.landing {
     animation: px-land 0.4s cubic-bezier(0.23, 1.14, 0.32, 1) both;
     z-index: 2;
   }
 }
 
-// ── Piece tray ────────────────────────────────────────────────────────────────
+// parça tepsisi
 
 .bb-piece-tray {
   display: grid;
@@ -300,7 +300,7 @@
   opacity: 0.4;
 }
 
-// ── Mini piece ────────────────────────────────────────────────────────────────
+// mini parça
 
 .bb-mini-piece {
   position: relative;
@@ -317,7 +317,7 @@
   }
 }
 
-// ── Tool bar ──────────────────────────────────────────────────────────────────
+// araç çubuğu
 
 .bb-toolbar {
   display: grid;

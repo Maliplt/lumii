@@ -2,15 +2,13 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 // ayarlar
 export interface SettingsState {
-  autoplay: boolean;
   continueRow: boolean;
   previews: boolean;
   emailNotifications: boolean;
   dataSaver: boolean;
 }
 
-const settingsInitial: SettingsState = {
-  autoplay: true,
+export const settingsInitial: SettingsState = {
   continueRow: true,
   previews: true,
   emailNotifications: true,

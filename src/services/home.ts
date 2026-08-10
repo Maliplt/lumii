@@ -1,10 +1,28 @@
 import { tmdbApi } from "./tmdb";
 import { withPoster, withMedia, heroFrom, settleList } from "../lib/utils";
 import type { Movie, TVShow } from "../types/types";
+import { CONTENT_CATALOG } from "../lib/subscription";
 
 export type HomeMedia = Movie | TVShow;
 
 const HERO_COUNT = 5;
+
+export async function loadFreeCatalog(): Promise<HomeMedia[]> {
+  const entries = CONTENT_CATALOG.filter((entry) => entry.access === "free");
+  const details = await settleList(
+    entries.map((entry) =>
+      entry.type === "movie"
+        ? tmdbApi.getMovieDetail(entry.id)
+        : tmdbApi.getTVShowDetail(entry.id),
+    ),
+  );
+  return withPoster(
+    details.filter(Boolean).map((item) => ({
+      ...item!,
+      genre_ids: item!.genres?.map((genre) => genre.id) ?? [],
+    })),
+  );
+}
 
 export interface HomeCriticalData {
   heroMovies: HomeMedia[];

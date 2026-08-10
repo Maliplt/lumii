@@ -27,7 +27,7 @@
         height: 65dvh !important;
     }
 
-    // kisa hero'da icerik sabit header'in arkasinda kalmasin
+    // sabit başlık boşluğu
     .hero-carousel-inner {
         min-height: 440px !important;
     }
@@ -41,7 +41,7 @@
         max-width: 520px;
     }
 
-    // kisa hero'da -160px'lik cekme icerigin hero-info'nun ustune binmesine sebep oluyordu
+    // içeriği hero bilgisinden ayır
     .home-content,
     .explore-content,
     .overview-content {

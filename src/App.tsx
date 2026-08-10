@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Spinner from "./components/Spinner";
 import RootLayout from "./components/RootLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExplorePage = lazy(() => import("./pages/ExplorePage"));
@@ -45,8 +46,10 @@ function AppRoutes() {
             <Route path="/tv" element={<TvPage />} />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/legal/:section" element={<LegalPage />} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/checkout/:planId" element={<CheckoutPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/checkout/:planId" element={<CheckoutPage />} />
+            </Route>
             <Route path="/work-in-progress" element={<WorkInProgressPage />} />
             <Route path="/:type/:id" element={<OverviewPage />} />
             <Route path="*" element={<NotFoundPage />} />
@@ -54,7 +57,9 @@ function AppRoutes() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profiles" element={<ProfilesPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profiles" element={<ProfilesPage />} />
+          </Route>
           <Route path="/play/:gameId" element={<PlayGamePage />} />
           <Route path="/:type/:id/player" element={<PlayerPage />} />
         </Routes>

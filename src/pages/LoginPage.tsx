@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Schema, Button } from "rsuite";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
@@ -19,6 +19,7 @@ const loginModel = Schema.Model({
 export default function LoginPage() {
   useTitle("Giriş Yap");
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const authError = useAppSelector((s) => s.auth.error);
@@ -111,7 +112,7 @@ export default function LoginPage() {
               appearance="ghost"
               block
               className="login-register"
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/register", { state: location.state })}
             >
               Üye Olmak İstiyorum
             </Button>

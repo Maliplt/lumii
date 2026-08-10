@@ -255,10 +255,6 @@ export default function CheckoutBody({
           </Button>
 
           {summary && <p className="checkout-pay-error">{summary}</p>}
-
-          <p className="checkout-note">
-            Test kartı: 4242 4242 4242 4242 · gelecek tarih · 3 haneli CVC
-          </p>
         </aside>
       </div>
     </div>

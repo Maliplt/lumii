@@ -1,11 +1,11 @@
-// ─── Pixel Pixie – Foundation ─────────────────────────────────────────────────
+// temel stiller
 
 .bb-root {
-  // ── Fonts ─────────────────────────────────────────────────────────────────
+  // fontlar
   --px-font-pixel: "Press Start 2P", monospace;
   --px-font-body: "Pixelify Sans", "Press Start 2P", monospace;
 
-  // ── Light mode (default) ──────────────────────────────────────────────────
+  // açık tema
   --bb-bg: #f2edff;
   --bb-panel: #ffffff;
   --bb-panel-strong: #f5f1ff;
@@ -18,12 +18,12 @@
   --bb-danger: #dc2626;
   --bb-grid-line: rgba(80, 60, 200, 0.05);
 
-  // Glass overlays (theme-aware)
+  // tema yüzeyleri
   --bb-glass: rgba(100, 70, 200, 0.05);
   --bb-glass-hover: rgba(100, 70, 200, 0.1);
   --bb-glass-strong: rgba(100, 70, 200, 0.15);
 
-  // ── Layout ────────────────────────────────────────────────────────────────
+  // yerleşim
   min-height: 100dvh;
   position: relative;
   overflow-x: hidden;
@@ -38,7 +38,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-// ── Dark mode override ────────────────────────────────────────────────────────
+// koyu tema
 .bb-root.bb-dark {
   --bb-bg: #0a0818;
   --bb-panel: #13103a;
@@ -67,7 +67,7 @@
   cursor: pointer;
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// bildirim
 
 .bb-toast {
   position: fixed;
@@ -88,7 +88,7 @@
   animation: px-toast-in 0.15s steps(3, end);
 }
 
-// ── Shared buttons ────────────────────────────────────────────────────────────
+// ortak butonlar
 
 .bb-btn-play {
   display: flex;
@@ -177,7 +177,7 @@
   }
 }
 
-// ── Screen wrapper ────────────────────────────────────────────────────────────
+// ekran kabuğu
 
 .bb-screen {
   min-height: 100dvh;
@@ -186,7 +186,7 @@
   align-items: center;
 }
 
-// ── Display mode selector (settings) ─────────────────────────────────────────
+// görünüm seçici
 
 .bb-display-row {
   display: grid;

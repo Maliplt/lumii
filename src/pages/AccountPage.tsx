@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Receipt } from "lucide-react";
 import PageLayout from "../components/PageLayout";
@@ -15,8 +15,8 @@ import BillingTab from "../components/account/tabs/BillingTab";
 import SettingsTab from "../components/account/tabs/SettingsTab";
 import LibraryTab from "../components/account/tabs/LibraryTab";
 import { ACCOUNT_NAV, LIBRARY_NAV, PLAN_FALLBACK, formatPlan, validatePassword, type SectionKey, type EditorState } from "../components/account/accountData";
-import { findPackage, avatarFor, useTitle, useToast, toastText } from "../helpers";
-import { addProfile, changePassword, clearHistory, selectLibrary, selectShownProfile, setReceipt, updateEmail, updatePaymentMethod, updateProfile, useAppDispatch, useAppSelector, type Profile } from "../store/store";
+import { findPackage, avatarFor, useProtectedUser, useTitle, useToast, toastText } from "../helpers";
+import { addProfile, changePassword, clearHistory, selectAutoplayEnabled, selectLibrary, selectShownProfile, setReceipt, updateEmail, updatePaymentMethod, updateProfile, useAppDispatch, useAppSelector, type Profile } from "../store/store";
 
 export default function AccountPage() {
   useTitle("Hesap");
@@ -29,16 +29,17 @@ export default function AccountPage() {
   const [emailOpen, setEmailOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
-  const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const currentUser = useProtectedUser();
   const shownProfile = useAppSelector(selectShownProfile);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const accounts = useAppSelector((s) => s.auth.accounts);
   const receipt = useAppSelector((s) => s.auth.receipt);
   const selectedLibrary = useAppSelector(selectLibrary);
-  const account = accounts.find((item) => item.email === currentUser?.email);
+  const account = accounts.find((item) => item.email === currentUser.email);
 
   const plan = useMemo(
-    () => findPackage(currentUser?.plan) ?? PLAN_FALLBACK,
-    [currentUser?.plan],
+    () => findPackage(currentUser.plan) ?? PLAN_FALLBACK,
+    [currentUser.plan],
   );
 
   const navMeta = useMemo(
@@ -48,13 +49,7 @@ export default function AccountPage() {
     [active],
   );
 
-  const profileCount = currentUser?.profiles.length ?? 0;
-
-  useEffect(() => {
-    if (!currentUser) navigate("/login");
-  }, [navigate, currentUser]);
-
-  if (!currentUser) return null;
+  const profileCount = currentUser.profiles.length;
 
   const saveProfile = (data: { name: string; kids: boolean; avatar: string }) => {
     if (editor?.mode === "edit" && editor.profile) {
@@ -162,6 +157,7 @@ export default function AccountPage() {
         return (
           <SettingsTab
             profile={shownProfile}
+            autoplayEnabled={autoplayEnabled}
             fallbackName={currentUser.name}
             historyCount={selectedLibrary.history.length}
             onSetting={(changes, message) => {

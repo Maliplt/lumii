@@ -1,4 +1,4 @@
-// ─── Pixel Pixie – Animations ─────────────────────────────────────────────────
+// animasyonlar
 
 @keyframes px-sparkle {
   0%   { opacity: 0; transform: scale(0) rotate(0deg); }
@@ -54,7 +54,7 @@
   to   { transform: scale(1)   translateY(0);    opacity: 1; }
 }
 
-// ── Block placement landing ───────────────────────────────────────────────────
+// blok yerleşimi
 
 @keyframes px-land {
   0%   { transform: scale(1.22); filter: brightness(1.8); }
@@ -63,7 +63,7 @@
   100% { transform: scale(1);    filter: brightness(1.0); }
 }
 
-// ── Score bump (number bounces up on score increase) ─────────────────────────
+// skor artışı
 
 @keyframes px-score-bump {
   0%   { transform: scale(1) translateY(0); }
@@ -73,7 +73,7 @@
   100% { transform: scale(1) translateY(0); }
 }
 
-// ── Combo badge pop ───────────────────────────────────────────────────────────
+// kombo rozeti
 
 @keyframes px-combo-pop {
   0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
@@ -83,7 +83,7 @@
   100% { transform: translate(-50%, -72%) scale(0.85); opacity: 0; }
 }
 
-// ── Score level flash (when level changes) ────────────────────────────────────
+// seviye geçişi
 
 @keyframes px-level-flash {
   0%   { opacity: 0; transform: scale(0.85); }
@@ -93,7 +93,7 @@
   100% { opacity: 0; }
 }
 
-// ── Reduced motion ────────────────────────────────────────────────────────────
+// azaltılmış hareket
 
 .bb-reduced *,
 .bb-reduced *::before,

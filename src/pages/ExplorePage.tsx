@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertTriangle } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
-import StateView from "../components/StateView";
+import ServiceErrorView from "../components/ServiceErrorView";
 import CategoryDropdown from "../components/CategoryDropdown";
 import { MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
 import { useFetch, useTitle, useLazyReveal } from "../helpers";
@@ -64,11 +63,7 @@ export default function ExplorePage() {
       loading={base.loading}
     >
       {base.error ? (
-        <StateView
-          Icon={AlertTriangle}
-          title="İçerik yüklenemedi"
-          description="Veriler getirilirken bir sorun oluştu. Lütfen sayfayı yenileyin."
-        />
+        <ServiceErrorView error={base.error} onRetry={base.retry} />
       ) : (
         base.data && (
           <>
@@ -77,10 +72,10 @@ export default function ExplorePage() {
             )}
             <div className="explore-content">
               {catError && rows.length === 0 ? (
-                <StateView
-                  Icon={AlertTriangle}
+                <ServiceErrorView
+                  error={catError}
                   title="Kategori yüklenemedi"
-                  description="Bu kategori getirilirken bir sorun oluştu. Lütfen tekrar deneyin."
+                  onRetry={catFetch.retry}
                 />
               ) : (
                 <>

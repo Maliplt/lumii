@@ -1,4 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { AlertTriangle } from "lucide-react";
+import StateView from "./StateView";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -42,28 +44,32 @@ export default class ErrorBoundary extends Component<
 
     return (
       <div className="error-boundary" role="alert">
-        <div className="error-boundary__box">
-          <span className="error-boundary__icon">⚠️</span>
-          <h2 className="error-boundary__title">Bir şeyler ters gitti</h2>
-          <p className="error-boundary__desc">
-            Bu bölüm yüklenirken bir hata oluştu. Sayfanın geri kalanı çalışmaya
-            devam ediyor.
-          </p>
-          <div className="error-boundary__actions">
-            <button
-              className="error-boundary__btn error-boundary__btn--primary"
-              onClick={this.handleReset}
-            >
-              Tekrar dene
-            </button>
-            <button
-              className="error-boundary__btn"
-              onClick={() => (window.location.href = "/")}
-            >
-              Ana sayfa
-            </button>
-          </div>
-        </div>
+        <StateView
+          Icon={AlertTriangle}
+          eyebrow="Uygulama hatası"
+          title="Sayfa görüntülenemedi"
+          description="Beklenmeyen bir sorun oluştu. Yeniden deneyebilir veya ana sayfaya dönebilirsiniz."
+          variant="error"
+          role="alert"
+          action={
+            <div className="state-view__actions">
+              <button
+                type="button"
+                className="state-view__retry"
+                onClick={this.handleReset}
+              >
+                Tekrar Dene
+              </button>
+              <button
+                type="button"
+                className="state-view__retry is-secondary"
+                onClick={() => (window.location.href = "/")}
+              >
+                Ana Sayfa
+              </button>
+            </div>
+          }
+        />
       </div>
     );
   }

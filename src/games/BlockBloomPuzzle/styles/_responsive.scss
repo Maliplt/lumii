@@ -1,6 +1,6 @@
-// ─── Pixel Pixie – Responsive ─────────────────────────────────────────────────
+// responsive
 
-// Large screens
+// geniş ekranlar
 @media (min-width: 600px) {
   .bb-game-screen {
     max-width: 560px;
@@ -49,14 +49,14 @@
   }
 }
 
-// Tall screens – let the board grow
+// yüksek ekranlar
 @media (min-height: 800px) {
   .bb-board {
     max-width: min(540px, calc(100svh - 310px));
   }
 }
 
-// Small phones – tight layout
+// küçük telefonlar
 @media (max-width: 380px) {
   .bb-mode-picker {
     grid-template-columns: 1fr;
@@ -111,7 +111,7 @@
   }
 }
 
-// Very small phones
+// dar telefonlar
 @media (max-width: 340px) {
   .bb-gh-scores {
     gap: 4px;
@@ -131,7 +131,7 @@
   }
 }
 
-// Landscape mobile
+// yatay mobil
 @media (max-height: 500px) and (orientation: landscape) {
   .bb-menu-screen {
     padding: 16px 20px;

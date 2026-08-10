@@ -5,12 +5,14 @@ import type { Profile } from "../../../store/store";
 
 export default function SettingsTab({
   profile,
+  autoplayEnabled,
   fallbackName,
   historyCount,
   onSetting,
   onClearHistory,
 }: {
   profile: Profile | null;
+  autoplayEnabled: boolean;
   fallbackName: string;
   historyCount: number;
   onSetting: (changes: Partial<Profile>, message: string) => void;
@@ -35,10 +37,10 @@ export default function SettingsTab({
           />
           <SummaryRow
             label="Otomatik oynatma"
-            value="Sonraki bölüm ve önizlemeler kendiliğinden başlasın"
+            value="İçerik açıldığında video kendiliğinden başlasın"
             action={
               <Toggle
-                checked={(profile.playback ?? "auto") === "auto"}
+                checked={autoplayEnabled}
                 className="profile-rsuite-toggle"
                 aria-label="Otomatik oynatma"
                 onChange={(checked) =>

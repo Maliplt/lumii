@@ -1,6 +1,6 @@
 import { tmdbApi, findBestTrailer } from "./tmdb";
-
-const TEST_HLS = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+import { contentRule } from "../lib/subscription";
+import { playbackError } from "./serviceError";
 
 export type PlaybackSource =
   | { kind: "youtube"; key: string; name: string }
@@ -17,22 +17,16 @@ export async function resolvePlaybackSource(
 ): Promise<PlaybackSource> {
   const { type, id } = req;
   const numId = Number(id);
+  const configured = contentRule(type ?? "", numId);
+  if (configured?.manifest) return { kind: "hls", url: configured.manifest };
   if (
     (type === "movie" || type === "tv") &&
     Number.isFinite(numId) &&
     numId > 0
   ) {
-    try {
-      const videos = await tmdbApi.getVideos(type, numId);
-      const trailer = findBestTrailer(videos.results);
-      if (trailer) return { kind: "youtube", key: trailer.key, name: trailer.name };
-    } catch (err) {
-      console.warn("Fragman çözümlenemedi, fallback yayına geçiliyor:", err);
-    }
+    const videos = await tmdbApi.getVideos(type, numId);
+    const trailer = findBestTrailer(videos.results);
+    if (trailer) return { kind: "youtube", key: trailer.key, name: trailer.name };
   }
-  return { kind: "hls", url: TEST_HLS };
-}
-
-export function getFallbackStream(): string {
-  return TEST_HLS;
+  throw playbackError();
 }

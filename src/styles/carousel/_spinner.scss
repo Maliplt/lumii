@@ -36,7 +36,7 @@
     place-items: center;
 }
 
-// ince accent halka
+// ince vurgu halkası
 .spinner-ring {
     position: absolute;
     width: 92px;
@@ -49,7 +49,7 @@
     animation: spinnerSpin 1.1s linear infinite;
 }
 
-// yorungede donen spark
+// yörüngedeki parıltı
 .spinner-orbit {
     position: absolute;
     width: 92px;
@@ -71,7 +71,7 @@
     }
 }
 
-// merkez spark
+// merkez parıltısı
 .spinner-spark {
     width: 22px;
     height: 22px;

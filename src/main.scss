@@ -1,14 +1,13 @@
-// sass dosyalari
-// sirali toplama
+// stil dosyalari
 @use "styles/base";         // tema tokenlari
 
-// layout
+// yerleşim
 @use "styles/reset";        // global resetler
 @use "styles/header/index" as header; // baslik ve menuler
 @use "styles/footer";       // site alt bilgi
 
 // components
-@use "styles/modal";        // ortak RSuite modal skin
+@use "styles/modal";        // ortak RSuite modal görünümü
 @use "styles/carousel/index" as carousel; // karuseller ve spinner
 @use "styles/games-carousel"; // oyun karusel kartlari
 

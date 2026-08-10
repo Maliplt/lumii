@@ -40,7 +40,7 @@ export function isValidCvc(value: string): boolean {
   return value.length === 3 && onlyDigits(value).length === 3;
 }
 
-// format helper
+// kart numarası formatı
 export function formatCardNumber(value: string): string {
   const digits = onlyDigits(value).slice(0, 16);
   const groups = [];
