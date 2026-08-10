@@ -4,7 +4,7 @@ import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
 import GameCarousel from "../components/GameCarousel";
 import ServiceErrorView from "../components/ServiceErrorView";
-import { loadCriticalHome, loadRestHome, loadKidsHome, loadFreeCatalog } from "../services/home";
+import { loadCriticalHome, loadRestHome, loadKidsHome } from "../services/home";
 import { useFetch, useTitle, useLazyReveal, effectivePlanId } from "../helpers";
 import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
 
@@ -18,11 +18,6 @@ export default function HomePage() {
   const showContinueRow = useAppSelector((s) => s.settings.continueRow);
   const activeProfile = useAppSelector(selectActiveProfile);
   const isKids = activeProfile?.kids ?? false;
-
-  const freeCatalog = useFetch(
-    () => (isFreeExperience && !isKids ? loadFreeCatalog() : Promise.resolve([])),
-    `free-catalog-${isFreeExperience}-${isKids}`,
-  );
 
   // çocuk profili
   const kidsData = useFetch(
@@ -71,9 +66,6 @@ export default function HomePage() {
   const rows = isKids || !critical.data
     ? []
     : [
-        isFreeExperience ? (
-          <ContentCarousel key="free" type="movie" title="Ücretsiz İçerikler" items={freeCatalog.data ?? []} accessLevel="free" />
-        ) : null,
         <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler Filmler" items={critical.data.popular} />,
         !isFreeExperience ? <GameCarousel key="games" /> : null,
         !isFreeExperience && isLoggedIn && showContinueRow && continueWatching.length > 0 ? (

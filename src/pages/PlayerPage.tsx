@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import MediaPlayer from "../components/player/MediaPlayer";
-import TrailerPlayer from "../components/player/TrailerPlayer";
+import VidFastPlayer, { type VidFastProgressContext } from "../components/player/VidFastPlayer";
 import Spinner from "../components/Spinner";
 import ServiceErrorView from "../components/ServiceErrorView";
 import { resolvePlaybackSource } from "../services/player";
 import { tmdbApi } from "../services/tmdb";
 import { ServiceError, serviceErrorMessage } from "../services/serviceError";
-import { canUseLevel, contentAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
+import { canUseLevel, contentAccessLevel, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
 import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectAutoplayEnabled, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
@@ -25,17 +24,15 @@ export default function PlayerPage() {
   const library = useAppSelector(selectLibrary);
 
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
-  const planDef = getPlan(userPlan);
-  const qualityLabel = planDef?.quality ?? "Full HD 1080p";
-  const isFreeTier = planDef.free;
-  const requiredLevel = contentAccessLevel(type ?? "", id ?? "");
+  const catalogLevel = contentAccessLevel(type ?? "", id ?? "");
+  // On-demand movies and series always require a paid plan.
+  const requiredLevel = catalogLevel === "free" ? "standard" : catalogLevel;
   const canPlay = canUseLevel(userPlan, requiredLevel);
 
   // otomatik oynatma
   const autoplay = useAppSelector(selectAutoplayEnabled);
 
   const navState = (location.state as PlayerNavState | null) ?? {};
-  const { season, episode } = navState;
 
   // kayıtlı pozisyon
   const numId = Number(id);
@@ -46,20 +43,29 @@ export default function PlayerPage() {
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
+  const savedProgress = savedItem?.watchProgress;
+  const season = type === "tv" ? (navState.season ?? savedProgress?.season ?? 1) : undefined;
+  const episode = type === "tv" ? (navState.episode ?? savedProgress?.episode ?? 1) : undefined;
   const [startPosition] = useState(() => {
-    const p = savedItem?.watchProgress;
+    const p = savedProgress;
     if (!p || p.position >= p.duration - 15) return 0;
+    if (
+      type === "tv" &&
+      ((p.season ?? 1) !== season || (p.episode ?? 1) !== episode)
+    ) {
+      return 0;
+    }
     return p.position;
   });
 
-  const sourceKey = `${type}-${id}-${canPlay}`;
+  const sourceKey = `${type}-${id}-${season}-${episode}-${autoplay}-${canPlay}`;
   const playback = useFetch(async () => {
     if (!canPlay) return null;
     if (invalidRequest) {
       throw new ServiceError("not-found", serviceErrorMessage("not-found"));
     }
     const [source, detail] = await Promise.all([
-      resolvePlaybackSource({ type, id }),
+      resolvePlaybackSource({ type, id, season, episode, autoPlay: autoplay }),
       type === "movie"
         ? tmdbApi.getMovieDetail(numId)
         : tmdbApi.getTVShowDetail(numId),
@@ -82,7 +88,11 @@ export default function PlayerPage() {
   }, [detail, isLoggedIn, canPlay, dispatch]);
 
   const handleProgress = useCallback(
-    (position: number, duration: number) => {
+    (
+      position: number,
+      duration: number,
+      progressContext?: VidFastProgressContext,
+    ) => {
       if (!isLoggedIn || !type) return;
       dispatch(
         updateWatchProgress({
@@ -90,8 +100,8 @@ export default function PlayerPage() {
           media_type: type as "movie" | "tv",
           position,
           duration,
-          season,
-          episode,
+          season: progressContext?.season ?? season,
+          episode: progressContext?.episode ?? episode,
         }),
       );
     },
@@ -152,32 +162,14 @@ export default function PlayerPage() {
 
   return (
     <div className="player-page">
-      {source.kind === "youtube" ? (
-        <TrailerPlayer
-          key={source.key}
-          youtubeKey={source.key}
-          title={title}
-          subtitle={episodeInfo || source.name}
-          startPosition={startPosition}
-          autoPlay={autoplay}
-          qualityLabel={qualityLabel}
-          onUpgrade={!isLoggedIn || isFreeTier ? openPlanOptions : undefined}
-          onBack={() => navigate(-1)}
-          onProgress={handleProgress}
-        />
-      ) : (
-        <MediaPlayer
-          src={source.url}
-          title={episodeInfo ? `${title} - ${episodeInfo}` : title}
-          autoPlay={autoplay}
-          startPosition={startPosition}
-          qualityLabel={qualityLabel}
-          maxVideoHeight={planDef.capabilities.maxVideoHeight}
-          onUpgrade={!isLoggedIn || isFreeTier ? openPlanOptions : undefined}
-          onBack={() => navigate(-1)}
-          onProgress={handleProgress}
-        />
-      )}
+      <VidFastPlayer
+        key={source.url}
+        src={source.url}
+        title={episodeInfo ? `${title} - ${episodeInfo}` : title}
+        startPosition={startPosition}
+        onBack={() => navigate(-1)}
+        onProgress={handleProgress}
+      />
     </div>
   );
 }

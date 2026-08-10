@@ -1,4 +1,5 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
+import { tryAdminLogin } from "../admin";
 
 export const MAX_PROFILES = 5;
 const DEFAULT_PROFILE_AVATAR = "default-blue";
@@ -129,6 +130,7 @@ export const auth = createSlice({
     },
     login(state, action: PayloadAction<{ email: string; password: string }>) {
       const email = normalizeEmail(action.payload.email);
+      if (tryAdminLogin(state, email, action.payload.password)) return;
       const acc = state.accounts.find(
         (a) =>
           normalizeEmail(a.email) === email &&

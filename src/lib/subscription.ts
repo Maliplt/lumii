@@ -5,9 +5,9 @@ export const PACKAGES: PackageDef[] = [
   {
     id: "free", name: "Ücretsiz", price: "₺0", period: "", icon: "Play",
     badge: null, accent: false, free: true,
-    summary: "Ücretsiz seçkideki içerikleri ve sınırlı canlı TV'yi keşfet.",
+    summary: "Film ve dizi kataloğunu keşfet, sınırlı canlı TV'yi izle.",
     quality: "480p", screens: "1 ekran", downloads: "Yok", support: "Standart",
-    features: ["480p görüntü kalitesi", "Ücretsiz içerikler seçkisi", "Sınırlı ücretsiz kanallara erişim", "Reklamlı izleme", "1 cihaz"],
+    features: ["Film ve dizi kataloğunu keşfetme", "Sınırlı ücretsiz kanallara erişim", "1 cihaz"],
     cta: "Ücretsiz Başla",
     capabilities: { maxVideoHeight: 480, contentLevel: "free", liveTvChannelLimit: 5, concurrentStreams: 1, hasAds: true, canDownload: false },
   },
@@ -79,11 +79,11 @@ export interface CatalogEntry {
 
 // içerik paket eşleştirmeleri
 export const CONTENT_CATALOG: CatalogEntry[] = [
-  { type: "movie", id: 278, access: "free" },
-  { type: "movie", id: 550, access: "free" },
-  { type: "movie", id: 238, access: "free" },
-  { type: "movie", id: 680, access: "free" },
-  { type: "tv", id: 1396, access: "free" },
+  { type: "movie", id: 278, access: "standard" },
+  { type: "movie", id: 550, access: "standard" },
+  { type: "movie", id: 238, access: "standard" },
+  { type: "movie", id: 680, access: "standard" },
+  { type: "tv", id: 1396, access: "standard" },
   { type: "movie", id: 155, access: "premium" },
   { type: "movie", id: 27205, access: "premium" },
   { type: "tv", id: 1399, access: "premium" },

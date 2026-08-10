@@ -1,32 +1,53 @@
-import { tmdbApi, findBestTrailer } from "./tmdb";
-import { contentRule } from "../lib/subscription";
 import { playbackError } from "./serviceError";
 
-export type PlaybackSource =
-  | { kind: "youtube"; key: string; name: string }
-  | { kind: "hls"; url: string };
+const VIDFAST_BASE_URL = "https://vidfast.vc";
+
+export interface PlaybackSource {
+  kind: "vidfast";
+  url: string;
+}
 
 export interface PlaybackRequest {
   type: string | undefined;
   id: string | number | undefined;
+  season?: number;
+  episode?: number;
+  autoPlay?: boolean;
 }
 
-// oynatma kaynağı
-export async function resolvePlaybackSource(
-  req: PlaybackRequest,
-): Promise<PlaybackSource> {
-  const { type, id } = req;
+// VidFast accepts TMDB ids directly, so on-demand playback does not need a
+// backend proxy or an API key.
+export async function resolvePlaybackSource({
+  type,
+  id,
+  season = 1,
+  episode = 1,
+  autoPlay = true,
+}: PlaybackRequest): Promise<PlaybackSource> {
   const numId = Number(id);
-  const configured = contentRule(type ?? "", numId);
-  if (configured?.manifest) return { kind: "hls", url: configured.manifest };
   if (
-    (type === "movie" || type === "tv") &&
-    Number.isFinite(numId) &&
-    numId > 0
+    (type !== "movie" && type !== "tv") ||
+    !Number.isInteger(numId) ||
+    numId <= 0
   ) {
-    const videos = await tmdbApi.getVideos(type, numId);
-    const trailer = findBestTrailer(videos.results);
-    if (trailer) return { kind: "youtube", key: trailer.key, name: trailer.name };
+    throw playbackError();
   }
-  throw playbackError();
+
+  const path =
+    type === "movie"
+      ? `/movie/${numId}`
+      : `/tv/${numId}/${Math.max(1, season)}/${Math.max(1, episode)}`;
+  const params = new URLSearchParams({
+    autoPlay: String(autoPlay),
+    title: "true",
+    poster: "true",
+    theme: "A91D3A",
+  });
+
+  if (type === "tv") {
+    params.set("nextButton", "true");
+    params.set("autoNext", String(autoPlay));
+  }
+
+  return { kind: "vidfast", url: `${VIDFAST_BASE_URL}${path}?${params}` };
 }
