@@ -71,6 +71,19 @@ export default function VidFastPlayer({
     progressCallbackRef.current = onProgress;
   }, [onProgress]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+
+    root.classList.add("player-viewport-locked");
+    body.classList.add("player-viewport-locked");
+
+    return () => {
+      root.classList.remove("player-viewport-locked");
+      body.classList.remove("player-viewport-locked");
+    };
+  }, []);
+
   const sendCommand = useCallback(
     (command: Record<string, unknown>) => {
       iframeRef.current?.contentWindow?.postMessage(command, new URL(src).origin);
@@ -171,6 +184,7 @@ export default function VidFastPlayer({
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture; screen-wake-lock"
         allowFullScreen
         referrerPolicy="origin"
+        scrolling="no"
         onLoad={handleLoad}
       />
 

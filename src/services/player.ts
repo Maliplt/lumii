@@ -13,6 +13,7 @@ export interface PlaybackRequest {
   season?: number;
   episode?: number;
   autoPlay?: boolean;
+  startAt?: number;
 }
 
 // VidFast accepts TMDB ids directly, so on-demand playback does not need a
@@ -23,6 +24,7 @@ export async function resolvePlaybackSource({
   season = 1,
   episode = 1,
   autoPlay = true,
+  startAt = 0,
 }: PlaybackRequest): Promise<PlaybackSource> {
   const numId = Number(id);
   if (
@@ -42,7 +44,15 @@ export async function resolvePlaybackSource({
     title: "true",
     poster: "true",
     theme: "A91D3A",
+    sub: "tr",
+    hideServer: "false",
+    fullscreenButton: "true",
+    chromecast: "true",
   });
+
+  if (Number.isFinite(startAt) && startAt > 0) {
+    params.set("startAt", String(Math.floor(startAt)));
+  }
 
   if (type === "tv") {
     params.set("nextButton", "true");

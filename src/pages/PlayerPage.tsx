@@ -58,14 +58,21 @@ export default function PlayerPage() {
     return p.position;
   });
 
-  const sourceKey = `${type}-${id}-${season}-${episode}-${autoplay}-${canPlay}`;
+  const sourceKey = `${type}-${id}-${season}-${episode}-${startPosition}-${autoplay}-${canPlay}`;
   const playback = useFetch(async () => {
     if (!canPlay) return null;
     if (invalidRequest) {
       throw new ServiceError("not-found", serviceErrorMessage("not-found"));
     }
     const [source, detail] = await Promise.all([
-      resolvePlaybackSource({ type, id, season, episode, autoPlay: autoplay }),
+      resolvePlaybackSource({
+        type,
+        id,
+        season,
+        episode,
+        autoPlay: autoplay,
+        startAt: startPosition,
+      }),
       type === "movie"
         ? tmdbApi.getMovieDetail(numId)
         : tmdbApi.getTVShowDetail(numId),
