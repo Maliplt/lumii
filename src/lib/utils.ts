@@ -90,6 +90,23 @@ export function heroFrom<T extends readonly MediaItem[]>(
     .slice(0, count);
 }
 
+export function interleaveEvenly<T>(primary: T[], featured: T[]): T[] {
+  if (!primary.length) return [...featured];
+  if (!featured.length) return [...primary];
+
+  const result: T[] = [];
+  let featuredIndex = 0;
+  primary.forEach((item, index) => {
+    result.push(item);
+    const target = Math.floor(((index + 1) * featured.length) / primary.length);
+    while (featuredIndex < target) {
+      result.push(featured[featuredIndex]);
+      featuredIndex += 1;
+    }
+  });
+  return result;
+}
+
 export function formatTime(s: number): string {
   if (!isFinite(s) || isNaN(s) || s < 0) return "0:00";
   const total = Math.floor(s);

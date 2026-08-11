@@ -38,6 +38,29 @@ export interface TMDBResponse<T> {
   total_results: number;
 }
 
+export interface MovieCollection {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  parts: Movie[];
+}
+
+export interface PersonMovieCredit extends Movie {
+  character?: string;
+  order?: number;
+}
+
+export interface PersonWithMovieCredits {
+  id: number;
+  name: string;
+  profile_path: string | null;
+  movie_credits: {
+    cast: PersonMovieCredit[];
+  };
+}
+
 export type SearchResult =
   | (Movie & { media_type: "movie" })
   | (TVShow & { media_type: "tv" });

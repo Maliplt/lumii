@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactElement } from "react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
+import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
 import GameCarousel from "../components/GameCarousel";
 import ServiceErrorView from "../components/ServiceErrorView";
 import { loadCriticalHome, loadRestHome, loadKidsHome } from "../services/home";
+import { getSpotlightDefinitions } from "../services/spotlightCarousels";
+import { interleaveEvenly } from "../lib/utils";
 import { useFetch, useTitle, useLazyReveal, effectivePlanId } from "../helpers";
 import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
 
@@ -47,7 +50,6 @@ export default function HomePage() {
     () => (!isKids && deferReady ? loadRestHome() : Promise.resolve(null)),
     `home-rest-${isKids}-${deferReady}`,
   );
-
   const heroMovies = isKids
     ? (kidsData.data?.heroMovies ?? [])
     : (critical.data?.heroMovies ?? []);
@@ -63,7 +65,7 @@ export default function HomePage() {
         <ContentCarousel key="kids-more" type="movie" title="Daha Fazla Çocuk Filmi" items={kidsData.data.moreFamily} />,
       ];
   // normal satırlar
-  const rows = isKids || !critical.data
+  const standardRows = isKids || !critical.data
     ? []
     : [
         <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler Filmler" items={critical.data.popular} />,
@@ -89,7 +91,14 @@ export default function HomePage() {
         <ContentCarousel key="upcoming" type="movie" title="Yakında Gelecekler" items={rest.data?.upcoming ?? []} />,
         <ContentCarousel key="animation" type="movie" title="Animasyon Filmleri" items={rest.data?.animation ?? []} />,
         <ContentCarousel key="trendingtv" type="tv" title="Gündemdeki Diziler" items={critical.data.trendingTV} />,
-      ].filter(Boolean);
+      ].filter((row): row is ReactElement => row !== null);
+
+  const spotlightRows = !isKids && critical.data
+    ? getSpotlightDefinitions("home").map((definition) => (
+        <SpotlightContentCarousel key={definition.id} definition={definition} />
+      ))
+    : [];
+  const rows = interleaveEvenly(standardRows, spotlightRows);
 
   const activeRows = isKids ? kidsRows : rows;
   const isLoading = isKids ? kidsData.loading : critical.loading;

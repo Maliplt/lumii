@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Video, VideosResponse } from "../types/types";
+import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Video, VideosResponse, MovieCollection, PersonWithMovieCredits } from "../types/types";
 import {
   normalizeServiceError,
   ServiceError,
@@ -98,6 +98,45 @@ export const tmdbApi = {
   search: (query: string, page = 1): Promise<TMDBResponse<SearchResult>> =>
     tmdbFetch<TMDBResponse<SearchResult>>("/search/multi", { query, page }),
 
+  getMovieCollection: async (id: number): Promise<MovieCollection> => {
+    const data = await tmdbFetch<MovieCollection>(`/collection/${id}`);
+    const needsFallback = data.parts.some(
+      (movie) => !movie.title?.trim() || !movie.overview?.trim(),
+    );
+    if (!needsFallback) return data;
+
+    const fallback = await tmdbFetch<MovieCollection>(`/collection/${id}`, {
+      language: "en-US",
+    }).catch(() => null);
+    if (!fallback) return data;
+
+    const fallbackMovies = new Map(
+      fallback.parts.map((movie) => [movie.id, movie]),
+    );
+    return {
+      ...data,
+      name: data.name?.trim() || fallback.name,
+      overview: data.overview?.trim() || fallback.overview,
+      backdrop_path: data.backdrop_path || fallback.backdrop_path,
+      poster_path: data.poster_path || fallback.poster_path,
+      parts: data.parts.map((movie) => {
+        const english = fallbackMovies.get(movie.id);
+        return {
+          ...movie,
+          title: movie.title?.trim() || english?.title || movie.original_title,
+          overview: movie.overview?.trim() || english?.overview || "",
+          poster_path: movie.poster_path || english?.poster_path || null,
+          backdrop_path: movie.backdrop_path || english?.backdrop_path || null,
+        };
+      }),
+    };
+  },
+
+  getPersonMovieCredits: (id: number): Promise<PersonWithMovieCredits> =>
+    tmdbFetch<PersonWithMovieCredits>(`/person/${id}`, {
+      append_to_response: "movie_credits",
+    }),
+
   getMovieDetail: async (id: number): Promise<MovieDetail> => {
     const data = await tmdbFetch<Omit<MovieDetail, "media_type">>(`/movie/${id}`, {
       append_to_response: "credits,videos",
@@ -111,7 +150,21 @@ export const tmdbApi = {
       append_to_response: "credits,videos",
       include_video_language: "tr,en,null",
     });
-    return { ...data, media_type: "tv" };
+    if (data.overview?.trim()) return { ...data, media_type: "tv" };
+
+    const fallback = await tmdbFetch<Omit<TVShowDetail, "media_type">>(
+      `/tv/${id}`,
+      { language: "en-US" },
+    ).catch(() => null);
+    return {
+      ...data,
+      overview: data.overview?.trim() || fallback?.overview || "",
+      tagline: data.tagline?.trim() || fallback?.tagline || "",
+      episode_run_time: data.episode_run_time?.length
+        ? data.episode_run_time
+        : (fallback?.episode_run_time ?? []),
+      media_type: "tv",
+    };
   },
 
   getSimilarMovies: (id: number): Promise<TMDBResponse<Movie>> =>
@@ -120,11 +173,43 @@ export const tmdbApi = {
   getSimilarTVShows: (id: number): Promise<TMDBResponse<TVShow>> =>
     tmdbFetch<TMDBResponse<TVShow>>(`/tv/${id}/similar`),
 
-  getTVSeasonDetails: (
+  getTVSeasonDetails: async (
     tvId: number,
     seasonNumber: number,
-  ): Promise<TVSeasonDetail> =>
-    tmdbFetch<TVSeasonDetail>(`/tv/${tvId}/season/${seasonNumber}`),
+  ): Promise<TVSeasonDetail> => {
+    const data = await tmdbFetch<TVSeasonDetail>(
+      `/tv/${tvId}/season/${seasonNumber}`,
+    );
+    const needsFallback =
+      !data.overview?.trim() ||
+      data.episodes.some(
+        (episode) => !episode.name?.trim() || !episode.overview?.trim(),
+      );
+    if (!needsFallback) return data;
+
+    const fallback = await tmdbFetch<TVSeasonDetail>(
+      `/tv/${tvId}/season/${seasonNumber}`,
+      { language: "en-US" },
+    ).catch(() => null);
+    if (!fallback) return data;
+
+    const fallbackEpisodes = new Map(
+      fallback.episodes.map((episode) => [episode.episode_number, episode]),
+    );
+    return {
+      ...data,
+      name: data.name?.trim() || fallback.name,
+      overview: data.overview?.trim() || fallback.overview,
+      episodes: data.episodes.map((episode) => {
+        const english = fallbackEpisodes.get(episode.episode_number);
+        return {
+          ...episode,
+          name: episode.name?.trim() || english?.name || "",
+          overview: episode.overview?.trim() || english?.overview || "",
+        };
+      }),
+    };
+  },
 
   // video listesi
   getVideos: (type: "movie" | "tv", id: number): Promise<VideosResponse> =>

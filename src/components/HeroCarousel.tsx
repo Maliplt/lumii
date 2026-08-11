@@ -6,7 +6,7 @@ import { MotionIcon } from "motion-icons-react";
 import { MediaActionButtons } from "./ContentCarousel";
 import { getImageUrl, genreNames, tmdbApi, formatRuntime, pickTrailer } from "../services/tmdb";
 import { useSwipe, mediaName, mediaYear, popButton, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, upgradeCtaLabel } from "../helpers";
-import { useAppSelector } from "../store/store";
+import { selectAutoplayEnabled, useAppSelector } from "../store/store";
 import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
 
 type HeroItem = Movie | TVShow;
@@ -56,6 +56,7 @@ export default function HeroCarousel({
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
 
   const {
     ready: heroTrailerReady,
@@ -315,6 +316,7 @@ export default function HeroCarousel({
                       id: movie.id,
                       planId: userPlan,
                       accessLevel,
+                      autoFullscreen: autoplayEnabled,
                       title,
                       ...ctaNavState,
                     })}

@@ -8,12 +8,57 @@ export interface PlaybackNavigationState {
   episode?: number;
 }
 
+type WebkitFullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+type WebkitFullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+};
+
+export function isPlaybackFullscreenActive(): boolean {
+  if (typeof document === "undefined") return false;
+  return Boolean(
+    document.fullscreenElement ||
+      (document as WebkitFullscreenDocument).webkitFullscreenElement,
+  );
+}
+
+export function isMobilePlaybackDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(pointer: coarse)").matches &&
+    Math.min(window.innerWidth, window.innerHeight) <= 820
+  );
+}
+
+export async function requestMobilePlaybackFullscreen(): Promise<boolean> {
+  if (typeof document === "undefined" || !isMobilePlaybackDevice()) {
+    return false;
+  }
+  if (isPlaybackFullscreenActive()) return true;
+
+  const target = document.documentElement as WebkitFullscreenElement;
+  const request =
+    target.requestFullscreen?.bind(target) ??
+    target.webkitRequestFullscreen?.bind(target);
+  if (!request) return false;
+
+  try {
+    await request();
+    return isPlaybackFullscreenActive();
+  } catch {
+    return false;
+  }
+}
+
 interface NavigateToPlaybackOptions extends PlaybackNavigationState {
   navigate: NavigateFunction;
   type: "movie" | "tv";
   id: string | number;
   planId?: string | null;
   accessLevel?: ContentAccessLevel;
+  autoFullscreen?: boolean;
 }
 
 // oynatma yönlendirmesi
@@ -23,6 +68,7 @@ export function navigateToPlayback({
   id,
   planId,
   accessLevel,
+  autoFullscreen = false,
   title,
   season,
   episode,
@@ -31,6 +77,10 @@ export function navigateToPlayback({
   if (!canUseLevel(planId, requiredLevel)) {
     navigate("/packages");
     return;
+  }
+
+  if (autoFullscreen) {
+    void requestMobilePlaybackFullscreen();
   }
 
   const state: PlaybackNavigationState = { title };

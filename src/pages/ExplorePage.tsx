@@ -3,9 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
+import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
 import ServiceErrorView from "../components/ServiceErrorView";
 import CategoryDropdown from "../components/CategoryDropdown";
 import { MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
+import { getSpotlightDefinitions } from "../services/spotlightCarousels";
+import { interleaveEvenly } from "../lib/utils";
 import { useFetch, useTitle, useLazyReveal } from "../helpers";
 
 export default function ExplorePage() {
@@ -32,7 +35,6 @@ export default function ExplorePage() {
         : loadCategory(type, activeCat.genre, activeCat.label),
     `${type}-${cat}`,
   );
-
   const liveRows: Section[] | null =
     cat === "all" ? (base.data?.rows ?? null) : catFetch.data;
   const rows = liveRows ?? [];
@@ -42,7 +44,7 @@ export default function ExplorePage() {
     <CategoryDropdown cats={cats} active={cat} onSelect={setCat} />
   );
 
-  const cards = rows
+  const standardCards = rows
     .filter((r) => r.items.length > 0)
     .map((r, i) => (
       <ContentCarousel
@@ -53,6 +55,13 @@ export default function ExplorePage() {
         headerExtra={i === 0 ? dropdown : undefined}
       />
     ));
+
+  const spotlightCards = getSpotlightDefinitions("explore").map((definition) => (
+    <SpotlightContentCarousel key={definition.id} definition={definition} />
+  ));
+  const cards = type === "movie" && cat === "all"
+    ? interleaveEvenly(standardCards, spotlightCards)
+    : standardCards;
 
   const { visible, sentinelRef } = useLazyReveal(cards.length);
 

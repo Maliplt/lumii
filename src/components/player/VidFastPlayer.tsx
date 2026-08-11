@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Maximize } from "lucide-react";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
 
 const VIDFAST_ORIGINS = new Set([
@@ -25,6 +25,8 @@ interface VidFastPlayerProps {
   src: string;
   title: string;
   startPosition?: number;
+  showFullscreenPrompt?: boolean;
+  onRequestFullscreen?: () => void;
   onBack?: () => void;
   onProgress?: (
     position: number,
@@ -52,6 +54,8 @@ export default function VidFastPlayer({
   src,
   title,
   startPosition = 0,
+  showFullscreenPrompt = false,
+  onRequestFullscreen,
   onBack,
   onProgress,
 }: VidFastPlayerProps) {
@@ -70,19 +74,6 @@ export default function VidFastPlayer({
   useEffect(() => {
     progressCallbackRef.current = onProgress;
   }, [onProgress]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
-
-    root.classList.add("player-viewport-locked");
-    body.classList.add("player-viewport-locked");
-
-    return () => {
-      root.classList.remove("player-viewport-locked");
-      body.classList.remove("player-viewport-locked");
-    };
-  }, []);
 
   const sendCommand = useCallback(
     (command: Record<string, unknown>) => {
@@ -184,13 +175,24 @@ export default function VidFastPlayer({
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture; screen-wake-lock"
         allowFullScreen
         referrerPolicy="origin"
-        scrolling="no"
         onLoad={handleLoad}
       />
 
       {loading && (
         <div className="vidfast-player__loading" aria-label="İçerik yükleniyor">
           <img src={tenetLogo} alt="" />
+        </div>
+      )}
+
+      {showFullscreenPrompt && onRequestFullscreen && (
+        <div className="vidfast-player__fullscreen-prompt">
+          <button type="button" onClick={onRequestFullscreen}>
+            <Maximize size={22} />
+            <span>
+              <strong>Tam ekranda oynat</strong>
+              <small>Güvenli şekilde izlemeye başla</small>
+            </span>
+          </button>
         </div>
       )}
 

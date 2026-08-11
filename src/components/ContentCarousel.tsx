@@ -1,12 +1,13 @@
-import { memo, useRef, useState, useMemo, useEffect, type ReactNode } from "react";
+import { memo, useRef, useState, useMemo, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Carousel } from "rsuite";
 import { Link, useNavigate } from "react-router-dom";
 import { Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl, tmdbApi, pickTrailer, genreNames, formatRuntime } from "../services/tmdb";
 import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton, formatTime, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, requiredPlanName, upgradeCtaLabel } from "../helpers";
-import { useAppSelector, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
+import { useAppSelector, selectAutoplayEnabled, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
 import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
+import type { SpotlightTheme } from "../data/spotlightCarousels";
 
 type Media = Movie | TVShow;
 
@@ -97,6 +98,12 @@ interface ContentCarouselProps {
   items: Media[];
   headerExtra?: ReactNode;
   accessLevel?: ContentAccessLevel;
+  spotlight?: {
+    eyebrow: string;
+    description: string;
+    backgroundPath: string | null;
+    theme: SpotlightTheme;
+  };
 }
 
 const ItemCard = memo(function ItemCard({
@@ -122,6 +129,7 @@ const ItemCard = memo(function ItemCard({
 
   const cardType = (item as SavedItem).media_type ?? type;
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const requiredLevel = contentAccessLevel(cardType, item.id, accessLevel);
   const locked = !canUseLevel(userPlan, requiredLevel);
   const previewsEnabled = useAppSelector((s) => s.settings.previews);
@@ -324,6 +332,7 @@ const ItemCard = memo(function ItemCard({
                     id: item.id,
                     planId: userPlan,
                     accessLevel,
+                    autoFullscreen: autoplayEnabled,
                     ...playerState,
                   });
                 }}
@@ -414,6 +423,7 @@ export default function ContentCarousel({
   items,
   headerExtra,
   accessLevel,
+  spotlight,
 }: ContentCarouselProps) {
   const [page, setPage] = useState(0);
   const visible = useVisibleCount();
@@ -433,12 +443,26 @@ export default function ContentCarousel({
   if (pages.length === 0 && !headerExtra) return null;
 
   const multi = pages.length > 1;
+  const spotlightStyle = spotlight
+    ? ({
+        "--spotlight-image": `url("${getImageUrl(spotlight.backgroundPath, "w1280")}")`,
+        "--spotlight-accent": spotlight.theme.accent,
+        "--spotlight-accent-contrast": spotlight.theme.accentContrast,
+        "--spotlight-position": spotlight.theme.backgroundPosition ?? "center",
+      } as CSSProperties)
+    : undefined;
 
   return (
-    <div className="content-carousel">
+    <div
+      className={`content-carousel${spotlight ? ` content-carousel--spotlight spotlight-typography--${spotlight.theme.typography}` : ""}`}
+      style={spotlightStyle}
+    >
       <div className="cc-header">
         <div className="cc-header__left">
           <h3 className="cc-header__title">{title}</h3>
+          {spotlight?.description && (
+            <p className="cc-header__description">{spotlight.description}</p>
+          )}
         </div>
         <div className="cc-header__right">
           {multi && (

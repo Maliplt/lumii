@@ -6,7 +6,7 @@ import ServiceErrorView from "../components/ServiceErrorView";
 import { resolvePlaybackSource } from "../services/player";
 import { tmdbApi } from "../services/tmdb";
 import { ServiceError, serviceErrorMessage } from "../services/serviceError";
-import { canUseLevel, contentAccessLevel, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
+import { canUseLevel, contentAccessLevel, isMobilePlaybackDevice, isPlaybackFullscreenActive, requestMobilePlaybackFullscreen, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
 import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectAutoplayEnabled, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
@@ -40,6 +40,44 @@ export default function PlayerPage() {
     (type !== "movie" && type !== "tv") ||
     !Number.isFinite(numId) ||
     numId <= 0;
+  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
+
+  useEffect(() => {
+    if (!autoplay || !canPlay || invalidRequest || !isMobilePlaybackDevice()) {
+      return;
+    }
+
+    let cancelled = false;
+    const syncFullscreenState = () => {
+      if (!cancelled && isPlaybackFullscreenActive()) {
+        setShowFullscreenPrompt(false);
+      }
+    };
+    const timer = window.setTimeout(() => {
+      if (isPlaybackFullscreenActive()) {
+        setShowFullscreenPrompt(false);
+        return;
+      }
+      void requestMobilePlaybackFullscreen().then((entered) => {
+        if (!cancelled) setShowFullscreenPrompt(!entered);
+      });
+    }, 150);
+
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
+    };
+  }, [autoplay, canPlay, invalidRequest]);
+
+  const handleRequestFullscreen = useCallback(() => {
+    void requestMobilePlaybackFullscreen().then((entered) => {
+      setShowFullscreenPrompt(!entered);
+    });
+  }, []);
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
@@ -174,6 +212,8 @@ export default function PlayerPage() {
         src={source.url}
         title={episodeInfo ? `${title} - ${episodeInfo}` : title}
         startPosition={startPosition}
+        showFullscreenPrompt={showFullscreenPrompt}
+        onRequestFullscreen={handleRequestFullscreen}
         onBack={() => navigate(-1)}
         onProgress={handleProgress}
       />

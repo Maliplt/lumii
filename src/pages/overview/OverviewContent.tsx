@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Play } from "lucide-react";
 import PageLayout from "../../components/PageLayout";
@@ -9,7 +9,7 @@ import ServiceErrorView from "../../components/ServiceErrorView";
 import { tmdbApi, getImageUrl, formatRuntime, pickTrailer } from "../../services/tmdb";
 import { ServiceError, serviceErrorMessage } from "../../services/serviceError";
 import { canUseLevel, contentAccessLevel, navigateToPlayback, useFetch, useTitle, formatTime, formatLongDate } from "../../helpers";
-import { useAppSelector, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
+import { useAppSelector, selectAutoplayEnabled, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
 import type { Movie, TVShow, Episode } from "../../types/types";
 
 export default function OverviewContent({
@@ -24,6 +24,8 @@ export default function OverviewContent({
   const numId = Number(id);
   const isMovie = type === "movie";
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
+  const episodesGridRef = useRef<HTMLDivElement>(null);
   const requiredLevel = contentAccessLevel(type, id);
   const contentLocked = !canUseLevel(userPlan, requiredLevel);
 
@@ -51,6 +53,44 @@ export default function OverviewContent({
         : tmdbApi.getTVSeasonDetails(numId, selectedSeason),
     isMovie ? "movie" : `season-${numId}-${selectedSeason}`,
   );
+
+  useLayoutEffect(() => {
+    const grid = episodesGridRef.current;
+    if (!grid || !season.data?.episodes?.length) {
+      return;
+    }
+
+    const cards = Array.from(grid.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement,
+    );
+    const gap = Number.parseFloat(getComputedStyle(grid).columnGap) || 0;
+    const resizeCard = (card: HTMLElement) => {
+      const height = card.getBoundingClientRect().height;
+      card.style.gridRowEnd = `span ${Math.ceil(height + gap)}`;
+    };
+    const resizeCards = () => cards.forEach(resizeCard);
+
+    grid.classList.add("is-masonry");
+    resizeCards();
+
+    const observer = typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver((entries) => {
+        entries.forEach((entry) => resizeCard(entry.target as HTMLElement));
+      });
+    if (observer) {
+      cards.forEach((card) => observer.observe(card));
+    } else {
+      window.addEventListener("resize", resizeCards);
+    }
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", resizeCards);
+      grid.classList.remove("is-masonry");
+      cards.forEach((card) => card.style.removeProperty("grid-row-end"));
+    };
+  }, [detail, season.data?.episodes]);
 
   const tvDetail = detail?.media_type === "tv" ? detail : null;
   const movieDetail = detail?.media_type === "movie" ? detail : null;
@@ -150,7 +190,7 @@ export default function OverviewContent({
                       <Spinner inline />
                     </div>
                   ) : season.data?.episodes?.length ? (
-                    <div className="episodes-grid">
+                    <div ref={episodesGridRef} className="episodes-grid">
                       {season.data.episodes.map((episode: Episode) => (
                         <article
                           key={episode.id}
@@ -160,6 +200,7 @@ export default function OverviewContent({
                             type,
                             id,
                             planId: userPlan,
+                            autoFullscreen: autoplayEnabled,
                             title,
                             season: selectedSeason,
                             episode: episode.episode_number,
