@@ -1,6 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
 import StateView from "./StateView";
+import NotFoundPage from "../pages/NotFoundPage";
+import {
+  normalizeServiceError,
+  serviceErrorPresentation,
+  serviceErrorStatus,
+} from "../services/serviceError";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -24,7 +30,7 @@ export default class ErrorBoundary extends Component<
   }
 
   componentDidUpdate(prev: ErrorBoundaryProps) {
-    // rota degisince hatadan cik
+    // rota sıfırlama
     if (this.state.hasError && prev.resetKey !== this.props.resetKey) {
       this.setState({ hasError: false, error: null });
     }
@@ -42,13 +48,19 @@ export default class ErrorBoundary extends Component<
     if (!this.state.hasError) return this.props.children;
     if (this.props.fallback) return this.props.fallback;
 
+    const error = normalizeServiceError(this.state.error);
+    const status = serviceErrorStatus(error);
+    const presentation = serviceErrorPresentation(error.code);
+
+    if (status === 404) return <NotFoundPage standalone />;
+
     return (
       <div className="error-boundary" role="alert">
         <StateView
           Icon={AlertTriangle}
-          eyebrow="Uygulama hatası"
-          title="Sayfa görüntülenemedi"
-          description="Beklenmeyen bir sorun oluştu. Yeniden deneyebilir veya ana sayfaya dönebilirsiniz."
+          eyebrow={String(status)}
+          title={presentation.title}
+          description={presentation.message}
           variant="error"
           role="alert"
           action={

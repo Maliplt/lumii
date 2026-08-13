@@ -4,6 +4,7 @@
 .content-carousel {
     --cc-poster-h: 22vw;
     --cc-peek-w: 34px;
+    --cc-frame-gutter: 2px;
 
     .cc-header {
         display: flex;
@@ -327,11 +328,35 @@
         align-items: flex-start;
         gap: 10px;
         max-width: 720px;
+
+        .spinner-overlay--compact {
+            align-items: flex-start;
+            width: auto;
+            min-height: 0;
+            padding: 6px 0 0;
+        }
     }
 
     .seasons-loading,
     .spinner-container {
         min-height: 0;
+    }
+}
+
+.content-carousel--spotlight-error {
+    min-height: clamp(260px, 34vw, 420px);
+    justify-content: center;
+    background:
+        radial-gradient(circle at 75% 35%, color-mix(in srgb, var(--spotlight-accent) 16%, transparent), transparent 42%),
+        linear-gradient(115deg, #090909 20%, #151515 50%, #090909 80%);
+
+    &::before,
+    &::after {
+        display: none;
+    }
+
+    .state-view {
+        width: 100%;
     }
 }
 
@@ -347,7 +372,7 @@
     overflow: visible;
 
     .rs-carousel {
-        height: var(--cc-poster-h) !important;
+        height: calc(var(--cc-poster-h) + var(--cc-frame-gutter)) !important;
         overflow: visible !important;
     }
 
@@ -435,6 +460,8 @@
 
 .cc-slide {
     display: flex;
+    height: calc(var(--cc-poster-h) + var(--cc-frame-gutter));
+    padding-bottom: var(--cc-frame-gutter);
     overflow: hidden;
     gap: var(--space-3);
     // rsuite arka planı

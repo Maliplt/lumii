@@ -186,7 +186,7 @@ export default function SudokuApp() {
     [reset, start],
   );
 
-  // acilista sayaci baslat
+  // sayaç
   useEffect(() => {
     const t = setTimeout(start, 100);
     return () => clearTimeout(t);

@@ -1,7 +1,8 @@
-import { useParams, Link } from "react-router-dom";
+import { Navigate, useParams, Link } from "react-router-dom";
 import { Nav } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
 import PageLayout from "../components/PageLayout";
+import { useTitle } from "../helpers";
 
 const SECTIONS = {
   gizlilik: {
@@ -41,9 +42,13 @@ const ORDER: SectionKey[] = ["gizlilik", "kosullar", "cerezler"];
 
 export default function LegalPage() {
   const { section } = useParams<{ section: string }>();
+  const invalidSection = Boolean(section && !(section in SECTIONS));
   const active: SectionKey =
     section && section in SECTIONS ? (section as SectionKey) : "gizlilik";
   const data = SECTIONS[active];
+  useTitle(data.title);
+
+  if (invalidSection) return <Navigate to="/" replace />;
 
   return (
     <PageLayout className="legal-page" mainClassName="legal-main">

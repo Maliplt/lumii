@@ -1,12 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import VidFastPlayer, { type VidFastProgressContext } from "../components/player/VidFastPlayer";
-import Spinner from "../components/Spinner";
-import ServiceErrorView from "../components/ServiceErrorView";
 import { resolvePlaybackSource } from "../services/player";
 import { tmdbApi } from "../services/tmdb";
-import { ServiceError, serviceErrorMessage } from "../services/serviceError";
-import { canUseLevel, contentAccessLevel, isMobilePlaybackDevice, isPlaybackFullscreenActive, requestMobilePlaybackFullscreen, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
+import { canUseLevel, contentAccessLevel, isMobilePlaybackDevice, requestMobilePlaybackFullscreen, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
 import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectAutoplayEnabled, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
@@ -25,7 +22,6 @@ export default function PlayerPage() {
 
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
   const catalogLevel = contentAccessLevel(type ?? "", id ?? "");
-  // On-demand movies and series always require a paid plan.
   const requiredLevel = catalogLevel === "free" ? "standard" : catalogLevel;
   const canPlay = canUseLevel(userPlan, requiredLevel);
 
@@ -40,44 +36,19 @@ export default function PlayerPage() {
     (type !== "movie" && type !== "tv") ||
     !Number.isFinite(numId) ||
     numId <= 0;
-  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
-
   useEffect(() => {
     if (!autoplay || !canPlay || invalidRequest || !isMobilePlaybackDevice()) {
       return;
     }
 
-    let cancelled = false;
-    const syncFullscreenState = () => {
-      if (!cancelled && isPlaybackFullscreenActive()) {
-        setShowFullscreenPrompt(false);
-      }
-    };
     const timer = window.setTimeout(() => {
-      if (isPlaybackFullscreenActive()) {
-        setShowFullscreenPrompt(false);
-        return;
-      }
-      void requestMobilePlaybackFullscreen().then((entered) => {
-        if (!cancelled) setShowFullscreenPrompt(!entered);
-      });
+      void requestMobilePlaybackFullscreen();
     }, 150);
 
-    document.addEventListener("fullscreenchange", syncFullscreenState);
-    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
     return () => {
-      cancelled = true;
       window.clearTimeout(timer);
-      document.removeEventListener("fullscreenchange", syncFullscreenState);
-      document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
     };
   }, [autoplay, canPlay, invalidRequest]);
-
-  const handleRequestFullscreen = useCallback(() => {
-    void requestMobilePlaybackFullscreen().then((entered) => {
-      setShowFullscreenPrompt(!entered);
-    });
-  }, []);
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
@@ -96,30 +67,26 @@ export default function PlayerPage() {
     return p.position;
   });
 
-  const sourceKey = `${type}-${id}-${season}-${episode}-${startPosition}-${autoplay}-${canPlay}`;
-  const playback = useFetch(async () => {
-    if (!canPlay) return null;
-    if (invalidRequest) {
-      throw new ServiceError("not-found", serviceErrorMessage("not-found"));
-    }
-    const [source, detail] = await Promise.all([
-      resolvePlaybackSource({
+  const source = !canPlay || invalidRequest
+    ? null
+    : resolvePlaybackSource({
         type,
         id,
         season,
         episode,
         autoPlay: autoplay,
         startAt: startPosition,
-      }),
-      type === "movie"
-        ? tmdbApi.getMovieDetail(numId)
-        : tmdbApi.getTVShowDetail(numId),
-    ]);
-    return { source, detail };
-  }, `${sourceKey}-${invalidRequest}`);
+      });
 
-  const detail = playback.data?.detail;
-  const source = playback.data?.source;
+  // metadata
+  const metadata = useFetch(async () => {
+    if (!canPlay || invalidRequest) return null;
+    return type === "movie"
+      ? tmdbApi.getMovieDetail(numId)
+      : tmdbApi.getTVShowDetail(numId);
+  }, `${type}-${id}-${canPlay}-${invalidRequest}`);
+
+  const detail = metadata.data;
   const title = detail
     ? detail.media_type === "movie"
       ? detail.title
@@ -160,15 +127,7 @@ export default function PlayerPage() {
   const openPlanOptions = () => navigate("/packages");
 
   if (invalidRequest) {
-    return (
-      <div className="player-page">
-        <ServiceErrorView
-          error={new ServiceError("not-found", serviceErrorMessage("not-found"))}
-          title="İçerik bulunamadı"
-          onBack={() => navigate(-1)}
-        />
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   if (!canPlay) {
@@ -184,26 +143,7 @@ export default function PlayerPage() {
     );
   }
 
-  if (playback.error) {
-    return (
-      <div className="player-page">
-        <ServiceErrorView
-          error={playback.error}
-          title="Oynatma başlatılamadı"
-          onRetry={playback.retry}
-          onBack={() => navigate(-1)}
-        />
-      </div>
-    );
-  }
-
-  if (playback.loading || !source) {
-    return (
-      <div className="player-page">
-        <Spinner />
-      </div>
-    );
-  }
+  if (!source) return <Navigate to="/" replace />;
 
   return (
     <div className="player-page">
@@ -212,8 +152,6 @@ export default function PlayerPage() {
         src={source.url}
         title={episodeInfo ? `${title} - ${episodeInfo}` : title}
         startPosition={startPosition}
-        showFullscreenPrompt={showFullscreenPrompt}
-        onRequestFullscreen={handleRequestFullscreen}
         onBack={() => navigate(-1)}
         onProgress={handleProgress}
       />

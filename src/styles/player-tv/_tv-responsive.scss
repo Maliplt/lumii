@@ -14,7 +14,10 @@
 
     .tv-featured {
         order: -1;
+        min-width: 0;
     }
+
+    .tv-sidebar { min-width: 0; }
 
     .tv-featured__player {
         flex: none;
@@ -43,7 +46,7 @@
     }
 }
 
-// telefonda player daha kisa
+// mobil player
 @media (max-width: 768px) {
     .tv-featured__player {
         aspect-ratio: auto;
@@ -54,5 +57,10 @@
 
     .tv-featured__player .player-video {
         object-fit: cover;
+    }
+
+    .tv-search__clear {
+        width: 36px;
+        height: 36px;
     }
 }

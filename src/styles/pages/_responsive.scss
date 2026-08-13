@@ -27,7 +27,7 @@
         height: 65dvh !important;
     }
 
-    // sabit başlık boşluğu
+    // başlık boşluğu
     .hero-carousel-inner {
         min-height: 440px !important;
     }
@@ -41,7 +41,7 @@
         max-width: 520px;
     }
 
-    // içeriği hero bilgisinden ayır
+    // hero aralığı
     .home-content,
     .explore-content,
     .overview-content {
@@ -88,7 +88,7 @@
         display: none !important;
     }
 
-    // stack boslugu kalmasin
+    // stack boşluğu
     .header-main-nav .nav-icon-wrapper {
         margin: 0 !important;
     }
@@ -118,11 +118,21 @@
         display: flex !important;
         align-items: center;
         gap: var(--space-2);
-        padding: 0 var(--space-3);
+        padding: 0;
     }
 
     .mobile-menu-btn {
         display: flex !important;
+    }
+
+    .header-mobile-actions .search-btn,
+    .mobile-menu-btn {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        align-items: center;
+        justify-content: center;
     }
 
     .custom-header {
@@ -239,7 +249,10 @@
     .btn-play {
         font-size: 15px !important;
         padding: 10px 28px !important;
+        min-height: 44px;
     }
+
+    .btn-more-info { min-height: 44px; }
 
     .hero-action-btn {
         width: 42px;
@@ -302,6 +315,23 @@
 
     .header-brand-link {
         font-size: 22px !important;
+    }
+
+    .header-mobile-actions {
+        gap: 4px;
+    }
+
+    .mobile-login-btn {
+        height: 36px !important;
+        padding: 0 11px !important;
+        font-size: 13px !important;
+    }
+
+    .header-mobile-actions .search-btn,
+    .mobile-menu-btn {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
     }
 
     .hero-carousel-inner {
@@ -382,6 +412,39 @@
         padding: 9px 22px !important;
     }
 
+    .hero-info__buttons {
+        flex-wrap: nowrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .hero-info__buttons .btn-play {
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    .hero-info__buttons .btn-more-info {
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 !important;
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+
+    .btn-more-info__label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .hero-progress {
+        margin-top: 14px;
+    }
+
     .cc-item__name {
         font-size: 12px !important;
         letter-spacing: 0;
@@ -423,5 +486,11 @@
 
     .mobile-nav-head {
         min-height: 64px;
+    }
+}
+
+@media (max-width: 360px) {
+    .rs-navbar-brand .tenet-logo {
+        font-size: 52px !important;
     }
 }

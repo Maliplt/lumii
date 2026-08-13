@@ -12,7 +12,7 @@ export const PACKAGES: PackageDef[] = [
     capabilities: { maxVideoHeight: 480, contentLevel: "free", liveTvChannelLimit: 5, concurrentStreams: 1, hasAds: true, canDownload: false },
   },
   {
-    id: "standard", name: "Temel", price: "₺49", period: "/ay", icon: "Zap",
+    id: "standard", name: "Temel", price: "₺139", period: "/ay", icon: "Zap",
     badge: "En çok tercih edilen", accent: true, free: false,
     summary: "Ana kataloğa ve daha fazla canlı kanala reklamsız erişim.",
     quality: "720p", screens: "2 ekran", downloads: "Mobil indirme", support: "Standart",
@@ -21,7 +21,7 @@ export const PACKAGES: PackageDef[] = [
     capabilities: { maxVideoHeight: 720, contentLevel: "standard", liveTvChannelLimit: 10, concurrentStreams: 2, hasAds: false, canDownload: true },
   },
   {
-    id: "premium", name: "Premium", price: "₺79", period: "/ay", icon: "Crown",
+    id: "premium", name: "Premium", price: "₺240", period: "/ay", icon: "Crown",
     badge: "En kapsamlı", accent: false, free: false,
     summary: "Özel yapımlar, tüm kanallar ve en yüksek görüntü kalitesi.",
     quality: "En yüksek kalite", screens: "4 ekran", downloads: "Tüm cihazlar", support: "Öncelikli",
@@ -77,7 +77,7 @@ export interface CatalogEntry {
   manifest?: string;
 }
 
-// içerik paket eşleştirmeleri
+// paket eşleşmeleri
 export const CONTENT_CATALOG: CatalogEntry[] = [
   { type: "movie", id: 278, access: "standard" },
   { type: "movie", id: 550, access: "standard" },

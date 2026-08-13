@@ -2,6 +2,7 @@ import axios from "axios";
 import type { Movie, TVShow, TMDBResponse, SearchResult, MovieDetail, TVShowDetail, TVSeasonDetail, Video, VideosResponse, MovieCollection, PersonWithMovieCredits } from "../types/types";
 import {
   normalizeServiceError,
+  optionalServiceRequest,
   ServiceError,
   serviceErrorMessage,
 } from "./serviceError";
@@ -73,7 +74,7 @@ export const getImageUrl = (
 };
 
 // fragman seçimi
-export function findBestTrailer(videos: Video[]): Video | null {
+function findBestTrailer(videos: Video[]): Video | null {
   const youtube = videos.filter((v) => v.site === "YouTube");
   return (
     youtube.find((v) => v.official && v.type === "Trailer") ??
@@ -105,9 +106,11 @@ export const tmdbApi = {
     );
     if (!needsFallback) return data;
 
-    const fallback = await tmdbFetch<MovieCollection>(`/collection/${id}`, {
-      language: "en-US",
-    }).catch(() => null);
+    const fallback = await optionalServiceRequest(
+      tmdbFetch<MovieCollection>(`/collection/${id}`, {
+        language: "en-US",
+      }),
+    );
     if (!fallback) return data;
 
     const fallbackMovies = new Map(
@@ -152,10 +155,11 @@ export const tmdbApi = {
     });
     if (data.overview?.trim()) return { ...data, media_type: "tv" };
 
-    const fallback = await tmdbFetch<Omit<TVShowDetail, "media_type">>(
-      `/tv/${id}`,
-      { language: "en-US" },
-    ).catch(() => null);
+    const fallback = await optionalServiceRequest(
+      tmdbFetch<Omit<TVShowDetail, "media_type">>(`/tv/${id}`, {
+        language: "en-US",
+      }),
+    );
     return {
       ...data,
       overview: data.overview?.trim() || fallback?.overview || "",
@@ -187,10 +191,11 @@ export const tmdbApi = {
       );
     if (!needsFallback) return data;
 
-    const fallback = await tmdbFetch<TVSeasonDetail>(
-      `/tv/${tvId}/season/${seasonNumber}`,
-      { language: "en-US" },
-    ).catch(() => null);
+    const fallback = await optionalServiceRequest(
+      tmdbFetch<TVSeasonDetail>(`/tv/${tvId}/season/${seasonNumber}`, {
+        language: "en-US",
+      }),
+    );
     if (!fallback) return data;
 
     const fallbackEpisodes = new Map(

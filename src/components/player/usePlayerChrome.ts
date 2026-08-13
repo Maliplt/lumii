@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 const AUTO_HIDE_MS = 3000;
-// kontrol görünürlüğü
+// kontroller
 export function usePlayerChrome(containerRef: RefObject<HTMLDivElement | null>) {
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [fullscreen, setFullscreen] = useState(false);

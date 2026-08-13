@@ -16,16 +16,14 @@ export interface PlaybackRequest {
   startAt?: number;
 }
 
-// VidFast accepts TMDB ids directly, so on-demand playback does not need a
-// backend proxy or an API key.
-export async function resolvePlaybackSource({
+export function resolvePlaybackSource({
   type,
   id,
   season = 1,
   episode = 1,
   autoPlay = true,
   startAt = 0,
-}: PlaybackRequest): Promise<PlaybackSource> {
+}: PlaybackRequest): PlaybackSource {
   const numId = Number(id);
   if (
     (type !== "movie" && type !== "tv") ||

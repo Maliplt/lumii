@@ -155,7 +155,7 @@ export default function KelimeZinciriApp() {
   const [mode, setMode] = useState<Mode>("endless");
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  // sözlüğü gerektiğinde yükle
+  // sözlük
   const [dictReady, setDictReady] = useState(() => !!DICT);
   useEffect(() => {
     if (DICT) return;

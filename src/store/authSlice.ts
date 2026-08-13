@@ -29,6 +29,14 @@ export interface Receipt {
   termsAccepted?: boolean;
 }
 
+export interface PendingPlanChange {
+  planId: string;
+  planName: string;
+  amount: string;
+  period: string;
+  effectiveAt: string;
+}
+
 // hesap tanımı
 interface Account {
   name: string;
@@ -37,6 +45,7 @@ interface Account {
   createdAt?: string;
   plan?: string;
   receipt?: Receipt | null;
+  pendingPlanChange?: PendingPlanChange | null;
   profiles: Profile[];
 }
 
@@ -46,6 +55,7 @@ export interface CurrentUser {
   createdAt?: string;
   plan?: string;
   receipt?: Receipt | null;
+  pendingPlanChange?: PendingPlanChange | null;
   profiles: Profile[];
 }
 
@@ -122,6 +132,7 @@ export const auth = createSlice({
         email: acc.email,
         createdAt: acc.createdAt,
         receipt: acc.receipt ?? null,
+        pendingPlanChange: acc.pendingPlanChange ?? null,
         profiles: acc.profiles,
       };
       state.activeProfileId = null;
@@ -150,6 +161,7 @@ export const auth = createSlice({
         createdAt: acc.createdAt,
         plan: acc.plan,
         receipt: acc.receipt ?? null,
+        pendingPlanChange: acc.pendingPlanChange ?? null,
         profiles: acc.profiles,
       };
       state.activeProfileId = null;
@@ -199,8 +211,18 @@ export const auth = createSlice({
     setPlan(state, action: PayloadAction<string>) {
       if (!state.currentUser) return;
       state.currentUser.plan = action.payload;
+      state.currentUser.pendingPlanChange = null;
       const acc = findAccount(state);
-      if (acc) acc.plan = action.payload;
+      if (acc) {
+        acc.plan = action.payload;
+        acc.pendingPlanChange = null;
+      }
+    },
+    schedulePlanChange(state, action: PayloadAction<PendingPlanChange>) {
+      if (!state.currentUser) return;
+      state.currentUser.pendingPlanChange = action.payload;
+      const acc = findAccount(state);
+      if (acc) acc.pendingPlanChange = action.payload;
     },
     setReceipt(state, action: PayloadAction<Receipt>) {
       state.receipt = action.payload;
@@ -282,6 +304,7 @@ export const {
   selectProfile,
   setPlan,
   setReceipt,
+  schedulePlanChange,
   updateEmail,
   updatePaymentMethod,
   changePassword,

@@ -6,10 +6,11 @@ import HeroCarousel from "../../components/HeroCarousel";
 import ContentCarousel from "../../components/ContentCarousel";
 import Spinner from "../../components/Spinner";
 import ServiceErrorView from "../../components/ServiceErrorView";
+import NotFoundPage from "../NotFoundPage";
 import { tmdbApi, getImageUrl, formatRuntime, pickTrailer } from "../../services/tmdb";
-import { ServiceError, serviceErrorMessage } from "../../services/serviceError";
+import { normalizeServiceError, optionalServiceRequest, ServiceError, serviceErrorMessage } from "../../services/serviceError";
 import { canUseLevel, contentAccessLevel, navigateToPlayback, useFetch, useTitle, formatTime, formatLongDate } from "../../helpers";
-import { useAppSelector, selectAutoplayEnabled, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
+import { useAppSelector, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
 import type { Movie, TVShow, Episode } from "../../types/types";
 
 export default function OverviewContent({
@@ -24,7 +25,6 @@ export default function OverviewContent({
   const numId = Number(id);
   const isMovie = type === "movie";
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
-  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const episodesGridRef = useRef<HTMLDivElement>(null);
   const requiredLevel = contentAccessLevel(type, id);
   const contentLocked = !canUseLevel(userPlan, requiredLevel);
@@ -36,10 +36,9 @@ export default function OverviewContent({
     const detail = isMovie
       ? await tmdbApi.getMovieDetail(numId)
       : await tmdbApi.getTVShowDetail(numId);
-    const similar = await (isMovie
-      ? tmdbApi.getSimilarMovies(numId)
-      : tmdbApi.getSimilarTVShows(numId)
-    ).catch(() => null);
+    const similar = isMovie
+      ? await optionalServiceRequest(tmdbApi.getSimilarMovies(numId))
+      : await optionalServiceRequest(tmdbApi.getSimilarTVShows(numId));
     return [detail, similar] as const;
   }, `${type}-${id}`);
 
@@ -52,6 +51,7 @@ export default function OverviewContent({
         ? Promise.resolve(null)
         : tmdbApi.getTVSeasonDetails(numId, selectedSeason),
     isMovie ? "movie" : `season-${numId}-${selectedSeason}`,
+    "section",
   );
 
   useLayoutEffect(() => {
@@ -135,6 +135,10 @@ export default function OverviewContent({
   );
   const heroTrailerKey = pickTrailer(detail?.videos?.results ?? []);
 
+  if (error && normalizeServiceError(error).code === "not-found") {
+    return <NotFoundPage />;
+  }
+
   return (
     <PageLayout
       className="overview-page"
@@ -187,7 +191,7 @@ export default function OverviewContent({
 
                   {season.loading ? (
                     <div className="seasons-loading">
-                      <Spinner inline />
+                      <Spinner variant="compact" />
                     </div>
                   ) : season.data?.episodes?.length ? (
                     <div ref={episodesGridRef} className="episodes-grid">
@@ -195,16 +199,24 @@ export default function OverviewContent({
                         <article
                           key={episode.id}
                           className={`ep-card${contentLocked ? " is-locked" : ""}`}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`${episode.name || `${episode.episode_number}. Bölüm`} bölümünü oynat`}
                           onClick={() => navigateToPlayback({
                             navigate,
                             type,
                             id,
                             planId: userPlan,
-                            autoFullscreen: autoplayEnabled,
+                            autoFullscreen: true,
                             title,
                             season: selectedSeason,
                             episode: episode.episode_number,
                           })}
+                          onKeyDown={(event) => {
+                            if (event.key !== "Enter" && event.key !== " ") return;
+                            event.preventDefault();
+                            event.currentTarget.click();
+                          }}
                         >
                           <div className="ep-card__thumb">
                             <img
@@ -252,6 +264,7 @@ export default function OverviewContent({
                     <ServiceErrorView
                       error={season.error}
                       title="Bölümler yüklenemedi"
+                      context="section"
                       onRetry={season.retry}
                       compact
                     />

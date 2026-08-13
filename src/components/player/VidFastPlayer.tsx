@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Maximize } from "lucide-react";
-import tenetLogo from "../../assets/images/tenet-logo.svg";
+import { useCallback, useEffect, useRef } from "react";
+import { ArrowLeft } from "lucide-react";
 
 const VIDFAST_ORIGINS = new Set([
   "https://vidfast.pro",
@@ -25,8 +24,6 @@ interface VidFastPlayerProps {
   src: string;
   title: string;
   startPosition?: number;
-  showFullscreenPrompt?: boolean;
-  onRequestFullscreen?: () => void;
   onBack?: () => void;
   onProgress?: (
     position: number,
@@ -54,8 +51,6 @@ export default function VidFastPlayer({
   src,
   title,
   startPosition = 0,
-  showFullscreenPrompt = false,
-  onRequestFullscreen,
   onBack,
   onProgress,
 }: VidFastPlayerProps) {
@@ -69,7 +64,6 @@ export default function VidFastPlayer({
     duration: number;
     context?: VidFastProgressContext;
   }>({ position: 0, duration: 0 });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     progressCallbackRef.current = onProgress;
@@ -119,8 +113,7 @@ export default function VidFastPlayer({
         },
       };
 
-      // The iframe may finish its own media lookup after its load event. Apply
-      // the saved position again on the first real player event in that case.
+      // kaldığı yer
       if (startPosition > 0 && !resumeAppliedRef.current) {
         if (Math.abs(playerData.currentTime - startPosition) > 5) {
           sendCommand({ command: "seek", time: Math.floor(startPosition) });
@@ -155,7 +148,6 @@ export default function VidFastPlayer({
   );
 
   const handleLoad = () => {
-    setLoading(false);
     sendCommand({ command: "getStatus" });
 
     if (startPosition > 0 && !resumeAppliedRef.current) {
@@ -177,24 +169,6 @@ export default function VidFastPlayer({
         referrerPolicy="origin"
         onLoad={handleLoad}
       />
-
-      {loading && (
-        <div className="vidfast-player__loading" aria-label="İçerik yükleniyor">
-          <img src={tenetLogo} alt="" />
-        </div>
-      )}
-
-      {showFullscreenPrompt && onRequestFullscreen && (
-        <div className="vidfast-player__fullscreen-prompt">
-          <button type="button" onClick={onRequestFullscreen}>
-            <Maximize size={22} />
-            <span>
-              <strong>Tam ekranda oynat</strong>
-              <small>Güvenli şekilde izlemeye başla</small>
-            </span>
-          </button>
-        </div>
-      )}
 
       {onBack && (
         <button

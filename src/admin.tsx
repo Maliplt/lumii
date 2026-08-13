@@ -1,5 +1,5 @@
-// Geçici geliştirme yöneticisi girişi.
-// Production'a geçerken bu dosyayı ve authSlice içindeki tryAdminLogin çağrısını kaldırın.
+// geçici geliştirme yöneticisi girişi
+// prod geçerken bu dosyayı ve authSlice içindeki tryAdminLogin  kaldır
 
 import type { AuthState } from "./store/authSlice";
 

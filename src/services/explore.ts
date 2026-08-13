@@ -21,7 +21,7 @@ export interface Cat {
   genre: number | string | null;
 }
 
-// kategori acilir menusundeki secenekler
+// kategoriler
 export const MOVIE_CATS: Cat[] = [
   { id: "all", label: "Tümü", genre: null },
   { id: "28", label: GENRES[28], genre: 28 },
@@ -47,7 +47,7 @@ export const TV_CATS: Cat[] = [
   { id: "10764", label: GENRES[10764], genre: 10764 },
 ];
 
-// "Tumu" secildiginde gosterilen varsayilan tur satirlari
+// varsayılan satırlar
 const MOVIE_GENRE_ROWS: { title: string; genre: number | string }[] = [
   { title: "Aksiyon ve Macera", genre: 28 },
   { title: "Komedi Rüzgarı", genre: 35 },

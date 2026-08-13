@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import { animate } from "animejs";
 import PageLayout from "../components/PageLayout";
 import PackageCard from "../components/PackageCard";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
@@ -11,18 +10,20 @@ import type { PackageDef } from "../types/types";
 export default function PackagesPage() {
   useTitle("Paketler");
   const navigate = useNavigate();
-  const heroRef = useRef<HTMLDivElement>(null);
 
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const currentPlan = currentUser ? effectivePlanId(currentUser.plan) : undefined;
 
-  const { data } = useFetch(() =>
-    settleList([
-      tmdbApi.getPopularMovies(),
-      tmdbApi.getTopRatedMovies(),
-      tmdbApi.getPopularTVShows(),
-      tmdbApi.getTopRatedTVShows(),
-    ]),
+  const { data } = useFetch(
+    () =>
+      settleList([
+        tmdbApi.getPopularMovies(),
+        tmdbApi.getTopRatedMovies(),
+        tmdbApi.getPopularTVShows(),
+        tmdbApi.getTopRatedTVShows(),
+      ]),
+    "package-posters",
+    "enhancement",
   );
 
   // posterlar
@@ -37,16 +38,6 @@ export default function PackagesPage() {
       .slice(0, 48)
       .map((m) => getImageUrl(m.poster_path, "w300"));
   }, [data]);
-
-  useEffect(() => {
-    if (heroRef.current)
-      animate(heroRef.current, {
-        opacity: [0, 1],
-        translateY: [-20, 0],
-        duration: 500,
-        easing: "easeOutQuart",
-      });
-  }, []);
 
   // secim
   const handleSelect = (pkg: PackageDef) => {
@@ -74,7 +65,7 @@ export default function PackagesPage() {
         <div className="packages-backdrop__veil" />
       </div>
 
-      <div className="packages-hero" ref={heroRef} style={{ opacity: 0 }}>
+      <div className="packages-hero">
         <span className="packages-badge">Planlar &amp; Fiyatlar</span>
         <h1 className="packages-hero__title">
           Binlerce Film, Dizi ve Oyun Seni Bekliyor
@@ -86,12 +77,11 @@ export default function PackagesPage() {
       </div>
 
       <div className="packages-grid">
-        {PACKAGES.map((pkg, i) => (
+        {PACKAGES.map((pkg) => (
           <PackageCard
             key={pkg.id}
             pkg={pkg}
             isActive={currentPlan === pkg.id}
-            index={i}
             onSelect={handleSelect}
           />
         ))}

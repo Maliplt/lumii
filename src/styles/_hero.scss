@@ -107,7 +107,7 @@
     margin-top: var(--space-5);
 }
 
-// daha fazla bilgi butonu
+// bilgi butonu
 .btn-more-info {
     display: inline-flex !important;
     align-items: center !important;
@@ -227,7 +227,7 @@
     z-index: 13;
 }
 
-// detay sayfasi butonlari
+// detay butonları
 .overview-page .hero-action-btn,
 .overview-page .hero-sound-toggle {
     background: rgba(0, 0, 0, 0.45);
@@ -240,6 +240,11 @@
         background: rgba(0, 0, 0, 0.62);
         border-color: rgba(255, 255, 255, 0.48);
     }
+}
+
+.overview-page .hero-info__buttons .cc-item__like > span {
+    position: relative;
+    top: 1px;
 }
 
 .hero-action-btn.is-pop,

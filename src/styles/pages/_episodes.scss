@@ -245,7 +245,7 @@
         }
     }
 
-    // editoryel buyuk numara
+    // bölüm numarası
     &__index {
         position: absolute;
         left: 12px;
@@ -331,5 +331,23 @@
         color: var(--text-tertiary);
         font-size: var(--fs-xs);
         font-weight: 500;
+    }
+}
+
+@media (max-width: 768px) {
+    .episodes-block {
+        padding-inline: var(--space-4);
+    }
+
+    .episodes-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .season-pill {
+        min-height: 44px;
+    }
+
+    .ep-card {
+        min-width: 0;
     }
 }

@@ -117,6 +117,40 @@
             transform: scale(1.05);
         }
     }
+
+    &--channel {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(0, 0, 0, 0.36);
+    }
+
+    &:focus-visible {
+        outline: 3px solid #fff;
+        outline-offset: 3px;
+        background: var(--accent);
+        color: #fff;
+    }
+}
+
+.player-container:focus-within .player-controls {
+    opacity: 1;
+}
+
+@media (min-width: 1600px) {
+    .tv-featured .player-btn {
+        width: 52px;
+        height: 52px;
+
+        &--play { width: 64px; height: 64px; }
+    }
+
+    .tv-featured .player-controls__bottom,
+    .tv-featured .player-controls__top {
+        padding-left: clamp(28px, 2.4vw, 48px);
+        padding-right: clamp(28px, 2.4vw, 48px);
+    }
+
+    .tv-featured .player-controls__title { font-size: 1.35rem; }
+    .tv-featured .player-live-pill { min-height: 44px; padding-inline: 16px; }
 }
 
 .player-quality-badge {

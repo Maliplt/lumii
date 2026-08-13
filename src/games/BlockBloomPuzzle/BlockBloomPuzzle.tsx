@@ -1011,7 +1011,7 @@ export default function BlockBloomPuzzle() {
     <div className={cx("bb-root", settings.darkMode && "bb-dark", settings.reducedMotion && "bb-reduced")} style={cssVars}>
       {toast && <div className="bb-toast">{toast}</div>}
 
-      {/* ── MENU SCREEN ── */}
+      {/* menü */}
       {screen === "menu" && (
         <div className="bb-screen bb-menu-screen">
           <PixelSparkles />
@@ -1073,7 +1073,7 @@ export default function BlockBloomPuzzle() {
         </div>
       )}
 
-      {/* ── GAME SCREEN ── */}
+      {/* oyun */}
       {screen === "play" && (
         <div className="bb-screen bb-game-screen">
           <header className="bb-game-header">
@@ -1260,7 +1260,7 @@ export default function BlockBloomPuzzle() {
         </div>
       )}
 
-      {/* ── SETTINGS SCREEN ── */}
+      {/* ayarlar */}
       {screen === "settings" && (
         <div className="bb-screen bb-sub-screen">
           <div className="bb-sub-header">
@@ -1311,7 +1311,7 @@ export default function BlockBloomPuzzle() {
         </div>
       )}
 
-      {/* ── STATS SCREEN ── */}
+      {/* istatistikler */}
       {screen === "stats" && (
         <div className="bb-screen bb-sub-screen">
           <div className="bb-sub-header">
@@ -1336,7 +1336,7 @@ export default function BlockBloomPuzzle() {
         </div>
       )}
 
-      {/* ── HOW TO PLAY SCREEN ── */}
+      {/* nasıl oynanır */}
       {screen === "how" && (
         <div className="bb-screen bb-sub-screen">
           <div className="bb-sub-header">

@@ -18,6 +18,7 @@ export default function Header() {
     location.pathname === "/search" &&
     !!new URLSearchParams(location.search).get("q");
   const [showSearch, setShowSearch] = useState(hasQuery);
+  const [searchOriginPath, setSearchOriginPath] = useState(location.pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(() =>
     typeof window === "undefined" ? false : window.scrollY > 30,
@@ -30,10 +31,22 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const searchVisible =
+    showSearch &&
+    (location.pathname === "/search" || location.pathname === searchOriginPath);
+  const toggleSearch = () => {
+    if (searchVisible) {
+      setShowSearch(false);
+      return;
+    }
+    setSearchOriginPath(location.pathname);
+    setShowSearch(true);
+  };
+
   return (
     <>
       <Navbar
-        className={`custom-header${scrolled ? " scrolled" : ""}${showSearch ? " searching" : ""}`}
+        className={`custom-header${scrolled ? " scrolled" : ""}${searchVisible ? " searching" : ""}`}
       >
         <Navbar.Content className="header-left">
           <Navbar.Brand as={Link} to="/" className="header-brand-link">
@@ -44,16 +57,16 @@ export default function Header() {
 
         <SearchBar
           key={`${location.pathname}${location.search}`}
-          open={showSearch}
+          open={searchVisible}
           onClose={() => setShowSearch(false)}
         />
 
         <Navbar.Content className="header-right">
           <div className="header-desktop-actions">
-            {!showSearch && (
+            {!searchVisible && (
               <Button
                 appearance="subtle"
-                onClick={() => setShowSearch(true)}
+                onClick={toggleSearch}
                 className="search-btn"
               >
                 <MotionIcon
@@ -88,7 +101,7 @@ export default function Header() {
             <Button
               appearance="subtle"
               className="search-btn"
-              onClick={() => setShowSearch((p) => !p)}
+              onClick={toggleSearch}
             >
               <MotionIcon
                 name="Search"
@@ -97,6 +110,15 @@ export default function Header() {
                 animation="pop"
               />
             </Button>
+            {!currentUser && (
+              <Button
+                appearance="ghost"
+                className="mobile-login-btn"
+                onClick={() => navigate("/login")}
+              >
+                Giriş Yap
+              </Button>
+            )}
             <button
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

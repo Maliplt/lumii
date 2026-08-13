@@ -5,8 +5,9 @@ import { Play, Info, Film, Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { MediaActionButtons } from "./ContentCarousel";
 import { getImageUrl, genreNames, tmdbApi, formatRuntime, pickTrailer } from "../services/tmdb";
+import { optionalServiceRequest } from "../services/serviceError";
 import { useSwipe, mediaName, mediaYear, popButton, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, upgradeCtaLabel } from "../helpers";
-import { selectAutoplayEnabled, useAppSelector } from "../store/store";
+import { useAppSelector } from "../store/store";
 import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
 
 type HeroItem = Movie | TVShow;
@@ -56,7 +57,6 @@ export default function HeroCarousel({
   const isPausedRef = useRef(false);
   const multi = movies.length > 1;
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
-  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
 
   const {
     ready: heroTrailerReady,
@@ -100,23 +100,22 @@ export default function HeroCarousel({
     }
     let alive = true;
     (async () => {
-      try {
-        const d =
-          mtype === "movie"
-            ? await tmdbApi.getMovieDetail(m.id)
-            : await tmdbApi.getTVShowDetail(m.id);
-        const text =
-          d.media_type === "movie"
-            ? formatRuntime(d.runtime ?? 0)
-            : d.number_of_seasons
-              ? `${d.number_of_seasons} Sezon`
-              : "";
-        heroMetaCache.set(key, text);
-        if (alive) setAutoMeta(text ? [text] : []);
-      } catch {
+      const d = mtype === "movie"
+        ? await optionalServiceRequest(tmdbApi.getMovieDetail(m.id))
+        : await optionalServiceRequest(tmdbApi.getTVShowDetail(m.id));
+      if (!d) {
         heroMetaCache.set(key, "");
         if (alive) setAutoMeta([]);
+        return;
       }
+      const text =
+        d.media_type === "movie"
+          ? formatRuntime(d.runtime ?? 0)
+          : d.number_of_seasons
+            ? `${d.number_of_seasons} Sezon`
+            : "";
+      heroMetaCache.set(key, text);
+      if (alive) setAutoMeta(text ? [text] : []);
     })();
     return () => {
       alive = false;
@@ -167,14 +166,10 @@ export default function HeroCarousel({
         setHeroTrailerKey(inlineTrailerKey);
         return;
       }
-      try {
-        const mtype = "title" in m ? "movie" : "tv";
-        const videos = await tmdbApi.getVideos(mtype, m.id);
-        if (!alive) return;
-        setHeroTrailerKey(pickTrailer(videos.results));
-      } catch {
-        if (alive) setHeroTrailerKey(null);
-      }
+      const mtype = "title" in m ? "movie" : "tv";
+      const videos = await optionalServiceRequest(tmdbApi.getVideos(mtype, m.id));
+      if (!alive) return;
+      setHeroTrailerKey(videos ? pickTrailer(videos.results) : null);
     }, trailerDelayMs);
 
     return () => {
@@ -224,7 +219,12 @@ export default function HeroCarousel({
                 : [];
 
           return (
-            <div key={movie.id} className="hero-slide">
+            <div
+              key={movie.id}
+              className="hero-slide"
+              aria-hidden={index !== activeIndex}
+              inert={index !== activeIndex}
+            >
               <img
                 className="hero-slide__img"
                 src={getImageUrl(movie.backdrop_path, "w1280")}
@@ -264,7 +264,6 @@ export default function HeroCarousel({
               <div className="hero-overlay" />
               <div className="hero-bottom-fade" />
 
-              {/* key degisince hero-info yeniden mount olur, giris animasyonu tekrar oynar */}
               <div
                 className="hero-info"
                 key={index === activeIndex ? `active-${activeIndex}` : `idle-${index}`}
@@ -316,7 +315,7 @@ export default function HeroCarousel({
                       id: movie.id,
                       planId: userPlan,
                       accessLevel,
-                      autoFullscreen: autoplayEnabled,
+                      autoFullscreen: true,
                       title,
                       ...ctaNavState,
                     })}
@@ -338,14 +337,19 @@ export default function HeroCarousel({
                       type="button"
                       className="btn-more-info"
                       onClick={() => onTrailer(movie)}
+                      aria-label="Fragman İzle"
                     >
                       <Film size={20} />
-                      Fragman İzle
+                      <span className="btn-more-info__label">Fragman İzle</span>
                     </button>
                   ) : !hideMoreInfo ? (
-                    <Link to={`/${mtype}/${movie.id}`} className="btn-more-info">
+                    <Link
+                      to={`/${mtype}/${movie.id}`}
+                      className="btn-more-info"
+                      aria-label="Daha Fazla Bilgi"
+                    >
                       <Info size={20} />
-                      Daha Fazla Bilgi
+                      <span className="btn-more-info__label">Daha Fazla Bilgi</span>
                     </Link>
                   ) : null}
                 </div>

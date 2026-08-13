@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Button, Stack } from "rsuite";
 import { ChevronRight, Film, Tv } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
@@ -20,6 +21,30 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const shownProfile = useAppSelector(selectShownProfile);
   const exploreType = new URLSearchParams(location.search).get("type");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRootOverflow = root.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    root.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      root.style.overflow = previousRootOverflow;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -35,7 +60,11 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
 
   return (
     <div className="mobile-nav-overlay" onClick={onClose}>
-      <nav className="mobile-nav-panel" onClick={(e) => e.stopPropagation()}>
+      <nav
+        className="mobile-nav-panel"
+        aria-label="Mobil menü"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mobile-nav-head">
           <Link
             to="/"
@@ -46,6 +75,7 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
             <Logo />
           </Link>
           <button
+            ref={closeButtonRef}
             type="button"
             className="mobile-nav-close"
             onClick={onClose}

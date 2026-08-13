@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../base" as *;
 
-// izleme listesi ve begeni aktif
+// aktif durumlar
 .cc-item__action-btn.outline.active {
     background: #ffffff;
     border-color: #ffffff;

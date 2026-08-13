@@ -60,6 +60,11 @@
     background-color: var(--bg-0);
 }
 
+.notfound-page--standalone {
+    display: flex;
+    min-height: 100dvh;
+}
+
 .notfound-container {
     display: flex;
     flex-direction: column;

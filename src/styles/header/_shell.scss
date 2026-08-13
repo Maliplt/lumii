@@ -38,7 +38,7 @@
         transition: opacity 0.3s var(--ease);
     }
 
-    // cizgi scrollda goster
+    // scroll çizgisi
     &::after {
         content: '';
         position: absolute;

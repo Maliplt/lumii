@@ -59,44 +59,6 @@
         color: var(--text-secondary);
     }
 
-    .site-footer__socials {
-        display: flex;
-        gap: var(--space-3);
-    }
-
-    .site-footer__social {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: var(--radius-pill);
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--text-secondary);
-        @include smooth(transform background-color border-color color box-shadow, var(--dur-fast));
-
-        .site-footer__social-icon {
-            @include smooth(transform);
-        }
-
-        &:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.32);
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: none;
-
-            .site-footer__social-icon {
-                transform: scale(1.1);
-            }
-        }
-
-        &:active {
-            transform: translateY(-2px) scale(0.95);
-        }
-    }
-
     .site-footer__cols {
         display: flex;
         gap: var(--space-12);
@@ -458,7 +420,7 @@
             flex: 1 1 40%;
         }
 
-        // marka bloğunu sıkıştır
+        // mobil marka
         .site-footer__tagline {
             margin: var(--space-2) 0 var(--space-3);
         }
@@ -485,6 +447,13 @@
             flex-direction: column;
             align-items: flex-start;
             gap: var(--space-2);
+        }
+
+        .site-footer__link,
+        .site-footer__legal-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
         }
     }
 }

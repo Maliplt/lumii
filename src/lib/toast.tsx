@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useToaster, Message } from "rsuite";
+import { resolveServiceError } from "../services/serviceError";
 
 type ToastType = "success" | "info" | "warning" | "error";
 
@@ -8,7 +9,7 @@ export const toastText = {
   loginForLike: "İçerikleri beğenmek için önce giriş yapmalısın.",
   watchlistAdded: "İzleme listesine eklendi.",
   watchlistRemoved: "İzleme listesinden çıkarıldı.",
-  liked: "Beğenildi.",
+  liked: "Beğenilen içeriklere eklendi.",
   unliked: "Beğeni geri alındı.",
   profileUpdated: "Profil güncellendi.",
   profileAdded: "Profil eklendi.",
@@ -32,5 +33,19 @@ export function useToast() {
       );
     },
     [toaster],
+  );
+}
+
+export function useServiceErrorToast() {
+  const toast = useToast();
+
+  return useCallback(
+    (error: unknown) => {
+      const failure = resolveServiceError(error, "action");
+      if (failure.surface === "toast") {
+        toast(failure.error.message, "error");
+      }
+    },
+    [toast],
   );
 }

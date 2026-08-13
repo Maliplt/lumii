@@ -1,9 +1,10 @@
 import { useEffect, useState, Suspense } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Navigate, useParams, useNavigate } from "react-router-dom";
 import { Button } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
 import Spinner from "../components/Spinner";
 import { findGame } from "../lib/games";
+import { useTitle } from "../helpers";
 
 function readBestScore(gameId: string): string {
   const game = findGame(gameId);
@@ -30,6 +31,9 @@ export default function PlayGamePage() {
   }, [gameId]);
 
   const game = findGame(gameId);
+  useTitle(game ? `${game.name} Oyunu` : "Oyun");
+
+  if (!game) return <Navigate to="/" replace />;
 
   return (
     <div className="play-game-page">
@@ -53,13 +57,13 @@ export default function PlayGamePage() {
             className="pg-score-icon"
           />
           <span>
-            {game?.scoreLabel ?? "En İyi Skor"}: <strong>{bestScore}</strong>
+            {game.scoreLabel}: <strong>{bestScore}</strong>
           </span>
         </div>
       </header>
       <main className="pg-main-content">
         <Suspense fallback={<Spinner inline />}>
-          {game ? <game.Component /> : <div className="pg-error">Oyun bulunamadı.</div>}
+          <game.Component />
         </Suspense>
       </main>
     </div>

@@ -5,7 +5,11 @@ import { useToast, toastText } from "./toast";
 import type { Movie, TVShow } from "../types/types";
 import { popButton } from "./utils";
 import { safeAuthReturnTo } from "./authRouting";
-import { normalizeServiceError, type ServiceError } from "../services/serviceError";
+import {
+  resolveServiceError,
+  type ServiceError,
+  type ServiceErrorContext,
+} from "../services/serviceError";
 
 // veri isteği
 interface FetchResult<T> {
@@ -18,6 +22,7 @@ interface FetchResult<T> {
 export function useFetch<T>(
   fetcher: () => Promise<T>,
   key: string | number = 0,
+  errorContext: Exclude<ServiceErrorContext, "action"> = "page",
 ) {
   const [result, setResult] = useState<FetchResult<T> | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -37,19 +42,21 @@ export function useFetch<T>(
         if (!cancelled) setResult({ key, attempt, data, error: null });
       })
       .catch((error: unknown) => {
-        if (!cancelled)
+        if (!cancelled) {
+          const failure = resolveServiceError(error, errorContext);
           setResult({
             key,
             attempt,
             data: null,
-            error: normalizeServiceError(error),
+            error: failure.surface === "silent" ? null : failure.error,
           });
+        }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [key, attempt]);
+  }, [key, attempt, errorContext]);
 
   const ready =
     result !== null && result.key === key && result.attempt === attempt;
@@ -140,7 +147,7 @@ export function useLibraryActions(
   return { inWatchlist, isLiked, onWatchlist, onLike };
 }
 
-// youtube embed protokolu
+// youtube
 const YT_PLAYING = 1;
 const YT_ENDED = 0;
 
@@ -233,14 +240,14 @@ export function useLogout() {
 const ROTATE_INTERVAL_MS = 5000;
 const ROTATE_LIMIT = 8;
 
-// login/register arka planindaki donen film galerisi
+// giriş arka planı
 export function useRotatingBackdrop(
   fetcher: () => Promise<{ results: Movie[] }>,
   intervalMs = ROTATE_INTERVAL_MS,
   limit = ROTATE_LIMIT,
 ) {
   const [bgIdx, setBgIdx] = useState(0);
-  const { data } = useFetch(fetcher);
+  const { data } = useFetch(fetcher, "rotating-backdrop", "enhancement");
 
   const movies = useMemo(
     () =>
@@ -286,7 +293,7 @@ export function useLazyReveal(total: number, initial = 3, step = 2) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const safeVisible = Math.min(visible, total);
 
-  // veri sonradan gelirse ilk grubu göster
+    // ilk grup
   useEffect(() => {
     if (total > 0 && visible === 0) {
       const id = window.setTimeout(() => {

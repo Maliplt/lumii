@@ -4,8 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Lock, Star } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 import { getImageUrl, tmdbApi, pickTrailer, genreNames, formatRuntime } from "../services/tmdb";
+import { optionalServiceRequest } from "../services/serviceError";
 import { useSwipe, mediaName, mediaYear, useLibraryActions, popButton, formatTime, useYouTubeEmbed, buildYoutubeEmbedUrl, canUseLevel, contentAccessLevel, navigateToPlayback, requiredPlanName, upgradeCtaLabel } from "../helpers";
-import { useAppSelector, selectAutoplayEnabled, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
+import { useAppSelector, resumeLabel, canResumeProgress, type SavedItem } from "../store/store";
 import type { ContentAccessLevel, Movie, TVShow } from "../types/types";
 import type { SpotlightTheme } from "../data/spotlightCarousels";
 
@@ -15,10 +16,12 @@ export function MediaActionButtons({
   item,
   type,
   className = "",
+  tabIndex,
 }: {
   item: Movie | TVShow | SavedItem;
   type: "movie" | "tv";
   className?: string;
+  tabIndex?: number;
 }) {
   const lib = useLibraryActions(item, type);
   const watchlistLabel = lib.inWatchlist ? "Listeden çıkar" : "Listeye ekle";
@@ -30,6 +33,7 @@ export function MediaActionButtons({
         className={`cc-item__action-btn outline cc-item__watchlist ${className}${lib.inWatchlist ? " active" : ""}`}
         type="button"
         onClick={lib.onWatchlist}
+        tabIndex={tabIndex}
         aria-label={watchlistLabel}
         data-action-label={watchlistLabel}
       >
@@ -44,6 +48,7 @@ export function MediaActionButtons({
         className={`cc-item__action-btn outline cc-item__like ${className}${lib.isLiked ? " active" : ""}`}
         type="button"
         onClick={lib.onLike}
+        tabIndex={tabIndex}
         aria-label={likeLabel}
         data-action-label={likeLabel}
       >
@@ -129,7 +134,6 @@ const ItemCard = memo(function ItemCard({
 
   const cardType = (item as SavedItem).media_type ?? type;
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
-  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const requiredLevel = contentAccessLevel(cardType, item.id, accessLevel);
   const locked = !canUseLevel(userPlan, requiredLevel);
   const previewsEnabled = useAppSelector((s) => s.settings.previews);
@@ -145,7 +149,7 @@ const ItemCard = memo(function ItemCard({
       : seasons > 0
         ? `${seasons} Sezon`
         : "";
-  // fragman yükle
+  // fragman
   useEffect(() => {
     if (!open) return;
     const key = `${cardType}-${item.id}`;
@@ -159,11 +163,10 @@ const ItemCard = memo(function ItemCard({
       return;
     }
     let cancelled = false;
-    tmdbApi
-      .getVideos(cardType, item.id)
+    optionalServiceRequest(tmdbApi.getVideos(cardType, item.id))
       .then((videos) => {
         const detail = {
-          trailer: pickTrailer(videos.results ?? []),
+          trailer: videos ? pickTrailer(videos.results ?? []) : null,
           runtime: 0,
           seasons: 0,
         };
@@ -172,9 +175,6 @@ const ItemCard = memo(function ItemCard({
         setTrailerKey(detail.trailer);
         setRuntime(detail.runtime);
         setSeasons(detail.seasons);
-      })
-      .catch(() => {
-        detailCache.set(key, { trailer: null, runtime: 0, seasons: 0 });
       });
     return () => {
       cancelled = true;
@@ -332,19 +332,20 @@ const ItemCard = memo(function ItemCard({
                     id: item.id,
                     planId: userPlan,
                     accessLevel,
-                    autoFullscreen: autoplayEnabled,
+                    autoFullscreen: true,
                     ...playerState,
                   });
                 }}
                 aria-label={visibleActionLabel}
                 data-action-label={visibleActionLabel}
+                tabIndex={open ? 0 : -1}
               >
                 <MotionIcon name={locked ? "Lock" : "Play"} size={18} trigger="click" animation="nudge" />
                 {isResumeAction && (
                   <span className="cc-item__action-text">{visibleActionLabel}</span>
                 )}
               </button>
-              <MediaActionButtons item={item} type={cardType} />
+              <MediaActionButtons item={item} type={cardType} tabIndex={open ? 0 : -1} />
             </div>
           </div>
           <h4 className="cc-item__name">{name}</h4>
@@ -471,7 +472,7 @@ export default function ContentCarousel({
                 <span
                   key={i}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={i === current ? 0 : -1}
                   className={`cc-indicator-dot ${i === current ? "active" : ""}`}
                   aria-label={`Slayt ${i + 1}`}
                   aria-current={i === current ? true : undefined}
@@ -512,7 +513,12 @@ export default function ContentCarousel({
 
           <Carousel placement="bottom" activeIndex={current} onSelect={setPage}>
             {pages.map((slide, si) => (
-              <div key={si} className="cc-slide">
+              <div
+                key={si}
+                className="cc-slide"
+                aria-hidden={si !== current}
+                inert={si !== current}
+              >
                 {slide.map((it) => (
                   <ItemCard key={`${type}-${it.id}`} item={it} type={type} accessLevel={accessLevel} />
                 ))}

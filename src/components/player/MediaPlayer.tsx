@@ -4,6 +4,7 @@ import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward } fro
 import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
 import { usePlayerChrome } from "./usePlayerChrome";
 import ServiceErrorView from "../ServiceErrorView";
+import Spinner from "../Spinner";
 import { playbackError } from "../../services/serviceError";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
 
@@ -32,6 +33,8 @@ interface MediaPlayerProps {
   onBack?: () => void;
   onUpgrade?: () => void;
   onProgress?: (position: number, duration: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
   className?: string;
 }
 
@@ -47,6 +50,8 @@ export default function MediaPlayer({
   onBack,
   onUpgrade,
   onProgress,
+  onPrevious,
+  onNext,
   className = "",
 }: MediaPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -337,12 +342,14 @@ export default function MediaPlayer({
           break;
         case "ArrowLeft":
           e.preventDefault();
-          skip(-10);
+          if (live && onPrevious) onPrevious();
+          else skip(-10);
           showControlsNow();
           break;
         case "ArrowRight":
           e.preventDefault();
-          skip(10);
+          if (live && onNext) onNext();
+          else skip(10);
           showControlsNow();
           break;
         case "ArrowUp":
@@ -368,7 +375,7 @@ export default function MediaPlayer({
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [togglePlay, showControlsNow, toggleFullscreen]);
+  }, [live, onNext, onPrevious, togglePlay, showControlsNow, toggleFullscreen]);
 
   const currentLevelInfo =
     currentLevel >= 0 && levels[currentLevel]
@@ -380,6 +387,8 @@ export default function MediaPlayer({
       ref={containerRef}
       className={`player-container ${className}`.trim()}
       onMouseMove={showControlsNow}
+      onTouchStart={showControlsNow}
+      onFocusCapture={showControlsNow}
       style={{ cursor: controlsVisible ? "default" : "none" }}
     >
       <video
@@ -399,8 +408,12 @@ export default function MediaPlayer({
       />
 
       {!streamReady && !streamError && (
-        <div className="player-loading">
-          <img src={tenetLogo} alt="" className="player-loading__logo" />
+        <div className={`player-loading${live ? " player-loading--live" : ""}`}>
+          {live ? (
+            <img src={tenetLogo} alt="" className="player-loading__logo" aria-hidden="true" />
+          ) : (
+            <Spinner variant="player" />
+          )}
         </div>
       )}
 
@@ -416,7 +429,8 @@ export default function MediaPlayer({
         </div>
       )}
 
-      <div className={`player-controls${controlsVisible ? " visible" : ""}`}>
+      {streamReady && (
+        <div className={`player-controls${controlsVisible ? " visible" : ""}`}>
         <div className="player-controls__top">
           {onBack && (
             <button
@@ -456,6 +470,16 @@ export default function MediaPlayer({
 
           <div className="player-controls__row">
             <div className="player-controls__left">
+              {live && onPrevious && (
+                <button
+                  className="player-btn player-btn--channel"
+                  onClick={onPrevious}
+                  aria-label="Önceki kanal"
+                  title="Önceki kanal"
+                >
+                  <SkipBack size={21} />
+                </button>
+              )}
               {!live && (
                 <button
                   className="player-btn"
@@ -494,6 +518,16 @@ export default function MediaPlayer({
                 muteButtonLabel="Ses"
                 sliderLabel="Ses seviyesi"
               />
+              {live && onNext && (
+                <button
+                  className="player-btn player-btn--channel"
+                  onClick={onNext}
+                  aria-label="Sonraki kanal"
+                  title="Sonraki kanal"
+                >
+                  <SkipForward size={21} />
+                </button>
+              )}
             </div>
 
             <div className="player-controls__right">
@@ -545,14 +579,15 @@ export default function MediaPlayer({
               <button
                 className="player-btn"
                 onClick={toggleFullscreen}
-                aria-label="Tam ekran"
+                aria-label={fullscreen ? "Ekranı küçült" : "Ekranı büyüt"}
               >
                 {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
               </button>
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

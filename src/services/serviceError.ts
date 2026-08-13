@@ -11,6 +11,21 @@ export type ServiceErrorCode =
   | "playback"
   | "unknown";
 
+export type ServiceErrorContext =
+  | "page"
+  | "section"
+  | "action"
+  | "enhancement";
+
+type ServiceErrorSurface = "screen" | "toast" | "silent";
+
+const SERVICE_ERROR_POLICY: Record<ServiceErrorContext, ServiceErrorSurface> = {
+  page: "screen",
+  section: "screen",
+  action: "toast",
+  enhancement: "silent",
+};
+
 interface ServiceErrorOptions {
   status?: number;
   cause?: unknown;
@@ -32,7 +47,7 @@ export class ServiceError extends Error {
   }
 }
 
-export interface ServiceErrorPresentation {
+interface ServiceErrorPresentation {
   title: string;
   message: string;
   retryable: boolean;
@@ -42,7 +57,7 @@ const ERROR_PRESENTATIONS: Record<ServiceErrorCode, ServiceErrorPresentation> = 
   configuration: {
     title: "İçerikler şu anda kullanılamıyor",
     message: "İçerik kataloğuna şu anda erişemiyoruz. Lütfen daha sonra yeniden deneyin.",
-    retryable: true,
+    retryable: false,
   },
   unauthorized: {
     title: "İçerik servisine erişilemiyor",
@@ -50,8 +65,8 @@ const ERROR_PRESENTATIONS: Record<ServiceErrorCode, ServiceErrorPresentation> = 
     retryable: true,
   },
   "not-found": {
-    title: "Bu içerik bulunamadı",
-    message: "İçerik kaldırılmış, taşınmış veya artık erişime açık olmayabilir.",
+    title: "Aradığınız içeriğe şu anda ulaşamıyoruz",
+    message: "İçerik kaldırılmış, taşınmış veya artık yayında olmayabilir.",
     retryable: false,
   },
   request: {
@@ -96,6 +111,28 @@ export function serviceErrorMessage(code: ServiceErrorCode): string {
   return ERROR_PRESENTATIONS[code].message;
 }
 
+function serviceErrorSurface(
+  context: ServiceErrorContext,
+): ServiceErrorSurface {
+  return SERVICE_ERROR_POLICY[context];
+}
+
+const ERROR_STATUS: Record<ServiceErrorCode, number> = {
+  configuration: 503,
+  unauthorized: 401,
+  "not-found": 404,
+  request: 400,
+  "rate-limit": 429,
+  network: 503,
+  server: 500,
+  playback: 502,
+  unknown: 500,
+};
+
+export function serviceErrorStatus(error: ServiceError): number {
+  return error.status ?? ERROR_STATUS[error.code];
+}
+
 export function normalizeServiceError(error: unknown): ServiceError {
   if (error instanceof ServiceError) return error;
 
@@ -136,7 +173,64 @@ export function normalizeServiceError(error: unknown): ServiceError {
     }
   }
 
+  if (error instanceof Error) {
+    const value = error as Error & { status?: number; statusCode?: number };
+    const status = value.status ?? value.statusCode;
+    if (status === 404) {
+      return new ServiceError("not-found", serviceErrorMessage("not-found"), {
+        status,
+        cause: error,
+      });
+    }
+    if (status === 401 || status === 403) {
+      return new ServiceError("unauthorized", serviceErrorMessage("unauthorized"), {
+        status,
+        cause: error,
+      });
+    }
+    if (status === 429) {
+      return new ServiceError("rate-limit", serviceErrorMessage("rate-limit"), {
+        status,
+        cause: error,
+      });
+    }
+    if (status != null && status >= 500) {
+      return new ServiceError("server", serviceErrorMessage("server"), {
+        status,
+        cause: error,
+      });
+    }
+    if (status != null && status >= 400) {
+      return new ServiceError("request", serviceErrorMessage("request"), {
+        status,
+        cause: error,
+      });
+    }
+  }
+
   return new ServiceError("unknown", serviceErrorMessage("unknown"), { cause: error });
+}
+
+export function resolveServiceError(
+  error: unknown,
+  context: ServiceErrorContext,
+) {
+  return {
+    error: normalizeServiceError(error),
+    surface: serviceErrorSurface(context),
+  };
+}
+
+export async function optionalServiceRequest<T>(
+  request: Promise<T>,
+): Promise<T | null> {
+  try {
+    return await request;
+  } catch (error) {
+    const failure = resolveServiceError(error, "enhancement");
+    if (failure.surface !== "silent") throw failure.error;
+    return null;
+  }
 }
 
 export function playbackError(cause?: unknown): ServiceError {

@@ -102,7 +102,7 @@
         background: #000;
     }
 
-    // youtube detaylarini gizle
+    // youtube gizleme
     &::before {
         top: 0;
         height: clamp(54px, 24%, 108px);
@@ -113,7 +113,7 @@
         height: clamp(58px, 23%, 112px);
     }
 
-    // hover ortasinda oynat gizli
+    // hover oynat
     iframe {
         position: absolute;
         top: 50%;
@@ -168,7 +168,7 @@
     animation: iconPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-// izleme ilerleme cubugu
+// izleme ilerlemesi
 .cc-progress-bar {
     position: absolute;
     bottom: 0;
@@ -238,7 +238,7 @@
     .cc-item__actions-row:hover,
     .cc-item__actions-row:focus-within {
         opacity: 1;
-        // hover edilince hemen geri gelsin
+        // hover dönüşü
         transition: opacity 0.18s ease;
     }
 }

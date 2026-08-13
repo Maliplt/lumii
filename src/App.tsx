@@ -1,26 +1,25 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import Spinner from "./components/Spinner";
 import RootLayout from "./components/RootLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PlayerPage from "./pages/PlayerPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExplorePage = lazy(() => import("./pages/ExplorePage"));
 const PlayGamePage = lazy(() => import("./pages/PlayGamePage"));
 const OverviewPage = lazy(() => import("./pages/OverviewPage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
-const WorkInProgressPage = lazy(() => import("./pages/WorkInProgressPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const ProfilesPage = lazy(() => import("./pages/ProfilesPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const PackagesPage = lazy(() => import("./pages/PackagesPage"));
-const PlayerPage = lazy(() => import("./pages/PlayerPage"));
 const TvPage = lazy(() => import("./pages/TvPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,9 +49,9 @@ function AppRoutes() {
               <Route path="/account" element={<AccountPage />} />
               <Route path="/checkout/:planId" element={<CheckoutPage />} />
             </Route>
-            <Route path="/work-in-progress" element={<WorkInProgressPage />} />
+            <Route path="/404" element={<NotFoundPage />} />
             <Route path="/:type/:id" element={<OverviewPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
 
           <Route path="/login" element={<LoginPage />} />

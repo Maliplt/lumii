@@ -3,18 +3,31 @@ import { Button } from "rsuite";
 import { MotionIcon } from "motion-icons-react";
 import { MonitorX } from "lucide-react";
 import PageLayout from "../components/PageLayout";
+import { useTitle } from "../helpers";
 
-export default function NotFoundPage() {
+interface NotFoundPageProps {
+  title?: string;
+  description?: string;
+  standalone?: boolean;
+}
+
+export default function NotFoundPage({
+  title = "Aradığınız içeriğe şu anda ulaşamıyoruz",
+  description = "İçerik kaldırılmış, taşınmış veya artık yayında olmayabilir.",
+  standalone = false,
+}: NotFoundPageProps) {
   const navigate = useNavigate();
+  useTitle("İçerik Bulunamadı");
 
   return (
-    <PageLayout className="notfound-page" mainClassName="notfound-container">
+    <PageLayout
+      className={`notfound-page${standalone ? " notfound-page--standalone" : ""}`}
+      mainClassName="notfound-container"
+    >
       <MonitorX className="notfound-broken" size={28} strokeWidth={1.5} aria-hidden="true" />
       <p className="notfound-code">404</p>
-      <h1 className="notfound-title">Sayfa bulunamadı</h1>
-      <p className="notfound-desc">
-        Aradığın sayfa taşınmış veya hiç var olmamış olabilir.
-      </p>
+      <h1 className="notfound-title">{title}</h1>
+      <p className="notfound-desc">{description}</p>
       <div className="notfound-actions">
         <Button className="btn-play" size="lg" onClick={() => navigate("/")}>
           <MotionIcon
@@ -24,7 +37,7 @@ export default function NotFoundPage() {
             animation="nudge"
             className="notfound-icon"
           />
-          Ana Sayfa
+          Ana Sayfaya Dön
         </Button>
         <Button
           className="btn-secondary"
@@ -39,7 +52,7 @@ export default function NotFoundPage() {
             animation="nudge"
             className="notfound-icon"
           />
-          Geri Dön
+          Önceki Sayfa
         </Button>
       </div>
     </PageLayout>

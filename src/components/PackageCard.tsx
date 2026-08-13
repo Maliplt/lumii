@@ -1,8 +1,6 @@
-import { useEffect, useRef } from "react";
 import { Button } from "rsuite";
 import { Check } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
-import { animate } from "animejs";
 import type { PackageDef } from "../types/types";
 
 function packageSpecs(pkg: PackageDef) {
@@ -17,35 +15,19 @@ function packageSpecs(pkg: PackageDef) {
 interface PackageCardProps {
   pkg: PackageDef;
   isActive: boolean;
-  index?: number;
   onSelect: (pkg: PackageDef) => void;
 }
 
 export default function PackageCard({
   pkg,
   isActive,
-  index = 0,
   onSelect,
 }: PackageCardProps) {
   const specs = packageSpecs(pkg);
-  const cardRef = useRef<HTMLDivElement>(null);
-  // giriş animasyonu
-  useEffect(() => {
-    if (!cardRef.current) return;
-    animate(cardRef.current, {
-      opacity: [0, 1],
-      translateY: [32, 0],
-      duration: 480,
-      easing: "easeOutQuart",
-      delay: 160 + index * 100,
-    });
-  }, [index]);
 
   return (
     <div
-      ref={cardRef}
       className={`package-card${isActive ? " package-card--active" : ""}`}
-      style={{ opacity: 0 }}
     >
       <div className="package-card__top">
         <div className="package-card__header">

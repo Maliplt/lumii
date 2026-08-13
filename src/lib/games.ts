@@ -19,7 +19,7 @@ export interface GameDef {
   Component: LazyExoticComponent<ComponentType>;
 }
 
-// tum oyunlarin tek kaynagi - GameCarousel ve PlayGamePage buradan okur
+// oyun listesi
 export const GAMES: GameDef[] = [
   {
     id: "2048",

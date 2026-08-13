@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 // ayarlar
 export interface SettingsState {
@@ -18,14 +18,5 @@ export const settingsInitial: SettingsState = {
 export const settings = createSlice({
   name: "settings",
   initialState: settingsInitial,
-  reducers: {
-    setSetting(
-      state,
-      action: PayloadAction<{ key: keyof SettingsState; value: boolean }>,
-    ) {
-      state[action.payload.key] = action.payload.value;
-    },
-  },
+  reducers: {},
 });
-
-export const { setSetting } = settings.actions;

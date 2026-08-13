@@ -111,9 +111,6 @@ export interface TVShowDetail extends TVShow {
   videos?: VideosResponse;
 }
 
-// film ve dizi detayini media_type alanina gore ayirt eden birlesim tipi
-export type ContentDetail = MovieDetail | TVShowDetail;
-
 export interface Episode {
   id: number;
   name: string;

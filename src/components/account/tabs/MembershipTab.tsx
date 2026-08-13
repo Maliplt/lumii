@@ -41,6 +41,12 @@ export default function MembershipTab({
           />
           <SummaryRow label="Üyelik başlangıcı" value={user.createdAt ?? "Bugün"} />
           <SummaryRow label="Sonraki yenileme" value={renewal} />
+          {user.pendingPlanChange && (
+            <SummaryRow
+              label="Plan değişikliği"
+              value={`${user.pendingPlanChange.planName} · ${new Date(user.pendingPlanChange.effectiveAt).toLocaleDateString("tr-TR")} tarihinde`}
+            />
+          )}
           <SummaryRow label="Görüntü kalitesi" value={plan.quality ?? "SD 480p"} />
           <SummaryRow label="Eş zamanlı ekran" value={plan.screens ?? "1 ekran"} />
         </SummaryBlock>

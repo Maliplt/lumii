@@ -119,4 +119,21 @@
     to { opacity: 0; transform: translateY(-6px) scaleX(0.92); }
 }
 
+@media (max-width: 480px) {
+    .custom-header.searching .search-box {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        width: auto;
+        margin: 0;
+        flex: none;
+    }
+
+    .search-box__clear,
+    .search-box__close {
+        width: 36px;
+        height: 36px;
+    }
+}
+
 // arama kutusu hizalama

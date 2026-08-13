@@ -49,6 +49,18 @@ export default function TvPage() {
 
   const hasResults = groups.length > 0;
 
+  const switchChannel = (direction: -1 | 1) => {
+    const currentIndex = CHANNELS.findIndex((channel) => channel.id === selected.id);
+    const nextIndex = (currentIndex + direction + CHANNELS.length) % CHANNELS.length;
+    const nextChannel = CHANNELS[nextIndex];
+    if (!canAccessChannel(userPlan, nextIndex, nextChannel.category)) {
+      setLockedChannel(nextChannel);
+      return;
+    }
+    setLockedChannel(null);
+    setSelected(nextChannel);
+  };
+
   return (
     <PageLayout className="tv-page" mainClassName="tv-main">
       <div className="tv-layout">
@@ -127,6 +139,8 @@ export default function TvPage() {
             className="tv-featured__player"
             maxVideoHeight={plan.capabilities.maxVideoHeight}
             qualityLabel={plan.quality}
+            onPrevious={() => switchChannel(-1)}
+            onNext={() => switchChannel(1)}
           />
           {lockedChannel && (
             <div className="tv-access-gate" role="status">

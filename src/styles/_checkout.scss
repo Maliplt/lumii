@@ -353,6 +353,99 @@
     min-height: 340px;
 }
 
+.checkout-plan-change {
+    max-width: 560px;
+    text-align: center;
+
+    &__icon {
+        display: inline-grid;
+        place-items: center;
+        width: 58px;
+        height: 58px;
+        border: 1px solid rgba($brand, 0.5);
+        border-radius: var(--radius-2);
+        color: var(--accent);
+        background: rgba($brand, 0.12);
+    }
+
+    &__eyebrow {
+        margin: var(--space-3) 0 4px;
+        color: var(--accent);
+        font-size: var(--fs-xs);
+        font-weight: 850;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    h1 { margin: 0; color: #fff; font-size: clamp(1.7rem, 4vw, 2.2rem); }
+
+    &__route {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-3);
+        margin: var(--space-5) 0;
+        padding: var(--space-4);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-1);
+        color: #fff;
+        background: rgba(255, 255, 255, 0.045);
+
+        svg { color: var(--accent); }
+    }
+
+    &__notice {
+        margin: 0 0 var(--space-4);
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.65;
+
+        strong { color: #fff; }
+    }
+
+    &__payment {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: var(--radius-1);
+        color: rgba(255, 255, 255, 0.76);
+        background: rgba(255, 255, 255, 0.035);
+        text-align: left;
+
+        svg { flex: 0 0 auto; color: var(--accent); }
+    }
+
+    ul {
+        display: grid;
+        gap: 8px;
+        margin: var(--space-4) 0 var(--space-5);
+        padding: 0;
+        list-style: none;
+        text-align: left;
+        color: rgba(255, 255, 255, 0.86);
+
+        li { display: flex; align-items: flex-start; gap: 8px; }
+        svg { flex: 0 0 auto; margin-top: 2px; color: var(--accent); }
+    }
+
+    &__actions {
+        display: grid;
+        gap: 10px;
+
+        .rs-btn { min-height: 50px; font-weight: 850; }
+
+        .rs-btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.82);
+            border-color: var(--border-default);
+        }
+    }
+}
+
 .checkout-success {
     display: flex;
     flex-direction: column;

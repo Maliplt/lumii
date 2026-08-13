@@ -126,5 +126,149 @@
     "category": "Sinema",
     "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/FX_International_logo.svg/960px-FX_International_logo.svg.png",
     "url": "https://saran-live.ercdn.net/fx/index.m3u8"
+  },
+  {
+    "id": "kanal7",
+    "name": "Kanal 7",
+    "short": "K7",
+    "category": "Genel",
+    "logo": "https://i.imgur.com/0gq9xOm.png",
+    "url": "https://kanal7-live.daioncdn.net/kanal7/kanal7.m3u8"
+  },
+  {
+    "id": "halktv",
+    "name": "Halk TV",
+    "short": "HALK",
+    "category": "Haber",
+    "logo": "https://i.imgur.com/xM0HA30.png",
+    "url": "https://halktv-live.daioncdn.net/halktv/halktv.m3u8"
+  },
+  {
+    "id": "tgrthaber",
+    "name": "TGRT Haber",
+    "short": "TGRT",
+    "category": "Haber",
+    "logo": "https://i.imgur.com/PrxwKDw.png",
+    "url": "https://canli.tgrthaber.com/tgrt.m3u8"
+  },
+  {
+    "id": "trthaber",
+    "name": "TRT Haber",
+    "short": "TRTH",
+    "category": "Haber",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/TRT_Haber_Eyl%C3%BCl_2020_Logo.svg/960px-TRT_Haber_Eyl%C3%BCl_2020_Logo.svg.png",
+    "url": "https://tv-trthaber.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "tv24",
+    "name": "24 TV",
+    "short": "24",
+    "category": "Haber",
+    "logo": "https://i.imgur.com/8FO41es.png",
+    "url": "https://turkmedya-live.ercdn.net/tv24/tv24.m3u8"
+  },
+  {
+    "id": "tvnet",
+    "name": "TVNET",
+    "short": "TVN",
+    "category": "Haber",
+    "logo": "https://i.imgur.com/mQo8yWQ.png",
+    "url": "https://tvnet-live.lg.mncdn.com/tvnet/tvnet/playlist.m3u8"
+  },
+  {
+    "id": "tjktv",
+    "name": "TJK TV",
+    "short": "TJK",
+    "category": "Spor",
+    "logo": "https://i.imgur.com/3zHdkYG.png",
+    "url": "https://tjktv-live.tjk.org/tjktv.m3u8"
+  },
+  {
+    "id": "trt3",
+    "name": "TRT 3",
+    "short": "TRT3",
+    "category": "Spor",
+    "logo": "https://i.imgur.com/JrWFwBd.png",
+    "url": "https://tv-trt3.live.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "trt2",
+    "name": "TRT 2",
+    "short": "TRT2",
+    "category": "Kültür",
+    "logo": "https://i.imgur.com/iOCQdyD.png",
+    "url": "https://tv-trt2.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "trtbelgesel",
+    "name": "TRT Belgesel",
+    "short": "TRTB",
+    "category": "Belgesel",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/TRT_Belgesel_logo_%282019-%29.svg/960px-TRT_Belgesel_logo_%282019-%29.svg.png",
+    "url": "https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "trtdiyanetcocuk",
+    "name": "TRT Diyanet Çocuk",
+    "short": "TDC",
+    "category": "Çocuk",
+    "logo": "https://i.imgur.com/8PmXz9t.png",
+    "url": "https://tv-trtdiyanetcocuk.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "kralpop",
+    "name": "Kral Pop TV",
+    "short": "KRAL",
+    "category": "Müzik",
+    "logo": "https://i.imgur.com/ch365lh.png",
+    "url": "https://dogus-live.daioncdn.net/kralpoptv/playlist.m3u8"
+  },
+  {
+    "id": "powerturk",
+    "name": "PowerTürk TV",
+    "short": "PWT",
+    "category": "Müzik",
+    "logo": "https://i.imgur.com/9OPoXQG.png",
+    "url": "https://livetv.powerapp.com.tr/powerturkTV/powerturkhd.smil/playlist.m3u8"
+  },
+  {
+    "id": "trtmuzik",
+    "name": "TRT Müzik",
+    "short": "TRTM",
+    "category": "Müzik",
+    "logo": "https://i.imgur.com/JgUzRH8.png",
+    "url": "https://tv-trtmuzik.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "diyanettv",
+    "name": "Diyanet TV",
+    "short": "DYN",
+    "category": "Yaşam",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Diyanet_TV_logo.svg/960px-Diyanet_TV_logo.svg.png",
+    "url": "https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95a47e07.smil/playlist.m3u8"
+  },
+  {
+    "id": "trtavaz",
+    "name": "TRT Avaz",
+    "short": "AVAZ",
+    "category": "Uluslararası",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/TRT_Avaz_logo.svg/960px-TRT_Avaz_logo.svg.png",
+    "url": "https://tv-trtavaz.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "trtturk",
+    "name": "TRT Türk",
+    "short": "TRTT",
+    "category": "Uluslararası",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/TRT_T%C3%BCrk_logo.svg/960px-TRT_T%C3%BCrk_logo.svg.png",
+    "url": "https://tv-trtturk.medya.trt.com.tr/master.m3u8"
+  },
+  {
+    "id": "trtkurdi",
+    "name": "TRT Kurdî",
+    "short": "TRTK",
+    "category": "Uluslararası",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/TRT_Kurd%C3%AE_logo.svg/960px-TRT_Kurd%C3%AE_logo.svg.png",
+    "url": "https://tv-trtkurdi.medya.trt.com.tr/master.m3u8"
   }
 ]

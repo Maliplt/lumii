@@ -3,15 +3,29 @@ import { useSearchParams } from "react-router-dom";
 import { SearchX, Search as SearchIcon } from "lucide-react";
 import PageLayout from "../components/PageLayout";
 import ContentCarousel from "../components/ContentCarousel";
+import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
 import Spinner from "../components/Spinner";
 import StateView from "../components/StateView";
 import ServiceErrorView from "../components/ServiceErrorView";
 import { tmdbApi } from "../services/tmdb";
 import { isPlayableSearchResult, useFetch, useTitle } from "../helpers";
+import { contentAudienceKey } from "../lib/contentPersonalization";
+import { searchSpotlightDefinitions } from "../services/spotlightCarousels";
+import { useAppSelector } from "../store/store";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") ?? "").trim();
+  const userEmail = useAppSelector((state) => state.auth.currentUser?.email);
+  const activeProfileId = useAppSelector((state) => state.auth.activeProfileId);
+  const audienceKey = useMemo(
+    () => contentAudienceKey(userEmail, activeProfileId),
+    [activeProfileId, userEmail],
+  );
+  const spotlightResults = useMemo(
+    () => searchSpotlightDefinitions(query, audienceKey),
+    [audienceKey, query],
+  );
   useTitle(query ? `"${query}" araması` : "Arama");
 
   const { data, loading, error, retry } = useFetch(
@@ -19,7 +33,7 @@ export default function SearchPage() {
     query,
   );
 
-  // oynatilabilir sonuclar
+  // sonuçlar
   const allResults = useMemo(
     () => (data?.results ?? []).filter(isPlayableSearchResult),
     [data],
@@ -54,17 +68,24 @@ export default function SearchPage() {
         />
       );
     }
-    if (allResults.length === 0) {
+    if (allResults.length === 0 && spotlightResults.length === 0) {
       return (
         <StateView
           Icon={SearchX}
           title={`"${query}" için sonuç bulunamadı`}
-          description="Farklı bir başlık veya anahtar kelime ile tekrar deneyin."
+          description="Farklı bir film veya dizi adıyla tekrar deneyin."
         />
       );
     }
     return (
       <div className="search-rows">
+        {spotlightResults.map((definition) => (
+          <SpotlightContentCarousel
+            key={definition.id}
+            definition={definition}
+            audienceKey={audienceKey}
+          />
+        ))}
         {movieResults.length > 0 && (
           <ContentCarousel
             type="movie"
@@ -81,7 +102,7 @@ export default function SearchPage() {
 
   return (
     <PageLayout className="search-page" mainClassName="search-main">
-      {query && !loading && allResults.length > 0 && (
+      {query && !loading && !error && (allResults.length > 0 || spotlightResults.length > 0) && (
         <div className="search-head">
           <h2 className="search-head__title">
             <span className="search-head__query">"{query}"</span> için sonuçlar

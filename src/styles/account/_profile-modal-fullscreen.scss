@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../base" as *;
 
-// tam ekran modal
+// profil modalı
 .profile-edit-modal--full .rs-modal-content {
     max-height: calc(100vh - 32px);
     overflow: hidden;

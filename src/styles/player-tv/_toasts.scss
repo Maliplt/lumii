@@ -135,3 +135,22 @@
         font-family: var(--font-display) !important;
     }
 }
+
+@media (max-width: 480px) {
+    .rs-toast-container {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+    }
+
+    .rs-toast,
+    .rs-message {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .rs-message .rs-message-container {
+        padding: var(--space-3) var(--space-4) !important;
+    }
+}

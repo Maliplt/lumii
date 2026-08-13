@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
@@ -9,10 +9,18 @@ import CategoryDropdown from "../components/CategoryDropdown";
 import { MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
 import { getSpotlightDefinitions } from "../services/spotlightCarousels";
 import { interleaveEvenly } from "../lib/utils";
+import { contentAudienceKey } from "../lib/contentPersonalization";
 import { useFetch, useTitle, useLazyReveal } from "../helpers";
+import { useAppSelector } from "../store/store";
 
 export default function ExplorePage() {
   const [searchParams] = useSearchParams();
+  const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
+  const userEmail = useAppSelector((s) => s.auth.currentUser?.email);
+  const audienceKey = useMemo(
+    () => contentAudienceKey(userEmail, activeProfileId),
+    [activeProfileId, userEmail],
+  );
   const type: MediaType = searchParams.get("type") === "tv" ? "tv" : "movie";
   const [catByType, setCatByType] = useState<Record<MediaType, string>>({
     movie: "all",
@@ -34,6 +42,7 @@ export default function ExplorePage() {
         ? Promise.resolve([])
         : loadCategory(type, activeCat.genre, activeCat.label),
     `${type}-${cat}`,
+    "section",
   );
   const liveRows: Section[] | null =
     cat === "all" ? (base.data?.rows ?? null) : catFetch.data;
@@ -56,10 +65,14 @@ export default function ExplorePage() {
       />
     ));
 
-  const spotlightCards = getSpotlightDefinitions("explore").map((definition) => (
-    <SpotlightContentCarousel key={definition.id} definition={definition} />
+  const spotlightCards = getSpotlightDefinitions("explore", audienceKey, type).map((definition) => (
+    <SpotlightContentCarousel
+      key={definition.id}
+      definition={definition}
+      audienceKey={audienceKey}
+    />
   ));
-  const cards = type === "movie" && cat === "all"
+  const cards = cat === "all"
     ? interleaveEvenly(standardCards, spotlightCards)
     : standardCards;
 
@@ -84,6 +97,7 @@ export default function ExplorePage() {
                 <ServiceErrorView
                   error={catError}
                   title="Kategori yüklenemedi"
+                  context="section"
                   onRetry={catFetch.retry}
                 />
               ) : (

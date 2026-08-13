@@ -22,7 +22,7 @@ function loadState(): PersistedState | undefined {
       settings?: SettingsState & { autoplay?: boolean };
     };
 
-    // eski autoplay ayarini profillere tasi
+    // autoplay geçişi
     const legacyAutoplay = parsed.settings?.autoplay;
     const fallbackPlayback = legacyAutoplay === false ? "manual" : "auto";
     const migrateProfiles = (profiles?: Profile[]) => {
@@ -32,6 +32,27 @@ function loadState(): PersistedState | undefined {
     };
     migrateProfiles(parsed.auth?.currentUser?.profiles);
     parsed.auth?.accounts?.forEach((account) => migrateProfiles(account.profiles));
+
+    const applyDuePlanChange = (
+      holder?: AuthState["currentUser"] | AuthState["accounts"][number],
+    ) => {
+      const pending = holder?.pendingPlanChange;
+      if (!holder || !pending || Date.parse(pending.effectiveAt) > Date.now()) return;
+      holder.plan = pending.planId;
+      if (holder.receipt) {
+        holder.receipt.planId = pending.planId;
+        holder.receipt.planName = pending.planName;
+        holder.receipt.amount = pending.amount;
+        holder.receipt.period = pending.period;
+        holder.receipt.date = new Date(pending.effectiveAt).toLocaleDateString("tr-TR");
+      }
+      holder.pendingPlanChange = null;
+    };
+    parsed.auth?.accounts?.forEach(applyDuePlanChange);
+    applyDuePlanChange(parsed.auth?.currentUser);
+    if (parsed.auth?.currentUser?.receipt) {
+      parsed.auth.receipt = parsed.auth.currentUser.receipt;
+    }
 
     if (parsed.settings) {
       const currentSettings = { ...parsed.settings };
@@ -94,7 +115,7 @@ export const selectActiveProfile = (s: RootState): Profile | null =>
 export const selectShownProfile = (s: RootState): Profile | null =>
   selectActiveProfile(s) ?? s.auth.currentUser?.profiles[0] ?? null;
 
-// profil otomatik oynatma ayari
+// profil autoplay
 export const selectAutoplayEnabled = (s: RootState): boolean =>
   (selectShownProfile(s)?.playback ?? "auto") === "auto";
 

@@ -2,7 +2,7 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ContentAccessLevel } from "../types/types";
 import { canUseLevel, contentAccessLevel } from "./subscription";
 
-export interface PlaybackNavigationState {
+interface PlaybackNavigationState {
   title?: string;
   season?: number;
   episode?: number;
@@ -39,13 +39,15 @@ export async function requestMobilePlaybackFullscreen(): Promise<boolean> {
   if (isPlaybackFullscreenActive()) return true;
 
   const target = document.documentElement as WebkitFullscreenElement;
-  const request =
-    target.requestFullscreen?.bind(target) ??
-    target.webkitRequestFullscreen?.bind(target);
-  if (!request) return false;
 
   try {
-    await request();
+    if (target.requestFullscreen) {
+      await target.requestFullscreen({ navigationUI: "hide" });
+    } else if (target.webkitRequestFullscreen) {
+      await target.webkitRequestFullscreen();
+    } else {
+      return false;
+    }
     return isPlaybackFullscreenActive();
   } catch {
     return false;
@@ -61,7 +63,7 @@ interface NavigateToPlaybackOptions extends PlaybackNavigationState {
   autoFullscreen?: boolean;
 }
 
-// oynatma yönlendirmesi
+// oynatma
 export function navigateToPlayback({
   navigate,
   type,
@@ -79,13 +81,16 @@ export function navigateToPlayback({
     return;
   }
 
-  if (autoFullscreen) {
-    void requestMobilePlaybackFullscreen();
-  }
-
   const state: PlaybackNavigationState = { title };
   if (season != null) state.season = season;
   if (episode != null) state.episode = episode;
 
-  navigate(`/${type}/${id}/player`, { state });
+  const openPlayer = () => navigate(`/${type}/${id}/player`, { state });
+
+  if (autoFullscreen && isMobilePlaybackDevice()) {
+    void requestMobilePlaybackFullscreen().finally(openPlayer);
+    return;
+  }
+
+  openPlayer();
 }

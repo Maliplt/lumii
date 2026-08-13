@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactElement } from "react";
+import { useState, useEffect, useMemo, type ReactElement } from "react";
 import PageLayout from "../components/PageLayout";
 import HeroCarousel from "../components/HeroCarousel";
 import ContentCarousel from "../components/ContentCarousel";
@@ -8,6 +8,7 @@ import ServiceErrorView from "../components/ServiceErrorView";
 import { loadCriticalHome, loadRestHome, loadKidsHome } from "../services/home";
 import { getSpotlightDefinitions } from "../services/spotlightCarousels";
 import { interleaveEvenly } from "../lib/utils";
+import { contentAudienceKey } from "../lib/contentPersonalization";
 import { useFetch, useTitle, useLazyReveal, effectivePlanId } from "../helpers";
 import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
 
@@ -20,7 +21,13 @@ export default function HomePage() {
   const isFreeExperience = effectivePlanId(userPlan) === "free";
   const showContinueRow = useAppSelector((s) => s.settings.continueRow);
   const activeProfile = useAppSelector(selectActiveProfile);
+  const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
+  const userEmail = useAppSelector((s) => s.auth.currentUser?.email);
   const isKids = activeProfile?.kids ?? false;
+  const audienceKey = useMemo(
+    () => contentAudienceKey(userEmail, activeProfileId),
+    [activeProfileId, userEmail],
+  );
 
   // çocuk profili
   const kidsData = useFetch(
@@ -49,6 +56,7 @@ export default function HomePage() {
   const rest = useFetch(
     () => (!isKids && deferReady ? loadRestHome() : Promise.resolve(null)),
     `home-rest-${isKids}-${deferReady}`,
+    "section",
   );
   const heroMovies = isKids
     ? (kidsData.data?.heroMovies ?? [])
@@ -94,8 +102,12 @@ export default function HomePage() {
       ].filter((row): row is ReactElement => row !== null);
 
   const spotlightRows = !isKids && critical.data
-    ? getSpotlightDefinitions("home").map((definition) => (
-        <SpotlightContentCarousel key={definition.id} definition={definition} />
+    ? getSpotlightDefinitions("home", audienceKey).map((definition) => (
+        <SpotlightContentCarousel
+          key={definition.id}
+          definition={definition}
+          audienceKey={audienceKey}
+        />
       ))
     : [];
   const rows = interleaveEvenly(standardRows, spotlightRows);
@@ -120,6 +132,13 @@ export default function HomePage() {
           <HeroCarousel movies={heroMovies} />
           <div className="home-content">
             {activeRows.slice(0, visible)}
+            {rest.error && (
+              <ServiceErrorView
+                error={rest.error}
+                context="section"
+                onRetry={rest.retry}
+              />
+            )}
             {visible < activeRows.length && (
               <div className="lazy-row-sentinel" ref={sentinelRef} aria-hidden="true" />
             )}

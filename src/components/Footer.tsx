@@ -1,42 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { User, Mail, MessageSquare, Send, CheckCircle } from "lucide-react";
-import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 import { Input, Button } from "rsuite";
 import Logo from "./header/Logo";
-import { useToast } from "../lib/toast";
-
-const SOCIALS = [
-  {
-    label: "Facebook",
-    href: "https://facebook.com",
-    Icon: FaFacebookF,
-  },
-  {
-    label: "X",
-    href: "https://x.com",
-    Icon: FaXTwitter,
-  },
-  {
-    label: "Instagram",
-    href: "https://instagram.com",
-    Icon: FaInstagram,
-  },
-  {
-    label: "Youtube",
-    href: "https://youtube.com",
-    Icon: FaYoutube,
-  },
-] as const;
+import { useServiceErrorToast, useToast } from "../lib/toast";
+import { useAppSelector } from "../store/store";
 
 export default function Footer() {
+  const isLoggedIn = useAppSelector((state) => Boolean(state.auth.currentUser));
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const toast = useToast();
+  const serviceErrorToast = useServiceErrorToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +35,8 @@ export default function Footer() {
       setTimeout(() => {
         setIsSubmitted(false);
       }, 5000);
-    } catch {
-      toast("Bir hata oluştu, lütfen tekrar deneyin.", "error");
+    } catch (error) {
+      serviceErrorToast(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -75,21 +53,6 @@ export default function Footer() {
             <p className="site-footer__tagline">
               Film, dizi ve oyun; hepsi tek bir akıllı platformda.
             </p>
-            <div className="site-footer__socials">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  className="site-footer__social"
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={s.label}
-                  data-social={s.label.toLowerCase()}
-                >
-                  <s.Icon size={18} className="site-footer__social-icon" />
-                </a>
-              ))}
-            </div>
           </div>
 
           <nav className="site-footer__cols">
@@ -102,12 +65,12 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="site-footer__link" to="/explore">
+                  <Link className="site-footer__link" to="/explore?type=movie">
                     Filmler
                   </Link>
                 </li>
                 <li>
-                  <Link className="site-footer__link" to="/tv">
+                  <Link className="site-footer__link" to="/explore?type=tv">
                     Diziler
                   </Link>
                 </li>
@@ -127,7 +90,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="site-footer__link" to="/login">
+                  <Link className="site-footer__link" to={isLoggedIn ? "/account" : "/login"}>
                     Hesabım
                   </Link>
                 </li>

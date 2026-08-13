@@ -94,24 +94,34 @@
     }
 }
 
-// yukleme animasyonu
+.player-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+// tv logosu
+.player-loading--live {
+    overflow: hidden;
+    padding: clamp(20px, 5vw, 48px);
+}
+
 .player-loading__logo {
-    width: clamp(120px, 22%, 200px);
+    display: block;
+    width: clamp(92px, 22%, 200px);
+    max-width: 70%;
+    max-height: 42%;
     height: auto;
+    object-fit: contain;
     pointer-events: none;
+    transform-origin: center;
     animation: playerLogoPulse 1.25s ease-in-out infinite;
 }
 
-@media (max-width: 768px) {
-    .player-loading__logo {
-        width: clamp(76px, 34%, 120px);
-    }
-}
-
 @keyframes playerLogoPulse {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: scale(0.9);
         opacity: 0.5;
     }
@@ -122,12 +132,18 @@
     }
 }
 
-.player-live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #fff;
-    animation: livePulse 1.5s ease-in-out infinite;
+@media (max-width: 768px), (max-height: 520px) {
+    .player-loading__logo {
+        width: clamp(76px, 30%, 120px);
+        max-height: 36%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .player-loading__logo {
+        animation: none;
+        opacity: 0.82;
+    }
 }
 
 // player mobil
@@ -179,8 +195,8 @@
     }
 
     .player-btn {
-        width: 34px;
-        height: 34px;
+        width: 40px;
+        height: 40px;
 
         svg {
             width: 18px;
