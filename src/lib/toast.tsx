@@ -37,15 +37,32 @@ export function useToast() {
 }
 
 export function useServiceErrorToast() {
-  const toast = useToast();
+  const toaster = useToaster();
 
   return useCallback(
     (error: unknown) => {
       const failure = resolveServiceError(error, "action");
       if (failure.surface === "toast") {
-        toast(failure.error.message, "error");
+        const presentation = failure.presentation;
+        toaster.push(
+          <Message
+            type="error"
+            header={presentation.title}
+            className="service-error-toast"
+            showIcon
+            closable
+          >
+            <span className="service-error-toast__code">
+              HTTP {failure.status}
+            </span>
+            <span className="service-error-toast__message">
+              {presentation.message}
+            </span>
+          </Message>,
+          { placement: "topCenter", duration: 5000 },
+        );
       }
     },
-    [toast],
+    [toaster],
   );
 }

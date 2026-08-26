@@ -1,4 +1,3 @@
-@use "sass:color";
 @use "../base" as *;
 
 .overview-page {
@@ -57,74 +56,17 @@
 }
 
 .notfound-page {
-    background-color: var(--bg-0);
-}
-
-.notfound-page--standalone {
     display: flex;
-    min-height: 100dvh;
+    flex: 1;
+    min-height: 0;
+    background-color: var(--bg-0);
 }
 
 .notfound-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     flex: 1;
-    min-height: clamp(380px, 58vh, 560px);
-    color: var(--text-primary);
-    padding: var(--space-10) var(--space-6);
-    text-align: center;
-    font-family: var(--font-body);
-}
-
-.notfound-broken {
-    margin-bottom: 10px;
-    color: var(--text-muted);
-}
-
-.notfound-code {
-    font-size: 5rem;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: 0.05em;
-    color: var(--accent);
-    margin-bottom: var(--space-3);
-}
-
-.notfound-title {
-    font-size: clamp(1.55rem, 3vw, 1.8rem);
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--text-primary);
-}
-
-.notfound-desc {
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    max-width: 440px;
-    margin-bottom: 22px;
-}
-
-.notfound-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.notfound-actions .rs-btn {
-    min-width: 128px;
-    min-height: 42px;
-    padding: 9px 18px;
-    border-radius: var(--radius-1);
-    font-size: 0.9rem;
-}
-
-.notfound-icon {
-    margin-right: 8px;
-    color: var(--accent) !important;
+    min-height: clamp(520px, 72vh, 760px);
+    padding: calc(72px + var(--space-8)) var(--space-4) var(--space-10);
 }
 
 .error-boundary {
@@ -137,67 +79,33 @@
     font-family: var(--font-body);
 }
 
-.error-boundary__box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    max-width: 420px;
-    gap: var(--space-3);
+.home-main,
+.explore-main,
+.search-main,
+.overview-main {
+    > .state-view--error:not(.state-view--compact) {
+        margin-top: calc(72px + var(--space-8));
+        margin-bottom: var(--space-10);
+    }
 }
 
-.error-boundary__icon {
-    font-size: 2.6rem;
-    line-height: 1;
-}
+@include bp($bp-md) {
+    .notfound-container {
+        min-height: calc(100dvh - 56px);
+        padding: calc(56px + var(--space-5)) 0 var(--space-6);
+    }
 
-.error-boundary__title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
+    .error-boundary {
+        padding-inline: 0;
+    }
 
-.error-boundary__desc {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-}
-
-.error-boundary__actions {
-    display: flex;
-    gap: var(--space-3);
-    margin-top: var(--space-2);
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.error-boundary__btn {
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 10px 22px;
-    border-radius: var(--radius-2);
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-1);
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-
-.error-boundary__btn:hover {
-    border-color: var(--accent);
-}
-
-.error-boundary__btn:active {
-    transform: translateY(1px);
-}
-
-.error-boundary__btn--primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-}
-
-.error-boundary__btn--primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
+    .home-main,
+    .explore-main,
+    .search-main,
+    .overview-main {
+        > .state-view--error:not(.state-view--compact) {
+            margin-top: calc(56px + var(--space-5));
+            margin-bottom: var(--space-6);
+        }
+    }
 }

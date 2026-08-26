@@ -2,7 +2,7 @@ import { Button } from "rsuite";
 import { Check } from "lucide-react";
 import { SectionIntro, SummaryBlock, SummaryRow } from "../AccountUI";
 import { formatPlan } from "../accountData";
-import type { BasicUser, Plan } from "./types";
+import type { BasicUser, Plan } from "./accountTabTypes";
 
 export default function MembershipTab({
   user,

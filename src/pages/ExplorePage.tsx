@@ -1,26 +1,20 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import PageLayout from "../components/PageLayout";
-import HeroCarousel from "../components/HeroCarousel";
-import ContentCarousel from "../components/ContentCarousel";
-import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
-import ServiceErrorView from "../components/ServiceErrorView";
-import CategoryDropdown from "../components/CategoryDropdown";
+import PageLayout from "../components/layout/PageLayout";
+import HeroCarousel from "../components/media/HeroCarousel";
+import ContentCarousel from "../components/media/ContentCarousel";
+import SpotlightContentCarousel from "../components/media/SpotlightContentCarousel";
+import ServiceErrorView from "../components/feedback/ServiceErrorView";
+import CategoryDropdown from "../components/catalog/CategoryDropdown";
 import { MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
 import { getSpotlightDefinitions } from "../services/spotlightCarousels";
 import { interleaveEvenly } from "../lib/utils";
-import { contentAudienceKey } from "../lib/contentPersonalization";
+import { useContentAudienceKey } from "../lib/useContentAudienceKey";
 import { useFetch, useTitle, useLazyReveal } from "../helpers";
-import { useAppSelector } from "../store/store";
 
 export default function ExplorePage() {
   const [searchParams] = useSearchParams();
-  const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
-  const userEmail = useAppSelector((s) => s.auth.currentUser?.email);
-  const audienceKey = useMemo(
-    () => contentAudienceKey(userEmail, activeProfileId),
-    [activeProfileId, userEmail],
-  );
+  const audienceKey = useContentAudienceKey();
   const type: MediaType = searchParams.get("type") === "tv" ? "tv" : "movie";
   const [catByType, setCatByType] = useState<Record<MediaType, string>>({
     movie: "all",
@@ -96,7 +90,6 @@ export default function ExplorePage() {
               {catError && rows.length === 0 ? (
                 <ServiceErrorView
                   error={catError}
-                  title="Kategori yüklenemedi"
                   context="section"
                   onRetry={catFetch.retry}
                 />

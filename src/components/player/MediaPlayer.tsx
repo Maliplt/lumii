@@ -3,10 +3,11 @@ import Hls from "hls.js";
 import { ArrowLeft, Play, Pause, Maximize, Minimize, SkipBack, SkipForward } from "lucide-react";
 import { ProgressBar, VolumeControl, SettingsDropdown } from "./PlayerControls";
 import { usePlayerChrome } from "./usePlayerChrome";
-import ServiceErrorView from "../ServiceErrorView";
-import Spinner from "../Spinner";
+import ServiceErrorView from "../feedback/ServiceErrorView";
+import Spinner from "../ui/Spinner";
 import { playbackError } from "../../services/serviceError";
 import tenetLogo from "../../assets/images/tenet-logo.svg";
+import OptimizedImage from "../ui/OptimizedImage";
 
 const LIVE_AUTO_SYNC_GAP = 18;
 const LIVE_BEHIND_GAP = 45;
@@ -26,7 +27,7 @@ interface MediaPlayerProps {
   title?: string;
   live?: boolean;
   startMuted?: boolean;
-  autoPlay?: boolean;
+  autoplayEnabled: boolean;
   startPosition?: number;
   qualityLabel?: string;
   maxVideoHeight?: number;
@@ -43,7 +44,7 @@ export default function MediaPlayer({
   title = "",
   live = false,
   startMuted = false,
-  autoPlay = true,
+  autoplayEnabled,
   startPosition = 0,
   qualityLabel = "",
   maxVideoHeight = 1080,
@@ -96,7 +97,7 @@ export default function MediaPlayer({
     setMuted(startMuted);
 
     const tryPlay = () => {
-      if (!autoPlay) return;
+      if (!autoplayEnabled) return;
       const playback = video.play();
       if (playback) {
         playback.catch(() => {
@@ -189,7 +190,7 @@ export default function MediaPlayer({
       hls?.destroy();
       hlsRef.current = null;
     };
-  }, [src, startMuted, autoPlay, live, maxVideoHeight, streamAttempt]);
+  }, [src, startMuted, autoplayEnabled, live, maxVideoHeight, streamAttempt]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -410,7 +411,13 @@ export default function MediaPlayer({
       {!streamReady && !streamError && (
         <div className={`player-loading${live ? " player-loading--live" : ""}`}>
           {live ? (
-            <img src={tenetLogo} alt="" className="player-loading__logo" aria-hidden="true" />
+            <OptimizedImage
+              src={tenetLogo}
+              alt=""
+              className="player-loading__logo"
+              aria-hidden="true"
+              priority
+            />
           ) : (
             <Spinner variant="player" />
           )}
@@ -421,7 +428,6 @@ export default function MediaPlayer({
         <div className="player-error">
           <ServiceErrorView
             error={playbackError()}
-            title={live ? "Canlı yayın açılamadı" : "İçerik oynatılamadı"}
             onRetry={() => setStreamAttempt((value) => value + 1)}
             onBack={onBack}
             compact

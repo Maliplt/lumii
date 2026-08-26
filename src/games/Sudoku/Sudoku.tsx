@@ -394,7 +394,7 @@ export default function SudokuApp() {
           <div className="status-bar">
             <div className="status-item">
               <div className="status-label">Bölüm</div>
-              <div className="status-value" style={{ fontSize: 18 }}>
+              <div className="status-value status-value--compact">
                 {level}
               </div>
             </div>
@@ -449,31 +449,28 @@ export default function SudokuApp() {
             <div className="win-card">
               <div className="win-level-badge">Bölüm {level}</div>
               <div className="win-title">Tebrikler!</div>
-              <div
-                className="ornament"
-                style={{ justifyContent: "center", marginBottom: 8 }}
-              >
+              <div className="ornament ornament--win">
                 <div className="ornament-line" />
-                <span style={{ color: "#c8a070", fontSize: 16 }}>✦</span>
+                <span className="ornament-star">✦</span>
                 <div className="ornament-line" />
               </div>
               <div className="win-sub">Bulmacayı başarıyla tamamladınız</div>
               <div className="win-stats">
                 <div className="status-item">
                   <div className="status-label">Süre</div>
-                  <div className="status-value" style={{ fontSize: 24 }}>
+                  <div className="status-value status-value--large">
                     {fmt(time)}
                   </div>
                 </div>
                 <div className="status-item">
                   <div className="status-label">Hatalar</div>
-                  <div className="status-value" style={{ fontSize: 24 }}>
+                  <div className="status-value status-value--large">
                     {mistakes}
                   </div>
                 </div>
                 <div className="status-item">
                   <div className="status-label">Zorluk</div>
-                  <div className="status-value" style={{ fontSize: 18 }}>
+                  <div className="status-value status-value--compact">
                     {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                   </div>
                 </div>

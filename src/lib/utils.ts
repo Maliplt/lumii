@@ -36,33 +36,28 @@ export function formatLongDate(date: Date | string): string {
 }
 
 interface YoutubeEmbedOptions {
-  quality?: string;
-  origin?: string;
+  autoplay: boolean;
+  muted?: boolean;
 }
 
 // youtube embed
 export function buildYoutubeEmbedUrl(
   key: string,
-  { quality = "hd720", origin }: YoutubeEmbedOptions = {},
+  { autoplay, muted = true }: YoutubeEmbedOptions,
 ): string {
   const domain = "www.youtube-nocookie.com";
   const params = new URLSearchParams({
-    autoplay: "1",
-    mute: "1",
+    autoplay: autoplay ? "1" : "0",
+    mute: muted ? "1" : "0",
     controls: "0",
     disablekb: "1",
     fs: "0",
-    modestbranding: "1",
     rel: "0",
     iv_load_policy: "3",
     playsinline: "1",
-    enablejsapi: "1",
-    showinfo: "0",
     cc_load_policy: "0",
-    vq: quality,
   });
-  const originPart = origin ? `&origin=${encodeURIComponent(origin)}` : "";
-  return `https://${domain}/embed/${key}?${params.toString()}${originPart}`;
+  return `https://${domain}/embed/${key}?${params.toString()}`;
 }
 
 export const mediaName = (m: Movie | TVShow): string =>
@@ -70,6 +65,18 @@ export const mediaName = (m: Movie | TVShow): string =>
 
 export const mediaYear = (m: Movie | TVShow): string =>
   ("release_date" in m ? m.release_date : m.first_air_date)?.slice(0, 4) ?? "";
+
+export function mediaTypeOf(
+  media: { media_type?: string; title?: unknown; name?: unknown },
+  fallback: "movie" | "tv" = "tv",
+): "movie" | "tv" {
+  if (media.media_type === "movie" || media.media_type === "tv") {
+    return media.media_type;
+  }
+  if ("title" in media) return "movie";
+  if ("name" in media) return "tv";
+  return fallback;
+}
 
 type MediaItem = Movie | TVShow;
 

@@ -161,7 +161,7 @@
 
     // baglanti stili
     &:hover {
-        color: #fff;
+        color: var(--color-white);
         text-decoration: underline;
         text-underline-offset: 3px;
         text-decoration-thickness: 1.5px;

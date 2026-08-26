@@ -3,6 +3,7 @@ import { Button } from "rsuite";
 import { Check, Lock, ShieldCheck } from "lucide-react";
 import { isValidCardNumber, isValidExpiry, isValidCvc, formatCardNumber, formatExpiry, formatCvc } from "../../services/card";
 import { processPayment } from "../../services/payment";
+import { useServiceErrorToast } from "../../lib/toast";
 import { useAppDispatch, setPlan, setReceipt } from "../../store/store";
 import type { PackageDef } from "../../types/types";
 import Field from "./Field";
@@ -41,6 +42,7 @@ export default function CheckoutBody({
   onSuccess: () => void;
 }) {
   const dispatch = useAppDispatch();
+  const showServiceError = useServiceErrorToast();
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [terms, setTerms] = useState(false);
@@ -80,10 +82,16 @@ export default function CheckoutBody({
     setErrors({});
     setSummary("");
     setPaying(true);
-    const receipt = await processPayment(pkg, email, form, marketing);
-    dispatch(setPlan(pkg.id));
-    dispatch(setReceipt(receipt));
-    onSuccess();
+    try {
+      const receipt = await processPayment(pkg, email, form, marketing);
+      dispatch(setPlan(pkg.id));
+      dispatch(setReceipt(receipt));
+      onSuccess();
+    } catch (error) {
+      showServiceError(error);
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -204,7 +212,7 @@ export default function CheckoutBody({
               <span>Aylık toplam</span>
               <strong>
                 {pkg.price}
-                <em>{pkg.period}</em>
+                <span className="checkout-summary__period">{pkg.period}</span>
               </strong>
             </div>
           </div>

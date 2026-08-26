@@ -2,7 +2,7 @@ import { Button } from "rsuite";
 import { SectionIntro, SummaryBlock, SummaryRow } from "../AccountUI";
 import { formatPlan } from "../accountData";
 import { MAX_PROFILES } from "../../../store/store";
-import type { BasicUser, Plan } from "./types";
+import type { BasicUser, Plan } from "./accountTabTypes";
 
 export default function OverviewTab({
   user,

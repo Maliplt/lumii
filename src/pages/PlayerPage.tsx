@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import VidFastPlayer, { type VidFastProgressContext } from "../components/player/VidFastPlayer";
+import AccessGate from "../components/access/AccessGate";
 import { resolvePlaybackSource } from "../services/player";
-import { tmdbApi } from "../services/tmdb";
-import { canUseLevel, contentAccessLevel, isMobilePlaybackDevice, requestMobilePlaybackFullscreen, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
+import { getMediaDetail } from "../services/tmdb";
+import { canUseLevel, contentAccessLevel, requiredPlanName, upgradeCtaLabel, useFetch } from "../helpers";
 import { useAppDispatch, useAppSelector, startWatching, updateWatchProgress, selectAutoplayEnabled, selectLibrary, type SavedItem } from "../store/store";
 
 interface PlayerNavState {
@@ -26,7 +27,7 @@ export default function PlayerPage() {
   const canPlay = canUseLevel(userPlan, requiredLevel);
 
   // otomatik oynatma
-  const autoplay = useAppSelector(selectAutoplayEnabled);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
 
   const navState = (location.state as PlayerNavState | null) ?? {};
 
@@ -36,19 +37,6 @@ export default function PlayerPage() {
     (type !== "movie" && type !== "tv") ||
     !Number.isFinite(numId) ||
     numId <= 0;
-  useEffect(() => {
-    if (!autoplay || !canPlay || invalidRequest || !isMobilePlaybackDevice()) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      void requestMobilePlaybackFullscreen();
-    }, 150);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [autoplay, canPlay, invalidRequest]);
   const savedItem = library?.continueWatching.find(
     (x) => x.id === numId && x.media_type === type,
   );
@@ -74,17 +62,15 @@ export default function PlayerPage() {
         id,
         season,
         episode,
-        autoPlay: autoplay,
+        autoplayEnabled,
         startAt: startPosition,
       });
 
   // metadata
   const metadata = useFetch(async () => {
     if (!canPlay || invalidRequest) return null;
-    return type === "movie"
-      ? tmdbApi.getMovieDetail(numId)
-      : tmdbApi.getTVShowDetail(numId);
-  }, `${type}-${id}-${canPlay}-${invalidRequest}`);
+    return getMediaDetail(type, numId);
+  }, `${type}-${id}-${canPlay}-${invalidRequest}`, "enhancement");
 
   const detail = metadata.data;
   const title = detail
@@ -133,12 +119,16 @@ export default function PlayerPage() {
   if (!canPlay) {
     return (
       <div className="player-page player-access-gate">
-        <div className="player-access-gate__card">
-          <h1>{requiredPlanName(requiredLevel)} paketine dahil</h1>
-          <p>Bu yapımın tamamını izlemek için paketini değiştirebilirsin.</p>
-          <button type="button" onClick={openPlanOptions}>{upgradeCtaLabel(requiredLevel)}</button>
-          <button type="button" className="is-secondary" onClick={() => navigate(-1)}>Geri Dön</button>
-        </div>
+        <AccessGate
+          className="player-access-gate__card"
+          headingLevel={1}
+          title={`${requiredPlanName(requiredLevel)} paketine dahil`}
+          description="Bu yapımın tamamını izlemek için paketini değiştirebilirsin."
+          primaryLabel={upgradeCtaLabel(requiredLevel)}
+          secondaryLabel="Geri Dön"
+          onPrimary={openPlanOptions}
+          onSecondary={() => navigate(-1)}
+        />
       </div>
     );
   }

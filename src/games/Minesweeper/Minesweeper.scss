@@ -404,3 +404,35 @@
   box-shadow: 0 4px 0 #cc1f30;
 }
 .result-btn.lose-btn:hover { background: #e83040; }
+.doodle-shape--1 { top: 5%; left: 3%; width: 80px; height: 80px; background: #ff6b6b; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+.doodle-shape--2 { top: 15%; left: 88%; width: 60px; height: 60px; background: #ffa502; border-radius: 50%; }
+.doodle-shape--3 { top: 40%; left: 92%; width: 100px; height: 100px; background: #2ed573; border-radius: 20% 80% 30% 70% / 50% 60% 40% 50%; }
+.doodle-shape--4 { top: 65%; left: 2%; width: 70px; height: 70px; background: #5352ed; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+.doodle-shape--5 { top: 80%; left: 85%; width: 90px; height: 90px; background: #ff4757; border-radius: 50%; }
+.doodle-shape--6 { top: 50%; left: 5%; width: 50px; height: 50px; background: #1e90ff; border-radius: 20% 80% 30% 70% / 50% 60% 40% 50%; }
+.doodle-shape--7 { top: 30%; left: 10%; width: 40px; height: 40px; background: #ffd32a; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+.doodle-shape--8 { top: 70%; left: 90%; width: 55px; height: 55px; background: #ff6348; border-radius: 50%; }
+.doodle-shape--9 { top: 90%; left: 30%; width: 65px; height: 65px; background: #7bed9f; border-radius: 20% 80% 30% 70% / 50% 60% 40% 50%; }
+
+.bomb-icon--delayed {
+  animation-delay: 1.5s;
+}
+
+.stat-pill--progress {
+  border-color: #c0e0c0;
+  color: #4a9a4a;
+}
+
+.ms-board--kolay { grid-template-columns: repeat(9, 36px); }
+.ms-board--orta { grid-template-columns: repeat(16, 36px); }
+.ms-board--zor,
+.ms-board--uzman { grid-template-columns: repeat(30, 36px); }
+
+.ms-help-text {
+  margin-top: 10px;
+  color: #ccc;
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}

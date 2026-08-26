@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "../base" as *;
 
-@media (max-width: 480px) {
+@include bp($bp-sm) {
     .play-game-page .pg-header {
         flex-wrap: nowrap;
         gap: 8px;

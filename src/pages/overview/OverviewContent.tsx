@@ -1,17 +1,17 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Play } from "lucide-react";
-import PageLayout from "../../components/PageLayout";
-import HeroCarousel from "../../components/HeroCarousel";
-import ContentCarousel from "../../components/ContentCarousel";
-import Spinner from "../../components/Spinner";
-import ServiceErrorView from "../../components/ServiceErrorView";
-import NotFoundPage from "../NotFoundPage";
-import { tmdbApi, getImageUrl, formatRuntime, pickTrailer } from "../../services/tmdb";
-import { normalizeServiceError, optionalServiceRequest, ServiceError, serviceErrorMessage } from "../../services/serviceError";
+import PageLayout from "../../components/layout/PageLayout";
+import HeroCarousel from "../../components/media/HeroCarousel";
+import ContentCarousel from "../../components/media/ContentCarousel";
+import Spinner from "../../components/ui/Spinner";
+import ServiceErrorView from "../../components/feedback/ServiceErrorView";
+import { tmdbApi, getImageUrl, getMediaDetail, getSimilarMedia, formatRuntime, pickTrailer } from "../../services/tmdb";
+import { optionalServiceRequest, ServiceError } from "../../services/serviceError";
 import { canUseLevel, contentAccessLevel, navigateToPlayback, useFetch, useTitle, formatTime, formatLongDate } from "../../helpers";
-import { useAppSelector, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
+import { useAppSelector, selectAutoplayEnabled, selectLibrary, resumeLabel, canResumeProgress } from "../../store/store";
 import type { Movie, TVShow, Episode } from "../../types/types";
+import OptimizedImage from "../../components/ui/OptimizedImage";
 
 export default function OverviewContent({
   type,
@@ -25,20 +25,17 @@ export default function OverviewContent({
   const numId = Number(id);
   const isMovie = type === "movie";
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const episodesGridRef = useRef<HTMLDivElement>(null);
   const requiredLevel = contentAccessLevel(type, id);
   const contentLocked = !canUseLevel(userPlan, requiredLevel);
 
   const { data, loading, error, retry } = useFetch(async () => {
     if (!Number.isFinite(numId)) {
-      throw new ServiceError("not-found", serviceErrorMessage("not-found"));
+      throw new ServiceError("not-found");
     }
-    const detail = isMovie
-      ? await tmdbApi.getMovieDetail(numId)
-      : await tmdbApi.getTVShowDetail(numId);
-    const similar = isMovie
-      ? await optionalServiceRequest(tmdbApi.getSimilarMovies(numId))
-      : await optionalServiceRequest(tmdbApi.getSimilarTVShows(numId));
+    const detail = await getMediaDetail(type, numId);
+    const similar = await optionalServiceRequest(getSimilarMedia(type, numId));
     return [detail, similar] as const;
   }, `${type}-${id}`);
 
@@ -135,10 +132,6 @@ export default function OverviewContent({
   );
   const heroTrailerKey = pickTrailer(detail?.videos?.results ?? []);
 
-  if (error && normalizeServiceError(error).code === "not-found") {
-    return <NotFoundPage />;
-  }
-
   return (
     <PageLayout
       className="overview-page"
@@ -158,6 +151,7 @@ export default function OverviewContent({
           <HeroCarousel
             movies={heroItems}
             inlineTrailer
+            manualTrailerControl
             inlineTrailerKey={heroTrailerKey}
             hideMoreInfo
             meta={heroMeta}
@@ -207,7 +201,7 @@ export default function OverviewContent({
                             type,
                             id,
                             planId: userPlan,
-                            autoFullscreen: true,
+                            autoplayEnabled,
                             title,
                             season: selectedSeason,
                             episode: episode.episode_number,
@@ -219,13 +213,12 @@ export default function OverviewContent({
                           }}
                         >
                           <div className="ep-card__thumb">
-                            <img
+                            <OptimizedImage
                               src={getImageUrl(
                                 episode.still_path || detail.backdrop_path,
                                 "w300",
                               )}
                               alt={episode.name}
-                              loading="lazy"
                             />
                             <span className="ep-card__index">
                               {String(episode.episode_number).padStart(2, "0")}
@@ -263,7 +256,6 @@ export default function OverviewContent({
                   ) : season.error ? (
                     <ServiceErrorView
                       error={season.error}
-                      title="Bölümler yüklenemedi"
                       context="section"
                       onRetry={season.retry}
                       compact

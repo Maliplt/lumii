@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navigate, useParams, useNavigate } from "react-router-dom";
-import PageLayout from "../components/PageLayout";
+import PageLayout from "../components/layout/PageLayout";
 import CheckoutBody from "./checkout/CheckoutBody";
 import SuccessScreen from "./checkout/SuccessScreen";
 import PlanChangeBody from "./checkout/PlanChangeBody";

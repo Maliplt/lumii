@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import OptimizedImage from "../ui/OptimizedImage";
 
 interface ModalHeroProps {
   className: string;
@@ -13,7 +14,7 @@ export default function ModalHero({ className, avatar, title, description }: Mod
 
   return (
     <div className={className}>
-      {avatar && <img src={avatar} alt="" />}
+      {avatar && <OptimizedImage src={avatar} alt="" />}
       <h2>{title}</h2>
       {paragraphs.map((text, i) => (
         <p key={i}>{text}</p>

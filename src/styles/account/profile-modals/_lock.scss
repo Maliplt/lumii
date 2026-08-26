@@ -19,7 +19,7 @@
     }
 
     h2 {
-        color: #fff;
+        color: var(--color-white);
         font-size: clamp(1.7rem, 2.8vw, 2.1rem);
         font-weight: 950;
         letter-spacing: 0;
@@ -50,7 +50,7 @@
         border: 0;
         border-bottom: 2px solid rgba(255, 255, 255, 0.38);
         background: transparent;
-        color: #fff;
+        color: var(--color-white);
         font-size: 2.2rem;
         font-weight: 900;
         line-height: 1;

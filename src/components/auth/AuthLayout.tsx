@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import Header from "../header/Header";
-import Footer from "../Footer";
+import Footer from "../layout/Footer";
 import { getImageUrl } from "../../services/tmdb";
 import type { Movie } from "../../types/types";
+import OptimizedImage from "../ui/OptimizedImage";
 
 interface AuthLayoutProps {
   movies: Movie[];
@@ -18,12 +19,13 @@ export default function AuthLayout({ movies, activeIndex, children }: AuthLayout
       <Header />
 
       {movies.map((movie, index) => (
-        <img
+        <OptimizedImage
           key={movie.id}
           className={`login-bg ${index === activeIndex ? "login-bg--active" : ""}`}
           src={getImageUrl(movie.backdrop_path, "original")}
           alt=""
           aria-hidden="true"
+          priority={index === activeIndex}
         />
       ))}
       <div className="login-bg__overlay" />

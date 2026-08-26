@@ -1,5 +1,15 @@
-@import 'rsuite/dist/rsuite.min.css';
-@import 'motion-icons-react/style.css';
+/* kullanılan RSuite stilleri */
+@import 'rsuite/Button/styles/index.css';
+@import 'rsuite/Carousel/styles/index.css';
+@import 'rsuite/Input/styles/index.css';
+@import 'rsuite/InputGroup/styles/index.css';
+@import 'rsuite/Message/styles/index.css';
+@import 'rsuite/useToaster/styles/index.css';
+@import 'rsuite/Modal/styles/index.css';
+@import 'rsuite/Nav/styles/index.css';
+@import 'rsuite/Navbar/styles/index.css';
+@import 'rsuite/Stack/styles/index.css';
+@import 'rsuite/Toggle/styles/index.css';
 
 /* font ayarlari */
 :root {

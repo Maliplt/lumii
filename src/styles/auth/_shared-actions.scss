@@ -3,14 +3,14 @@
 
 // aktif durumlar
 .cc-item__action-btn.outline.active {
-    background: #ffffff;
-    border-color: #ffffff;
-    color: #000000;
+    background: var(--color-white);
+    border-color: var(--color-white);
+    color: var(--color-black);
 
     &:hover {
         background: #f1f1f1;
         border-color: #f1f1f1;
-        color: #000000;
+        color: var(--color-black);
     }
 }
 
@@ -20,7 +20,7 @@
     height: 34px;
     border-radius: var(--radius-2);
     background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
+    color: var(--color-white);
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 14px;
@@ -74,17 +74,17 @@
             border-color: rgba(255, 255, 255, 0.42);
         }
         .account-trigger__name {
-            color: #ffffff;
+            color: var(--color-white);
         }
     }
 
     &[aria-expanded='true'] {
         .account-trigger__name {
-            color: #ffffff;
+            color: var(--color-white);
         }
 
         .account-trigger__caret {
-            color: #ffffff;
+            color: var(--color-white);
             transform: translateY(0.5px) rotate(180deg);
         }
     }

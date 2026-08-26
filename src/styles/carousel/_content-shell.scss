@@ -74,7 +74,7 @@
     }
 
     // mobil header
-    @media (max-width: 640px) {
+    @include bp($bp-compact) {
         .cc-header {
             flex-wrap: wrap;
             gap: var(--space-2) var(--space-3);
@@ -102,7 +102,7 @@
 
 .content-carousel--spotlight {
     --spotlight-accent: var(--accent);
-    --spotlight-accent-contrast: #ffffff;
+    --spotlight-accent-contrast: var(--color-white);
     --spotlight-position: center;
     position: relative;
     isolation: isolate;
@@ -213,7 +213,7 @@
         color: var(--spotlight-accent) !important;
     }
 
-    @media (max-width: 768px) {
+    @include bp($bp-md) {
         min-height: calc(var(--cc-poster-h) * 1.62);
         padding: 34px 16px 22px;
 
@@ -245,7 +245,7 @@
         }
     }
 
-    @media (max-width: 480px) {
+    @include bp($bp-sm) {
         min-height: calc(var(--cc-poster-h) * 1.7);
         padding: 28px 12px 18px;
 
@@ -344,11 +344,13 @@
 }
 
 .content-carousel--spotlight-error {
-    min-height: clamp(260px, 34vw, 420px);
+    min-height: 0;
     justify-content: center;
-    background:
-        radial-gradient(circle at 75% 35%, color-mix(in srgb, var(--spotlight-accent) 16%, transparent), transparent 42%),
-        linear-gradient(115deg, #090909 20%, #151515 50%, #090909 80%);
+    padding: var(--space-5) var(--space-3);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 
     &::before,
     &::after {
@@ -421,7 +423,7 @@
     &:hover {
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.4);
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         transform: translateY(-50%) scale(1.06);
     }
 
@@ -439,10 +441,6 @@
 @media (hover: none) {
     .cc-item__overlay {
         opacity: 1;
-    }
-
-    .cc-item__actions-row {
-        display: none;
     }
 
     .cc-carousel-wrapper .cc-nav-arrow {

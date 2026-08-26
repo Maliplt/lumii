@@ -1,0 +1,288 @@
+@use "../../styles/base" as *;
+
+.doom-game {
+  --doom-red: #b72b34;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-8);
+  color: var(--color-white);
+}
+
+.doom-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-header);
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1;
+  }
+}
+
+.doom-toolbar-button,
+.doom-retry-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-1);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  font-family: var(--font-header);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.38);
+    transform: scale(1.02);
+  }
+
+  &:active { transform: scale(0.97); }
+}
+
+.doom-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-2);
+  background: #050506;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.48);
+
+  &:fullscreen {
+    display: grid;
+    place-items: center;
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+  }
+}
+
+.doom-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  image-rendering: pixelated;
+  outline: none;
+  cursor: crosshair;
+}
+
+.doom-canvas:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(221, 107, 112, 0.72);
+}
+
+.doom-launcher,
+.doom-loading,
+.doom-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 5vw, 56px);
+  text-align: center;
+  background: #050506;
+}
+
+.doom-launcher { gap: clamp(12px, 2.5vw, 24px); }
+
+.doom-launcher__image {
+  width: clamp(220px, 34vw, 400px);
+  max-height: 72%;
+  display: block;
+  object-fit: contain;
+  border-radius: var(--radius-2);
+}
+
+.doom-start-button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 22px;
+  border: 1px solid #d94750;
+  border-radius: var(--radius-1);
+  background: var(--doom-red);
+  color: var(--color-white);
+  font-family: var(--font-header);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(183, 43, 52, 0.28);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+
+  &:hover,
+  &:focus-visible { transform: scale(1.025); background: #c7333d; }
+  &:active { transform: scale(0.97); }
+}
+
+.doom-loading {
+  gap: var(--space-3);
+
+  .spinner-overlay { min-height: auto; }
+  p { margin: 0; color: var(--text-secondary); }
+}
+
+.doom-error .state-view { max-width: 560px; }
+
+.doom-help {
+  padding: var(--space-3) 2px 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+
+  p { margin: 0; }
+  strong { color: var(--text-primary); }
+}
+
+.doom-mobile-controls { display: none; }
+
+@media (pointer: coarse), (max-width: 768px) {
+  .doom-game { padding: var(--space-3) var(--space-3) var(--space-6); }
+  .doom-toolbar { margin-bottom: var(--space-3); }
+  .doom-toolbar h1 { font-size: 24px; }
+
+  .doom-toolbar-button {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+
+    span { display: none; }
+  }
+
+  .doom-launcher__image {
+    width: clamp(150px, 48vw, 220px);
+    max-height: 62%;
+  }
+
+  .doom-mobile-controls {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .doom-dpad,
+  .doom-face-pad,
+  .doom-system-controls {
+    position: absolute;
+    pointer-events: none;
+
+    .doom-touch-button { pointer-events: auto; }
+  }
+
+  .doom-dpad {
+    left: max(10px, env(safe-area-inset-left));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
+    gap: 2px;
+
+    .doom-touch-button:nth-child(1) { grid-column: 2; grid-row: 1; }
+    .doom-touch-button:nth-child(2) { grid-column: 1; grid-row: 2; }
+    .doom-touch-button:nth-child(3) { grid-column: 2; grid-row: 3; }
+    .doom-touch-button:nth-child(4) { grid-column: 3; grid-row: 2; }
+  }
+
+  .doom-face-pad {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
+    gap: 2px;
+
+    .is-triangle { grid-column: 2; grid-row: 1; color: #70d99b; }
+    .is-square { grid-column: 1; grid-row: 2; color: #e985a9; }
+    .is-circle { grid-column: 3; grid-row: 2; color: #ff7575; }
+    .is-cross { grid-column: 2; grid-row: 3; color: #79bfff; }
+  }
+
+  .doom-system-controls {
+    top: max(9px, env(safe-area-inset-top));
+    left: 50%;
+    display: flex;
+    gap: 7px;
+    transform: translateX(-50%);
+
+    .doom-touch-button {
+      width: auto;
+      min-width: 54px;
+      min-height: 28px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 8px;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  .doom-touch-button {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    background: rgba(8, 9, 12, 0.64);
+    backdrop-filter: blur(8px);
+    color: var(--color-white);
+    font-family: var(--font-header);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.3);
+    touch-action: none;
+
+    svg { width: 21px; height: 21px; }
+    &:active { transform: scale(0.9); background: rgba(183, 43, 52, 0.78); }
+  }
+
+  .doom-dpad .doom-touch-button { border-radius: 10px; }
+  .doom-help { display: none; }
+
+  .doom-stage:fullscreen {
+    .doom-canvas { width: 100%; height: 100%; }
+    .doom-mobile-controls { inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  }
+}
+
+@media (max-width: 420px) {
+  .doom-dpad,
+  .doom-face-pad {
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(3, 38px);
+  }
+
+  .doom-touch-button {
+    width: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 22px;
+  }
+
+  .doom-system-controls .doom-touch-button { min-width: 48px; min-height: 26px; }
+}

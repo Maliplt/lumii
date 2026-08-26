@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Button, Input, Modal } from "rsuite";
+import { Button } from "rsuite";
 import { isValidEmail } from "../../lib/utils";
-import ModalCloseButton from "./ModalCloseButton";
 import ModalHero from "./ModalHero";
+import ModalInputField from "./ModalInputField";
+import ProfileModalShell from "./ProfileModalShell";
 
 interface Props {
   email: string;
@@ -24,37 +25,32 @@ export default function EmailChangeModal({ email, onClose, onSave }: Props) {
   };
 
   return (
-    <Modal open onClose={onClose} size="sm" className="profile-modal email-modal">
-      <ModalCloseButton onClose={onClose} />
-
-      <Modal.Body>
+    <ProfileModalShell
+      className="email-modal"
+      size="sm"
+      onClose={onClose}
+      footer={
+        <Button appearance="primary" onClick={save} block>
+          E-postayı Kaydet
+        </Button>
+      }
+    >
         <ModalHero
           className="email-modal__hero"
           title="E-posta adresi"
           description="Hesabınla ilgili bildirimler ve faturalar bu adrese gönderilir."
         />
-        <label className="profile-edit__field" htmlFor="account-email">
-          <span>Yeni e-posta</span>
-          <Input
-            id="account-email"
-            value={value}
-            type="email"
-            onChange={(next) => {
-              setValue(next);
-              if (error) setError("");
-            }}
-          />
-          {error && <small>{error}</small>}
-        </label>
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="profile-edit__footer">
-          <Button appearance="primary" onClick={save} block>
-            E-postayı Kaydet
-          </Button>
-        </div>
-      </Modal.Footer>
-    </Modal>
+        <ModalInputField
+          id="account-email"
+          label="Yeni e-posta"
+          value={value}
+          type="email"
+          error={error}
+          onChange={(next) => {
+            setValue(next);
+            if (error) setError("");
+          }}
+        />
+    </ProfileModalShell>
   );
 }

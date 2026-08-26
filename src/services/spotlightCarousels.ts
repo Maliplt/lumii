@@ -4,7 +4,7 @@ import {
   type SpotlightDefinition,
   type SpotlightPlacement,
   type SpotlightTheme,
-} from "../data/spotlightCarousels";
+} from "../data/spotlightDefinitions";
 import { settleList, withPoster } from "../lib/utils";
 import { seededShuffle } from "../lib/contentPersonalization";
 import type { Movie, TVShow } from "../types/types";

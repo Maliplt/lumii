@@ -109,7 +109,7 @@
     .gc-card__name {
         font-size: 15px !important;
         font-weight: 800 !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         margin: 0 !important;
         white-space: nowrap;
         overflow: hidden;
@@ -129,7 +129,7 @@
         align-self: flex-start;
         font-size: 10px !important;
         font-weight: 800 !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         background-color: var(--accent) !important;
         padding: 2px 8px !important;
         border-radius: var(--radius-1) !important;

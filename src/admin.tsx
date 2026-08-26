@@ -1,7 +1,6 @@
-// geçici geliştirme yöneticisi girişi
-// prod geçerken bu dosyayı ve authSlice içindeki tryAdminLogin  kaldır
-
+// yerel yönetici hesabı
 import type { AuthState } from "./store/authSlice";
+import { DEFAULT_PROFILE_PREFERENCES } from "./store/profilePreferences";
 
 const ADMIN_EMAIL = "admin@admin.com";
 const ADMIN_PASSWORD = "admin123";
@@ -35,8 +34,7 @@ export function tryAdminLogin(
           avatar: "default-blue",
           kids: false,
           locked: false,
-          playback: "auto",
-          notifications: "important",
+          preferences: { ...DEFAULT_PROFILE_PREFERENCES },
         },
       ],
     };
@@ -52,8 +50,7 @@ export function tryAdminLogin(
       avatar: "default-blue",
       kids: false,
       locked: false,
-      playback: "auto",
-      notifications: "important",
+      preferences: { ...DEFAULT_PROFILE_PREFERENCES },
     });
   }
 

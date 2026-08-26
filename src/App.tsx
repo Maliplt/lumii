@@ -1,11 +1,10 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
-import Spinner from "./components/Spinner";
-import RootLayout from "./components/RootLayout";
-import ErrorBoundary from "./components/ErrorBoundary";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PlayerPage from "./pages/PlayerPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import Spinner from "./components/ui/Spinner";
+import RootLayout from "./components/layout/RootLayout";
+import ErrorBoundary from "./components/feedback/ErrorBoundary";
+import ProtectedRoute from "./components/access/ProtectedRoute";
+import TrailerPreviewProvider from "./components/media/TrailerPreviewProvider";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExplorePage = lazy(() => import("./pages/ExplorePage"));
@@ -20,12 +19,24 @@ const PackagesPage = lazy(() => import("./pages/PackagesPage"));
 const TvPage = lazy(() => import("./pages/TvPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const PlayerPage = lazy(() => import("./pages/PlayerPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const previous = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    return () => {
+      window.history.scrollRestoration = previous;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const frame = window.requestAnimationFrame(() => window.scrollTo(0, 0));
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
 
   return null;
@@ -69,10 +80,12 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <AppRoutes />
-    </BrowserRouter>
+    <TrailerPreviewProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <AppRoutes />
+      </BrowserRouter>
+    </TrailerPreviewProvider>
   );
 }
 

@@ -2,6 +2,7 @@
 @use "../base" as *;
 
 .cc-item {
+    --cc-action-size: 36px;
     flex-shrink: 1;
     flex-basis: 0;
     overflow: hidden;
@@ -11,6 +12,8 @@
     cursor: pointer;
     transition: flex-grow 0.4s var(--ease-out);
     contain: layout paint;
+    container-name: media-card;
+    container-type: inline-size;
 
     &::after {
         content: '';
@@ -51,12 +54,6 @@
     }
 }
 
-.cc-item.is-locked {
-    .cc-item__action-btn.cc-item__mute {
-        top: 52px;
-    }
-}
-
 .cc-item__access-badge {
     position: absolute;
     top: 12px;
@@ -69,19 +66,19 @@
     height: 34px;
     border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: var(--radius-1);
-    color: #fff;
+    color: var(--color-white);
     background: rgba(8, 10, 15, 0.78);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
     backdrop-filter: blur(8px);
     pointer-events: none;
 }
 
-// hover fragmani
+// fragman
 .cc-item__trailer {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: #000;
+    background: var(--color-black);
     pointer-events: none;
     z-index: 1;
     opacity: 0;
@@ -99,7 +96,7 @@
         right: 0;
         z-index: 2;
         pointer-events: none;
-        background: #000;
+        background: var(--color-black);
     }
 
     // youtube gizleme
@@ -126,6 +123,164 @@
     }
 }
 
+// hafif önizleme
+.cc-item__preview-trigger {
+    --preview-accent: var(--spotlight-accent, var(--accent));
+    --preview-accent-contrast: var(--spotlight-accent-contrast, var(--color-white));
+    position: relative;
+    z-index: 3;
+    align-self: end;
+    flex: 0 0 auto;
+    min-width: 148px;
+    min-height: 44px;
+    padding: 0 var(--space-3) 0 var(--space-2);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: var(--radius-1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2-5);
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    backdrop-filter: blur(16px) saturate(130%);
+    color: var(--color-white);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14),
+        0 8px 22px rgba(0, 0, 0, 0.38),
+        0 0 14px color-mix(in srgb, var(--preview-accent) 8%, transparent);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--font-header);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    line-height: 1;
+    text-shadow: none;
+    animation: previewTriggerReveal 0.28s ease-in-out 0.18s both;
+    transition: transform 0.32s var(--ease-out),
+        background-color 0.32s var(--ease-out),
+        border-color 0.32s var(--ease-out),
+        box-shadow 0.32s var(--ease-out),
+        filter 0.32s var(--ease-out);
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+        border-color: rgba(255, 255, 255, 0.4);
+        background-color: rgba(255, 255, 255, 0.19);
+        transform: scale(1.02);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18),
+            0 11px 26px rgba(0, 0, 0, 0.44),
+            0 0 18px color-mix(in srgb, var(--preview-accent) 14%, transparent);
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-white);
+        outline-offset: 3px;
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+
+    &--loading {
+        cursor: wait;
+    }
+
+    &--unavailable {
+        filter: saturate(0.45);
+        opacity: 0.72;
+    }
+}
+
+@keyframes previewTriggerReveal {
+    from {
+        opacity: 0;
+        visibility: hidden;
+        translate: 0 5px;
+        scale: 0.985;
+    }
+
+    to {
+        opacity: 1;
+        visibility: visible;
+        translate: 0 0;
+        scale: 1;
+    }
+}
+
+.cc-item__preview-icon {
+    position: relative;
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--preview-accent);
+    border-radius: var(--radius-1);
+    display: grid;
+    place-items: center;
+    background: var(--preview-accent);
+    color: var(--preview-accent-contrast);
+    box-shadow: 0 5px 14px color-mix(in srgb, var(--preview-accent) 26%, transparent);
+    transition: background-color 0.32s var(--ease-out),
+        border-color 0.32s var(--ease-out),
+        color 0.32s var(--ease-out),
+        box-shadow 0.32s var(--ease-out);
+
+    svg {
+        transition: opacity var(--dur-fast) ease;
+    }
+}
+
+.cc-item__preview-trigger:hover:not(:disabled) .cc-item__preview-icon,
+.cc-item__preview-trigger:focus-visible:not(:disabled) .cc-item__preview-icon {
+    border-color: color-mix(in srgb, var(--preview-accent) 82%, white);
+    background: color-mix(in srgb, var(--preview-accent) 82%, white);
+    box-shadow: 0 7px 18px color-mix(in srgb, var(--preview-accent) 34%, transparent);
+}
+
+.cc-item__preview-trigger--loading .cc-item__preview-icon {
+    svg {
+        opacity: 0;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.34);
+        border-top-color: var(--color-white);
+        border-radius: 50%;
+        animation: previewButtonSpin 0.72s linear infinite;
+    }
+}
+
+@keyframes previewButtonSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cc-item {
+        transition: none;
+
+        .cc-item__poster {
+            transition: none;
+        }
+    }
+
+    .cc-item__preview-trigger {
+        animation: none;
+    }
+
+    .cc-item__preview-trigger--loading .cc-item__preview-icon::after {
+        animation: none;
+        border-color: rgba(255, 255, 255, 0.72);
+    }
+}
+
 // video tiklama katmani
 .cc-item__trailer-shield {
     position: absolute;
@@ -133,22 +288,6 @@
     z-index: 1;
     cursor: pointer;
 }
-
-.cc-item__action-btn.cc-item__mute {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 6;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    transition: opacity 0.18s ease, transform 0.18s ease,
-        background-color 0.25s var(--ease-out),
-        border-color 0.25s var(--ease-out),
-        box-shadow 0.25s var(--ease-out);
-}
-
-
 
 @keyframes iconPop {
     0% {
@@ -205,7 +344,7 @@
     padding: var(--space-4);
     // karartma katmanı
     background: rgba($ink, 0.32);
-    color: #ffffff;
+    color: var(--color-white);
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85), 0 0 3px rgba(0, 0, 0, 0.55);
     pointer-events: none;
     opacity: 0;
@@ -229,18 +368,80 @@
     }
 }
 
-.cc-item.is-playing {
-    .cc-item__actions-row {
-        opacity: 0.08;
-        transition: opacity 0.7s ease 1.6s;
+@media (hover: hover) {
+    .cc-item.is-playing {
+        .cc-item__actions-row {
+            opacity: 0.08;
+            transition: opacity 0.7s ease 1.6s;
+        }
+
+        .cc-item__actions-row:hover,
+        .cc-item__actions-row:focus-within {
+            opacity: 1;
+            // hover dönüşü
+            transition: opacity 0.18s ease;
+        }
+    }
+}
+
+@container media-card (max-width: 300px) {
+    .cc-item__preview-trigger {
+        min-width: 0;
+        max-width: 100%;
+        min-height: var(--cc-action-size);
+        padding: 0 10px 0 7px;
+        gap: 7px;
+        font-size: var(--fs-xs);
+        transform: none;
+
+        &:hover:not(:disabled),
+        &:focus-visible:not(:disabled) {
+            transform: scale(1.02);
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(0.98);
+        }
     }
 
-    .cc-item__actions-row:hover,
-    .cc-item__actions-row:focus-within {
-        opacity: 1;
-        // hover dönüşü
-        transition: opacity 0.18s ease;
+    .cc-item__preview-icon {
+        flex-basis: 24px;
+        width: 24px;
+        height: 24px;
     }
+}
+
+@container media-card (max-width: 220px) {
+    .cc-item__preview-trigger {
+        max-width: 100%;
+        min-height: var(--cc-action-size);
+    }
+}
+
+@media (hover: none), (max-width: $bp-md) {
+    .cc-item {
+        --cc-action-size: 36px;
+    }
+
+    .cc-item__preview-trigger {
+        width: var(--cc-action-size);
+        min-width: var(--cc-action-size);
+        max-width: var(--cc-action-size);
+        min-height: var(--cc-action-size);
+        padding: 0;
+        gap: 0;
+    }
+
+    .cc-item__preview-icon {
+        flex-basis: 26px;
+        width: 26px;
+        height: 26px;
+    }
+
+    .cc-item__preview-label {
+        display: none;
+    }
+
 }
 
 .cc-item__details {
@@ -250,10 +451,17 @@
     width: 100%;
 }
 
+.cc-item__summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
 .cc-item__name {
     font-size: 18px !important;
     font-weight: 800 !important;
-    color: #ffffff !important;
+    color: var(--color-white) !important;
     margin: 0 !important;
     white-space: nowrap;
     overflow: hidden;
@@ -282,7 +490,7 @@
     }
 
     .cc-item__year {
-        color: #ffffff !important;
+        color: var(--color-white) !important;
     }
 
     .cc-item__type {

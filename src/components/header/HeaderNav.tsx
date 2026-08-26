@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Nav, Stack } from "rsuite";
 import { Film, Tv } from "lucide-react";
-import { MotionIcon } from "motion-icons-react";
-import { Link, useLocation } from "react-router-dom";
+import { MotionIcon } from "../ui/MotionIcon";
+import { Link } from "react-router-dom";
 import { NAV_LINKS } from "./headerLinks";
 
-export default function HeaderNav() {
-  const location = useLocation();
+interface HeaderNavProps {
+  pathname: string;
+}
+
+export default function HeaderNav({ pathname }: HeaderNavProps) {
   const [selectOpen, setSelectOpen] = useState(false);
   const selectCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -27,12 +30,12 @@ export default function HeaderNav() {
   );
 
   return (
-    <Nav activeKey={location.pathname} className="header-main-nav">
+    <Nav activeKey={pathname} className="header-main-nav">
       {NAV_LINKS.map(({ to, label, icon }) => {
         const active =
           to === "/"
-            ? location.pathname === "/"
-            : location.pathname.startsWith(to);
+            ? pathname === "/"
+            : pathname.startsWith(to);
         const item = (
           <Nav.Item
             key={to}

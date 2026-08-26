@@ -4,37 +4,9 @@ import type React from "react";
 
 
 const SIZE = 4;
-const GAP = 2.6;
-const CELL = (100 - (SIZE - 1) * GAP) / SIZE;
-const cellPos = (i: number) => i * (CELL + GAP);
 const SWIPE_MIN = 18;
 
-
-const TILE_THEME: Record<
-  number,
-  { bg: string; color: string; shadow: string }
-> = {
-  2: { bg: "#fdeef4", color: "#c081a0", shadow: "rgba(192,129,160,0.18)" },
-  4: { bg: "#fbe0ec", color: "#b8708f", shadow: "rgba(184,112,143,0.2)" },
-  8: { bg: "#f9c9e0", color: "#fff", shadow: "rgba(232,140,185,0.35)" },
-  16: { bg: "#f4abd2", color: "#fff", shadow: "rgba(232,120,180,0.4)" },
-  32: { bg: "#dd9ad8", color: "#fff", shadow: "rgba(200,120,200,0.42)" },
-  64: { bg: "#bd97e0", color: "#fff", shadow: "rgba(170,120,224,0.45)" },
-  128: { bg: "#9d8fe6", color: "#fff", shadow: "rgba(135,120,224,0.48)" },
-  256: { bg: "#85a3ec", color: "#fff", shadow: "rgba(110,150,232,0.5)" },
-  512: { bg: "#74bce4", color: "#fff", shadow: "rgba(90,180,224,0.5)" },
-  1024: { bg: "#6fd0c2", color: "#fff", shadow: "rgba(90,200,184,0.52)" },
-  2048: { bg: "#ffce6e", color: "#fff", shadow: "rgba(255,196,90,0.6)" },
-  4096: { bg: "#ffb066", color: "#fff", shadow: "rgba(255,150,80,0.6)" },
-  8192: { bg: "#ff8f80", color: "#fff", shadow: "rgba(255,120,110,0.6)" },
-};
-const themeFor = (v: number) => TILE_THEME[v] || TILE_THEME[8192];
-const fontFor = (v: number) =>
-  v < 100
-    ? "clamp(26px,9vw,42px)"
-    : v < 1000
-      ? "clamp(22px,7.5vw,36px)"
-      : "clamp(17px,5.8vw,28px)";
+const tileThemeValue = (value: number) => Math.min(value, 8192);
 
 let TILE_ID = 1;
 
@@ -186,26 +158,23 @@ interface Ripple {
 }
 interface SparkleFx {
   id: number;
-  x: number;
-  y: number;
+  slot: number;
   emoji: string;
-  sx: number;
-  sy: number;
 }
 interface FloatPts {
   id: number;
-  x: number;
-  y: number;
+  row: number;
+  col: number;
   text: string;
 }
 
 const COMBO_TIERS = [
-  { min: 0, label: "", color: "#bcafd8" },
-  { min: 2, label: "Güzel!", color: "#7ec47e" },
-  { min: 4, label: "Süper!", color: "#5ab0e0" },
-  { min: 6, label: "Harika!", color: "#a98ee6" },
-  { min: 9, label: "Muhteşem!", color: "#e88cc0" },
-  { min: 13, label: "İnanılmaz!", color: "#dca636" },
+  { min: 0, label: "" },
+  { min: 2, label: "Güzel!" },
+  { min: 4, label: "Süper!" },
+  { min: 6, label: "Harika!" },
+  { min: 9, label: "Muhteşem!" },
+  { min: 13, label: "İnanılmaz!" },
 ];
 const comboTier = (n: number) =>
   COMBO_TIERS.reduce((b, t) => (n >= t.min ? t : b), COMBO_TIERS[0]);
@@ -280,14 +249,9 @@ export default function Game2048() {
           const count = Math.min(8, 3 + mergeCount + (maxMerge >= 256 ? 3 : 0));
           const fx: SparkleFx[] = [];
           for (let i = 0; i < count; i++) {
-            const a = (Math.PI * 2 * i) / count + Math.random() * 0.6;
-            const d = 50 + Math.random() * 55;
             fx.push({
               id: Date.now() + i,
-              x: 50,
-              y: 50,
-              sx: Math.cos(a) * d,
-              sy: Math.sin(a) * d,
+              slot: i,
               emoji: emojis[Math.floor(Math.random() * emojis.length)],
             });
           }
@@ -339,9 +303,10 @@ export default function Game2048() {
           .filter((t) => t.merged)
           .forEach((t, i) => {
             const fid = Date.now() + i;
-            const x = cellPos(t.col) + CELL / 2;
-            const y = cellPos(t.row) + CELL / 2;
-            setFloatPts((p) => [...p, { id: fid, x, y, text: `+${t.value}` }]);
+            setFloatPts((p) => [
+              ...p,
+              { id: fid, row: t.row, col: t.col, text: `+${t.value}` },
+            ]);
             setTimeout(
               () => setFloatPts((p) => p.filter((f) => f.id !== fid)),
               850,
@@ -426,51 +391,17 @@ export default function Game2048() {
     touchStart.current = null;
   };
 
-  const rippleStyle = (dir: Dir): React.CSSProperties => {
-    const b: React.CSSProperties = { width: "46%", height: "46%" };
-    if (dir === "left") return { ...b, left: "-12%", top: "27%" };
-    if (dir === "right") return { ...b, right: "-12%", top: "27%" };
-    if (dir === "up") return { ...b, top: "-12%", left: "27%" };
-    return { ...b, bottom: "-12%", left: "27%" };
-  };
-
   const comboPct = Math.min(100, (combo / 13) * 100);
+  const tierIndex = COMBO_TIERS.indexOf(tier);
 
   return (
     <>
       {milestone && <div className="milestone">🎉 {milestone}</div>}
 
       <div className="g2-app">
-        <div
-          className="g2-orb"
-          style={{
-            top: "-8%",
-            left: "3%",
-            width: 340,
-            height: 340,
-            background: "#f7c4dc",
-          }}
-        />
-        <div
-          className="g2-orb"
-          style={{
-            bottom: "-12%",
-            right: "-3%",
-            width: 380,
-            height: 380,
-            background: "#c4d2f7",
-          }}
-        />
-        <div
-          className="g2-orb"
-          style={{
-            top: "42%",
-            left: "62%",
-            width: 240,
-            height: 240,
-            background: "#dcc4f7",
-          }}
-        />
+        <div className="g2-orb g2-orb--pink" />
+        <div className="g2-orb g2-orb--blue" />
+        <div className="g2-orb g2-orb--purple" />
 
         <div className="g2-content">
           <div className="g2-header">
@@ -498,13 +429,12 @@ export default function Game2048() {
           </div>
 
           <div className="combo-strip">
-            <div className="combo-label" style={{ color: tier.color }}>
+            <div className={`combo-label combo-tier-${tierIndex}`}>
               {combo >= 2 ? `${tier.label} ×${combo}` : "Kombo"}
             </div>
             <div className="combo-track">
               <div
-                className="combo-fill"
-                style={{ width: `${comboPct}%`, background: tier.color }}
+                className={`combo-fill combo-tier-${tierIndex} progress-${Math.round(comboPct)}`}
               />
             </div>
           </div>
@@ -536,13 +466,7 @@ export default function Game2048() {
                 return (
                   <div
                     key={i}
-                    className="grid-cell"
-                    style={{
-                      left: `${cellPos(c)}%`,
-                      top: `${cellPos(r)}%`,
-                      width: `${CELL}%`,
-                      height: `${CELL}%`,
-                    }}
+                    className={`grid-cell grid-row-${r} grid-col-${c}`}
                   />
                 );
               })}
@@ -550,36 +474,22 @@ export default function Game2048() {
 
             <div className="tiles-layer">
               {ripples.map((r) => (
-                <div key={r.id} className="ripple" style={rippleStyle(r.dir)} />
+                <div key={r.id} className={`ripple ripple--${r.dir}`} />
               ))}
 
               {tiles.map((t) => {
-                const th = themeFor(t.value);
                 let cls = "tile";
                 if (t.isNew) cls += " spawn";
                 if (t.merged) cls += " merged";
+                cls += ` grid-row-${t.row} grid-col-${t.col}`;
+                cls += ` tile-z-${t.merged ? 10 : Math.min(t.value, 9)}`;
                 return (
                   <div
                     key={t.id}
                     className={cls}
-                    style={{
-                      left: `${cellPos(t.col)}%`,
-                      top: `${cellPos(t.row)}%`,
-                      width: `${CELL}%`,
-                      height: `${CELL}%`,
-                      transition:
-                        "left 0.13s cubic-bezier(0.34,1.1,0.5,1), top 0.13s cubic-bezier(0.34,1.1,0.5,1)",
-                      zIndex: t.merged ? 10 : Math.min(t.value, 9),
-                    }}
                   >
                     <div
-                      className="tile-inner"
-                      style={{
-                        background: th.bg,
-                        color: th.color,
-                        fontSize: fontFor(t.value),
-                        boxShadow: `0 3px 10px ${th.shadow}, inset 0 2px 4px rgba(255,255,255,0.4)`,
-                      }}
+                      className={`tile-inner tile-value-${tileThemeValue(t.value)}`}
                     >
                       {t.value}
                     </div>
@@ -590,14 +500,7 @@ export default function Game2048() {
               {sparkles.map((s) => (
                 <span
                   key={s.id}
-                  className="sparkle"
-                  style={{
-                    left: `${s.x}%`,
-                    top: `${s.y}%`,
-                    fontSize: 17,
-                    ["--sx" as string]: `${s.sx}px`,
-                    ["--sy" as string]: `${s.sy}px`,
-                  }}
+                  className={`sparkle sparkle--${s.slot}`}
                 >
                   {s.emoji}
                 </span>
@@ -606,8 +509,7 @@ export default function Game2048() {
               {floatPts.map((f) => (
                 <span
                   key={f.id}
-                  className="float-pts"
-                  style={{ left: `${f.x}%`, top: `${f.y}%` }}
+                  className={`float-pts float-row-${f.row} float-col-${f.col}`}
                 >
                   {f.text}
                 </span>

@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { Button, Stack } from "rsuite";
 import { ChevronRight, Film, Tv } from "lucide-react";
-import { MotionIcon } from "motion-icons-react";
+import { MotionIcon } from "../ui/MotionIcon";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import { useLogout } from "../../helpers";
 import { useAppSelector, selectShownProfile } from "../../store/store";
 import { NAV_LINKS } from "./headerLinks";
 import AvatarOrInitial from "./AvatarOrInitial";
+import HeaderPackageButton from "./HeaderPackageButton";
 
 interface Props {
   open: boolean;
@@ -144,22 +145,7 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
         <div className="mobile-nav-divider" />
         <div className="mobile-nav-cta">
           {!currentUser?.plan && (
-            <Button
-              appearance="primary"
-              className="paket-btn"
-              block
-              onClick={() => go("/packages")}
-            >
-              <Stack spacing={8}>
-                <span>Paket Al</span>
-                <MotionIcon
-                  name="Crown"
-                  size={18}
-                  trigger="hover"
-                  animation="pop"
-                />
-              </Stack>
-            </Button>
+            <HeaderPackageButton block onClick={() => go("/packages")} />
           )}
           {currentUser ? (
             <>

@@ -8,6 +8,8 @@
 
 // components
 @use "styles/modal";        // ortak RSuite modal görünümü
+@use "styles/state-view";   // ortak boş ve hata durumları
+@use "styles/toasts";       // global bildirim katmanı
 @use "styles/carousel/index" as carousel; // karuseller ve spinner
 @use "styles/games-carousel"; // oyun karusel kartlari
 

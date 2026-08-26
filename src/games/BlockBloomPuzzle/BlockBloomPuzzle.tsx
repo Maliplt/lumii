@@ -1,6 +1,6 @@
 import "./BlockBloomPuzzle.scss";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, PointerEvent } from "react";
+import type { PointerEvent } from "react";
 
 type Cell = {
   filled: boolean;
@@ -87,24 +87,6 @@ const STORAGE_SAVE = "block-bloom-save-v2";
 const BEST_SCORE_KEY = "blockbloom_best_score";
 
 // skor seviye renkleri
-const SCORE_LEVELS = [
-  { accent: "#ff5ea3", accentDark: "#b52668" },  // L0  Pembe
-  { accent: "#ff6b35", accentDark: "#c23d10" },  // L1  Turuncu
-  { accent: "#fbbf24", accentDark: "#cc8c00" },  // L2  Altın
-  { accent: "#84cc16", accentDark: "#4a8c05" },  // L3  Limon
-  { accent: "#34d399", accentDark: "#0a9e66" },  // L4  Nane
-  { accent: "#22d3ee", accentDark: "#0696b4" },  // L5  Camgöbeği
-  { accent: "#3b82f6", accentDark: "#1d4ed8" },  // L6  Mavi
-  { accent: "#8b5cf6", accentDark: "#4a2fd6" },  // L7  Mor
-  { accent: "#d946ef", accentDark: "#a21caf" },  // L8  Magenta
-  { accent: "#f43f5e", accentDark: "#b5102a" },  // L9  Kırmızı
-  { accent: "#fb923c", accentDark: "#c25010" },  // L10 Amber
-  { accent: "#a3e635", accentDark: "#65a30d" },  // L11 Sarı-yeşil
-  { accent: "#2dd4bf", accentDark: "#0d9488" },  // L12 Teal
-  { accent: "#60a5fa", accentDark: "#2563eb" },  // L13 Açık mavi
-  { accent: "#c084fc", accentDark: "#7e22ce" },  // L14 Lavanta
-];
-
 const LEVEL_THRESHOLDS = [0, 400, 900, 1500, 2200, 3000, 4000, 5200, 6600, 8300, 10200, 12500, 15100, 18200, 21800];
 
 const DEFAULT_SETTINGS: Settings = {
@@ -193,6 +175,11 @@ const PIECE_COLORS = [
   { color: "#84cc16", accent: "#4a8c05" },
   { color: "#f43f5e", accent: "#b5102a" },
 ];
+
+function pieceColorClass(color?: string): string {
+  const index = PIECE_COLORS.findIndex((entry) => entry.color === color);
+  return `bb-piece-color-${Math.max(0, index)}`;
+}
 
 const SHAPES: Shape[] = [
   { id: "one", name: "Tekli", weight: 7, cells: [{ x: 0, y: 0 }] },
@@ -448,63 +435,37 @@ function createAudio() {
 
 function MiniPiece({ piece, small = false, dim = false }: { piece: Piece; small?: boolean; dim?: boolean }) {
   const bounds = shapeBounds(piece.cells);
-  const size = small ? 10 : 20;
-  const gap = small ? 2 : 3;
   return (
     <div
-      className="bb-mini-piece"
-      style={{
-        width: bounds.width * size + (bounds.width - 1) * gap,
-        height: bounds.height * size + (bounds.height - 1) * gap,
-        opacity: dim ? 0.38 : 1,
-      }}
+      className={cx(
+        "bb-mini-piece",
+        `bb-piece-w-${bounds.width}`,
+        `bb-piece-h-${bounds.height}`,
+        small && "is-small",
+        dim && "is-dim",
+      )}
     >
       {piece.cells.map((cell, index) => (
         <span
           key={`${cell.x}-${cell.y}-${index}`}
-          style={
-            {
-              width: size,
-              height: size,
-              left: cell.x * (size + gap),
-              top: cell.y * (size + gap),
-              "--piece-color": piece.color,
-              "--piece-accent": piece.accent,
-            } as CSSProperties
-          }
+          className={`${pieceColorClass(piece.color)} bb-cell-x-${cell.x} bb-cell-y-${cell.y}`}
         />
       ))}
     </div>
   );
 }
 
-const SPARKLE_POSITIONS = [
-  { top: "7%",  left: "8%",  delay: "0s",    dur: "3.2s", size: "lg" },
-  { top: "12%", right: "6%", delay: "0.8s",  dur: "2.6s", size: "sm" },
-  { top: "28%", left: "4%",  delay: "1.4s",  dur: "4s",   size: "sm" },
-  { top: "18%", left: "42%", delay: "0.3s",  dur: "3.6s", size: "md" },
-  { bottom: "30%", right: "9%", delay: "1s", dur: "2.8s", size: "md" },
-  { bottom: "20%", left: "12%", delay: "1.8s", dur: "3.4s", size: "sm" },
-  { top: "55%", right: "5%", delay: "0.5s",  dur: "3s",   size: "lg" },
-  { bottom: "12%", left: "38%", delay: "2s", dur: "2.4s", size: "sm" },
-  { top: "38%", left: "2%",  delay: "2.4s",  dur: "3.8s", size: "md" },
-  { top: "8%",  right: "28%", delay: "1.2s", dur: "2.9s", size: "sm" },
+const SPARKLE_SIZES = [
+  "lg", "sm", "sm", "md", "md", "sm", "lg", "sm", "md", "sm",
 ];
 
 function PixelSparkles() {
   return (
     <div className="bb-sparkles" aria-hidden="true">
-      {SPARKLE_POSITIONS.map((pos, i) => (
+      {SPARKLE_SIZES.map((size, i) => (
         <span
           key={i}
-          className={`bb-sparkle bb-sp-${pos.size}`}
-          style={
-            {
-              ...pos,
-              animationDelay: pos.delay,
-              animationDuration: pos.dur,
-            } as CSSProperties
-          }
+          className={`bb-sparkle bb-sp-${size}`}
         >
           ✦
         </span>
@@ -557,17 +518,7 @@ export default function BlockBloomPuzzle() {
   const averageScore = stats.games ? Math.round(stats.totalScore / stats.games) : 0;
   const activePiece = selected !== null ? pieces[selected] : null;
 
-  const scoreLevel = Math.min(SCORE_LEVELS.length - 1, LEVEL_THRESHOLDS.filter((t) => score >= t).length - 1);
-  const levelColor = SCORE_LEVELS[scoreLevel];
-
-  const cssVars = useMemo(
-    () =>
-      ({
-        "--bb-accent": levelColor.accent,
-        "--bb-accent-dark": levelColor.accentDark,
-      }) as CSSProperties,
-    [levelColor.accent, levelColor.accentDark],
-  );
+  const scoreLevel = Math.min(LEVEL_THRESHOLDS.length - 1, LEVEL_THRESHOLDS.filter((t) => score >= t).length - 1);
 
   const showToast = useCallback((message: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -1008,7 +959,7 @@ export default function BlockBloomPuzzle() {
   }, [showToast]);
 
   return (
-    <div className={cx("bb-root", settings.darkMode && "bb-dark", settings.reducedMotion && "bb-reduced")} style={cssVars}>
+    <div className={cx("bb-root", `bb-level-${scoreLevel}`, settings.darkMode && "bb-dark", settings.reducedMotion && "bb-reduced")}>
       {toast && <div className="bb-toast">{toast}</div>}
 
       {/* menü */}
@@ -1110,7 +1061,7 @@ export default function BlockBloomPuzzle() {
           )}
 
           <div className="bb-px-progress" role="progressbar" aria-valuenow={progress}>
-            <div className="bb-px-progress-fill" style={{ width: `${progress}%` }} />
+            <div className={`bb-px-progress-fill progress-${Math.round(progress)}`} />
           </div>
 
           <div className="bb-board-container">
@@ -1134,16 +1085,12 @@ export default function BlockBloomPuzzle() {
                       className={cx(
                         "bb-cell",
                         cell.filled && "filled",
+                        cell.filled && pieceColorClass(cell.color),
                         preview && (isPreviewValid ? "preview good" : "preview bad"),
                         clearing.has(key) && "clearing",
                         hinted && "hint",
                         landingCells.has(key) && "landing",
                       )}
-                      style={
-                        cell.filled
-                          ? ({ "--cell-color": cell.color, "--cell-accent": cell.accent } as CSSProperties)
-                          : undefined
-                      }
                       onPointerDown={(e) => {
                         if (selected !== null && pieces[selected]) {
                           const target = cellFromEvent(e.clientX, e.clientY, pieces[selected]);

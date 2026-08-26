@@ -1,21 +1,20 @@
 import { Button, Toggle } from "rsuite";
 import { SectionIntro, SummaryBlock, SummaryRow } from "../AccountUI";
 import { avatarFor } from "../../../helpers";
-import type { Profile } from "../../../store/store";
+import type { Profile, ProfilePreferences } from "../../../store/store";
+import OptimizedImage from "../../ui/OptimizedImage";
 
 export default function SettingsTab({
   profile,
-  autoplayEnabled,
   fallbackName,
   historyCount,
-  onSetting,
+  onPreference,
   onClearHistory,
 }: {
   profile: Profile | null;
-  autoplayEnabled: boolean;
   fallbackName: string;
   historyCount: number;
-  onSetting: (changes: Partial<Profile>, message: string) => void;
+  onPreference: (changes: Partial<ProfilePreferences>, message: string) => void;
   onClearHistory: () => void;
 }) {
   return (
@@ -30,7 +29,7 @@ export default function SettingsTab({
             label="Aktif profil"
             value={
               <span className="acct-settings-profile">
-                <img src={avatarFor(profile)} alt="" />
+                <OptimizedImage src={avatarFor(profile)} alt="" />
                 {profile.name}
               </span>
             }
@@ -40,15 +39,53 @@ export default function SettingsTab({
             value="İçerik açıldığında video kendiliğinden başlasın"
             action={
               <Toggle
-                checked={autoplayEnabled}
+                checked={profile.preferences.autoplay}
                 className="profile-rsuite-toggle"
                 aria-label="Otomatik oynatma"
                 onChange={(checked) =>
-                  onSetting(
-                    { playback: checked ? "auto" : "manual" },
+                  onPreference(
+                    { autoplay: checked },
                     checked
                       ? "Otomatik oynatma açıldı."
                       : "Otomatik oynatma kapatıldı.",
+                  )
+                }
+              />
+            }
+          />
+          <SummaryRow
+            label="Fragman önizlemeleri"
+            value="İçerik kartlarında fragman önizleme seçeneğini göster"
+            action={
+              <Toggle
+                checked={profile.preferences.previews}
+                className="profile-rsuite-toggle"
+                aria-label="Fragman önizlemeleri"
+                onChange={(checked) =>
+                  onPreference(
+                    { previews: checked },
+                    checked
+                      ? "Fragman önizlemeleri açıldı."
+                      : "Fragman önizlemeleri kapatıldı.",
+                  )
+                }
+              />
+            }
+          />
+          <SummaryRow
+            label="İzlemeye devam et"
+            value="Ana sayfada izlemeye devam et satırını göster"
+            action={
+              <Toggle
+                checked={profile.preferences.showContinueWatching}
+                className="profile-rsuite-toggle"
+                aria-label="İzlemeye devam et satırı"
+                onChange={(checked) =>
+                  onPreference(
+                    { showContinueWatching: checked },
+                    checked
+                      ? "İzlemeye devam et satırı açıldı."
+                      : "İzlemeye devam et satırı kapatıldı.",
                   )
                 }
               />
@@ -59,12 +96,12 @@ export default function SettingsTab({
             value="E-posta bildirimlerini al"
             action={
               <Toggle
-                checked={(profile.notifications ?? "important") !== "off"}
+                checked={profile.preferences.emailNotifications}
                 className="profile-rsuite-toggle"
                 aria-label="E-posta bildirimleri"
                 onChange={(checked) =>
-                  onSetting(
-                    { notifications: checked ? "all" : "off" },
+                  onPreference(
+                    { emailNotifications: checked },
                     checked ? "Bildirimler açıldı." : "Bildirimler kapatıldı.",
                   )
                 }

@@ -71,7 +71,7 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #ffffff;
+        color: var(--color-white);
         position: relative;
         display: inline-block;
         font-family: var(--font-display);
@@ -125,7 +125,7 @@
         }
 
         &:hover {
-            color: #ffffff;
+            color: var(--color-white);
 
             &::before {
                 opacity: 1;
@@ -153,7 +153,7 @@
         font-size: var(--fs-md);
         font-weight: 700;
         font-family: var(--font-display);
-        color: #ffffff;
+        color: var(--color-white);
         letter-spacing: -0.01em;
     }
 
@@ -218,7 +218,7 @@
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
 
             ~ .site-footer__form-icon {
-                color: #ffffff;
+                color: var(--color-white);
                 transform: scale(1.05);
             }
         }
@@ -234,11 +234,11 @@
         align-items: center;
         justify-content: center;
         gap: var(--space-2);
-        background: #ffffff !important;
+        background: var(--color-white) !important;
         border: none !important;
         border-radius: var(--radius-1) !important;
         padding: 12px var(--space-6) !important;
-        color: #000000 !important;
+        color: var(--color-black) !important;
         font-weight: 700 !important;
         font-size: var(--fs-xs) !important;
         letter-spacing: 0.04em !important;
@@ -278,7 +278,7 @@
         height: 18px;
         border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 50%;
-        border-top-color: #ffffff;
+        border-top-color: var(--color-white);
         animation: site-footer-spin 0.8s linear infinite;
     }
 
@@ -378,7 +378,7 @@
     }
 
     // mobil ve tablet
-    @media (max-width: 768px) {
+    @include bp($bp-md) {
         .site-footer__inner {
             padding: var(--space-8) var(--space-5) var(--space-5);
         }
@@ -400,7 +400,7 @@
         }
     }
 
-    @media (max-width: 480px) {
+    @include bp($bp-sm) {
         .site-footer__inner {
             padding: var(--space-5) var(--space-4) var(--space-4);
         }

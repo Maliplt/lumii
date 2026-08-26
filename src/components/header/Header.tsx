@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
-import { Navbar, Button, Stack } from "rsuite";
-import { MotionIcon } from "motion-icons-react";
+import { Navbar, Button } from "rsuite";
+import { MotionIcon } from "../ui/MotionIcon";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import HeaderNav from "./HeaderNav";
 import HeaderAccountMenu from "./HeaderAccountMenu";
 import HeaderMobileNav from "./HeaderMobileNav";
-import { useAppSelector } from "../../store/store";
+import { selectShownProfile, useAppSelector } from "../../store/store";
+import HeaderPackageButton from "./HeaderPackageButton";
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
+  const shownProfile = useAppSelector(selectShownProfile);
 
   const hasQuery =
     location.pathname === "/search" &&
@@ -25,10 +27,21 @@ export default function Header() {
   );
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
+    let frame = 0;
+    const updateScrolled = () => {
+      frame = 0;
+      const next = window.scrollY > 30;
+      setScrolled((current) => (current === next ? current : next));
+    };
+    const handleScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateScrolled);
+    };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const searchVisible =
@@ -52,7 +65,7 @@ export default function Header() {
           <Navbar.Brand as={Link} to="/" className="header-brand-link">
             <Logo />
           </Navbar.Brand>
-          <HeaderNav />
+          <HeaderNav pathname={location.pathname} />
         </Navbar.Content>
 
         <SearchBar
@@ -78,23 +91,12 @@ export default function Header() {
               </Button>
             )}
             {!currentUser?.plan && (
-              <Button
-                appearance="primary"
-                className="paket-btn"
-                onClick={() => navigate("/packages")}
-              >
-                <Stack spacing={8}>
-                  <span>Paket Al</span>
-                  <MotionIcon
-                    name="Crown"
-                    size={18}
-                    trigger="hover"
-                    animation="pop"
-                  />
-                </Stack>
-              </Button>
+              <HeaderPackageButton onClick={() => navigate("/packages")} />
             )}
-            <HeaderAccountMenu />
+            <HeaderAccountMenu
+              currentUser={currentUser}
+              shownProfile={shownProfile}
+            />
           </div>
 
           <div className="header-mobile-actions">

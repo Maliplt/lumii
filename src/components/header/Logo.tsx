@@ -1,4 +1,5 @@
 import tenetLogo from "../../assets/images/tenet-logo.svg";
+import OptimizedImage from "../ui/OptimizedImage";
 
 interface LogoProps {
   className?: string;
@@ -7,7 +8,13 @@ interface LogoProps {
 export default function Logo({ className = "" }: LogoProps) {
   return (
     <span className={`tenet-logo ${className}`.trim()} aria-label="TENET">
-      <img src={tenetLogo} alt="" aria-hidden="true" style={{ minHeight: "22px" }} />
+      <OptimizedImage
+        src={tenetLogo}
+        alt=""
+        aria-hidden="true"
+        priority
+        style={{ minHeight: "22px" }}
+      />
     </span>
   );
 }

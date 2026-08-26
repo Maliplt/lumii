@@ -127,34 +127,8 @@ function useTimer() {
 
 const DoodleBg = () => (
   <div className="doodle-bg">
-    {[
-      { top: "5%", left: "3%", w: 80, h: 80, bg: "#ff6b6b" },
-      { top: "15%", left: "88%", w: 60, h: 60, bg: "#ffa502" },
-      { top: "40%", left: "92%", w: 100, h: 100, bg: "#2ed573" },
-      { top: "65%", left: "2%", w: 70, h: 70, bg: "#5352ed" },
-      { top: "80%", left: "85%", w: 90, h: 90, bg: "#ff4757" },
-      { top: "50%", left: "5%", w: 50, h: 50, bg: "#1e90ff" },
-      { top: "30%", left: "10%", w: 40, h: 40, bg: "#ffd32a" },
-      { top: "70%", left: "90%", w: 55, h: 55, bg: "#ff6348" },
-      { top: "90%", left: "30%", w: 65, h: 65, bg: "#7bed9f" },
-    ].map((s, i) => (
-      <div
-        key={i}
-        className="doodle-shape"
-        style={{
-          top: s.top,
-          left: s.left,
-          width: s.w,
-          height: s.h,
-          background: s.bg,
-          borderRadius:
-            i % 3 === 0
-              ? "30% 70% 70% 30% / 30% 30% 70% 70%"
-              : i % 3 === 1
-                ? "50%"
-                : "20% 80% 30% 70% / 50% 60% 40% 50%",
-        }}
-      />
+    {Array.from({ length: 9 }, (_, index) => (
+      <div key={index} className={`doodle-shape doodle-shape--${index + 1}`} />
     ))}
   </div>
 );
@@ -309,7 +283,7 @@ export default function MinesweeperApp() {
           <div className="ms-title-row">
             <span className="bomb-icon">💣</span>
             <div className="ms-title">Mayın Tarlası</div>
-            <span className="bomb-icon" style={{ animationDelay: "1.5s" }}>
+            <span className="bomb-icon bomb-icon--delayed">
               💣
             </span>
           </div>
@@ -350,10 +324,7 @@ export default function MinesweeperApp() {
               {flagCount} bayrak
             </div>
             {board && (
-              <div
-                className="stat-pill"
-                style={{ borderColor: "#c0e0c0", color: "#4a9a4a" }}
-              >
+              <div className="stat-pill stat-pill--progress">
                 <span className="stat-icon">📊</span>
                 {progress}%
               </div>
@@ -362,19 +333,13 @@ export default function MinesweeperApp() {
 
           <div className="board-container">
             {board ? (
-              <div
-                className="ms-board"
-                style={{ gridTemplateColumns: `repeat(${cfg.cols}, 36px)` }}
-              >
+              <div className={`ms-board ms-board--${difficulty}`}>
                 {board.map((row, r) =>
                   row.map((cell, c) => renderCell(cell, r, c)),
                 )}
               </div>
             ) : (
-              <div
-                className="ms-board"
-                style={{ gridTemplateColumns: `repeat(${cfg.cols}, 36px)` }}
-              >
+              <div className={`ms-board ms-board--${difficulty}`}>
                 {Array.from({ length: cfg.rows }, (_, r) =>
                   Array.from({ length: cfg.cols }, (_, c) => (
                     <div
@@ -400,16 +365,7 @@ export default function MinesweeperApp() {
             </button>
           </div>
 
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              color: "#ccc",
-              fontFamily: "Nunito, sans-serif",
-              fontWeight: 600,
-              textAlign: "center",
-            }}
-          >
+          <div className="ms-help-text">
             Sağ tık = bayrak • Masaüstü | Bayrak modu = mobil
           </div>
         </div>

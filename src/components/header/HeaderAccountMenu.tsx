@@ -1,16 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, ChevronRight, Users, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { avatarFor, useLogout } from "../../helpers";
-import { useAppSelector, useAppDispatch, selectProfile, selectShownProfile } from "../../store/store";
+import { avatarFor, useDismissableLayer, useLogout } from "../../helpers";
+import {
+  useAppDispatch,
+  selectProfile,
+  type CurrentUser,
+  type Profile,
+} from "../../store/store";
 import AvatarOrInitial from "./AvatarOrInitial";
+import OptimizedImage from "../ui/OptimizedImage";
 
-export default function HeaderAccountMenu() {
+interface HeaderAccountMenuProps {
+  currentUser: CurrentUser | null;
+  shownProfile: Profile | null;
+}
+
+export default function HeaderAccountMenu({
+  currentUser,
+  shownProfile,
+}: HeaderAccountMenuProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const logoutUser = useLogout();
-  const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const shownProfile = useAppSelector(selectShownProfile);
   const otherProfiles = (currentUser?.profiles ?? []).filter(
     (p) => p.id !== shownProfile?.id,
   );
@@ -19,22 +31,7 @@ export default function HeaderAccountMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node))
-        setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  useDismissableLayer(menuRef, open, () => setOpen(false), true);
 
   useEffect(
     () => () => {
@@ -89,7 +86,7 @@ export default function HeaderAccountMenu() {
         onClick={() => setOpen((p) => !p)}
       >
         <span className="account-avatar">
-          <AvatarOrInitial profile={shownProfile} fallbackName={currentUser.name} />
+          <AvatarOrInitial profile={shownProfile} fallbackName={currentUser.name} priority />
         </span>
         <span className="account-trigger__name">
           {shownProfile?.name ?? currentUser.name}
@@ -134,7 +131,7 @@ export default function HeaderAccountMenu() {
                   onClick={() => switchProfile(p.id)}
                 >
                   <span className="account-menu__profile-avatar">
-                    <img src={avatarFor(p)} alt="" />
+                    <OptimizedImage src={avatarFor(p)} alt="" />
                   </span>
                   <span>{p.name}</span>
                   {p.kids && (

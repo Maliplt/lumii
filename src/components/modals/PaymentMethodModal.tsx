@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Button, Input, Modal, Toggle } from "rsuite";
-import ModalCloseButton from "./ModalCloseButton";
+import { Button, Toggle } from "rsuite";
 import ModalHero from "./ModalHero";
 import { formatCardNumber, formatCvc, formatExpiry, isValidCardNumber, isValidCvc, isValidExpiry } from "../../services/card";
 import { isValidEmail } from "../../lib/utils";
 import type { Receipt } from "../../store/store";
+import ModalInputField from "./ModalInputField";
+import ProfileModalShell from "./ProfileModalShell";
 
 interface Props {
   email: string;
@@ -69,10 +70,16 @@ export default function PaymentMethodModal({
   };
 
   return (
-    <Modal open onClose={onClose} size="md" className="profile-modal payment-method-modal">
-      <ModalCloseButton onClose={onClose} />
-
-      <Modal.Body>
+    <ProfileModalShell
+      className="payment-method-modal"
+      size="md"
+      onClose={onClose}
+      footer={
+        <Button appearance="primary" onClick={save} block>
+          Ödeme Yöntemini Kaydet
+        </Button>
+      }
+    >
         <ModalHero
           className="email-modal__hero"
           title="Ödeme yöntemi"
@@ -87,87 +94,75 @@ export default function PaymentMethodModal({
         )}
 
         <div className="payment-method-grid">
-          <label className="profile-edit__field" htmlFor="payment-card-name">
-            <span>Kart sahibi</span>
-            <Input
-              id="payment-card-name"
-              value={cardName}
-              placeholder="Ad Soyad"
-              onChange={(value) => {
-                setCardName(value);
-                if (error) setError("");
-              }}
-            />
-          </label>
-          <label className="profile-edit__field" htmlFor="payment-card-number">
-            <span>Kart numarası</span>
-            <Input
-              id="payment-card-number"
-              value={cardNumber}
-              placeholder="4242 4242 4242 4242"
-              inputMode="numeric"
-              maxLength={19}
-              onChange={(value) => {
-                setCardNumber(formatCardNumber(value));
-                if (error) setError("");
-              }}
-            />
-          </label>
-          <label className="profile-edit__field" htmlFor="payment-expiry">
-            <span>Son kullanma</span>
-            <Input
-              id="payment-expiry"
-              value={expiry}
-              placeholder="AA/YY"
-              inputMode="numeric"
-              maxLength={5}
-              onChange={(value) => {
-                setExpiry(formatExpiry(value));
-                if (error) setError("");
-              }}
-            />
-          </label>
-          <label className="profile-edit__field" htmlFor="payment-cvc">
-            <span>CVC</span>
-            <Input
-              id="payment-cvc"
-              value={cvc}
-              placeholder="123"
-              inputMode="numeric"
-              maxLength={3}
-              onChange={(value) => {
-                setCvc(formatCvc(value));
-                if (error) setError("");
-              }}
-            />
-          </label>
+          <ModalInputField
+            id="payment-card-name"
+            label="Kart sahibi"
+            value={cardName}
+            placeholder="Ad Soyad"
+            onChange={(value) => {
+              setCardName(value);
+              if (error) setError("");
+            }}
+          />
+          <ModalInputField
+            id="payment-card-number"
+            label="Kart numarası"
+            value={cardNumber}
+            placeholder="4242 4242 4242 4242"
+            inputMode="numeric"
+            maxLength={19}
+            onChange={(value) => {
+              setCardNumber(formatCardNumber(value));
+              if (error) setError("");
+            }}
+          />
+          <ModalInputField
+            id="payment-expiry"
+            label="Son kullanma"
+            value={expiry}
+            placeholder="AA/YY"
+            inputMode="numeric"
+            maxLength={5}
+            onChange={(value) => {
+              setExpiry(formatExpiry(value));
+              if (error) setError("");
+            }}
+          />
+          <ModalInputField
+            id="payment-cvc"
+            label="CVC"
+            value={cvc}
+            placeholder="123"
+            inputMode="numeric"
+            maxLength={3}
+            onChange={(value) => {
+              setCvc(formatCvc(value));
+              if (error) setError("");
+            }}
+          />
         </div>
 
-        <label className="profile-edit__field" htmlFor="payment-address">
-          <span>Fatura adresi</span>
-          <Input
-            id="payment-address"
-            value={billingAddress}
-            placeholder="Mahalle, cadde, şehir"
-            onChange={(value) => {
-              setBillingAddress(value);
-              if (error) setError("");
-            }}
-          />
-        </label>
+        <ModalInputField
+          id="payment-address"
+          label="Fatura adresi"
+          value={billingAddress}
+          placeholder="Mahalle, cadde, şehir"
+          onChange={(value) => {
+            setBillingAddress(value);
+            if (error) setError("");
+          }}
+        />
 
-        <label className="profile-edit__field" htmlFor="payment-email">
-          <span>Fatura e-postası</span>
-          <Input
-            id="payment-email"
-            value={billingEmail}
-            type="email"
-            onChange={(value) => {
-              setBillingEmail(value);
-              if (error) setError("");
-            }}
-          />
-        </label>
+        <ModalInputField
+          id="payment-email"
+          label="Fatura e-postası"
+          value={billingEmail}
+          type="email"
+          onChange={(value) => {
+            setBillingEmail(value);
+            if (error) setError("");
+          }}
+        />
 
         <div className="profile-edit__kid-toggle payment-method-toggle">
           <div>
@@ -183,15 +178,6 @@ export default function PaymentMethodModal({
         </div>
 
         {error && <small className="lock-modal__error">{error}</small>}
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="profile-edit__footer">
-          <Button appearance="primary" onClick={save} block>
-            Ödeme Yöntemini Kaydet
-          </Button>
-        </div>
-      </Modal.Footer>
-    </Modal>
+    </ProfileModalShell>
   );
 }

@@ -1,15 +1,17 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Schema, Button } from "rsuite";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import FormField from "../components/auth/FormField";
 import PasswordField from "../components/auth/PasswordField";
+import AuthCredentialsFields from "../components/auth/AuthCredentialsFields";
 import AuthErrorBanner from "../components/auth/AuthErrorBanner";
+import { useAuthForm } from "../components/auth/useAuthForm";
 import { toastText, useTitle, useRotatingBackdrop, useAuthRedirectOnSuccess } from "../helpers";
 import { emailRule, passwordRule, runSchemaCheck } from "../lib/authValidation";
 import { tmdbApi } from "../services/tmdb";
-import { useAppDispatch, useAppSelector, register, clearAuthError } from "../store/store";
+import { useAppDispatch, useAppSelector, register } from "../store/store";
 
 const { StringType } = Schema.Types;
 
@@ -28,23 +30,16 @@ export default function RegisterPage() {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const authError = useAppSelector((s) => s.auth.error);
-
-  const [formValue, setFormValue] = useState({
+  const { formValue, errors, authError, setErrors, updateField } = useAuthForm({
     name: "",
     email: "",
     password: "",
     confirm: "",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const submitted = useRef(false);
   const { movies, bgIdx } = useRotatingBackdrop(() => tmdbApi.getPopularMovies());
 
   useAuthRedirectOnSuccess(currentUser, submitted, toastText.registered);
-
-  useEffect(() => {
-    dispatch(clearAuthError());
-  }, [dispatch]);
 
   const handleRegister = () => {
     const errs = runSchemaCheck(registerModel, formValue);
@@ -62,9 +57,7 @@ export default function RegisterPage() {
   };
 
   const setField = (key: keyof typeof formValue) => (value: string) => {
-    setFormValue((f) => ({ ...f, [key]: value }));
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: "" }));
-    if (authError) dispatch(clearAuthError());
+    updateField(key, value);
   };
 
   return (
@@ -86,23 +79,15 @@ export default function RegisterPage() {
             error={errors.name}
           />
 
-          <FormField
-            id="reg-email"
-            label="E-posta"
-            type="email"
-            placeholder="ornek@mail.com"
-            value={formValue.email}
-            onChange={setField("email")}
-            error={errors.email}
-          />
-
-          <PasswordField
-            id="reg-password"
-            label="Şifre"
-            placeholder="En az 8 karakter"
-            value={formValue.password}
-            onChange={setField("password")}
-            error={errors.password}
+          <AuthCredentialsFields
+            idPrefix="reg"
+            email={formValue.email}
+            password={formValue.password}
+            emailError={errors.email}
+            passwordError={errors.password}
+            passwordPlaceholder="En az 8 karakter"
+            onEmailChange={setField("email")}
+            onPasswordChange={setField("password")}
           />
 
           <PasswordField

@@ -151,7 +151,7 @@ export interface PackageDef {
   name: string;
   price: string;
   period: string;
-  icon: string;
+  icon: "Play" | "Zap" | "Crown";
   badge: string | null;
   accent: boolean;
   features: string[];

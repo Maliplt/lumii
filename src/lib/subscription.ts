@@ -54,7 +54,7 @@ export function requiredPlanName(level: ContentAccessLevel): string {
 }
 
 export function upgradeCtaLabel(level: ContentAccessLevel): string {
-  return level === "premium" ? "Premium'a Geç" : `${requiredPlanName(level)} Pakete Geç`;
+  return level === "premium" ? "Premium'a Yükselt" : `${requiredPlanName(level)} Pakete Yükselt`;
 }
 
 export function channelAccessLevel(channelIndex: number, category?: string): ContentAccessLevel {

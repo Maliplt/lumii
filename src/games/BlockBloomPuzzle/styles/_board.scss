@@ -134,6 +134,12 @@
   box-shadow: 2px 0 8px var(--bb-accent);
 }
 
+@for $progress from 0 through 100 {
+  .progress-#{$progress} {
+    width: $progress * 1%;
+  }
+}
+
 // tahta
 
 .bb-board-container {
@@ -240,6 +246,15 @@
   }
 }
 
+.bb-piece-color-0 { --piece-color: #ff5ea3; --piece-accent: #b52668; --cell-color: #ff5ea3; --cell-accent: #b52668; }
+.bb-piece-color-1 { --piece-color: #8b5cf6; --piece-accent: #4a2fd6; --cell-color: #8b5cf6; --cell-accent: #4a2fd6; }
+.bb-piece-color-2 { --piece-color: #fbbf24; --piece-accent: #cc8c00; --cell-color: #fbbf24; --cell-accent: #cc8c00; }
+.bb-piece-color-3 { --piece-color: #34d399; --piece-accent: #0a9e66; --cell-color: #34d399; --cell-accent: #0a9e66; }
+.bb-piece-color-4 { --piece-color: #22d3ee; --piece-accent: #0696b4; --cell-color: #22d3ee; --cell-accent: #0696b4; }
+.bb-piece-color-5 { --piece-color: #fb923c; --piece-accent: #c25010; --cell-color: #fb923c; --cell-accent: #c25010; }
+.bb-piece-color-6 { --piece-color: #84cc16; --piece-accent: #4a8c05; --cell-color: #84cc16; --cell-accent: #4a8c05; }
+.bb-piece-color-7 { --piece-color: #f43f5e; --piece-accent: #b5102a; --cell-color: #f43f5e; --cell-accent: #b5102a; }
+
 // parça tepsisi
 
 .bb-piece-tray {
@@ -303,10 +318,33 @@
 // mini parça
 
 .bb-mini-piece {
+  --piece-size: 20px;
+  --piece-step: 23px;
   position: relative;
   flex-shrink: 0;
 
+  &.is-small {
+    --piece-size: 10px;
+    --piece-step: 12px;
+  }
+
+  @for $size from 1 through 5 {
+    &.bb-piece-w-#{$size} {
+      width: calc(var(--piece-size) + (#{$size - 1} * var(--piece-step)));
+    }
+
+    &.bb-piece-h-#{$size} {
+      height: calc(var(--piece-size) + (#{$size - 1} * var(--piece-step)));
+    }
+  }
+
+  &.is-dim {
+    opacity: 0.38;
+  }
+
   span {
+    width: var(--piece-size);
+    height: var(--piece-size);
     position: absolute;
     border-radius: 2px;
     background: var(--piece-color);
@@ -314,6 +352,16 @@
     box-shadow:
       inset -3px -3px 0 0 var(--piece-accent),
       inset 2px 2px 0 0 rgba(255, 255, 255, 0.22);
+  }
+
+  @for $position from 0 through 4 {
+    .bb-cell-x-#{$position} {
+      left: calc(#{$position} * var(--piece-step));
+    }
+
+    .bb-cell-y-#{$position} {
+      top: calc(#{$position} * var(--piece-step));
+    }
   }
 }
 

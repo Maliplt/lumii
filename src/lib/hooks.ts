@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useRef, type TouchEvent, type MouseEvent, type RefObject } from "react";
+import { useState, useEffect, useMemo, useRef, type TouchEvent, type MouseEvent as ReactMouseEvent, type RefObject } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, selectLibrary, sameSavedItem, logout, type SavedItem } from "../store/store";
 import { useToast, toastText } from "./toast";
 import type { Movie, TVShow } from "../types/types";
-import { popButton } from "./utils";
+import { mediaTypeOf, popButton } from "./utils";
 import { safeAuthReturnTo } from "./authRouting";
 import {
   resolveServiceError,
@@ -36,8 +36,9 @@ export function useFetch<T>(
   useEffect(() => {
     let cancelled = false;
 
-    fetcherRef
-      .current()
+    // senkron hataları da yakala
+    Promise.resolve()
+      .then(() => fetcherRef.current())
       .then((data) => {
         if (!cancelled) setResult({ key, attempt, data, error: null });
       })
@@ -75,6 +76,36 @@ export function useTitle(title: string) {
   }, [title]);
 }
 
+export function useDismissableLayer(
+  ref: RefObject<HTMLElement | null>,
+  active: boolean,
+  onDismiss: () => void,
+  closeOnEscape = false,
+) {
+  const dismissRef = useRef(onDismiss);
+  useEffect(() => {
+    dismissRef.current = onDismiss;
+  });
+
+  useEffect(() => {
+    if (!active) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        dismissRef.current();
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (closeOnEscape && event.key === "Escape") dismissRef.current();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    if (closeOnEscape) document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      if (closeOnEscape) document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [active, closeOnEscape, ref]);
+}
+
 const SWIPE_THRESHOLD = 50;
 
 // kaydırma hareketi
@@ -107,7 +138,7 @@ export function useLibraryActions(
   const location = useLocation();
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const mediaType = (item as SavedItem).media_type ?? type;
+  const mediaType = mediaTypeOf(item, type);
   const saved = { ...item, media_type: mediaType } as SavedItem;
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const inWatchlist = useAppSelector((s) =>
@@ -128,7 +159,7 @@ export function useLibraryActions(
     return false;
   };
 
-  const onWatchlist = (e: MouseEvent) => {
+  const onWatchlist = (e: ReactMouseEvent) => {
     e.stopPropagation();
     popButton(e.currentTarget as HTMLElement);
     if (!requireLogin(toastText.loginForWatchlist)) return;
@@ -136,7 +167,7 @@ export function useLibraryActions(
     toast(inWatchlist ? toastText.watchlistRemoved : toastText.watchlistAdded);
   };
 
-  const onLike = (e: MouseEvent) => {
+  const onLike = (e: ReactMouseEvent) => {
     e.stopPropagation();
     popButton(e.currentTarget as HTMLElement);
     if (!requireLogin(toastText.loginForLike)) return;
@@ -148,15 +179,10 @@ export function useLibraryActions(
 }
 
 // youtube
-const YT_PLAYING = 1;
-const YT_ENDED = 0;
-
 export function useYouTubeEmbed(
-  frameRef: RefObject<HTMLIFrameElement | null>,
   videoKey: string | null,
 ) {
   const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(true);
   const [prevVideoKey, setPrevVideoKey] = useState(videoKey);
   const readyTimer = useRef<number | null>(null);
 
@@ -164,64 +190,23 @@ export function useYouTubeEmbed(
   if (videoKey !== prevVideoKey) {
     setPrevVideoKey(videoKey);
     setReady(false);
-    setMuted(true);
   }
 
   useEffect(() => {
     if (!videoKey) return;
 
     readyTimer.current = window.setTimeout(() => setReady(true), 2600);
-    const onMessage = (e: MessageEvent) => {
-      if (
-        e.origin !== "https://www.youtube.com" &&
-        e.origin !== "https://www.youtube-nocookie.com"
-      )
-        return;
-      let msg: { info?: { playerState?: number } };
-      try {
-        msg = JSON.parse(e.data);
-      } catch {
-        return;
-      }
-      const state = msg.info?.playerState;
-      if (state === YT_PLAYING) {
-        if (readyTimer.current) window.clearTimeout(readyTimer.current);
-        setReady(true);
-      }
-      if (state === YT_ENDED)
-        frameRef.current?.contentWindow?.postMessage(
-          JSON.stringify({ event: "command", func: "playVideo" }),
-          "*",
-        );
-    };
-    window.addEventListener("message", onMessage);
     return () => {
-      window.removeEventListener("message", onMessage);
       if (readyTimer.current) window.clearTimeout(readyTimer.current);
     };
-  }, [videoKey, frameRef]);
+  }, [videoKey]);
 
   const onFrameLoad = () => {
-    const win = frameRef.current?.contentWindow;
-    if (!win) return;
-    win.postMessage(JSON.stringify({ event: "listening", channel: "widget" }), "*");
-    window.setTimeout(() => {
-      win.postMessage(JSON.stringify({ event: "command", func: "mute" }), "*");
-      win.postMessage(JSON.stringify({ event: "command", func: "playVideo" }), "*");
-    }, 350);
+    if (readyTimer.current) window.clearTimeout(readyTimer.current);
+    readyTimer.current = window.setTimeout(() => setReady(true), 350);
   };
 
-  const toggleMute = () => {
-    const win = frameRef.current?.contentWindow;
-    if (!win) return;
-    win.postMessage(
-      JSON.stringify({ event: "command", func: muted ? "unMute" : "mute" }),
-      "*",
-    );
-    setMuted((m) => !m);
-  };
-
-  return { ready, muted, onFrameLoad, toggleMute };
+  return { ready, onFrameLoad };
 }
 
 // cikis akisi

@@ -1,27 +1,21 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchX, Search as SearchIcon } from "lucide-react";
-import PageLayout from "../components/PageLayout";
-import ContentCarousel from "../components/ContentCarousel";
-import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
-import Spinner from "../components/Spinner";
-import StateView from "../components/StateView";
-import ServiceErrorView from "../components/ServiceErrorView";
+import PageLayout from "../components/layout/PageLayout";
+import ContentCarousel from "../components/media/ContentCarousel";
+import SpotlightContentCarousel from "../components/media/SpotlightContentCarousel";
+import Spinner from "../components/ui/Spinner";
+import StateView from "../components/feedback/StateView";
+import ServiceErrorView from "../components/feedback/ServiceErrorView";
 import { tmdbApi } from "../services/tmdb";
 import { isPlayableSearchResult, useFetch, useTitle } from "../helpers";
-import { contentAudienceKey } from "../lib/contentPersonalization";
+import { useContentAudienceKey } from "../lib/useContentAudienceKey";
 import { searchSpotlightDefinitions } from "../services/spotlightCarousels";
-import { useAppSelector } from "../store/store";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") ?? "").trim();
-  const userEmail = useAppSelector((state) => state.auth.currentUser?.email);
-  const activeProfileId = useAppSelector((state) => state.auth.activeProfileId);
-  const audienceKey = useMemo(
-    () => contentAudienceKey(userEmail, activeProfileId),
-    [activeProfileId, userEmail],
-  );
+  const audienceKey = useContentAudienceKey();
   const spotlightResults = useMemo(
     () => searchSpotlightDefinitions(query, audienceKey),
     [audienceKey, query],
@@ -63,7 +57,6 @@ export default function SearchPage() {
       return (
         <ServiceErrorView
           error={error}
-          title="Arama başarısız oldu"
           onRetry={retry}
         />
       );

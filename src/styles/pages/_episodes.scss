@@ -33,14 +33,14 @@
         .episodes-toggle__art {
             background: rgba($brand, 0.16);
             border-color: var(--accent);
-            color: #ffffff;
+            color: var(--color-white);
             box-shadow: 0 0 16px rgba($brand, 0.45);
             transform: scale(1.05);
         }
 
         .episodes-toggle__chev {
             background: var(--accent);
-            color: #fff;
+            color: var(--color-white);
         }
     }
 
@@ -103,7 +103,7 @@
         &.open {
             transform: rotate(180deg);
             background: var(--accent);
-            color: #fff;
+            color: var(--color-white);
         }
     }
 
@@ -157,7 +157,7 @@
     &.active {
         background: var(--accent);
         border-color: var(--accent);
-        color: #fff;
+        color: var(--color-white);
         box-shadow: 0 6px 18px rgba($brand, 0.3);
     }
 }
@@ -255,7 +255,7 @@
         font-size: 42px;
         font-weight: 800;
         line-height: 1;
-        color: #fff;
+        color: var(--color-white);
         text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
         @include smooth(color, var(--dur-base));
     }
@@ -270,7 +270,7 @@
         height: 46px;
         border-radius: 50%;
         background: var(--accent);
-        color: #fff;
+        color: var(--color-white);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -334,7 +334,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@include bp($bp-md) {
     .episodes-block {
         padding-inline: var(--space-4);
     }

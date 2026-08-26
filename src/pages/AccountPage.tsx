@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Receipt } from "lucide-react";
-import PageLayout from "../components/PageLayout";
+import PageLayout from "../components/layout/PageLayout";
 import NavButton from "../components/account/NavButton";
 import EmailChangeModal from "../components/modals/EmailChangeModal";
 import PaymentMethodModal from "../components/modals/PaymentMethodModal";
@@ -12,11 +12,12 @@ import ProfilesTab from "../components/account/tabs/ProfilesTab";
 import MembershipTab from "../components/account/tabs/MembershipTab";
 import SecurityTab from "../components/account/tabs/SecurityTab";
 import BillingTab from "../components/account/tabs/BillingTab";
+import OptimizedImage from "../components/ui/OptimizedImage";
 import SettingsTab from "../components/account/tabs/SettingsTab";
 import LibraryTab from "../components/account/tabs/LibraryTab";
 import { ACCOUNT_NAV, LIBRARY_NAV, PLAN_FALLBACK, formatPlan, validatePassword, type SectionKey, type EditorState } from "../components/account/accountData";
 import { findPackage, avatarFor, useProtectedUser, useTitle, useToast, toastText } from "../helpers";
-import { addProfile, changePassword, clearHistory, selectAutoplayEnabled, selectLibrary, selectShownProfile, setReceipt, updateEmail, updatePaymentMethod, updateProfile, useAppDispatch, useAppSelector, type Profile } from "../store/store";
+import { addProfile, changePassword, clearHistory, selectLibrary, selectShownProfile, setReceipt, updateEmail, updatePaymentMethod, updateProfile, updateProfilePreferences, useAppDispatch, useAppSelector, type Profile } from "../store/store";
 
 export default function AccountPage() {
   useTitle("Hesap");
@@ -31,7 +32,6 @@ export default function AccountPage() {
 
   const currentUser = useProtectedUser();
   const shownProfile = useAppSelector(selectShownProfile);
-  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const accounts = useAppSelector((s) => s.auth.accounts);
   const receipt = useAppSelector((s) => s.auth.receipt);
   const selectedLibrary = useAppSelector(selectLibrary);
@@ -157,12 +157,18 @@ export default function AccountPage() {
         return (
           <SettingsTab
             profile={shownProfile}
-            autoplayEnabled={autoplayEnabled}
             fallbackName={currentUser.name}
             historyCount={selectedLibrary.history.length}
-            onSetting={(changes, message) => {
-              if (shownProfile)
-                updateProfileSettings(shownProfile, changes, message);
+            onPreference={(changes, message) => {
+              if (shownProfile) {
+                dispatch(
+                  updateProfilePreferences({
+                    profileId: shownProfile.id,
+                    changes,
+                  }),
+                );
+                toast(message, "info");
+              }
             }}
             onClearHistory={() => {
               dispatch(clearHistory());
@@ -190,7 +196,7 @@ export default function AccountPage() {
       <div className="acct-shell">
         <aside className="acct-sidebar" aria-label="Hesap menüsü">
           <div className="acct-sidebar__profile">
-            <img src={avatarFor(shownProfile)} alt="" />
+            <OptimizedImage src={avatarFor(shownProfile)} alt="" priority />
             <div>
               <strong>{shownProfile?.name ?? currentUser.name}</strong>
               <span>{formatPlan(plan)}</span>

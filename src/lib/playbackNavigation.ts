@@ -60,7 +60,7 @@ interface NavigateToPlaybackOptions extends PlaybackNavigationState {
   id: string | number;
   planId?: string | null;
   accessLevel?: ContentAccessLevel;
-  autoFullscreen?: boolean;
+  autoplayEnabled: boolean;
 }
 
 // oynatma
@@ -70,7 +70,7 @@ export function navigateToPlayback({
   id,
   planId,
   accessLevel,
-  autoFullscreen = false,
+  autoplayEnabled,
   title,
   season,
   episode,
@@ -87,7 +87,7 @@ export function navigateToPlayback({
 
   const openPlayer = () => navigate(`/${type}/${id}/player`, { state });
 
-  if (autoFullscreen && isMobilePlaybackDevice()) {
+  if (autoplayEnabled && isMobilePlaybackDevice()) {
     void requestMobilePlaybackFullscreen().finally(openPlayer);
     return;
   }

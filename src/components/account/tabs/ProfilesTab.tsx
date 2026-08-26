@@ -2,6 +2,7 @@ import { Pencil, Plus } from "lucide-react";
 import { SectionIntro } from "../AccountUI";
 import { avatarFor } from "../../../helpers";
 import { MAX_PROFILES, type Profile } from "../../../store/store";
+import OptimizedImage from "../../ui/OptimizedImage";
 
 export default function ProfilesTab({
   profiles,
@@ -29,7 +30,7 @@ export default function ProfilesTab({
         {profiles.map((profile) => (
           <article className="acct-profile-card" key={profile.id}>
             <div className="acct-profile-card__head">
-              <img src={avatarFor(profile)} alt="" />
+              <OptimizedImage src={avatarFor(profile)} alt="" />
               <div>
                 <h3>{profile.name}</h3>
                 <p>{profile.kids ? "Çocuk" : "Standart profil"}</p>

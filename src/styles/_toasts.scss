@@ -1,0 +1,245 @@
+@use "base" as *;
+
+.rs-toast-container {
+    top: calc(72px + var(--space-3)) !important;
+    z-index: var(--z-spinner) !important;
+}
+
+.rs-toast {
+    filter: none;
+    margin-bottom: var(--space-2-5) !important;
+}
+
+.rs-message {
+    --rs-message-success-bg: #{$surface-1} !important;
+    --rs-message-success-icon: #{$brand} !important;
+    --rs-message-success-text: var(--color-white) !important;
+    --rs-message-success-border: #{$brand} !important;
+    --rs-message-info-bg: #{$surface-1} !important;
+    --rs-message-info-icon: #{$brand} !important;
+    --rs-message-info-text: var(--color-white) !important;
+    --rs-message-info-border: #{$brand} !important;
+    --rs-message-warning-bg: #{$surface-1} !important;
+    --rs-message-warning-icon: #{$brand} !important;
+    --rs-message-warning-text: var(--color-white) !important;
+    --rs-message-warning-border: #{$brand} !important;
+    --rs-message-error-bg: #{$surface-1} !important;
+    --rs-message-error-icon: #{$brand} !important;
+    --rs-message-error-text: var(--color-white) !important;
+    --rs-message-error-border: #{$brand} !important;
+
+    width: min(380px, calc(100vw - 24px)) !important;
+    min-width: 320px !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: var(--radius-1) !important;
+    background: rgba(10, 10, 12, 0.88) !important;
+    background-color: rgba(10, 10, 12, 0.88) !important;
+    backdrop-filter: blur(18px) saturate(125%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(125%) !important;
+    color: var(--color-white) !important;
+    font-family: var(--font-body) !important;
+    overflow: hidden !important;
+    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+
+    // içerik
+    .rs-message-container {
+        background: transparent !important;
+        background-color: transparent !important;
+        min-height: 54px;
+        padding: 11px 10px 11px 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 11px !important;
+    }
+
+    // ikon
+    .rs-message-icon,
+    .rs-message-icon-wrapper {
+        display: inline-grid !important;
+        place-items: center !important;
+        align-self: center !important;
+        flex-shrink: 0 !important;
+        width: 20px !important;
+        height: 20px !important;
+        margin: 0 !important;
+
+        .rs-icon {
+            color: $brand !important;
+            font-size: 17px !important;
+            width: 17px !important;
+            height: 17px !important;
+            fill: $brand !important;
+        }
+
+        svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+    }
+
+    // metin
+    .rs-message-content {
+        color: var(--color-white) !important;
+        font-size: var(--fs-sm) !important;
+        font-weight: 700 !important;
+        font-family: var(--font-body) !important;
+        letter-spacing: 0 !important;
+        line-height: 1.42 !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    // metin alanı
+    .rs-message-body {
+        color: var(--color-white) !important;
+        font-size: inherit !important;
+        font-weight: inherit !important;
+        font-family: var(--font-body) !important;
+    }
+
+    // kapatma
+    .rs-message-btn-close,
+    .rs-btn-close {
+        position: static !important;
+        display: inline-grid !important;
+        place-items: center !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        margin: 0 0 0 2px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 50% !important;
+        color: rgba(255, 255, 255, 0.58) !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        transform: none !important;
+        transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease) !important;
+
+        svg {
+            width: 15px !important;
+            height: 15px !important;
+        }
+
+        &:hover {
+            color: var(--color-white) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        &:active {
+            transform: scale(0.92) !important;
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgba($brand, 0.85) !important;
+            outline-offset: 1px !important;
+        }
+    }
+
+    &.rs-message-success,
+    &.rs-message-info,
+    &.rs-message-warning,
+    &.rs-message-error {
+        background: rgba(10, 10, 12, 0.88) !important;
+        background-color: rgba(10, 10, 12, 0.88) !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+
+        .rs-message-icon .rs-icon,
+        .rs-message-icon svg,
+        .rs-message-icon-wrapper .rs-icon,
+        .rs-message-icon-wrapper svg {
+            color: $brand !important;
+            fill: $brand !important;
+        }
+
+        .rs-message-container {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .rs-message-content,
+        .rs-message-body {
+            color: var(--color-white) !important;
+        }
+    }
+
+    // üst alan
+    .rs-message-header {
+        color: var(--color-white) !important;
+        font-weight: 800 !important;
+        font-size: var(--fs-md) !important;
+        font-family: var(--font-display) !important;
+    }
+
+    &.service-error-toast {
+        width: min(440px, calc(100vw - 24px)) !important;
+        border-color: rgba($brand, 0.38) !important;
+
+        .rs-message-content {
+            min-width: 0;
+        }
+
+        .rs-message-body {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: var(--space-2) var(--space-2-5);
+            margin-top: var(--space-1);
+            font-size: var(--fs-sm) !important;
+            font-weight: 500 !important;
+            line-height: 1.45 !important;
+        }
+    }
+}
+
+.service-error-toast__code {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 8px;
+    border: 1px solid rgba($brand, 0.48);
+    border-radius: var(--radius-1);
+    background: rgba($brand, 0.14);
+    color: var(--accent-hover);
+    font-family: var(--font-header);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+}
+
+.service-error-toast__message {
+    min-width: 0;
+    color: var(--text-secondary);
+}
+
+@include bp($bp-sm) {
+    .rs-toast-container {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+    }
+
+    .rs-toast,
+    .rs-message {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .rs-message .rs-message-container {
+        min-height: 52px;
+        padding: 10px 8px 10px 12px !important;
+    }
+
+    .rs-message.service-error-toast .rs-message-body {
+        grid-template-columns: 1fr;
+    }
+
+    .service-error-toast__code {
+        justify-self: start;
+    }
+}

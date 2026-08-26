@@ -46,19 +46,16 @@ const MODES = {
     label: "Sonsuz",
     emoji: "♾️",
     desc: "Tek hata = oyun biter",
-    color: "#ff7a59",
   },
   duel: {
     label: "Düello",
     emoji: "⚔️",
-    desc: "3 can, AI'yı yen",
-    color: "#7c5cff",
+    desc: "3 can, rakibi yen",
   },
   zen: {
     label: "Zen",
     emoji: "🍃",
     desc: "Süre yok, sakin oyna",
-    color: "#2bc7a4",
   },
 } as const;
 type Mode = keyof typeof MODES;
@@ -68,17 +65,17 @@ interface LevelDef {
   name: string;
   minXp: number;
   baseTime: number;
-  aiSkill: number;
+  rivalSkill: number;
 }
 const LEVELS: LevelDef[] = [
-  { level: 1, name: "Çaylak", minXp: 0, baseTime: 15, aiSkill: 0.1 },
-  { level: 2, name: "Hevesli", minXp: 150, baseTime: 14, aiSkill: 0.25 },
-  { level: 3, name: "Usta Adayı", minXp: 380, baseTime: 13, aiSkill: 0.4 },
-  { level: 4, name: "Kelime Avcısı", minXp: 700, baseTime: 12, aiSkill: 0.55 },
-  { level: 5, name: "Zincirci", minXp: 1100, baseTime: 11, aiSkill: 0.7 },
-  { level: 6, name: "Söz Ustası", minXp: 1650, baseTime: 10, aiSkill: 0.82 },
-  { level: 7, name: "Efsane", minXp: 2350, baseTime: 9, aiSkill: 0.92 },
-  { level: 8, name: "Kelime Kralı", minXp: 3200, baseTime: 8, aiSkill: 1.0 },
+  { level: 1, name: "Çaylak", minXp: 0, baseTime: 15, rivalSkill: 0.1 },
+  { level: 2, name: "Hevesli", minXp: 150, baseTime: 14, rivalSkill: 0.25 },
+  { level: 3, name: "Usta Adayı", minXp: 380, baseTime: 13, rivalSkill: 0.4 },
+  { level: 4, name: "Kelime Avcısı", minXp: 700, baseTime: 12, rivalSkill: 0.55 },
+  { level: 5, name: "Zincirci", minXp: 1100, baseTime: 11, rivalSkill: 0.7 },
+  { level: 6, name: "Söz Ustası", minXp: 1650, baseTime: 10, rivalSkill: 0.82 },
+  { level: 7, name: "Efsane", minXp: 2350, baseTime: 9, rivalSkill: 0.92 },
+  { level: 8, name: "Kelime Kralı", minXp: 3200, baseTime: 8, rivalSkill: 1.0 },
 ];
 
 interface Achievement {
@@ -109,12 +106,12 @@ const ACHIEVEMENTS: Achievement[] = [
 ];
 
 
-type Owner = "player" | "ai";
+type Owner = "player" | "rival";
 interface ChainItem {
   word: string;
   owner: Owner;
 }
-type Screen = "start" | "countdown" | "playing" | "ai_thinking" | "gameover";
+type Screen = "start" | "countdown" | "playing" | "rival_thinking" | "gameover";
 
 export default function KelimeZinciriApp() {
   const [xp, setXp] = useState(() => {
@@ -220,7 +217,7 @@ export default function KelimeZinciriApp() {
   const actuallyStart = useCallback(() => {
     const allWords = DICT!.allWords;
     const startWord = allWords[Math.floor(Math.random() * allWords.length)];
-    setChain([{ word: startWord, owner: "ai" }]);
+    setChain([{ word: startWord, owner: "rival" }]);
     setUsedWords(new Set([startWord]));
     setInput("");
     setError("");
@@ -327,11 +324,11 @@ export default function KelimeZinciriApp() {
     };
   }, [screen, chain, mode, levelData.baseTime, loseLife]);
 
-  const aiChoose = useCallback(
+  const chooseRivalWord = useCallback(
     (letter: string, used: Set<string>): string | null => {
       const cands = wordsStartingWith(letter, used);
       if (!cands.length) return null;
-      if (Math.random() >= levelData.aiSkill) {
+      if (Math.random() >= levelData.rivalSkill) {
         return cands[Math.floor(Math.random() * cands.length)];
       }
       const diffCache: Record<string, number> = {};
@@ -413,14 +410,14 @@ export default function KelimeZinciriApp() {
     if (newChain.length >= 10) unlock("chain10");
     if (newChain.length >= 20) unlock("chain20");
 
-    setScreen("ai_thinking");
-    const aiLetter = lastLetter(word);
+    setScreen("rival_thinking");
+    const rivalLetter = lastLetter(word);
     window.setTimeout(
       () => {
-        const aiWord = aiChoose(aiLetter, newUsed);
-        if (!aiWord) {
+        const rivalWord = chooseRivalWord(rivalLetter, newUsed);
+        if (!rivalWord) {
           if (mode === "duel") {
-            endGame(true, "AI takıldı!");
+            endGame(true, "Rakip takıldı!");
             return;
           }
           const bonus = newScore + 50;
@@ -435,7 +432,7 @@ export default function KelimeZinciriApp() {
           const seed = pool[Math.floor(Math.random() * pool.length)];
           const seedChain: ChainItem[] = [
             ...newChain,
-            { word: seed, owner: "ai" },
+            { word: seed, owner: "rival" },
           ];
           setChain(seedChain);
           setUsedWords(new Set([...newUsed, seed]));
@@ -446,14 +443,14 @@ export default function KelimeZinciriApp() {
           setTimeout(() => inputRef.current?.focus(), 60);
           return;
         }
-        const aiChain: ChainItem[] = [
+        const rivalChain: ChainItem[] = [
           ...newChain,
-          { word: aiWord, owner: "ai" },
+          { word: rivalWord, owner: "rival" },
         ];
-        setChain(aiChain);
-        setUsedWords(new Set([...newUsed, aiWord]));
-        setNewWordIdx(aiChain.length - 1);
-        setBestChain((b) => Math.max(b, aiChain.length));
+        setChain(rivalChain);
+        setUsedWords(new Set([...newUsed, rivalWord]));
+        setNewWordIdx(rivalChain.length - 1);
+        setBestChain((b) => Math.max(b, rivalChain.length));
         setTimeLeft(levelData.baseTime);
         turnStartRef.current = Date.now();
         setScreen("playing");
@@ -470,7 +467,7 @@ export default function KelimeZinciriApp() {
     combo,
     mode,
     levelData,
-    aiChoose,
+    chooseRivalWord,
     endGame,
     unlock,
   ]);
@@ -490,10 +487,9 @@ export default function KelimeZinciriApp() {
         : { cls: "diff-hard", txt: "Zor! 😰" };
   const timerPct =
     mode === "zen" ? 100 : Math.round((timeLeft / levelData.baseTime) * 100);
-  const timerColor =
-    timerPct > 50 ? "#2bc77a" : timerPct > 25 ? "#ffb13c" : "#ff6b6b";
+  const timerTone = timerPct > 50 ? "safe" : timerPct > 25 ? "warning" : "danger";
   const playerWords = chain.filter((w) => w.owner === "player").length;
-  const inGame = screen === "playing" || screen === "ai_thinking";
+  const inGame = screen === "playing" || screen === "rival_thinking";
 
   return (
     <>
@@ -502,36 +498,9 @@ export default function KelimeZinciriApp() {
           <span className="coop-emoji">👥</span> Co-op
           <span className="coop-soon">YAKINDA</span>
         </div>
-        <div
-          className="blob"
-          style={{
-            top: "8%",
-            left: "-6%",
-            width: 120,
-            height: 120,
-            background: "#ffb84d",
-          }}
-        />
-        <div
-          className="blob"
-          style={{
-            top: "30%",
-            right: "-8%",
-            width: 150,
-            height: 150,
-            background: "#4dd0ff",
-          }}
-        />
-        <div
-          className="blob"
-          style={{
-            bottom: "12%",
-            left: "-4%",
-            width: 130,
-            height: 130,
-            background: "#ff5e9e",
-          }}
-        />
+        <div className="blob blob--amber" />
+        <div className="blob blob--cyan" />
+        <div className="blob blob--pink" />
 
         <div className="wcg-inner">
           <div className="topbar">
@@ -554,7 +523,7 @@ export default function KelimeZinciriApp() {
               Sv {levelData.level} · {levelData.name}
             </div>
             <div className="lvl-track">
-              <div className="lvl-fill" style={{ width: `${xpPct}%` }} />
+              <div className={`lvl-fill progress-${Math.round(xpPct)}`} />
             </div>
             <div className="lvl-xp">{xp} XP</div>
           </div>
@@ -598,11 +567,7 @@ export default function KelimeZinciriApp() {
                   <>
                     <div className="timer-track">
                       <div
-                        className="timer-fill"
-                        style={{
-                          width: `${timerPct}%`,
-                          background: timerColor,
-                        }}
+                        className={`timer-fill timer-fill--${timerTone} progress-${timerPct}`}
                       />
                     </div>
                     <div
@@ -612,7 +577,7 @@ export default function KelimeZinciriApp() {
                     </div>
                   </>
                 ) : (
-                  <div style={{ flex: 1 }} />
+                  <div className="midstrip-spacer" />
                 )}
               </div>
 
@@ -658,11 +623,11 @@ export default function KelimeZinciriApp() {
                   )}
                 </div>
 
-                {screen === "ai_thinking" && (
-                  <div className="ai-think">
-                    <span className="aidot" />
-                    <span className="aidot" />
-                    <span className="aidot" />
+                {screen === "rival_thinking" && (
+                  <div className="rival-think">
+                    <span className="rival-dot" />
+                    <span className="rival-dot" />
+                    <span className="rival-dot" />
                     Rakip düşünüyor…
                   </div>
                 )}
@@ -709,10 +674,9 @@ export default function KelimeZinciriApp() {
                 </div>
               )}
               <button
-                className="big-start"
+                className={`big-start${dictReady ? "" : " is-loading"}`}
                 onClick={beginCountdown}
                 disabled={!dictReady}
-                style={dictReady ? undefined : { opacity: 0.7 }}
               >
                 {dictReady ? "BAŞLA" : "Yükleniyor…"}
               </button>
@@ -755,11 +719,7 @@ export default function KelimeZinciriApp() {
                 return (
                   <div
                     key={m}
-                    className={`mode-opt${mode === m ? " active" : ""}`}
-                    style={{
-                      ["--mc" as string]: cfg.color,
-                      ["--mcl" as string]: cfg.color + "22",
-                    }}
+                    className={`mode-opt mode-opt--${m}${mode === m ? " active" : ""}`}
                     onClick={() => {
                       setMode(m);
                       setSheetOpen(false);

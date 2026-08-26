@@ -1,9 +1,8 @@
 import { useRef, useState } from "react";
-import { Modal } from "rsuite";
 import { avatarFor } from "../../helpers";
-import PinInput, { type PinInputHandle } from "../PinInput";
-import ModalCloseButton from "./ModalCloseButton";
+import PinInput, { type PinInputHandle } from "../ui/PinInput";
 import ModalHero from "./ModalHero";
+import ProfileModalShell from "./ProfileModalShell";
 import type { Profile } from "../../store/store";
 
 interface Props {
@@ -33,10 +32,7 @@ export default function ProfileUnlockModal({
   };
 
   return (
-    <Modal open onClose={onClose} size="sm" className="profile-modal lock-modal">
-      <ModalCloseButton onClose={onClose} />
-
-      <Modal.Body>
+    <ProfileModalShell className="lock-modal" size="sm" onClose={onClose}>
         <ModalHero
           className="lock-modal__hero"
           avatar={avatar}
@@ -47,7 +43,6 @@ export default function ProfileUnlockModal({
         <PinInput ref={pinRef} masked autoFocusDelay={80} onChange={handleChange} />
 
         {error && <small className="lock-modal__error">{error}</small>}
-      </Modal.Body>
-    </Modal>
+    </ProfileModalShell>
   );
 }

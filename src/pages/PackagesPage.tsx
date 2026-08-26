@@ -1,11 +1,12 @@
 import { useMemo, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import PageLayout from "../components/PageLayout";
-import PackageCard from "../components/PackageCard";
+import PageLayout from "../components/layout/PageLayout";
+import PackageCard from "../components/catalog/PackageCard";
 import { tmdbApi, getImageUrl } from "../services/tmdb";
 import { effectivePlanId, useFetch, PACKAGES, useTitle, withPoster, settleList } from "../helpers";
 import { useAppSelector } from "../store/store";
 import type { PackageDef } from "../types/types";
+import OptimizedImage from "../components/ui/OptimizedImage";
 
 export default function PackagesPage() {
   useTitle("Paketler");
@@ -53,11 +54,11 @@ export default function PackagesPage() {
       <div className="packages-backdrop" aria-hidden="true">
         <div className="packages-backdrop__grid">
           {posters.map((src, i) => (
-            <img
+            <OptimizedImage
               key={`${src}-${i}`}
               src={src}
               alt=""
-              loading={i < 18 ? "eager" : "lazy"}
+              priority={i < 6}
               style={{ "--poster-index": i } as CSSProperties}
             />
           ))}

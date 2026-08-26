@@ -40,6 +40,17 @@
 .bb-sp-md { font-size: 1rem; }
 .bb-sp-sm { font-size: 0.7rem; }
 
+.bb-sparkle:nth-child(1) { top: 7%; left: 8%; animation-delay: 0s; animation-duration: 3.2s; }
+.bb-sparkle:nth-child(2) { top: 12%; right: 6%; animation-delay: 0.8s; animation-duration: 2.6s; }
+.bb-sparkle:nth-child(3) { top: 28%; left: 4%; animation-delay: 1.4s; animation-duration: 4s; }
+.bb-sparkle:nth-child(4) { top: 18%; left: 42%; animation-delay: 0.3s; animation-duration: 3.6s; }
+.bb-sparkle:nth-child(5) { right: 9%; bottom: 30%; animation-delay: 1s; animation-duration: 2.8s; }
+.bb-sparkle:nth-child(6) { bottom: 20%; left: 12%; animation-delay: 1.8s; animation-duration: 3.4s; }
+.bb-sparkle:nth-child(7) { top: 55%; right: 5%; animation-delay: 0.5s; animation-duration: 3s; }
+.bb-sparkle:nth-child(8) { bottom: 12%; left: 38%; animation-delay: 2s; animation-duration: 2.4s; }
+.bb-sparkle:nth-child(9) { top: 38%; left: 2%; animation-delay: 2.4s; animation-duration: 3.8s; }
+.bb-sparkle:nth-child(10) { top: 8%; right: 28%; animation-delay: 1.2s; animation-duration: 2.9s; }
+
 // tanıtım alanı
 
 .bb-menu-hero {

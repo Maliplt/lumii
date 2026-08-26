@@ -12,7 +12,7 @@ export interface PlaybackRequest {
   id: string | number | undefined;
   season?: number;
   episode?: number;
-  autoPlay?: boolean;
+  autoplayEnabled: boolean;
   startAt?: number;
 }
 
@@ -21,7 +21,7 @@ export function resolvePlaybackSource({
   id,
   season = 1,
   episode = 1,
-  autoPlay = true,
+  autoplayEnabled,
   startAt = 0,
 }: PlaybackRequest): PlaybackSource {
   const numId = Number(id);
@@ -38,7 +38,7 @@ export function resolvePlaybackSource({
       ? `/movie/${numId}`
       : `/tv/${numId}/${Math.max(1, season)}/${Math.max(1, episode)}`;
   const params = new URLSearchParams({
-    autoPlay: String(autoPlay),
+    autoPlay: String(autoplayEnabled),
     title: "true",
     poster: "true",
     theme: "A91D3A",
@@ -54,7 +54,7 @@ export function resolvePlaybackSource({
 
   if (type === "tv") {
     params.set("nextButton", "true");
-    params.set("autoNext", String(autoPlay));
+    params.set("autoNext", String(autoplayEnabled));
   }
 
   return { kind: "vidfast", url: `${VIDFAST_BASE_URL}${path}?${params}` };

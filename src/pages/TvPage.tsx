@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Lock, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import PageLayout from "../components/PageLayout";
+import PageLayout from "../components/layout/PageLayout";
 import MediaPlayer from "../components/player/MediaPlayer";
-import ChannelLogo, { type Channel } from "../components/ChannelLogo";
+import ChannelLogo, { type Channel } from "../components/media/ChannelLogo";
+import AccessGate from "../components/access/AccessGate";
 import { canAccessChannel, channelAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useTitle } from "../helpers";
-import { useAppSelector } from "../store/store";
+import { selectAutoplayEnabled, useAppSelector } from "../store/store";
 import channelsData from "../data/channels.json";
 
 // yayin akisi listesi
@@ -15,6 +16,7 @@ export default function TvPage() {
   useTitle("TV İzle");
   const navigate = useNavigate();
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
+  const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const plan = getPlan(userPlan);
   const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
   const [lockedChannel, setLockedChannel] = useState<Channel | null>(null);
@@ -136,6 +138,7 @@ export default function TvPage() {
             title={selected.name}
             live
             startMuted
+            autoplayEnabled={autoplayEnabled}
             className="tv-featured__player"
             maxVideoHeight={plan.capabilities.maxVideoHeight}
             qualityLabel={plan.quality}
@@ -143,13 +146,17 @@ export default function TvPage() {
             onNext={() => switchChannel(1)}
           />
           {lockedChannel && (
-            <div className="tv-access-gate" role="status">
-              <span className="tv-access-gate__icon" aria-hidden="true"><Lock size={26} /></span>
-              <h2>{lockedChannel.name}</h2>
-              <p>Bu kanal {requiredPlanName(lockedChannelLevel)} paketine dahildir.</p>
-              <button type="button" onClick={() => navigate("/packages")}>{upgradeCtaLabel(lockedChannelLevel)}</button>
-              <button type="button" className="is-secondary" onClick={() => setLockedChannel(null)}>Yayına Dön</button>
-            </div>
+            <AccessGate
+              className="tv-access-gate"
+              role="status"
+              icon={<span className="tv-access-gate__icon" aria-hidden="true"><Lock size={26} /></span>}
+              title={lockedChannel.name}
+              description={`Bu kanal ${requiredPlanName(lockedChannelLevel)} paketine dahildir.`}
+              primaryLabel={upgradeCtaLabel(lockedChannelLevel)}
+              secondaryLabel="Yayına Dön"
+              onPrimary={() => navigate("/packages")}
+              onSecondary={() => setLockedChannel(null)}
+            />
           )}
         </div>
       </div>

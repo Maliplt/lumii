@@ -1,5 +1,14 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 import { tryAdminLogin } from "../admin";
+import {
+  DEFAULT_PROFILE_PREFERENCES,
+  type ProfilePreferences,
+} from "./profilePreferences";
+
+export {
+  DEFAULT_PROFILE_PREFERENCES,
+  type ProfilePreferences,
+} from "./profilePreferences";
 
 export const MAX_PROFILES = 5;
 const DEFAULT_PROFILE_AVATAR = "default-blue";
@@ -12,8 +21,7 @@ export interface Profile {
   kids: boolean;
   locked?: boolean;
   lockPin?: string;
-  playback?: "auto" | "manual";
-  notifications?: "all" | "important" | "off";
+  preferences: ProfilePreferences;
 }
 
 export interface Receipt {
@@ -87,8 +95,7 @@ function makeProfile(
     avatar,
     kids,
     locked: false,
-    playback: "auto",
-    notifications: "important",
+    preferences: { ...DEFAULT_PROFILE_PREFERENCES },
   };
 }
 
@@ -100,6 +107,21 @@ function findAccount(state: AuthState): Account | undefined {
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
+}
+
+function applyDuePlanChange(holder?: CurrentUser | Account) {
+  const pending = holder?.pendingPlanChange;
+  if (!holder || !pending || Date.parse(pending.effectiveAt) > Date.now()) return;
+
+  holder.plan = pending.planId;
+  if (holder.receipt) {
+    holder.receipt.planId = pending.planId;
+    holder.receipt.planName = pending.planName;
+    holder.receipt.amount = pending.amount;
+    holder.receipt.period = pending.period;
+    holder.receipt.date = new Date(pending.effectiveAt).toLocaleDateString("tr-TR");
+  }
+  holder.pendingPlanChange = null;
 }
 
 export const auth = createSlice({
@@ -194,6 +216,27 @@ export const auth = createSlice({
       const acc = findAccount(state);
       if (acc) apply(acc.profiles);
     },
+    updateProfilePreferences(
+      state,
+      action: PayloadAction<{
+        profileId: string;
+        changes: Partial<ProfilePreferences>;
+      }>,
+    ) {
+      if (!state.currentUser) return;
+      const apply = (list: Profile[]) => {
+        const profile = list.find((item) => item.id === action.payload.profileId);
+        if (!profile) return;
+        profile.preferences = {
+          ...DEFAULT_PROFILE_PREFERENCES,
+          ...profile.preferences,
+          ...action.payload.changes,
+        };
+      };
+      apply(state.currentUser.profiles);
+      const acc = findAccount(state);
+      if (acc) apply(acc.profiles);
+    },
     deleteProfile(state, action: PayloadAction<string>) {
       if (!state.currentUser) return;
       state.currentUser.profiles = state.currentUser.profiles.filter(
@@ -223,6 +266,13 @@ export const auth = createSlice({
       state.currentUser.pendingPlanChange = action.payload;
       const acc = findAccount(state);
       if (acc) acc.pendingPlanChange = action.payload;
+    },
+    applyDuePlanChanges(state) {
+      state.accounts.forEach(applyDuePlanChange);
+      applyDuePlanChange(state.currentUser ?? undefined);
+      if (state.currentUser?.receipt) {
+        state.receipt = state.currentUser.receipt;
+      }
     },
     setReceipt(state, action: PayloadAction<Receipt>) {
       state.receipt = action.payload;
@@ -300,11 +350,13 @@ export const {
   clearAuthError,
   addProfile,
   updateProfile,
+  updateProfilePreferences,
   deleteProfile,
   selectProfile,
   setPlan,
   setReceipt,
   schedulePlanChange,
+  applyDuePlanChanges,
   updateEmail,
   updatePaymentMethod,
   changePassword,

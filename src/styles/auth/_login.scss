@@ -57,7 +57,7 @@
 
 .login-intro__inner {
     position: relative;
-    color: #fff;
+    color: var(--color-white);
     max-width: 540px;
     padding: 0;
     filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.9));
@@ -132,7 +132,7 @@
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0 50px #ffffff inset;
+        -webkit-box-shadow: 0 0 0 50px var(--color-white) inset;
         -webkit-text-fill-color: var(--bg-2);
     }
 }
@@ -144,7 +144,7 @@
 .login-card__title {
     font-size: var(--fs-3xl);
     font-weight: 800;
-    color: #ffffff;
+    color: var(--color-white);
     margin: 0 0 var(--space-2);
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
 }
@@ -225,7 +225,7 @@
 }
 
 // mobil görünüm
-@media (max-width: 1024px) {
+@include bp($bp-lg) {
     .login-intro {
         display: none;
     }
@@ -240,7 +240,7 @@
     }
 }
 
-@media (max-width: $bp-md) {
+@include bp($bp-md) {
     .login-formwrap {
         align-items: flex-start;
         padding: calc(60px + var(--space-6)) var(--space-4) var(--space-6);
@@ -260,7 +260,7 @@
         padding: 0 16px;
         font-size: var(--fs-md);
         color: var(--bg-2);
-        background: #ffffff;
+        background: var(--color-white);
         border: 1px solid rgba(255, 255, 255, 0.85);
         border-radius: var(--radius-1);
 
@@ -269,13 +269,13 @@
         }
 
         &:hover {
-            border-color: #ffffff;
-            background: #ffffff;
+            border-color: var(--color-white);
+            background: var(--color-white);
         }
 
         &:focus {
             border-color: var(--accent);
-            background: #ffffff;
+            background: var(--color-white);
             box-shadow: 0 0 0 3px var(--accent-soft);
         }
     }
@@ -284,7 +284,7 @@
         width: 100%;
         border: 1px solid rgba(255, 255, 255, 0.85);
         border-radius: var(--radius-1);
-        background: #ffffff;
+        background: var(--color-white);
         overflow: hidden;
 
         &:focus-within {

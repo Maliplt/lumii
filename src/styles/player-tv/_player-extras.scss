@@ -35,7 +35,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--color-white);
     z-index: 6;
     pointer-events: none;
     animation: playerCenterPop 600ms var(--ease) forwards;
@@ -62,13 +62,13 @@
 .player-live-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-1-5);
     padding: 3px 8px;
     border: none;
     border-radius: var(--radius-1);
     background: var(--danger);
-    color: #fff;
-    font-size: 11px;
+    color: var(--color-white);
+    font-size: var(--fs-xs);
     font-weight: 800;
     letter-spacing: 0.03em;
     cursor: pointer;
@@ -98,7 +98,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-white);
     animation: livePulse 1.5s ease-in-out infinite;
 }
 
@@ -132,7 +132,7 @@
     }
 }
 
-@media (max-width: 768px), (max-height: 520px) {
+@media (max-width: $bp-md), (max-height: $bp-height-compact) {
     .player-loading__logo {
         width: clamp(76px, 30%, 120px);
         max-height: 36%;
@@ -147,7 +147,7 @@
 }
 
 // player mobil
-@media (max-width: 768px) {
+@include bp($bp-md) {
     .player-controls__top {
         padding: var(--space-4);
     }
@@ -163,7 +163,7 @@
 
     .player-controls__left,
     .player-controls__right {
-        gap: 2px;
+        gap: var(--space-0-5);
     }
 
     .player-btn {
@@ -184,7 +184,7 @@
     }
 }
 
-@media (max-width: 480px) {
+@include bp($bp-sm) {
     .player-controls__top {
         padding: var(--space-3);
         gap: var(--space-2);

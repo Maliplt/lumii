@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Button, Input, Modal, Toggle } from "rsuite";
+import { Button, Toggle } from "rsuite";
 import { AVATAR_CATEGORIES, AVATARS, DEFAULT_AVATAR } from "../../helpers";
-import ModalCloseButton from "./ModalCloseButton";
 import ModalHero from "./ModalHero";
 import type { Profile } from "../../store/store";
+import OptimizedImage from "../ui/OptimizedImage";
+import ModalInputField from "./ModalInputField";
+import ProfileModalShell from "./ProfileModalShell";
 
 interface Props {
   mode: "create" | "edit";
@@ -38,15 +40,27 @@ export default function ProfileEditorModal({
   };
 
   return (
-    <Modal
-      open
+    <ProfileModalShell
       onClose={onClose}
       size={isEdit ? "lg" : "sm"}
-      className={`profile-modal profile-edit-modal${isEdit ? " profile-edit-modal--full" : ""}`}
+      className={`profile-edit-modal${isEdit ? " profile-edit-modal--full" : ""}`}
+      footer={
+        <>
+          <Button appearance="primary" onClick={save} block>
+            Profili Kaydet
+          </Button>
+          {isEdit && canDelete && onDelete && (
+            <button
+              type="button"
+              className="profile-edit__delete"
+              onClick={onDelete}
+            >
+              Profili sil
+            </button>
+          )}
+        </>
+      }
     >
-      <ModalCloseButton onClose={onClose} />
-
-      <Modal.Body>
         <ModalHero
           className="profile-edit__hero"
           title={isEdit ? "Profili düzenle" : "Profil ekle"}
@@ -54,21 +68,19 @@ export default function ProfileEditorModal({
         />
 
         <div className="profile-edit__identity">
-          <img src={AVATARS[avatar]} alt="" />
-          <label className="profile-edit__field" htmlFor="profile-name">
-            <span>Profil adı</span>
-            <Input
-              id="profile-name"
-              value={name}
-              maxLength={20}
-              placeholder="Ad"
-              onChange={(value) => {
-                setName(value);
-                if (error) setError("");
-              }}
-            />
-            {error && <small>{error}</small>}
-          </label>
+          <OptimizedImage src={AVATARS[avatar]} alt="" priority />
+          <ModalInputField
+            id="profile-name"
+            label="Profil adı"
+            value={name}
+            maxLength={20}
+            placeholder="Ad"
+            error={error}
+            onChange={(value) => {
+              setName(value);
+              if (error) setError("");
+            }}
+          />
         </div>
 
         <div className="profile-edit__kid-toggle">
@@ -100,7 +112,7 @@ export default function ProfileEditorModal({
                         onClick={() => setAvatar(item.key)}
                         aria-label={`${item.name} avatarı`}
                       >
-                        <img src={item.src} alt="" />
+                        <OptimizedImage src={item.src} alt="" />
                         <span>{item.name}</span>
                       </button>
                     ))}
@@ -110,24 +122,6 @@ export default function ProfileEditorModal({
             </div>
           </div>
         )}
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="profile-edit__footer">
-          <Button appearance="primary" onClick={save} block>
-            Profili Kaydet
-          </Button>
-          {isEdit && canDelete && onDelete && (
-            <button
-              type="button"
-              className="profile-edit__delete"
-              onClick={onDelete}
-            >
-              Profili sil
-            </button>
-          )}
-        </div>
-      </Modal.Footer>
-    </Modal>
+    </ProfileModalShell>
   );
 }

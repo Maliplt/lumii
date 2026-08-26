@@ -1,104 +1,82 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
-import { auth, type AuthState, type Profile } from "./authSlice";
-import { library, emptyLibrary, type LibraryState, type LibraryData } from "./librarySlice";
-import { settings, settingsInitial, type SettingsState } from "./settingsSlice";
+import {
+  auth,
+  applyDuePlanChanges,
+  type Profile,
+} from "./authSlice";
+import {
+  DEFAULT_PROFILE_PREFERENCES,
+  type ProfilePreferences,
+} from "./profilePreferences";
+import { library, emptyLibrary, type LibraryData } from "./librarySlice";
+import {
+  loadPersistedState,
+  PERSIST_SAVE_THROTTLE_MS,
+  savePersistedState,
+  type PersistedState,
+  type StorageAdapter,
+} from "./persistence";
 export * from "./authSlice";
 export * from "./librarySlice";
-export * from "./settingsSlice";
+export * from "./profilePreferences";
 
-interface PersistedState {
-  auth: AuthState;
-  library: LibraryState;
-  settings: SettingsState;
-}
-
-// durum yükleme
-function loadState(): PersistedState | undefined {
+function getBrowserStorage(): StorageAdapter | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem("tenet-state");
-    if (!raw) return undefined;
-    const parsed = JSON.parse(raw) as PersistedState & {
-      settings?: SettingsState & { autoplay?: boolean };
-    };
-
-    // autoplay geçişi
-    const legacyAutoplay = parsed.settings?.autoplay;
-    const fallbackPlayback = legacyAutoplay === false ? "manual" : "auto";
-    const migrateProfiles = (profiles?: Profile[]) => {
-      profiles?.forEach((profile) => {
-        if (!profile.playback) profile.playback = fallbackPlayback;
-      });
-    };
-    migrateProfiles(parsed.auth?.currentUser?.profiles);
-    parsed.auth?.accounts?.forEach((account) => migrateProfiles(account.profiles));
-
-    const applyDuePlanChange = (
-      holder?: AuthState["currentUser"] | AuthState["accounts"][number],
-    ) => {
-      const pending = holder?.pendingPlanChange;
-      if (!holder || !pending || Date.parse(pending.effectiveAt) > Date.now()) return;
-      holder.plan = pending.planId;
-      if (holder.receipt) {
-        holder.receipt.planId = pending.planId;
-        holder.receipt.planName = pending.planName;
-        holder.receipt.amount = pending.amount;
-        holder.receipt.period = pending.period;
-        holder.receipt.date = new Date(pending.effectiveAt).toLocaleDateString("tr-TR");
-      }
-      holder.pendingPlanChange = null;
-    };
-    parsed.auth?.accounts?.forEach(applyDuePlanChange);
-    applyDuePlanChange(parsed.auth?.currentUser);
-    if (parsed.auth?.currentUser?.receipt) {
-      parsed.auth.receipt = parsed.auth.currentUser.receipt;
-    }
-
-    if (parsed.settings) {
-      const currentSettings = { ...parsed.settings };
-      delete currentSettings.autoplay;
-      parsed.settings = { ...settingsInitial, ...currentSettings };
-    }
-
-    return parsed;
-  } catch (err) {
-    console.warn("Kaydedilmiş durum okunamadı, sıfırdan başlanıyor:", err);
-    return undefined;
+    return window.localStorage;
+  } catch {
+    return null;
   }
 }
+
+const browserStorage = getBrowserStorage();
 
 export const store = configureStore({
   reducer: {
     auth: auth.reducer,
     library: library.reducer,
-    settings: settings.reducer,
   },
-  preloadedState: loadState(),
+  preloadedState: browserStorage
+    ? loadPersistedState(browserStorage)
+    : undefined,
 });
 
-// durum kaydetme
-const SAVE_THROTTLE_MS = 1000;
+// tarihi gelen planı uygula
+store.dispatch(applyDuePlanChanges());
+
+// state'i kaydet
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-function persistState() {
-  localStorage.setItem("tenet-state", JSON.stringify(store.getState()));
+function persistCurrentState() {
+  if (!browserStorage) return;
+  const state = store.getState();
+  const persistedState: PersistedState = {
+    auth: state.auth,
+    library: state.library,
+  };
+  if (!savePersistedState(browserStorage, persistedState)) {
+    console.warn("Durum kaydedilemedi.");
+  }
 }
 
 store.subscribe(() => {
   if (saveTimer) return;
   saveTimer = setTimeout(() => {
     saveTimer = null;
-    persistState();
-  }, SAVE_THROTTLE_MS);
+    persistCurrentState();
+  }, PERSIST_SAVE_THROTTLE_MS);
 });
 
-window.addEventListener("beforeunload", () => {
-  if (saveTimer) {
-    clearTimeout(saveTimer);
-    saveTimer = null;
-  }
-  persistState();
-});
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", () => {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
+    persistCurrentState();
+  });
+}
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
@@ -115,9 +93,17 @@ export const selectActiveProfile = (s: RootState): Profile | null =>
 export const selectShownProfile = (s: RootState): Profile | null =>
   selectActiveProfile(s) ?? s.auth.currentUser?.profiles[0] ?? null;
 
-// profil autoplay
+export const selectProfilePreferences = (s: RootState): ProfilePreferences =>
+  selectShownProfile(s)?.preferences ?? DEFAULT_PROFILE_PREFERENCES;
+
 export const selectAutoplayEnabled = (s: RootState): boolean =>
-  (selectShownProfile(s)?.playback ?? "auto") === "auto";
+  selectProfilePreferences(s).autoplay;
+
+export const selectPreviewsEnabled = (s: RootState): boolean =>
+  selectProfilePreferences(s).previews;
+
+export const selectContinueWatchingRowEnabled = (s: RootState): boolean =>
+  selectProfilePreferences(s).showContinueWatching;
 
 // kütüphane seçici
 export const selectLibrary = (s: RootState): LibraryData =>

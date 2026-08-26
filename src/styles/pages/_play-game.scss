@@ -6,7 +6,7 @@
     background-color: var(--bg-0);
     display: flex;
     flex-direction: column;
-    color: #ffffff;
+    color: var(--color-white);
 
     .pg-header {
         display: flex;
@@ -21,7 +21,7 @@
     .pg-back-btn {
         background-color: transparent !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         border-radius: var(--radius-1) !important;
         font-weight: 700 !important;
         font-size: 14px !important;
@@ -33,7 +33,7 @@
 
         &:hover {
             background-color: rgba(255, 255, 255, 0.08) !important;
-            border-color: #ffffff !important;
+            border-color: var(--color-white) !important;
         }
     }
 

@@ -1,16 +1,22 @@
-import { useState, useEffect, useMemo, type ReactElement } from "react";
-import PageLayout from "../components/PageLayout";
-import HeroCarousel from "../components/HeroCarousel";
-import ContentCarousel from "../components/ContentCarousel";
-import SpotlightContentCarousel from "../components/SpotlightContentCarousel";
-import GameCarousel from "../components/GameCarousel";
-import ServiceErrorView from "../components/ServiceErrorView";
-import { loadCriticalHome, loadRestHome, loadKidsHome } from "../services/home";
+import { lazy, Suspense, useState, useEffect, useRef, type ReactElement } from "react";
+import PageLayout from "../components/layout/PageLayout";
+import HeroCarousel from "../components/media/HeroCarousel";
+import ContentCarousel from "../components/media/ContentCarousel";
+import SpotlightContentCarousel from "../components/media/SpotlightContentCarousel";
+import ServiceErrorView from "../components/feedback/ServiceErrorView";
+import {
+  loadCriticalHome,
+  loadPrimaryHome,
+  loadExtendedHome,
+  loadKidsHome,
+} from "../services/home";
 import { getSpotlightDefinitions } from "../services/spotlightCarousels";
 import { interleaveEvenly } from "../lib/utils";
-import { contentAudienceKey } from "../lib/contentPersonalization";
+import { useContentAudienceKey } from "../lib/useContentAudienceKey";
 import { useFetch, useTitle, useLazyReveal, effectivePlanId } from "../helpers";
-import { useAppSelector, selectLibrary, selectActiveProfile } from "../store/store";
+import { useAppSelector, selectLibrary, selectActiveProfile, selectContinueWatchingRowEnabled } from "../store/store";
+
+const GameCarousel = lazy(() => import("../components/media/GameCarousel"));
 
 export default function HomePage() {
   useTitle("");
@@ -19,15 +25,10 @@ export default function HomePage() {
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
   const isFreeExperience = effectivePlanId(userPlan) === "free";
-  const showContinueRow = useAppSelector((s) => s.settings.continueRow);
+  const showContinueRow = useAppSelector(selectContinueWatchingRowEnabled);
   const activeProfile = useAppSelector(selectActiveProfile);
-  const activeProfileId = useAppSelector((s) => s.auth.activeProfileId);
-  const userEmail = useAppSelector((s) => s.auth.currentUser?.email);
   const isKids = activeProfile?.kids ?? false;
-  const audienceKey = useMemo(
-    () => contentAudienceKey(userEmail, activeProfileId),
-    [activeProfileId, userEmail],
-  );
+  const audienceKey = useContentAudienceKey();
 
   // çocuk profili
   const kidsData = useFetch(
@@ -53,9 +54,20 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, [isKids, critical.data, deferReady]);
 
-  const rest = useFetch(
-    () => (!isKids && deferReady ? loadRestHome() : Promise.resolve(null)),
-    `home-rest-${isKids}-${deferReady}`,
+  const primary = useFetch(
+    () => (!isKids && deferReady ? loadPrimaryHome() : Promise.resolve(null)),
+    `home-primary-${isKids}-${deferReady}`,
+    "section",
+  );
+  const [extendedReady, setExtendedReady] = useState(false);
+  const extendedSentinelRef = useRef<HTMLDivElement>(null);
+
+  const extended = useFetch(
+    () =>
+      !isKids && extendedReady
+        ? loadExtendedHome()
+        : Promise.resolve(null),
+    `home-extended-${isKids}-${extendedReady}`,
     "section",
   );
   const heroMovies = isKids
@@ -77,28 +89,36 @@ export default function HomePage() {
     ? []
     : [
         <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler Filmler" items={critical.data.popular} />,
-        !isFreeExperience ? <GameCarousel key="games" /> : null,
+        !isFreeExperience ? (
+          <Suspense key="games" fallback={null}>
+            <GameCarousel />
+          </Suspense>
+        ) : null,
         !isFreeExperience && isLoggedIn && showContinueRow && continueWatching.length > 0 ? (
           <ContentCarousel key="continue" type="movie" title="İzlemeye Devam Et" items={continueWatching} />
         ) : null,
-        <ContentCarousel key="nowplaying" type="movie" title="Sinemalarda Vizyondakiler" items={critical.data.nowPlaying} />,
-        <ContentCarousel key="trending" type="movie" title="Gündemdeki Filmler" items={critical.data.trendingMovies} />,
-        <ContentCarousel key="poptv" type="tv" title="Popüler Diziler" items={critical.data.popularTV} />,
-        <ContentCarousel key="airing" type="tv" title="Bugün Yayındaki Diziler" items={rest.data?.airingToday ?? []} />,
-        <ContentCarousel key="toptv" type="tv" title="Top 10 Diziler" items={rest.data?.topRatedTV ?? []} />,
-        <ContentCarousel key="topmovies" type="movie" title="Top 10 Filmler" items={rest.data?.topMovies ?? []} />,
-        <ContentCarousel key="horrormovies" type="movie" title="Korku Filmleri" items={rest.data?.horrorMovies ?? []} />,
-        <ContentCarousel key="horrortv" type="tv" title="Korku ve Suç Dizileri" items={rest.data?.crimeTV ?? []} />,
-        <ContentCarousel key="comedymovies" type="movie" title="Komedi Filmleri" items={rest.data?.comedyMovies ?? []} />,
-        <ContentCarousel key="comedytv" type="tv" title="Komedi Dizileri" items={rest.data?.comedyTV ?? []} />,
-        <ContentCarousel key="thriller" type="movie" title="Gerilim Filmleri" items={rest.data?.thrillerMovies ?? []} />,
-        <ContentCarousel key="scifimovies" type="movie" title="Bilim Kurgu Filmleri" items={rest.data?.sciFiMovies ?? []} />,
-        <ContentCarousel key="scifitv" type="tv" title="Fantastik Diziler" items={rest.data?.sciFiTV ?? []} />,
-        <ContentCarousel key="dramatv" type="tv" title="Dram Dizileri" items={rest.data?.dramaTV ?? []} />,
-        <ContentCarousel key="adventure" type="movie" title="Macera Filmleri" items={rest.data?.adventure ?? []} />,
-        <ContentCarousel key="upcoming" type="movie" title="Yakında Gelecekler" items={rest.data?.upcoming ?? []} />,
-        <ContentCarousel key="animation" type="movie" title="Animasyon Filmleri" items={rest.data?.animation ?? []} />,
-        <ContentCarousel key="trendingtv" type="tv" title="Gündemdeki Diziler" items={critical.data.trendingTV} />,
+        <ContentCarousel key="nowplaying" type="movie" title="Sinemalarda Vizyondakiler" items={primary.data?.nowPlaying ?? []} />,
+        <ContentCarousel key="trending" type="movie" title="Gündemdeki Filmler" items={primary.data?.trendingMovies ?? []} />,
+        <ContentCarousel key="poptv" type="tv" title="Popüler Diziler" items={primary.data?.popularTV ?? []} />,
+        ...(extended.data
+          ? [
+              <ContentCarousel key="airing" type="tv" title="Bugün Yayındaki Diziler" items={extended.data.airingToday} />,
+              <ContentCarousel key="toptv" type="tv" title="Top 10 Diziler" items={extended.data.topRatedTV} />,
+              <ContentCarousel key="topmovies" type="movie" title="Top 10 Filmler" items={extended.data.topMovies} />,
+              <ContentCarousel key="horrormovies" type="movie" title="Korku Filmleri" items={extended.data.horrorMovies} />,
+              <ContentCarousel key="horrortv" type="tv" title="Korku ve Suç Dizileri" items={extended.data.crimeTV} />,
+              <ContentCarousel key="comedymovies" type="movie" title="Komedi Filmleri" items={extended.data.comedyMovies} />,
+              <ContentCarousel key="comedytv" type="tv" title="Komedi Dizileri" items={extended.data.comedyTV} />,
+              <ContentCarousel key="thriller" type="movie" title="Gerilim Filmleri" items={extended.data.thrillerMovies} />,
+              <ContentCarousel key="scifimovies" type="movie" title="Bilim Kurgu Filmleri" items={extended.data.sciFiMovies} />,
+              <ContentCarousel key="scifitv" type="tv" title="Fantastik Diziler" items={extended.data.sciFiTV} />,
+              <ContentCarousel key="dramatv" type="tv" title="Dram Dizileri" items={extended.data.dramaTV} />,
+              <ContentCarousel key="adventure" type="movie" title="Macera Filmleri" items={extended.data.adventure} />,
+              <ContentCarousel key="upcoming" type="movie" title="Yakında Gelecekler" items={extended.data.upcoming} />,
+              <ContentCarousel key="animation" type="movie" title="Animasyon Filmleri" items={extended.data.animation} />,
+              <ContentCarousel key="trendingtv" type="tv" title="Gündemdeki Diziler" items={extended.data.trendingTV} />,
+            ]
+          : []),
       ].filter((row): row is ReactElement => row !== null);
 
   const spotlightRows = !isKids && critical.data
@@ -119,6 +139,27 @@ export default function HomePage() {
 
   const { visible, sentinelRef } = useLazyReveal(activeRows.length, 4, 3);
 
+  useEffect(() => {
+    const sentinel = extendedSentinelRef.current;
+    if (
+      isKids ||
+      extendedReady ||
+      !primary.data ||
+      visible < activeRows.length ||
+      !sentinel
+    ) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setExtendedReady(true);
+      },
+      { rootMargin: "500px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [activeRows.length, extendedReady, isKids, primary.data, visible]);
+
   return (
     <PageLayout
       className="home-page"
@@ -132,16 +173,29 @@ export default function HomePage() {
           <HeroCarousel movies={heroMovies} />
           <div className="home-content">
             {activeRows.slice(0, visible)}
-            {rest.error && (
+            {primary.error && (
               <ServiceErrorView
-                error={rest.error}
+                error={primary.error}
                 context="section"
-                onRetry={rest.retry}
+                onRetry={primary.retry}
               />
             )}
-            {visible < activeRows.length && (
-              <div className="lazy-row-sentinel" ref={sentinelRef} aria-hidden="true" />
+            {extended.error && (
+              <ServiceErrorView
+                error={extended.error}
+                context="section"
+                onRetry={extended.retry}
+              />
             )}
+            {visible < activeRows.length ? (
+              <div className="lazy-row-sentinel" ref={sentinelRef} aria-hidden="true" />
+            ) : !isKids && primary.data && !extendedReady ? (
+              <div
+                className="lazy-row-sentinel"
+                ref={extendedSentinelRef}
+                aria-hidden="true"
+              />
+            ) : null}
           </div>
         </>
       )}

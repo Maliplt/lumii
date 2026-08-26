@@ -475,3 +475,21 @@ body { background: #f5ede0; }
   .win-title { font-size: 26px; }
   .win-stats { gap: 20px; }
 }
+// durum stilleri
+.status-value--compact {
+  font-size: 18px;
+}
+
+.status-value--large {
+  font-size: 24px;
+}
+
+.ornament--win {
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.ornament-star {
+  color: #c8a070;
+  font-size: 16px;
+}

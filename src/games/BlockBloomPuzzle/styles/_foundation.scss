@@ -38,6 +38,22 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.bb-level-0 { --bb-accent: #ff5ea3; --bb-accent-dark: #b52668; }
+.bb-level-1 { --bb-accent: #ff6b35; --bb-accent-dark: #c23d10; }
+.bb-level-2 { --bb-accent: #fbbf24; --bb-accent-dark: #cc8c00; }
+.bb-level-3 { --bb-accent: #84cc16; --bb-accent-dark: #4a8c05; }
+.bb-level-4 { --bb-accent: #34d399; --bb-accent-dark: #0a9e66; }
+.bb-level-5 { --bb-accent: #22d3ee; --bb-accent-dark: #0696b4; }
+.bb-level-6 { --bb-accent: #3b82f6; --bb-accent-dark: #1d4ed8; }
+.bb-level-7 { --bb-accent: #8b5cf6; --bb-accent-dark: #4a2fd6; }
+.bb-level-8 { --bb-accent: #d946ef; --bb-accent-dark: #a21caf; }
+.bb-level-9 { --bb-accent: #f43f5e; --bb-accent-dark: #b5102a; }
+.bb-level-10 { --bb-accent: #fb923c; --bb-accent-dark: #c25010; }
+.bb-level-11 { --bb-accent: #a3e635; --bb-accent-dark: #65a30d; }
+.bb-level-12 { --bb-accent: #2dd4bf; --bb-accent-dark: #0d9488; }
+.bb-level-13 { --bb-accent: #60a5fa; --bb-accent-dark: #2563eb; }
+.bb-level-14 { --bb-accent: #c084fc; --bb-accent-dark: #7e22ce; }
+
 // koyu tema
 .bb-root.bb-dark {
   --bb-bg: #0a0818;

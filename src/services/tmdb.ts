@@ -4,11 +4,128 @@ import {
   normalizeServiceError,
   optionalServiceRequest,
   ServiceError,
-  serviceErrorMessage,
 } from "./serviceError";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY?.trim();
+
+const TMDB_CACHE_PREFIX = "tenet:tmdb:v1:";
+const TMDB_CACHE_MAX_ENTRIES = 60;
+const TMDB_MEMORY_CACHE_MAX_ENTRIES = 100;
+const TMDB_CACHE_MAX_ITEM_LENGTH = 300_000;
+const MINUTE = 60_000;
+
+interface TmdbCacheEntry<T> {
+  expiresAt: number;
+  value: T;
+}
+
+const memoryCache = new Map<string, TmdbCacheEntry<unknown>>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+function writeMemoryCache<T>(key: string, entry: TmdbCacheEntry<T>): void {
+  memoryCache.delete(key);
+  memoryCache.set(key, entry);
+  if (memoryCache.size <= TMDB_MEMORY_CACHE_MAX_ENTRIES) return;
+  const oldestKey = memoryCache.keys().next().value;
+  if (oldestKey) memoryCache.delete(oldestKey);
+}
+
+function cacheTtl(endpoint: string): number {
+  if (endpoint.startsWith("/search/")) return 2 * MINUTE;
+  if (
+    endpoint.startsWith("/trending/") ||
+    endpoint.endsWith("/now_playing") ||
+    endpoint.endsWith("/airing_today") ||
+    endpoint.endsWith("/on_the_air")
+  ) {
+    return 10 * MINUTE;
+  }
+  if (endpoint.startsWith("/discover/")) return 30 * MINUTE;
+  if (
+    endpoint.endsWith("/popular") ||
+    endpoint.endsWith("/top_rated") ||
+    endpoint.endsWith("/upcoming")
+  ) {
+    return 30 * MINUTE;
+  }
+  return 6 * 60 * MINUTE;
+}
+
+function requestCacheKey(
+  endpoint: string,
+  params: Record<string, string | number>,
+): string {
+  const search = new URLSearchParams({
+    language: "tr-TR",
+    ...Object.fromEntries(
+      Object.entries(params)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, value]) => [key, String(value)]),
+    ),
+  });
+  return `${endpoint}?${search.toString()}`;
+}
+
+function storageCacheKey(key: string): string {
+  return `${TMDB_CACHE_PREFIX}${key}`;
+}
+
+function readCached<T>(key: string): T | undefined {
+  const now = Date.now();
+  const memoryEntry = memoryCache.get(key) as TmdbCacheEntry<T> | undefined;
+  if (memoryEntry) {
+    if (memoryEntry.expiresAt > now) return memoryEntry.value;
+    memoryCache.delete(key);
+  }
+
+  try {
+    const storageKey = storageCacheKey(key);
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return undefined;
+    const entry = JSON.parse(raw) as TmdbCacheEntry<T>;
+    if (!entry || entry.expiresAt <= now || entry.value === undefined) {
+      window.localStorage.removeItem(storageKey);
+      return undefined;
+    }
+    writeMemoryCache(key, entry);
+    return entry.value;
+  } catch {
+    return undefined;
+  }
+}
+
+function pruneStoredCache(): void {
+  const keys: string[] = [];
+  for (let index = 0; index < window.localStorage.length; index += 1) {
+    const key = window.localStorage.key(index);
+    if (key?.startsWith(TMDB_CACHE_PREFIX)) keys.push(key);
+  }
+
+  keys
+    .slice(0, Math.max(0, keys.length - TMDB_CACHE_MAX_ENTRIES + 1))
+    .forEach((key) => window.localStorage.removeItem(key));
+}
+
+function writeCached<T>(
+  key: string,
+  value: T,
+  ttl: number,
+  persist = true,
+): void {
+  const entry: TmdbCacheEntry<T> = { expiresAt: Date.now() + ttl, value };
+  writeMemoryCache(key, entry);
+  if (!persist) return;
+
+  try {
+    const serialized = JSON.stringify(entry);
+    if (serialized.length > TMDB_CACHE_MAX_ITEM_LENGTH) return;
+    pruneStoredCache();
+    window.localStorage.setItem(storageCacheKey(key), serialized);
+  } catch {
+    // depolama yoksa bellek cache'i devam eder
+  }
+}
 
 // tür çevirisi
 export const GENRES: Record<number, string> = {
@@ -36,6 +153,7 @@ export function formatRuntime(mins?: number | null): string {
 
 const tmdbClient = axios.create({
   baseURL: "https://api.themoviedb.org/3",
+  timeout: 12_000,
   params: {
     api_key: TMDB_API_KEY,
     language: "tr-TR",
@@ -45,7 +163,7 @@ const tmdbClient = axios.create({
 tmdbClient.interceptors.request.use((config) => {
   if (!TMDB_API_KEY) {
     return Promise.reject(
-      new ServiceError("configuration", serviceErrorMessage("configuration")),
+      new ServiceError("configuration"),
     );
   }
   return config;
@@ -60,9 +178,33 @@ tmdbClient.interceptors.response.use(
 async function tmdbFetch<T>(
   endpoint: string,
   params: Record<string, string | number> = {},
+  signal?: AbortSignal,
 ): Promise<T> {
-  const response = await tmdbClient.get<T>(endpoint, { params });
-  return response.data;
+  const key = requestCacheKey(endpoint, params);
+  const cached = readCached<T>(key);
+  if (cached !== undefined) return cached;
+
+  if (!signal) {
+    const pending = inFlightRequests.get(key) as Promise<T> | undefined;
+    if (pending) return pending;
+  }
+
+  const request = tmdbClient
+    .get<T>(endpoint, { params, signal })
+    .then((response) => {
+      writeCached(
+        key,
+        response.data,
+        cacheTtl(endpoint),
+        !endpoint.startsWith("/search/"),
+      );
+      return response.data;
+    })
+    .finally(() => {
+      if (!signal) inFlightRequests.delete(key);
+    });
+  if (!signal) inFlightRequests.set(key, request);
+  return request;
 }
 
 export const getImageUrl = (
@@ -87,6 +229,24 @@ function findBestTrailer(videos: Video[]): Video | null {
 
 export function pickTrailer(videos: Video[]): string | null {
   return findBestTrailer(videos)?.key ?? null;
+}
+
+export function getMediaDetail(
+  type: "movie" | "tv",
+  id: number,
+): Promise<MovieDetail | TVShowDetail> {
+  return type === "movie"
+    ? tmdbApi.getMovieDetail(id)
+    : tmdbApi.getTVShowDetail(id);
+}
+
+export function getSimilarMedia(
+  type: "movie" | "tv",
+  id: number,
+): Promise<TMDBResponse<Movie> | TMDBResponse<TVShow>> {
+  return type === "movie"
+    ? tmdbApi.getSimilarMovies(id)
+    : tmdbApi.getSimilarTVShows(id);
 }
 
 export const tmdbApi = {
@@ -217,8 +377,16 @@ export const tmdbApi = {
   },
 
   // video listesi
-  getVideos: (type: "movie" | "tv", id: number): Promise<VideosResponse> =>
-    tmdbFetch<VideosResponse>(`/${type}/${id}/videos`, { language: "en-US" }),
+  getVideos: (
+    type: "movie" | "tv",
+    id: number,
+    signal?: AbortSignal,
+  ): Promise<VideosResponse> =>
+    tmdbFetch<VideosResponse>(
+      `/${type}/${id}/videos`,
+      { language: "en-US" },
+      signal,
+    ),
 
   getTopRatedMovies: (page = 1): Promise<TMDBResponse<Movie>> =>
     tmdbFetch<TMDBResponse<Movie>>("/movie/top_rated", { page }),

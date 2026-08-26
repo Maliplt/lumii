@@ -21,17 +21,17 @@
 
     &:hover {
         background-color: rgba(255, 255, 255, 0.06) !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
 
-        svg { color: #ffffff !important; filter: none !important; }
+        svg { color: var(--color-white) !important; filter: none !important; }
     }
 }
 
 // paket butonu
 .paket-btn {
-    background: #ffffff !important;
-    color: #000000 !important;
-    border: 1px solid #ffffff !important;
+    background: var(--color-white) !important;
+    color: var(--color-black) !important;
+    border: 1px solid var(--color-white) !important;
     font-family: var(--font-header) !important;
     font-weight: 700 !important;
     font-size: 16px !important;
@@ -52,11 +52,11 @@
 
     &:hover {
         background: #f1f1f1 !important;
-        color: #000000 !important;
+        color: var(--color-black) !important;
         box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42) !important;
         transform: translateY(-1px) !important;
 
-        svg { transform: translateY(-2px) scale(1.08) !important; color: #000000 !important; }
+        svg { transform: translateY(-2px) scale(1.08) !important; color: var(--color-black) !important; }
     }
 
     &:active {
@@ -82,7 +82,7 @@
     transition: background-color 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease), box-shadow 0.25s var(--ease), scale 0.15s var(--ease) !important;
 
     &:hover {
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         background: rgba(255, 255, 255, 0.08) !important;
         border-color: rgba(255, 255, 255, 0.48) !important;
         box-shadow: none !important;
@@ -146,13 +146,13 @@
     &.rs-btn-primary,
     &[data-appearance="primary"] {
         background-color: var(--accent);
-        color: #fff;
+        color: var(--color-white);
         border: 1px solid var(--accent);
 
         &:hover, &:focus {
             background-color: var(--accent-hover);
             border-color: var(--accent-hover);
-            color: #fff;
+            color: var(--color-white);
         }
 
         &:active {
@@ -190,7 +190,7 @@
     &[data-appearance="link"] {
         color: var(--text-primary);
 
-        &:hover, &:focus { color: #ffffff; }
+        &:hover, &:focus { color: var(--color-white); }
     }
 
     &.rs-btn-lg {

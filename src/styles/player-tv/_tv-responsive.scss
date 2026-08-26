@@ -2,7 +2,7 @@
 @use "../base" as *;
 
 // mobil duzen
-@media (max-width: 1024px) {
+@include bp($bp-lg) {
     .tv-main {
         height: auto;
         padding-top: calc(56px + var(--space-4));
@@ -36,7 +36,7 @@
         max-height: 392px;
         overflow-x: hidden;
         overflow-y: auto;
-        gap: 8px;
+        gap: var(--space-2);
         padding-right: 4px;
         @include accent-scroll;
     }
@@ -47,7 +47,7 @@
 }
 
 // mobil player
-@media (max-width: 768px) {
+@include bp($bp-md) {
     .tv-featured__player {
         aspect-ratio: auto;
         height: 26vh;

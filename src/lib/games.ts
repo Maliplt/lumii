@@ -1,10 +1,10 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import sudokuImg from "../assets/images/sudoku.webp";
 import minesweepImg from "../assets/images/minesweeper.webp";
 import blockblastImg from "../assets/images/blockblast.webp";
 import mahjongImg from "../assets/images/mahjong.webp";
 import game2048Img from "../assets/images/2048.webp";
 import kelimezinciriImg from "../assets/images/kelimezinciri.webp";
+import doomImg from "../assets/images/doom.svg";
 
 export interface GameDef {
   id: string;
@@ -16,11 +16,23 @@ export interface GameDef {
   storageKey: string;
   scoreLabel: string;
   isScore: boolean;
-  Component: LazyExoticComponent<ComponentType>;
+  showScore?: boolean;
 }
 
 // oyun listesi
 export const GAMES: GameDef[] = [
+  {
+    id: "doom",
+    name: "Doom",
+    path: "/play/doom",
+    image: doomImg,
+    description: "Klasik birinci şahıs aksiyon",
+    tag: "Aksiyon",
+    storageKey: "doom_session",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: false,
+  },
   {
     id: "2048",
     name: "2048",
@@ -31,7 +43,6 @@ export const GAMES: GameDef[] = [
     storageKey: "game2048_best_score",
     scoreLabel: "En İyi Skor",
     isScore: true,
-    Component: lazy(() => import("../games/Game2048/Game2048")),
   },
   {
     id: "kelimezinciri",
@@ -43,7 +54,6 @@ export const GAMES: GameDef[] = [
     storageKey: "kelimezinciri_best",
     scoreLabel: "En İyi Skor",
     isScore: true,
-    Component: lazy(() => import("../games/KelimeZinciri/KelimeZinciri")),
   },
   {
     id: "sudoku",
@@ -55,7 +65,6 @@ export const GAMES: GameDef[] = [
     storageKey: "sudoku_best_time",
     scoreLabel: "En İyi Süre",
     isScore: false,
-    Component: lazy(() => import("../games/Sudoku/Sudoku")),
   },
   {
     id: "minesweeper",
@@ -67,7 +76,6 @@ export const GAMES: GameDef[] = [
     storageKey: "minesweeper_best_time",
     scoreLabel: "En İyi Süre",
     isScore: false,
-    Component: lazy(() => import("../games/Minesweeper/Minesweeper")),
   },
   {
     id: "blockbloom",
@@ -79,7 +87,6 @@ export const GAMES: GameDef[] = [
     storageKey: "blockbloom_best_score",
     scoreLabel: "En İyi Skor",
     isScore: true,
-    Component: lazy(() => import("../games/BlockBloomPuzzle/BlockBloomPuzzle")),
   },
   {
     id: "mahjong",
@@ -91,7 +98,6 @@ export const GAMES: GameDef[] = [
     storageKey: "mahjong_best_score",
     scoreLabel: "En İyi Skor",
     isScore: true,
-    Component: lazy(() => import("../games/MahjongSanctuary/MahjongSanctuary")),
   },
 ];
 

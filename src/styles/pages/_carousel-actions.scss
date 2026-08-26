@@ -6,7 +6,6 @@
 }
 
 .cc-item__actions-row {
-    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -18,11 +17,25 @@
 .cc-item__actions-left {
     display: flex;
     gap: var(--space-2);
+    width: 100%;
+    min-width: 0;
+}
+
+.icon-action-button__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    line-height: 0;
+
+    svg {
+        display: block;
+    }
 }
 
 .cc-item__action-btn {
-    width: 40px;
-    height: 40px;
+    flex: 0 0 var(--cc-action-size, 36px);
+    width: var(--cc-action-size, 36px);
+    height: var(--cc-action-size, 36px);
     border-radius: var(--radius-1);
     display: flex;
     align-items: center;
@@ -34,7 +47,7 @@
     overflow: visible;
     background: rgba(255, 255, 255, 0.13);
     border: 1px solid rgba(255, 255, 255, 0.24);
-    color: #ffffff;
+    color: var(--color-white);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset,
         0 7px 18px rgba(0, 0, 0, 0.36);
     transition: transform 0.32s var(--ease-out),
@@ -50,8 +63,8 @@
     &:hover {
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.42);
-        color: #ffffff;
-        transform: translateY(-2px) scale(1.04);
+        color: var(--color-white);
+        transform: scale(1.02);
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset,
             0 10px 22px rgba(0, 0, 0, 0.42);
     }
@@ -67,9 +80,10 @@
     }
 
     &.is-resume {
+        flex: 1 1 auto;
         width: auto;
-        min-width: 156px;
-        max-width: min(260px, calc(100vw - 48px));
+        min-width: 0;
+        max-width: 156px;
         gap: 8px;
         justify-content: flex-start;
         padding: 0 12px;
@@ -82,6 +96,19 @@
             margin-left: 0;
             color: var(--accent);
         }
+    }
+
+    &.is-resume.is-locked {
+        flex: 0 1 auto;
+        max-width: 100px;
+        gap: 6px;
+        justify-content: center;
+        padding-inline: 6px;
+    }
+
+    &.active {
+        background: color-mix(in srgb, var(--accent) 46%, rgba(0, 0, 0, 0.58));
+        border-color: color-mix(in srgb, var(--accent) 70%, white);
     }
 
     .cc-item__action-text {
@@ -124,7 +151,7 @@
         // menu yuzeyi
         background: var(--bg-2);
         border: 1px solid var(--border-default);
-        color: #ffffff;
+        color: var(--color-white);
         box-shadow: var(--shadow-lg);
         font-family: var(--font-header);
         font-size: var(--fs-sm);
@@ -155,10 +182,31 @@
     }
 }
 
-.hero-info__buttons .hero-action-btn {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
+@include bp($bp-md) {
+    .cc-item__actions-row {
+        margin: 6px 0 10px;
+    }
+
+    .cc-item__actions-left {
+        gap: 6px;
+    }
+
+    .cc-item__action-btn {
+        svg {
+            width: 16px;
+        }
+
+        .cc-item__action-text {
+            font-size: 12px;
+        }
+    }
+}
+
+@media (hover: none) {
+    .cc-item__action-btn[data-action-label]::before,
+    .cc-item__action-btn[data-action-label]::after {
+        display: none;
+    }
 }
 
 // liste ikonu

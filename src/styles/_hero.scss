@@ -105,18 +105,29 @@
     flex-wrap: wrap;
     gap: var(--space-3);
     margin-top: var(--space-5);
+
+    > .action-button {
+        height: var(--hero-action-size);
+        min-height: var(--hero-action-size);
+        box-sizing: border-box;
+        align-self: center;
+    }
 }
 
 // bilgi butonu
 .btn-more-info {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 10px !important;
     line-height: 1.2 !important;
     padding: var(--btn-py) var(--btn-px) !important;
+    height: var(--hero-action-size) !important;
+    min-height: var(--hero-action-size) !important;
+    box-sizing: border-box;
     background: rgba(255, 255, 255, 0.14) !important;
     border: 1px solid rgba(255, 255, 255, 0.24) !important;
-    color: #ffffff !important;
+    color: var(--color-white) !important;
     font-size: var(--btn-fs) !important;
     font-weight: 700 !important;
     font-family: var(--font-header) !important;
@@ -130,10 +141,10 @@
     &:hover {
         background: rgba(255, 255, 255, 0.2) !important;
         border-color: rgba(255, 255, 255, 0.38) !important;
-        transform: translateY(-2px) !important;
+        transform: scale(1.02) !important;
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset,
             0 12px 28px rgba(0, 0, 0, 0.42) !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         text-decoration: none !important;
     }
 
@@ -144,15 +155,17 @@
 
 // oynat butonu
 .btn-play {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border: 1px solid #ffffff !important;
+    background-color: var(--color-white) !important;
+    color: var(--color-black) !important;
+    border: 1px solid var(--color-white) !important;
     font-family: var(--font-header) !important;
     font-weight: 700 !important;
     font-size: var(--btn-fs) !important;
     line-height: 1.2 !important;
     padding: var(--btn-py) var(--btn-px) !important;
-    height: auto !important;
+    height: var(--hero-action-size) !important;
+    min-height: var(--hero-action-size) !important;
+    box-sizing: border-box;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -168,10 +181,10 @@
     }
 
     &:hover, &:focus {
-        background-color: #ffffff !important;
-        border-color: #ffffff !important;
-        color: #000000 !important;
-        transform: translateY(-2px) !important;
+        background-color: var(--color-white) !important;
+        border-color: var(--color-white) !important;
+        color: var(--color-black) !important;
+        transform: scale(1.02) !important;
         box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45) !important;
     }
 
@@ -182,19 +195,24 @@
     }
 }
 
-// aksiyon butonlari
-.hero-action-btn,
-.hero-sound-toggle {
+// hero aksiyonları
+.hero-info__buttons > .hero-icon-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 46px;
-    min-width: 46px;
-    padding: 0 14px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    flex: 0 0 var(--hero-action-size);
+    width: var(--hero-action-size);
+    min-width: var(--hero-action-size);
+    max-width: var(--hero-action-size);
+    height: var(--hero-action-size);
+    min-height: var(--hero-action-size);
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: var(--radius-1);
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffffff;
+    background: rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: var(--color-white);
     cursor: pointer;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset,
         0 8px 22px rgba(0, 0, 0, 0.34);
@@ -203,52 +221,54 @@
         border-color 0.25s var(--ease-out),
         box-shadow 0.25s var(--ease-out);
 
-    &:hover, &:focus-visible, &.active {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.42);
-        color: #ffffff;
-        transform: translateY(-2px);
+    &:hover,
+    &:focus-visible {
+        background: rgba(0, 0, 0, 0.62);
+        border-color: rgba(255, 255, 255, 0.48);
+        color: var(--color-white);
+        transform: scale(1.02);
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset,
             0 12px 28px rgba(0, 0, 0, 0.42);
     }
 
-    &:active { transform: translateY(0) scale(0.96); }
-}
-
-.hero-action-btn {
-    width: 46px;
-    padding: 0;
-}
-
-.hero-sound-toggle {
-    position: absolute;
-    right: 40px;
-    bottom: 200px;
-    z-index: 13;
-}
-
-// detay butonları
-.overview-page .hero-action-btn,
-.overview-page .hero-sound-toggle {
-    background: rgba(0, 0, 0, 0.45);
-    border-color: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(6px);
-
-    &:hover,
-    &:focus-visible,
     &.active {
-        background: rgba(0, 0, 0, 0.62);
-        border-color: rgba(255, 255, 255, 0.48);
+        background: color-mix(in srgb, var(--accent) 46%, rgba(0, 0, 0, 0.58));
+        border-color: color-mix(in srgb, var(--accent) 70%, white);
+    }
+
+    &:active { transform: translateY(0) scale(0.96); }
+
+    .icon-action-button__icon,
+    svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
-.overview-page .hero-info__buttons .cc-item__like > span {
-    position: relative;
-    top: 1px;
+@container overview-actions (max-width: 520px) {
+    .overview-page .hero-info__buttons.has-manual-trailer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(3, var(--hero-action-size));
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .overview-page .hero-info__buttons.has-manual-trailer .btn-play {
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        padding-inline: 12px !important;
+        white-space: nowrap;
+    }
+
+    .overview-page .hero-info__buttons.has-manual-trailer .btn-play__label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
-.hero-action-btn.is-pop,
-.hero-sound-toggle.is-pop {
+.hero-icon-action.is-pop {
     animation: iconPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 

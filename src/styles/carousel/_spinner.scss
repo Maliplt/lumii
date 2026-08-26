@@ -19,8 +19,8 @@
         max(20px, env(safe-area-inset-right))
         max(24px, env(safe-area-inset-bottom))
         max(20px, env(safe-area-inset-left));
-    color: #fff;
-    background: #000;
+    color: var(--color-white);
+    background: var(--color-black);
 }
 
 .spinner-overlay--inline {
@@ -79,7 +79,7 @@
 
 .spinner-film__tile {
     fill: none;
-    stroke: #fff;
+    stroke: var(--color-white);
     stroke-width: 1;
 }
 
@@ -94,16 +94,16 @@
 
 .spinner-film__frame {
     fill: none;
-    stroke: #fff;
+    stroke: var(--color-white);
     stroke-width: 1;
 }
 
 .spinner-film__sprocket {
-    fill: #fff;
+    fill: var(--color-white);
 }
 
 .spinner-wordmark {
-    color: #fff;
+    color: var(--color-white);
     font-family: var(--font-header);
     font-size: clamp(10px, calc(var(--spinner-size) * 0.18), 16px);
     font-weight: 850;
@@ -116,7 +116,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 1.3em;
-    color: #fff;
+    color: var(--color-white);
     font-family: var(--font-body);
     font-size: var(--spinner-label-size);
     font-weight: 700;
@@ -130,7 +130,7 @@
     to { stroke-dashoffset: -100; }
 }
 
-@media (max-width: 600px), (max-height: 520px) {
+@media (max-width: $bp-compact), (max-height: $bp-height-compact) {
     .spinner-overlay {
         --spinner-size: 68px;
         --spinner-gap: 17px;

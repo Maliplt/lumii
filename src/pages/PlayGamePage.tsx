@@ -1,8 +1,9 @@
 import { useEffect, useState, Suspense } from "react";
 import { Navigate, useParams, useNavigate } from "react-router-dom";
 import { Button } from "rsuite";
-import { MotionIcon } from "motion-icons-react";
-import Spinner from "../components/Spinner";
+import { MotionIcon } from "../components/ui/MotionIcon";
+import Spinner from "../components/ui/Spinner";
+import { hasGameComponent, LoadedGame } from "../lib/gameLoaders";
 import { findGame } from "../lib/games";
 import { useTitle } from "../helpers";
 
@@ -33,7 +34,7 @@ export default function PlayGamePage() {
   const game = findGame(gameId);
   useTitle(game ? `${game.name} Oyunu` : "Oyun");
 
-  if (!game) return <Navigate to="/" replace />;
+  if (!game || !hasGameComponent(game.id)) return <Navigate to="/" replace />;
 
   return (
     <div className="play-game-page">
@@ -48,22 +49,24 @@ export default function PlayGamePage() {
           />
           Geri Dön
         </Button>
-        <div className="pg-score-card">
-          <MotionIcon
-            name="Trophy"
-            size={18}
-            trigger="hover"
-            animation="pop"
-            className="pg-score-icon"
-          />
-          <span>
-            {game.scoreLabel}: <strong>{bestScore}</strong>
-          </span>
-        </div>
+        {game.showScore !== false && (
+          <div className="pg-score-card">
+            <MotionIcon
+              name="Trophy"
+              size={18}
+              trigger="hover"
+              animation="pop"
+              className="pg-score-icon"
+            />
+            <span>
+              {game.scoreLabel}: <strong>{bestScore}</strong>
+            </span>
+          </div>
+        )}
       </header>
       <main className="pg-main-content">
         <Suspense fallback={<Spinner inline />}>
-          <game.Component />
+          <LoadedGame gameId={game.id} />
         </Suspense>
       </main>
     </div>

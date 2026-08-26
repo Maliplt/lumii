@@ -56,7 +56,7 @@
     height: 38px !important;
     padding: 0 14px !important;
     border-color: rgba(255, 255, 255, 0.28) !important;
-    color: #ffffff !important;
+    color: var(--color-white) !important;
     font-family: var(--font-header) !important;
     font-size: 14px !important;
     font-weight: 700 !important;
@@ -74,7 +74,7 @@
     display: none;
     background: transparent;
     border: none;
-    color: #ffffff;
+    color: var(--color-white);
     cursor: pointer;
     padding: var(--space-2);
     border-radius: var(--radius-1);
@@ -154,14 +154,14 @@
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--radius-1);
     background: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+    color: var(--color-white);
     cursor: pointer;
     transition: background-color 0.22s var(--ease), border-color 0.22s var(--ease), color 0.22s var(--ease);
 
     &:hover, &:focus-visible {
         background: rgba(255, 255, 255, 0.12);
         border-color: rgba(255, 255, 255, 0.24);
-        color: #ffffff;
+        color: var(--color-white);
     }
 }
 
@@ -174,7 +174,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-1);
     background: rgba(255, 255, 255, 0.055);
-    color: #ffffff;
+    color: var(--color-white);
     text-align: left;
     cursor: pointer;
     font-family: var(--font-display);
@@ -201,7 +201,7 @@
     overflow: hidden;
     border-radius: var(--radius-1);
     background: var(--bg-3);
-    color: #ffffff;
+    color: var(--color-white);
     font-weight: 800;
 
     img { width: 100%; height: 100%; object-fit: cover; }
@@ -220,7 +220,7 @@
     }
 
     strong {
-        color: #ffffff;
+        color: var(--color-white);
         font-size: 15px;
         font-weight: 800;
         letter-spacing: 0;
@@ -271,18 +271,18 @@
     &:hover {
         background: rgba(255, 255, 255, 0.07) !important;
         border-color: rgba(255, 255, 255, 0.12) !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
 
-        svg { color: #ffffff !important; transform: translateX(3px); }
+        svg { color: var(--color-white) !important; transform: translateX(3px); }
     }
 
     &.active {
         background: rgba(255, 255, 255, 0.1) !important;
         border-color: rgba(255, 255, 255, 0.22) !important;
-        color: #ffffff !important;
+        color: var(--color-white) !important;
         box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.85);
 
-        svg { color: #ffffff !important; }
+        svg { color: var(--color-white) !important; }
     }
 }
 

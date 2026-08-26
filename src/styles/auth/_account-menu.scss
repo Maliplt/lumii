@@ -67,7 +67,7 @@
         align-items: center;
         justify-content: center;
         background: rgba(255, 255, 255, 0.12);
-        color: #fff;
+        color: var(--color-white);
         font-family: var(--font-display);
         font-weight: 700;
         font-size: 15px;
@@ -85,7 +85,7 @@
         min-width: 0;
 
         strong {
-            color: #fff;
+            color: var(--color-white);
             font-family: var(--font-display);
             font-size: 14px;
             font-weight: 700;
@@ -142,7 +142,7 @@
 
         &:hover {
             background: var(--bg-2);
-            color: #fff;
+            color: var(--color-white);
         }
     }
 
@@ -171,7 +171,7 @@
 
         &:hover {
             background: var(--bg-2);
-            color: #fff;
+            color: var(--color-white);
         }
 
         &-avatar {
@@ -193,8 +193,8 @@
             font-size: 8px;
             font-weight: 800;
             letter-spacing: 0.1em;
-            color: #000;
-            background: #ffffff;
+            color: var(--color-black);
+            background: var(--color-white);
             border-radius: var(--radius-1);
             padding: 2px 6px;
         }
@@ -225,10 +225,10 @@
 
         &:hover {
             background: var(--bg-2);
-            color: #fff;
+            color: var(--color-white);
 
             svg {
-                color: #ffffff;
+                color: var(--color-white);
             }
         }
 

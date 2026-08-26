@@ -14,7 +14,7 @@
     font-size: 104px;
 }
 
-@media (max-width: 720px) {
+@include bp($bp-md) {
     .rs-navbar-brand .tenet-logo {
         font-size: 82px;
     }
@@ -29,7 +29,7 @@
 }
 
 // responsive duzenler
-@media (max-width: 980px) {
+@include bp($bp-lg) {
     .acct-main {
         padding: 76px 10px 30px;
     }
@@ -44,7 +44,7 @@
 
     .acct-sidebar__profile {
         grid-template-columns: 42px minmax(0, 1fr);
-        padding: 10px;
+        padding: var(--space-2-5);
 
         img {
             width: 42px;
@@ -59,8 +59,8 @@
         grid-template-columns: none;
         overflow-x: auto;
         overflow-y: hidden;
-        gap: 6px;
-        padding: 8px 8px 10px;
+        gap: var(--space-1-5);
+        padding: var(--space-2) var(--space-2) var(--space-2-5);
         scroll-snap-type: x proximity;
         @include accent-scroll;
 
@@ -78,8 +78,8 @@
         flex: 0 0 auto;
         min-height: 0;
         grid-template-columns: auto auto;
-        gap: 8px;
-        padding: 10px 14px;
+        gap: var(--space-2);
+        padding: var(--space-2-5) var(--space-3-5);
         white-space: nowrap;
         scroll-snap-align: start;
 
@@ -101,7 +101,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@include bp($bp-md) {
     .mobile-nav-overlay {
         background: rgba(0, 0, 0, 0.62) !important;
         backdrop-filter: blur(4px) !important;
@@ -114,7 +114,7 @@
     }
 }
 
-@media (max-width: 640px) {
+@include bp($bp-compact) {
     .acct-main {
         padding-left: 8px;
         padding-right: 8px;
@@ -126,7 +126,7 @@
 
     .acct-topbar {
         display: grid;
-        gap: 10px;
+        gap: var(--space-2-5);
         padding-bottom: 12px;
 
         h1 {
@@ -140,7 +140,7 @@
 
     .acct-row {
         display: grid;
-        gap: 12px;
+        gap: var(--space-3);
         padding: 13px;
         min-height: 0;
     }
@@ -159,20 +159,10 @@
     }
 
     .acct-profile-card {
-        grid-template-columns: 46px minmax(0, 1fr) 34px;
-        min-height: 78px;
-        padding: 12px;
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        padding: var(--space-3);
         max-width: none;
-
-        img {
-            width: 46px;
-            height: 46px;
-        }
-
-        > button {
-            width: 34px;
-            height: 34px;
-        }
     }
 
     .acct-profile-card.acct-profile-card--add {
@@ -180,11 +170,35 @@
     }
 
     .acct-profile-card__head {
-        grid-template-columns: 50px minmax(0, 1fr) 36px;
+        grid-template-columns: 50px minmax(0, 1fr) 40px;
+        gap: var(--space-3);
 
         img {
             width: 50px;
             height: 56px;
+        }
+
+        > button {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+    .acct-profile-controls {
+        margin-top: 0;
+        padding-top: var(--space-3);
+    }
+
+    .acct-control-line {
+        align-items: center;
+
+        > span {
+            min-width: 0;
+        }
+
+        .acct-toggle-btn {
+            flex: 0 0 auto;
+            min-height: 40px;
         }
     }
 
@@ -213,7 +227,7 @@
 
     .avatar-modal__hero {
         grid-template-columns: 84px minmax(0, 1fr);
-        gap: 16px;
+        gap: var(--space-4);
 
         > img {
             width: 84px;

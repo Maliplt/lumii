@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:watch": "vitest",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,7 +19,6 @@
     "axios": "^1.16.1",
     "hls.js": "^1.6.16",
     "lucide-react": "^1.16.0",
-    "motion-icons-react": "^1.1.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-redux": "^9.3.0",
@@ -38,6 +41,7 @@
     "sass": "^1.100.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "vitest": "^4.1.11"
   }
 }

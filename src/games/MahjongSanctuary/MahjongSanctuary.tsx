@@ -846,7 +846,7 @@ export default function MahjongSanctuary() {
     <div className={appClass}>
       <div className="mj-ambient" aria-hidden="true">
         {Array.from({ length: 8 }, (_, index) => (
-          <span key={index} style={{ "--i": index } as CSSProperties} />
+          <span key={index} />
         ))}
       </div>
       <div className="mj-shell">
@@ -860,7 +860,9 @@ export default function MahjongSanctuary() {
               <Coins size={17} />
               <strong>{coins.toLocaleString("tr-TR")}</strong>
               {coinBurst && (
-                <em key={coinBurst.id}>+{coinBurst.amount}</em>
+                <span className="mj-wallet__burst" key={coinBurst.id}>
+                  +{coinBurst.amount}
+                </span>
               )}
             </div>
             <div className="mj-best">
@@ -883,33 +885,22 @@ export default function MahjongSanctuary() {
                 <Settings size={21} />
               </button>
               <div className="mj-hero-ornaments" aria-hidden="true">
-                {BASE_FACES.slice(0, 14).map((face, index) => (
+                {BASE_FACES.slice(0, 14).map((face) => (
                   <span
                     key={`ornament-${face.id}`}
                     className="mj-ornament-tile"
-                    style={
-                      {
-                        "--i": index,
-                        "--tone": face.tone,
-                      } as CSSProperties
-                    }
+                    data-tone={face.tone}
                   >
                     <TileFace face={face} />
                   </span>
                 ))}
               </div>
               <div className="mj-preview" aria-hidden="true">
-                {BASE_FACES.slice(27, 34).map((face, index) => (
+                {BASE_FACES.slice(27, 34).map((face) => (
                   <span
                     key={face.id}
                     className="mj-sample-tile"
-                    style={
-                      {
-                        "--i": index,
-                        "--row": index % 2,
-                        "--tone": face.tone,
-                      } as CSSProperties
-                    }
+                    data-tone={face.tone}
                   >
                     <TileFace face={face} />
                   </span>
@@ -937,17 +928,11 @@ export default function MahjongSanctuary() {
           <main className="mj-rules">
             <section className="mj-rules-card">
               <div className="mj-preview mj-preview--rules" aria-hidden="true">
-                {BASE_FACES.slice(18, 24).map((face, index) => (
+                {BASE_FACES.slice(18, 24).map((face) => (
                   <span
                     key={face.id}
                     className="mj-sample-tile"
-                    style={
-                      {
-                        "--i": index,
-                        "--row": index % 2,
-                        "--tone": face.tone,
-                      } as CSSProperties
-                    }
+                    data-tone={face.tone}
                   >
                     <TileFace face={face} />
                   </span>
@@ -987,9 +972,11 @@ export default function MahjongSanctuary() {
                 <span>Puan</span>
                 <strong>{score.toLocaleString("tr-TR")}</strong>
                 {scoreBurst && (
-                  <em className={scoreBurst.speed ? "is-speed" : ""}>
+                  <span
+                    className={`mj-score-core__burst${scoreBurst.speed ? " is-speed" : ""}`}
+                  >
                     +{scoreBurst.amount}
-                  </em>
+                  </span>
                 )}
               </div>
               {combo >= 2 && (
@@ -1039,7 +1026,12 @@ export default function MahjongSanctuary() {
                 <div
                   key={boardRound}
                   className="mj-board"
-                  style={{ width: box.width, height: box.height }}
+                  style={
+                    {
+                      "--board-width": `${box.width}px`,
+                      "--board-height": `${box.height}px`,
+                    } as CSSProperties
+                  }
                 >
                   {tiles.map((tile, index) => {
                     const isMatched = matchedIds.includes(tile.uid);
@@ -1066,15 +1058,15 @@ export default function MahjongSanctuary() {
                           .join(" ")}
                         style={
                           {
-                            width: box.tileW,
-                            height: box.tileH,
-                            left: x,
-                            top: y,
-                            zIndex: 10 + tile.z * 100 + Math.round(tile.r * 6 + tile.c),
-                            "--tone": tile.tone,
+                            "--tile-width": `${box.tileW}px`,
+                            "--tile-height": `${box.tileH}px`,
+                            "--tile-left": `${x}px`,
+                            "--tile-top": `${y}px`,
+                            "--tile-z": 10 + tile.z * 100 + Math.round(tile.r * 6 + tile.c),
                             "--deal": index,
                           } as CSSProperties
                         }
+                        data-tone={tile.tone}
                         onClick={(event) => handleTile(tile, event.timeStamp)}
                         aria-label={tile.title}
                       >

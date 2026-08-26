@@ -19,7 +19,7 @@
     border-radius: var(--radius-2);
     background: rgba(255, 255, 255, 0.045);
     border-color: rgba(255, 255, 255, 0.13);
-    color: #fff;
+    color: var(--color-white);
     text-align: left;
     align-items: stretch;
 
@@ -31,7 +31,7 @@
     }
 
     h3 {
-        color: #fff;
+        color: var(--color-white);
         font-size: 1rem;
         font-weight: 900;
         overflow: hidden;
@@ -74,7 +74,7 @@
 
     h3 {
         margin: 0;
-        color: #fff;
+        color: var(--color-white);
         font-size: 1.14rem;
         font-weight: 950;
     }
@@ -144,7 +144,7 @@
         flex-shrink: 0;
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: var(--radius-1);
-        color: #fff;
+        color: var(--color-white);
         transition: border-color 0.16s ease, color 0.16s ease;
     }
 
@@ -155,7 +155,7 @@
         min-width: 0;
 
         strong {
-            color: #fff;
+            color: var(--color-white);
             font-size: 1rem;
             font-weight: 900;
         }
@@ -208,7 +208,7 @@
     &:hover {
         border-color: rgba($brand, 0.76) !important;
         background: rgba($brand, 0.14) !important;
-        color: #fff !important;
+        color: var(--color-white) !important;
     }
 }
 
@@ -265,7 +265,7 @@
     &.is-on {
         border-color: rgba(255, 255, 255, 0.5);
         background: rgba(255, 255, 255, 0.16);
-        color: #fff;
+        color: var(--color-white);
     }
 }
 
@@ -293,13 +293,13 @@
         }
 
         &:hover {
-            color: #fff;
+            color: var(--color-white);
         }
 
         // seçili segment
         &.is-active {
             background: rgba(255, 255, 255, 0.16);
-            color: #fff;
+            color: var(--color-white);
         }
     }
 }
@@ -319,7 +319,7 @@
 
     h3 {
         grid-column: 1 / -1;
-        color: #fff;
+        color: var(--color-white);
         font-size: 1.06rem;
         font-weight: 900;
     }
@@ -343,7 +343,7 @@
         border: 1px solid var(--border-default);
         border-radius: var(--radius-1);
         background: var(--bg-2);
-        color: #fff;
+        color: var(--color-white);
         font-size: 1rem;
         outline: none;
         transition: border-color 0.16s ease, background-color 0.16s ease;
@@ -381,7 +381,7 @@
 }
 
 .account-trigger__name {
-    color: #fff !important;
+    color: var(--color-white) !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     letter-spacing: 0 !important;

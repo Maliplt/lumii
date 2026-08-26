@@ -8,6 +8,7 @@ import ProfileEditorModal from "../components/modals/ProfileEditorModal";
 import ProfileUnlockModal from "../components/modals/ProfileUnlockModal";
 import { avatarFor, safeAuthReturnTo, useProtectedUser, useTitle, useToast, toastText } from "../helpers";
 import { useAppDispatch, selectProfile, addProfile, updateProfile, deleteProfile, MAX_PROFILES, type Profile } from "../store/store";
+import OptimizedImage from "../components/ui/OptimizedImage";
 
 type EditorState =
   | { mode: "create" }
@@ -95,7 +96,7 @@ export default function ProfilesPage() {
               onClick={(e) => enter(p, e.currentTarget)}
             >
               <span className="profile-card__avatar">
-                <img src={avatarFor(p)} alt="" />
+                <OptimizedImage src={avatarFor(p)} alt="" />
                 {manage && (
                   <span className="profile-card__overlay">
                     <Pencil size={22} />

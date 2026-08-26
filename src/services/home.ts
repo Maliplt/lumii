@@ -9,33 +9,39 @@ const HERO_COUNT = 5;
 export interface HomeCriticalData {
   heroMovies: HomeMedia[];
   popular: HomeMedia[];
-  nowPlaying: HomeMedia[];
-  trendingMovies: HomeMedia[];
-  popularTV: HomeMedia[];
-  trendingTV: HomeMedia[];
 }
 
-// ana satırlar
+// ilk ekran
 export async function loadCriticalHome(): Promise<HomeCriticalData> {
-  const [popularMovies, nowPlayingMovies, trending, popularTV, trendingShows] =
-    await settleList([
-      tmdbApi.getPopularMovies(),
-      tmdbApi.getNowPlayingMovies(),
-      tmdbApi.getTrendingMovies(),
-      tmdbApi.getPopularTVShows(),
-      tmdbApi.getTrendingTVShows(),
-    ]);
+  const [popularMovies] = await settleList([tmdbApi.getPopularMovies()]);
   return {
     heroMovies: heroFrom(popularMovies?.results ?? [], HERO_COUNT),
     popular: withMedia(popularMovies?.results ?? []),
-    nowPlaying: withPoster(nowPlayingMovies?.results ?? []),
-    trendingMovies: withPoster(trending?.results ?? []),
-    popularTV: withPoster(popularTV?.results ?? []),
-    trendingTV: withPoster(trendingShows?.results ?? []),
   };
 }
 
-export interface HomeRestData {
+export interface HomePrimaryData {
+  nowPlaying: HomeMedia[];
+  trendingMovies: HomeMedia[];
+  popularTV: HomeMedia[];
+}
+
+// ilk satırlar
+export async function loadPrimaryHome(): Promise<HomePrimaryData> {
+  const [nowPlayingMovies, trending, popularTV] = await settleList([
+    tmdbApi.getNowPlayingMovies(),
+    tmdbApi.getTrendingMovies(),
+    tmdbApi.getPopularTVShows(),
+  ]);
+  return {
+    nowPlaying: withPoster(nowPlayingMovies?.results ?? []),
+    trendingMovies: withPoster(trending?.results ?? []),
+    popularTV: withPoster(popularTV?.results ?? []),
+  };
+}
+
+export interface HomeExtendedData {
+  trendingTV: HomeMedia[];
   upcoming: HomeMedia[];
   topRatedTV: HomeMedia[];
   airingToday: HomeMedia[];
@@ -52,9 +58,10 @@ export interface HomeRestData {
   dramaTV: HomeMedia[];
 }
 
-// ek satırlar
-export async function loadRestHome(): Promise<HomeRestData> {
+// kalan satırlar
+export async function loadExtendedHome(): Promise<HomeExtendedData> {
   const [
+    trendingShows,
     upcomingMovies,
     topRatedShows,
     airingShows,
@@ -70,6 +77,7 @@ export async function loadRestHome(): Promise<HomeRestData> {
     comedyTV,
     dramaTV,
   ] = await settleList([
+    tmdbApi.getTrendingTVShows(),
     tmdbApi.getUpcomingMovies(),
     tmdbApi.getTopRatedTVShows(),
     tmdbApi.getAiringTodayTVShows(),
@@ -86,6 +94,7 @@ export async function loadRestHome(): Promise<HomeRestData> {
     tmdbApi.getTVShowsByGenre(18, 1, "popularity.desc"),
   ]);
   return {
+    trendingTV: withPoster(trendingShows?.results ?? []),
     upcoming: withPoster(upcomingMovies?.results ?? []),
     topRatedTV: withPoster(topRatedShows?.results ?? []),
     airingToday: withPoster(airingShows?.results ?? []),

@@ -1,6 +1,6 @@
 import { Button } from "rsuite";
 import { SectionIntro, SummaryBlock, SummaryRow } from "../AccountUI";
-import type { BasicUser } from "./types";
+import type { BasicUser } from "./accountTabTypes";
 
 export default function BillingTab({
   user,

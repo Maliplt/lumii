@@ -1,15 +1,15 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Schema, Button } from "rsuite";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
-import FormField from "../components/auth/FormField";
-import PasswordField from "../components/auth/PasswordField";
+import AuthCredentialsFields from "../components/auth/AuthCredentialsFields";
 import AuthErrorBanner from "../components/auth/AuthErrorBanner";
+import { useAuthForm } from "../components/auth/useAuthForm";
 import { toastText, useTitle, useRotatingBackdrop, useAuthRedirectOnSuccess } from "../helpers";
 import { emailRule, passwordRule, runSchemaCheck } from "../lib/authValidation";
 import { tmdbApi } from "../services/tmdb";
-import { useAppDispatch, useAppSelector, login, clearAuthError } from "../store/store";
+import { useAppDispatch, useAppSelector, login } from "../store/store";
 
 const loginModel = Schema.Model({
   email: emailRule(),
@@ -22,19 +22,15 @@ export default function LoginPage() {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
-  const authError = useAppSelector((s) => s.auth.error);
-
-  const [formValue, setFormValue] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const { formValue, errors, authError, setErrors, updateField } = useAuthForm({
+    email: "",
+    password: "",
+  });
   const [forgotMsg, setForgotMsg] = useState("");
   const submitted = useRef(false);
   const { movies, bgIdx } = useRotatingBackdrop(() => tmdbApi.getPopularMovies());
 
   useAuthRedirectOnSuccess(currentUser, submitted, toastText.welcome);
-
-  useEffect(() => {
-    dispatch(clearAuthError());
-  }, [dispatch]);
 
   const handleLogin = () => {
     const errs = runSchemaCheck(loginModel, formValue);
@@ -46,9 +42,7 @@ export default function LoginPage() {
   };
 
   const setField = (key: keyof typeof formValue) => (value: string) => {
-    setFormValue((f) => ({ ...f, [key]: value }));
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: "" }));
-    if (authError) dispatch(clearAuthError());
+    updateField(key, value);
     if (forgotMsg) setForgotMsg("");
   };
 
@@ -73,23 +67,15 @@ export default function LoginPage() {
             handleLogin();
           }}
         >
-          <FormField
-            id="login-email"
-            label="E-posta"
-            type="email"
-            placeholder="ornek@mail.com"
-            value={formValue.email}
-            onChange={setField("email")}
-            error={errors.email}
-          />
-
-          <PasswordField
-            id="login-password"
-            label="Şifre"
-            placeholder="••••••••"
-            value={formValue.password}
-            onChange={setField("password")}
-            error={errors.password}
+          <AuthCredentialsFields
+            idPrefix="login"
+            email={formValue.email}
+            password={formValue.password}
+            emailError={errors.email}
+            passwordError={errors.password}
+            passwordPlaceholder="••••••••"
+            onEmailChange={setField("email")}
+            onPasswordChange={setField("password")}
           />
 
           <button type="button" className="login-forgot" onClick={handleForgot}>

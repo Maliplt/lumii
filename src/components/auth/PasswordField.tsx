@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input, InputGroup } from "rsuite";
-import { AlertCircle } from "lucide-react";
-import { MotionIcon } from "motion-icons-react";
+import { MotionIcon } from "../ui/MotionIcon";
+import { AuthFieldShell } from "./FormField";
 
 interface PasswordFieldProps {
   id: string;
@@ -25,10 +25,7 @@ export default function PasswordField({
   const [show, setShow] = useState(false);
 
   return (
-    <div className="login-field">
-      <label className="login-field__label" htmlFor={id}>
-        {label}
-      </label>
+    <AuthFieldShell id={id} label={label} error={error}>
       <InputGroup inside>
         <Input
           id={id}
@@ -50,11 +47,6 @@ export default function PasswordField({
           />
         </InputGroup.Button>
       </InputGroup>
-      {error && (
-        <span className="login-field__error">
-          <AlertCircle size={13} /> {error}
-        </span>
-      )}
-    </div>
+    </AuthFieldShell>
   );
 }

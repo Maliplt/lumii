@@ -1,7 +1,7 @@
 import { Navigate, useParams, Link } from "react-router-dom";
 import { Nav } from "rsuite";
-import { MotionIcon } from "motion-icons-react";
-import PageLayout from "../components/PageLayout";
+import { MotionIcon } from "../components/ui/MotionIcon";
+import PageLayout from "../components/layout/PageLayout";
 import { useTitle } from "../helpers";
 
 const SECTIONS = {

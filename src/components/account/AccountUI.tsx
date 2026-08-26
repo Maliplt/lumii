@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import MediaCard from "../MediaCard";
-import StateView from "../StateView";
+import MediaCard from "../media/MediaCard";
+import StateView from "../feedback/StateView";
 import type { SavedItem } from "../../store/store";
 
 export function SectionIntro({ children }: { children: ReactNode }) {

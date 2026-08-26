@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button, Modal } from "rsuite";
+import { Button } from "rsuite";
 import { avatarFor } from "../../helpers";
-import PinInput from "../PinInput";
-import ModalCloseButton from "./ModalCloseButton";
+import PinInput from "../ui/PinInput";
 import ModalHero from "./ModalHero";
+import ProfileModalShell from "./ProfileModalShell";
 import type { Profile } from "../../store/store";
 
 interface Props {
@@ -33,10 +33,16 @@ export default function ProfileLockModal({ profile, onClose, onSave }: Props) {
   };
 
   return (
-    <Modal open onClose={onClose} size="sm" className="profile-modal lock-modal">
-      <ModalCloseButton onClose={onClose} />
-
-      <Modal.Body>
+    <ProfileModalShell
+      className="lock-modal"
+      size="sm"
+      onClose={onClose}
+      footer={
+        <Button appearance="primary" onClick={submit} block>
+          {started ? "Kilit Kodunu Kaydet" : "Profil Kilidini Oluştur"}
+        </Button>
+      }
+    >
         <ModalHero
           className="lock-modal__hero"
           avatar={avatar}
@@ -58,15 +64,6 @@ export default function ProfileLockModal({ profile, onClose, onSave }: Props) {
         )}
 
         {error && <small className="lock-modal__error">{error}</small>}
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="profile-edit__footer">
-          <Button appearance="primary" onClick={submit} block>
-            {started ? "Kilit Kodunu Kaydet" : "Profil Kilidini Oluştur"}
-          </Button>
-        </div>
-      </Modal.Footer>
-    </Modal>
+    </ProfileModalShell>
   );
 }

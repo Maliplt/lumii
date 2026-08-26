@@ -1,5 +1,6 @@
 @use "sass:list";
 @use "sass:color";
+@use "sass:map";
 
 // tema rengi
 $brand:        #A91D3A; // ana vurgu
@@ -25,8 +26,71 @@ $warning: #f2c94c; // sari renk
 $danger:  #ff4d4f;
 $gold:    #ffb800; // puan yildizi
 
+// ortak ölçekler
+$spacing-scale: (
+    "0": 0,
+    "0-5": 2px,
+    "1": 4px,
+    "1-5": 6px,
+    "2": 8px,
+    "2-5": 10px,
+    "3": 12px,
+    "3-5": 14px,
+    "4": 16px,
+    "4-5": 18px,
+    "5": 20px,
+    "6": 24px,
+    "7": 28px,
+    "8": 32px,
+    "10": 40px,
+    "12": 48px,
+    "16": 64px,
+);
+
+$type-scale: (
+    "xs": 11px,
+    "sm": 13px,
+    "base": 14px,
+    "md": 15px,
+    "lg": 17px,
+    "xl": 20px,
+    "2xl": 24px,
+    "3xl": 32px,
+    "4xl": 40px,
+    "hero": 48px,
+);
+
+$breakpoints: (
+    "xs": 360px,
+    "sm": 480px,
+    "compact": 640px,
+    "md": 768px,
+    "lg": 1024px,
+    "xl": 1200px,
+    "wide": 1600px,
+);
+
+$bp-xs: map.get($breakpoints, "xs");
+$bp-sm: map.get($breakpoints, "sm");
+$bp-compact: map.get($breakpoints, "compact");
+$bp-md: map.get($breakpoints, "md");
+$bp-lg: map.get($breakpoints, "lg");
+$bp-xl: map.get($breakpoints, "xl");
+$bp-wide: map.get($breakpoints, "wide");
+$bp-height-short: 480px;
+$bp-height-compact: 520px;
+
+@mixin bp($max) {
+    @media (max-width: $max) {
+        @content;
+    }
+}
+
 // tokenlar
 :root {
+    --color-white: #{$paper};
+    --color-black: #{$ink};
+
     --bg-0: #{$surface-0};
     --bg-1: #{$surface-1};
     --bg-2: #{$surface-2};
@@ -38,6 +102,7 @@ $gold:    #ffb800; // puan yildizi
     --border-strong: #{rgba($paper, 0.18)};
 
     --text-primary: #{$text};
+    --text-strong: var(--color-white);
     --text-secondary: #{rgba($text, 0.72)};
     --text-tertiary: #{rgba($text, 0.5)};
     --text-muted: #{rgba($text, 0.32)};
@@ -60,38 +125,34 @@ $gold:    #ffb800; // puan yildizi
     --radius-0: 0px;
     --radius-1: 2px;
     --radius-2: 4px;
+    --radius-3: 8px;
     --radius-pill: 999px;
 
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-8: 32px;
-    --space-10: 40px;
-    --space-12: 48px;
-    --space-16: 64px;
+    @each $name, $value in $spacing-scale {
+        --space-#{$name}: #{$value};
+    }
 
     // gövde metni
     --font-body: 'DM Sans', system-ui, sans-serif;
     --font-display: 'Archivo', system-ui, sans-serif;
     // logo
-    --font-brand: 'Unbounded', cursive;
+    --font-brand: var(--font-display);
     // hero baslik
     --font-hero: 'Anton', 'Archivo', system-ui, sans-serif;
     --font-header: 'Space Grotesk', 'Archivo', system-ui, sans-serif;
 
-    --fs-xs: 11px;
-    --fs-sm: 13px;
-    --fs-base: 14px;
-    --fs-md: 15px;
-    --fs-lg: 17px;
-    --fs-xl: 20px;
-    --fs-2xl: 24px;
-    --fs-3xl: 32px;
-    --fs-4xl: 40px;
-    --fs-hero: 48px;
+    @each $name, $value in $type-scale {
+        --fs-#{$name}: #{$value};
+    }
+
+    --leading-none: 1;
+    --leading-tight: 1.2;
+    --leading-snug: 1.35;
+    --leading-body: 1.5;
+    --leading-relaxed: 1.65;
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.08em;
 
     // aksiyon butonlari
     --btn-fs: clamp(14px, 0.5vw + 11px, 18px);
@@ -116,6 +177,32 @@ $gold:    #ffb800; // puan yildizi
     --z-spinner: 9999;
 }
 
+// responsive tipografi
+@include bp($bp-lg) {
+    :root {
+        --fs-hero: 36px;
+        --fs-4xl: 32px;
+        --fs-3xl: 26px;
+    }
+}
+
+@include bp($bp-md) {
+    :root {
+        --fs-hero: 24px;
+        --fs-3xl: 22px;
+        --fs-2xl: 20px;
+        --fs-xl: 18px;
+    }
+}
+
+@include bp($bp-sm) {
+    :root {
+        --fs-hero: 20px;
+        --fs-2xl: 18px;
+        --fs-xl: 16px;
+    }
+}
+
 // mixinler
 @mixin solid-overlay-bottom($from: 0.9) {
     background: rgba($ink, $from * 0.62);
@@ -138,17 +225,6 @@ $gold:    #ffb800; // puan yildizi
         $transitions: list.append($transitions, $prop $dur var(--ease), comma);
     }
     transition: $transitions;
-}
-
-$bp-xl: 1200px;
-$bp-lg: 1024px;
-$bp-md: 768px;
-$bp-sm: 480px;
-
-@mixin bp($max) {
-    @media (max-width: $max) {
-        @content;
-    }
 }
 
 // ince scrollbar
@@ -176,3 +252,32 @@ $bp-sm: 480px;
     }
 }
 
+// ikon hareketleri
+.app-motion-icon {
+    flex: 0 0 auto;
+    transform-origin: center;
+    transition: transform 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+
+:is(button, a, [role="button"]):hover .app-motion-icon[data-motion-trigger="hover"][data-motion-animation="pop"] {
+    transform: scale(1.1);
+}
+
+:is(button, a, [role="button"]):hover .app-motion-icon[data-motion-trigger="hover"][data-motion-animation="nudge"] {
+    transform: translateX(2px);
+}
+
+:is(button, a, [role="button"]):active .app-motion-icon[data-motion-trigger="click"][data-motion-animation="pop"],
+:is(button, a, [role="button"]):active .app-motion-icon[data-motion-trigger="click"][data-motion-animation="heartbeat"] {
+    transform: scale(1.16);
+}
+
+:is(button, a, [role="button"]):active .app-motion-icon[data-motion-trigger="click"][data-motion-animation="nudge"] {
+    transform: translateX(2px) scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-motion-icon {
+        transition: none;
+    }
+}
