@@ -85,15 +85,17 @@ export default function HomePage() {
         <ContentCarousel key="kids-more" type="movie" title="Daha Fazla Çocuk Filmi" items={kidsData.data.moreFamily} />,
       ];
   // normal satırlar
-  const standardRows = isKids || !critical.data
+  const pinnedRows = isKids || !critical.data
     ? []
     : [
         <ContentCarousel key="popular" type="movie" title="Bu Hafta Popüler Filmler" items={critical.data.popular} />,
-        !isFreeExperience ? (
-          <Suspense key="games" fallback={null}>
-            <GameCarousel />
-          </Suspense>
-        ) : null,
+        <Suspense key="games" fallback={null}>
+          <GameCarousel />
+        </Suspense>,
+      ];
+  const standardRows = isKids || !critical.data
+    ? []
+    : [
         !isFreeExperience && isLoggedIn && showContinueRow && continueWatching.length > 0 ? (
           <ContentCarousel key="continue" type="movie" title="İzlemeye Devam Et" items={continueWatching} />
         ) : null,
@@ -130,7 +132,7 @@ export default function HomePage() {
         />
       ))
     : [];
-  const rows = interleaveEvenly(standardRows, spotlightRows);
+  const rows = [...pinnedRows, ...interleaveEvenly(standardRows, spotlightRows)];
 
   const activeRows = isKids ? kidsRows : rows;
   const isLoading = isKids ? kidsData.loading : critical.loading;
