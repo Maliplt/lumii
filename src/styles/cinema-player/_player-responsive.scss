@@ -39,9 +39,18 @@
     .cine-bottom-transport .cine-transport-episode { width: clamp(36px, 9.5vw, 42px); height: clamp(36px, 9.5vw, 42px); }
     .cine-player__pulse { top: 50%; width: 72px; height: 72px; }
     .cine-player__pulse.is-rewind { left: 25%; width: 60px; height: 60px; }
-    .cine-player__pulse.is-forward { left: 75%; width: 60px; height: 60px; }
-    .cine-panel { right: 8px; bottom: 57px; left: auto; width: min(340px, calc(100% - 16px)); max-height: min(68vh, 430px); }
-    .cine-panel__list { max-height: calc(min(68vh, 430px) - 55px); }
+    .cine-panel {
+        right: 8px;
+        bottom: 57px;
+        left: auto;
+        width: min(270px, calc(100% - 16px));
+        max-height: min(68vh, 430px);
+
+        &--wide {
+            width: min(320px, calc(100% - 16px));
+        }
+    }
+    .cine-panel__list { max-height: calc(min(68vh, 430px) - 48px); }
     .cine-captions { right: 4%; bottom: 125px; left: 4%; }
     .cine-captions span { font-size: clamp(17px, 4.8vw, 23px); }
     .cine-next-prompt { right: 10px; bottom: 75px; width: min(350px, calc(100% - 20px)); }

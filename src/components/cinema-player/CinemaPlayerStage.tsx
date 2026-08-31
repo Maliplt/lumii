@@ -1,7 +1,6 @@
 import { Pause, Play, RotateCcw, RotateCw } from "lucide-react";
 import type { RefObject } from "react";
 import type { ServiceErrorPresentation } from "../../services/serviceError";
-import Spinner from "../ui/Spinner";
 import CinemaEndScreen from "./CinemaEndScreen";
 import type { CinemaRecommendation } from "./cinemaPlayerTypes";
 import type { CinemaCaptionsController } from "./useCinemaSubtitles";
@@ -60,7 +59,11 @@ export default function CinemaPlayerStage({
         </div>
       )}
 
-      {showBufferSpinner && <div className="cine-buffering"><Spinner variant="player" /></div>}
+      {showBufferSpinner && (
+        <div className="cine-buffering" aria-label="Yükleniyor" role="status">
+          <div className="cine-buffering__spinner" />
+        </div>
+      )}
 
       {errorPresentation && (
         <div className="cine-state cine-state--error" role="alert">

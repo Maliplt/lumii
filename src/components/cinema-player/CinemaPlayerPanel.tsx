@@ -56,7 +56,15 @@ export default function CinemaPlayerPanel({
   onSourceSelect,
 }: CinemaPlayerPanelProps) {
   return (
-    <div ref={panelRef} className="cine-panel" role="dialog" aria-label={openPanel === "captions" ? "Altyazılar" : "Oynatıcı ayarları"}>
+    <div
+      ref={panelRef}
+      className={classes(
+        "cine-panel",
+        (settingsSection === "captions" || settingsSection === "info") && "cine-panel--wide",
+      )}
+      role="dialog"
+      aria-label={openPanel === "captions" ? "Altyazılar" : "Oynatıcı ayarları"}
+    >
       <div className="cine-panel__head">
         {settingsSection !== "root" && openPanel === "settings" ? (
           <button type="button" onClick={() => onSectionChange("root")}><ChevronLeft size={18} /> Geri</button>
@@ -97,7 +105,20 @@ export default function CinemaPlayerPanel({
       )}
 
       {openPanel === "settings" && settingsSection === "quality" && (
-        <div className="cine-panel__list">{qualityOptions.map((option) => <button key={option.id} type="button" disabled={!option.available} className={option.active ? "is-selected" : ""} onClick={() => onQualitySelect?.(option.id)}><span>{option.label}<small>{option.active ? "Şu anda oynatılıyor" : "Kullanılabilir"}</small></span>{option.active && <Check size={17} />}</button>)}</div>
+        <div className="cine-panel__list">
+          {qualityOptions.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              disabled={!option.available}
+              className={option.active ? "is-selected" : ""}
+              onClick={() => onQualitySelect?.(option.id)}
+            >
+              <span>{option.label}</span>
+              {option.active && <Check size={17} />}
+            </button>
+          ))}
+        </div>
       )}
       {openPanel === "settings" && settingsSection === "speed" && (
         <div className="cine-panel__list">{SPEEDS.map((speed) => <button key={speed} type="button" className={playbackRate === speed ? "is-selected" : ""} onClick={() => onRateChange(speed)}><span>{speed === 1 ? "Normal" : `${speed}×`}</span>{playbackRate === speed && <Check size={17} />}</button>)}</div>
