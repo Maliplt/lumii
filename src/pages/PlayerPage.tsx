@@ -6,8 +6,10 @@ import { getMediaDetail } from "../services/tmdb";
 import {
   getTorboxStreams,
   DEFAULT_STREAM_API_KEY,
+  detectPlaybackCapabilities,
   findBestStreamForQuality,
   findNextTorboxStreamIndex,
+  streamsForPlayback,
   STREAM_QUALITY_ORDER,
   type TorboxResolution,
   type TorboxStream,
@@ -57,6 +59,7 @@ export default function PlayerPage() {
   const library = useAppSelector(selectLibrary);
   const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
   const userPlan = useAppSelector((state) => state.auth.currentUser?.plan);
+  const playbackCapabilities = useMemo(() => detectPlaybackCapabilities(), []);
 
   const catalogLevel = contentAccessLevel(type ?? "", id ?? "");
   const requiredLevel = catalogLevel === "free" ? "standard" : catalogLevel;
@@ -143,13 +146,19 @@ export default function PlayerPage() {
     const controller = new AbortController();
     failedSourceIdsRef.current.clear();
 
-    const applyStreams = (nextStreams: TorboxStream[]) => {
+    const applyStreams = (nextStreams: TorboxStream[], allowFallback = false) => {
       if (controller.signal.aborted || !nextStreams.length) return;
+      const playableStreams = streamsForPlayback(
+        nextStreams,
+        playbackCapabilities,
+        allowFallback,
+      );
+      if (!playableStreams.length) return;
       const retainedSource = selectedSourceRef.current;
       const availableStreams = selectedSourceIdRef.current && retainedSource &&
-          !nextStreams.some((stream) => stream.id === selectedSourceIdRef.current)
-        ? [retainedSource, ...nextStreams]
-        : nextStreams;
+          !playableStreams.some((stream) => stream.id === selectedSourceIdRef.current)
+        ? [retainedSource, ...playableStreams]
+        : playableStreams;
       setStreams(availableStreams);
       const currentIndex = selectedSourceIdRef.current
         ? availableStreams.findIndex((stream) => stream.id === selectedSourceIdRef.current)
@@ -191,7 +200,7 @@ export default function PlayerPage() {
       .then((nextStreams) => {
         if (controller.signal.aborted) return;
         if (!nextStreams.length) throw playbackError();
-        applyStreams(nextStreams);
+        applyStreams(nextStreams, true);
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
@@ -203,7 +212,7 @@ export default function PlayerPage() {
       });
 
     return () => controller.abort();
-  }, [canPlay, detail, episode, imdbId, invalidRequest, releaseYear, season, sourceSearchTitle, streamAttempt, type]);
+  }, [canPlay, detail, episode, imdbId, invalidRequest, playbackCapabilities, releaseYear, season, sourceSearchTitle, streamAttempt, type]);
 
   useEffect(() => {
     if (!selectedStreamId || !imdbId || invalidRequest) return;

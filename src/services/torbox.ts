@@ -85,6 +85,57 @@ export interface TorboxStreamRequest {
   onPartial?: (streams: TorboxStream[]) => void;
 }
 
+export interface PlaybackCapabilities {
+  mobile: boolean;
+  mp4H264Aac: boolean;
+  mp4HevcAac: boolean;
+  mkvH264Aac: boolean;
+}
+
+export function detectPlaybackCapabilities(): PlaybackCapabilities {
+  if (typeof document === "undefined" || typeof navigator === "undefined") {
+    return { mobile: false, mp4H264Aac: true, mp4HevcAac: false, mkvH264Aac: true };
+  }
+  const video = document.createElement("video");
+  const userAgent = navigator.userAgent;
+  const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent) ||
+    (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
+  const supports = (type: string) => video.canPlayType(type) !== "";
+  return {
+    mobile,
+    mp4H264Aac: supports('video/mp4; codecs="avc1.42E01E, mp4a.40.2"'),
+    mp4HevcAac: supports('video/mp4; codecs="hvc1, mp4a.40.2"'),
+    mkvH264Aac: supports('video/x-matroska; codecs="avc1.42E01E, mp4a.40.2"'),
+  };
+}
+
+function supportsStream(
+  stream: TorboxStream,
+  capabilities: PlaybackCapabilities,
+): boolean {
+  if (stream.audioCodec !== "AAC") return false;
+  if (stream.format === "MP4" && stream.codec === "H.264") {
+    return capabilities.mp4H264Aac;
+  }
+  if (stream.format === "MP4" && stream.codec === "HEVC") {
+    return capabilities.mp4HevcAac;
+  }
+  if (stream.format === "MKV" && stream.codec === "H.264") {
+    return capabilities.mkvH264Aac;
+  }
+  return false;
+}
+
+export function streamsForPlayback(
+  streams: TorboxStream[],
+  capabilities: PlaybackCapabilities,
+  allowFallback = true,
+): TorboxStream[] {
+  if (!capabilities.mobile) return streams;
+  const supported = streams.filter((stream) => supportsStream(stream, capabilities));
+  return supported.length || !allowFallback ? supported : streams;
+}
+
 function parseResolution(text: string): TorboxResolution {
   if (/\b(?:4320p?|2160p?|4k)\b/i.test(text)) return "4K";
   if (/\b1080[pi]?\b/i.test(text)) return "1080p";
