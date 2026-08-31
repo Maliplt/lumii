@@ -302,7 +302,7 @@ export const tmdbApi = {
 
   getMovieDetail: async (id: number): Promise<MovieDetail> => {
     const data = await tmdbFetch<Omit<MovieDetail, "media_type">>(`/movie/${id}`, {
-      append_to_response: "credits,videos",
+      append_to_response: "credits,videos,external_ids",
       include_video_language: "tr,en,null",
     });
     return { ...data, media_type: "movie" };
@@ -310,7 +310,7 @@ export const tmdbApi = {
 
   getTVShowDetail: async (id: number): Promise<TVShowDetail> => {
     const data = await tmdbFetch<Omit<TVShowDetail, "media_type">>(`/tv/${id}`, {
-      append_to_response: "credits,videos",
+      append_to_response: "credits,videos,external_ids",
       include_video_language: "tr,en,null",
     });
     if (data.overview?.trim()) return { ...data, media_type: "tv" };

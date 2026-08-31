@@ -8,17 +8,19 @@ import Spinner from "../components/ui/Spinner";
 import StateView from "../components/feedback/StateView";
 import ServiceErrorView from "../components/feedback/ServiceErrorView";
 import { tmdbApi } from "../services/tmdb";
-import { isPlayableSearchResult, useFetch, useTitle } from "../helpers";
+import { isKidsMedia, isPlayableSearchResult, useFetch, useTitle } from "../helpers";
 import { useContentAudienceKey } from "../lib/useContentAudienceKey";
 import { searchSpotlightDefinitions } from "../services/spotlightCarousels";
+import { selectActiveProfile, useAppSelector } from "../store/store";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") ?? "").trim();
   const audienceKey = useContentAudienceKey();
+  const isKids = useAppSelector(selectActiveProfile)?.kids ?? false;
   const spotlightResults = useMemo(
-    () => searchSpotlightDefinitions(query, audienceKey),
-    [audienceKey, query],
+    () => isKids ? [] : searchSpotlightDefinitions(query, audienceKey),
+    [audienceKey, isKids, query],
   );
   useTitle(query ? `"${query}" araması` : "Arama");
 
@@ -29,8 +31,10 @@ export default function SearchPage() {
 
   // sonuçlar
   const allResults = useMemo(
-    () => (data?.results ?? []).filter(isPlayableSearchResult),
-    [data],
+    () => (data?.results ?? [])
+      .filter(isPlayableSearchResult)
+      .filter((result) => !isKids || isKidsMedia(result)),
+    [data, isKids],
   );
 
   const movieResults = useMemo(

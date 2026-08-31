@@ -97,6 +97,7 @@ export interface MovieDetail extends Movie {
   status: string;
   credits?: Credits;
   videos?: VideosResponse;
+  external_ids?: { imdb_id?: string | null };
 }
 
 export interface TVShowDetail extends TVShow {
@@ -109,6 +110,7 @@ export interface TVShowDetail extends TVShow {
   number_of_episodes: number;
   credits?: Credits;
   videos?: VideosResponse;
+  external_ids?: { imdb_id?: string | null };
 }
 
 export interface Episode {

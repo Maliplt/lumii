@@ -1,12 +1,12 @@
-import { Fragment, useState, type ChangeEvent, type ReactNode } from "react";
-import { Settings, Volume2, VolumeX, Volume1 } from "lucide-react";
+import type { ChangeEvent } from "react";
+import { Captions, Volume1, Volume2, VolumeX } from "lucide-react";
 import { formatTime } from "../../helpers";
 
 interface ProgressBarProps {
   currentTime: number;
   duration: number;
   buffered?: number;
-  onSeek: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSeek: (event: ChangeEvent<HTMLInputElement>) => void;
   ariaLabel: string;
 }
 
@@ -18,8 +18,9 @@ export function ProgressBar({
   ariaLabel,
 }: ProgressBarProps) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const bufferedPct =
-    buffered !== undefined && duration > 0 ? (buffered / duration) * 100 : undefined;
+  const bufferedPct = buffered !== undefined && duration > 0
+    ? (buffered / duration) * 100
+    : undefined;
 
   return (
     <div className="player-progress-wrap">
@@ -52,7 +53,7 @@ interface VolumeControlProps {
   muted: boolean;
   volume: number;
   onToggleMute: () => void;
-  onVolumeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onVolumeChange: (event: ChangeEvent<HTMLInputElement>) => void;
   muteButtonLabel: string;
   sliderLabel: string;
 }
@@ -65,17 +66,17 @@ export function VolumeControl({
   muteButtonLabel,
   sliderLabel,
 }: VolumeControlProps) {
-  const volPct = (muted ? 0 : volume) * 100;
-  const VolIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
+  const volumePercent = (muted ? 0 : volume) * 100;
+  const VolumeIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   return (
     <div className="player-volume">
       <button className="player-btn" onClick={onToggleMute} aria-label={muteButtonLabel}>
-        <VolIcon size={20} />
+        <VolumeIcon size={20} />
       </button>
       <div className="player-volume-bar-wrap">
-        <div className="player-volume-bar-fill" style={{ width: `${volPct}%` }} />
-        <div className="player-volume-thumb" style={{ left: `${volPct}%` }} />
+        <div className="player-volume-bar-fill" style={{ width: `${volumePercent}%` }} />
+        <div className="player-volume-thumb" style={{ left: `${volumePercent}%` }} />
         <input
           type="range"
           className="player-volume-input"
@@ -87,63 +88,30 @@ export function VolumeControl({
           aria-label={sliderLabel}
         />
       </div>
-      <span className="player-volume-pct">{Math.round(volPct)}%</span>
+      <span className="player-volume-pct">{Math.round(volumePercent)}%</span>
     </div>
   );
 }
 
-export interface SettingsItem {
-  key: string | number;
-  label: ReactNode;
-  active: boolean;
+interface CaptionsButtonProps {
+  enabled: boolean;
   disabled?: boolean;
-  onClick?: () => void;
+  onToggle: () => void;
 }
 
-export interface SettingsSection {
-  label: string;
-  items: SettingsItem[];
-}
-
-interface SettingsDropdownProps {
-  ariaLabel: string;
-  sections: SettingsSection[];
-}
-
-export function SettingsDropdown({ ariaLabel, sections }: SettingsDropdownProps) {
-  const [open, setOpen] = useState(false);
-
+export function CaptionsButton({ enabled, disabled, onToggle }: CaptionsButtonProps) {
   return (
-    <div className="player-settings-wrap">
-      <button
-        className="player-btn"
-        onClick={() => setOpen((p) => !p)}
-        aria-label={ariaLabel}
-      >
-        <Settings size={20} />
-      </button>
-      {open && (
-        <div className="player-settings-menu">
-          {sections.map((section) => (
-            <Fragment key={section.label}>
-              <p className="player-settings-menu__label">{section.label}</p>
-              {section.items.map((item) => (
-                <button
-                  key={item.key}
-                  className={`player-settings-menu__item${item.active ? " active" : ""}`}
-                  disabled={item.disabled}
-                  onClick={() => {
-                    item.onClick?.();
-                    setOpen(false);
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </Fragment>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      className={`player-btn player-captions-btn${enabled ? " is-active" : ""}`}
+      onClick={onToggle}
+      disabled={disabled}
+      aria-label={enabled ? "Altyazıyı kapat" : "Altyazıyı aç"}
+      aria-pressed={enabled}
+      title={enabled ? "Altyazıyı kapat" : "Altyazıyı aç"}
+    >
+      <Captions size={21} />
+      <span>{enabled ? "CC Açık" : "CC"}</span>
+    </button>
   );
 }

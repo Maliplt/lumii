@@ -1,5 +1,9 @@
 import type { AuthState } from "./authSlice";
-import type { LibraryData, LibraryState } from "./librarySlice";
+import {
+  normalizeLibraryState,
+  type LibraryData,
+  type LibraryState,
+} from "./librarySlice";
 import type { ProfilePreferences } from "./profilePreferences";
 
 export interface PersistedState {
@@ -142,7 +146,11 @@ export function isPersistedState(value: unknown): value is PersistedState {
 export function parsePersistedState(raw: string): PersistedState | undefined {
   try {
     const parsed: unknown = JSON.parse(raw);
-    return isPersistedState(parsed) ? parsed : undefined;
+    if (!isPersistedState(parsed)) return undefined;
+    return {
+      auth: parsed.auth,
+      library: normalizeLibraryState(parsed.library),
+    };
   } catch {
     return undefined;
   }

@@ -10,6 +10,7 @@ import {
 } from "../../store/store";
 import AvatarOrInitial from "./AvatarOrInitial";
 import OptimizedImage from "../ui/OptimizedImage";
+import ProfileUnlockModal from "../modals/ProfileUnlockModal";
 
 interface HeaderAccountMenuProps {
   currentUser: CurrentUser | null;
@@ -28,6 +29,7 @@ export default function HeaderAccountMenu({
   );
 
   const [open, setOpen] = useState(false);
+  const [unlocking, setUnlocking] = useState<Profile | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -60,8 +62,13 @@ export default function HeaderAccountMenu({
     closeTimer.current = setTimeout(() => setOpen(false), 260);
   };
 
-  const switchProfile = (id: string) => {
-    dispatch(selectProfile(id));
+  const switchProfile = (profile: Profile) => {
+    if (profile.locked && profile.lockPin) {
+      setOpen(false);
+      setUnlocking(profile);
+      return;
+    }
+    dispatch(selectProfile(profile.id));
     setOpen(false);
     navigate("/");
   };
@@ -72,6 +79,7 @@ export default function HeaderAccountMenu({
   };
 
   return (
+    <>
     <div
       className="account-menu"
       ref={menuRef}
@@ -128,7 +136,7 @@ export default function HeaderAccountMenu({
                   key={p.id}
                   type="button"
                   className="account-menu__profile"
-                  onClick={() => switchProfile(p.id)}
+                  onClick={() => switchProfile(p)}
                 >
                   <span className="account-menu__profile-avatar">
                     <OptimizedImage src={avatarFor(p)} alt="" />
@@ -169,5 +177,17 @@ export default function HeaderAccountMenu({
         </div>
       )}
     </div>
+    {unlocking && (
+      <ProfileUnlockModal
+        profile={unlocking}
+        onClose={() => setUnlocking(null)}
+        onSuccess={() => {
+          dispatch(selectProfile(unlocking.id));
+          setUnlocking(null);
+          navigate("/");
+        }}
+      />
+    )}
+    </>
   );
 }

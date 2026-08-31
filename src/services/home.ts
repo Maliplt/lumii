@@ -1,6 +1,6 @@
 import { tmdbApi } from "./tmdb";
-import { withPoster, withMedia, heroFrom, settleList } from "../lib/utils";
-import type { Movie, TVShow } from "../types/types";
+import { withPoster, withMedia, heroFrom, settleList, settleTasks } from "../lib/utils";
+import type { Movie, TVShow, TMDBResponse } from "../types/types";
 
 export type HomeMedia = Movie | TVShow;
 
@@ -76,23 +76,23 @@ export async function loadExtendedHome(): Promise<HomeExtendedData> {
     sciFiTV,
     comedyTV,
     dramaTV,
-  ] = await settleList([
-    tmdbApi.getTrendingTVShows(),
-    tmdbApi.getUpcomingMovies(),
-    tmdbApi.getTopRatedTVShows(),
-    tmdbApi.getAiringTodayTVShows(),
-    tmdbApi.getMoviesByGenre(12),
-    tmdbApi.getMoviesByGenre(16),
-    tmdbApi.getTopRatedMovies(),
-    tmdbApi.getMoviesByGenre(27, 1, "popularity.desc"),
-    tmdbApi.getMoviesByGenre(35, 1, "popularity.desc"),
-    tmdbApi.getMoviesByGenre(53, 1, "popularity.desc"),
-    tmdbApi.getMoviesByGenre(878, 1, "popularity.desc"),
-    tmdbApi.getTVShowsByGenre(80, 1, "popularity.desc"),
-    tmdbApi.getTVShowsByGenre(10765, 1, "popularity.desc"),
-    tmdbApi.getTVShowsByGenre(35, 1, "popularity.desc"),
-    tmdbApi.getTVShowsByGenre(18, 1, "popularity.desc"),
-  ]);
+  ] = await settleTasks<TMDBResponse<HomeMedia>>([
+    () => tmdbApi.getTrendingTVShows(),
+    () => tmdbApi.getUpcomingMovies(),
+    () => tmdbApi.getTopRatedTVShows(),
+    () => tmdbApi.getAiringTodayTVShows(),
+    () => tmdbApi.getMoviesByGenre(12),
+    () => tmdbApi.getMoviesByGenre(16),
+    () => tmdbApi.getTopRatedMovies(),
+    () => tmdbApi.getMoviesByGenre(27, 1, "popularity.desc"),
+    () => tmdbApi.getMoviesByGenre(35, 1, "popularity.desc"),
+    () => tmdbApi.getMoviesByGenre(53, 1, "popularity.desc"),
+    () => tmdbApi.getMoviesByGenre(878, 1, "popularity.desc"),
+    () => tmdbApi.getTVShowsByGenre(80, 1, "popularity.desc"),
+    () => tmdbApi.getTVShowsByGenre(10765, 1, "popularity.desc"),
+    () => tmdbApi.getTVShowsByGenre(35, 1, "popularity.desc"),
+    () => tmdbApi.getTVShowsByGenre(18, 1, "popularity.desc"),
+  ], 3);
   return {
     trendingTV: withPoster(trendingShows?.results ?? []),
     upcoming: withPoster(upcomingMovies?.results ?? []),

@@ -40,6 +40,34 @@ interface YoutubeEmbedOptions {
   muted?: boolean;
 }
 
+export async function settleTasks<T>(
+  tasks: readonly (() => Promise<T>)[],
+  concurrency = 3,
+): Promise<Array<T | null>> {
+  const results: Array<T | null> = [];
+  let firstFailure: unknown;
+  let fulfilled = 0;
+  const batchSize = Math.max(1, Math.floor(concurrency));
+
+  for (let index = 0; index < tasks.length; index += batchSize) {
+    const batch = await Promise.allSettled(
+      tasks.slice(index, index + batchSize).map((task) => task()),
+    );
+    batch.forEach((result) => {
+      if (result.status === "fulfilled") {
+        fulfilled += 1;
+        results.push(result.value);
+      } else {
+        firstFailure ??= result.reason;
+        results.push(null);
+      }
+    });
+  }
+
+  if (!fulfilled && tasks.length) throw normalizeServiceError(firstFailure);
+  return results;
+}
+
 // youtube embed
 export function buildYoutubeEmbedUrl(
   key: string,
@@ -79,6 +107,13 @@ export function mediaTypeOf(
 }
 
 type MediaItem = Movie | TVShow;
+
+export function isKidsMedia(item: MediaItem): boolean {
+  if ("title" in item) {
+    return !item.adult && item.genre_ids?.includes(10751);
+  }
+  return item.genre_ids?.includes(10762);
+}
 
 export const withPoster = <T extends readonly MediaItem[]>(
   list: T,

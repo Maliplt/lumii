@@ -6,7 +6,7 @@ import MediaPlayer from "../components/player/MediaPlayer";
 import ChannelLogo, { type Channel } from "../components/media/ChannelLogo";
 import AccessGate from "../components/access/AccessGate";
 import { canAccessChannel, channelAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useTitle } from "../helpers";
-import { selectAutoplayEnabled, useAppSelector } from "../store/store";
+import { selectActiveProfile, selectAutoplayEnabled, useAppSelector } from "../store/store";
 import channelsData from "../data/channels.json";
 
 // yayin akisi listesi
@@ -17,20 +17,35 @@ export default function TvPage() {
   const navigate = useNavigate();
   const userPlan = useAppSelector((s) => s.auth.currentUser?.plan);
   const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
+  const isKids = useAppSelector(selectActiveProfile)?.kids ?? false;
   const plan = getPlan(userPlan);
-  const [selected, setSelected] = useState<Channel>(CHANNELS[0]);
+  const availableChannels = useMemo(
+    () => isKids ? CHANNELS.filter((channel) => channel.category === "Çocuk") : CHANNELS,
+    [isKids],
+  );
+  const [selected, setSelected] = useState<Channel>(() => availableChannels[0]);
   const [lockedChannel, setLockedChannel] = useState<Channel | null>(null);
-  const lockedChannelIndex = lockedChannel
-    ? CHANNELS.findIndex((channel) => channel.id === lockedChannel.id)
+  const selectedChannel = availableChannels.some((channel) => channel.id === selected.id)
+    ? selected
+    : availableChannels[0];
+  const visibleLockedChannel = lockedChannel &&
+      availableChannels.some((channel) => channel.id === lockedChannel.id)
+    ? lockedChannel
+    : null;
+  const lockedChannelIndex = visibleLockedChannel
+    ? CHANNELS.findIndex((channel) => channel.id === visibleLockedChannel.id)
     : -1;
-  const lockedChannelLevel = channelAccessLevel(Math.max(0, lockedChannelIndex), lockedChannel?.category);
+  const lockedChannelLevel = channelAccessLevel(
+    Math.max(0, lockedChannelIndex),
+    visibleLockedChannel?.category,
+  );
   const [query, setQuery] = useState("");
 
   const groups = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    const matches = CHANNELS.map((channel, index) => ({
+    const matches = availableChannels.map((channel) => ({
       channel,
-      no: index + 1,
+      no: CHANNELS.findIndex((item) => item.id === channel.id) + 1,
     })).filter(
       ({ channel }) =>
         !q ||
@@ -47,15 +62,16 @@ export default function TvPage() {
       group.items.push(entry);
     }
     return out;
-  }, [query]);
+  }, [availableChannels, query]);
 
   const hasResults = groups.length > 0;
 
   const switchChannel = (direction: -1 | 1) => {
-    const currentIndex = CHANNELS.findIndex((channel) => channel.id === selected.id);
-    const nextIndex = (currentIndex + direction + CHANNELS.length) % CHANNELS.length;
-    const nextChannel = CHANNELS[nextIndex];
-    if (!canAccessChannel(userPlan, nextIndex, nextChannel.category)) {
+    const currentIndex = availableChannels.findIndex((channel) => channel.id === selectedChannel.id);
+    const nextIndex = (currentIndex + direction + availableChannels.length) % availableChannels.length;
+    const nextChannel = availableChannels[nextIndex];
+    const accessIndex = CHANNELS.findIndex((channel) => channel.id === nextChannel.id);
+    if (!canAccessChannel(userPlan, accessIndex, nextChannel.category)) {
       setLockedChannel(nextChannel);
       return;
     }
@@ -95,7 +111,7 @@ export default function TvPage() {
                 {group.items.map(({ channel, no }) => (
                   <button
                     key={channel.id}
-                    className={`tv-channel-item${selected.id === channel.id && !lockedChannel ? " active" : ""}${canAccessChannel(userPlan, no - 1, channel.category) ? "" : " is-locked"}`}
+                    className={`tv-channel-item${selectedChannel.id === channel.id && !visibleLockedChannel ? " active" : ""}${canAccessChannel(userPlan, no - 1, channel.category) ? "" : " is-locked"}`}
                     onClick={() => {
                       if (!canAccessChannel(userPlan, no - 1, channel.category)) {
                         setLockedChannel(channel);
@@ -133,9 +149,10 @@ export default function TvPage() {
 
         <div className="tv-featured">
           <MediaPlayer
-            key={selected.id}
-            src={selected.url}
-            title={selected.name}
+            key={selectedChannel.id}
+            src={selectedChannel.url}
+            streamType="hls"
+            title={selectedChannel.name}
             live
             startMuted
             autoplayEnabled={autoplayEnabled}
@@ -145,12 +162,12 @@ export default function TvPage() {
             onPrevious={() => switchChannel(-1)}
             onNext={() => switchChannel(1)}
           />
-          {lockedChannel && (
+          {visibleLockedChannel && (
             <AccessGate
               className="tv-access-gate"
               role="status"
               icon={<span className="tv-access-gate__icon" aria-hidden="true"><Lock size={26} /></span>}
-              title={lockedChannel.name}
+              title={visibleLockedChannel.name}
               description={`Bu kanal ${requiredPlanName(lockedChannelLevel)} paketine dahildir.`}
               primaryLabel={upgradeCtaLabel(lockedChannelLevel)}
               secondaryLabel="Yayına Dön"

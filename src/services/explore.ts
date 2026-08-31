@@ -1,5 +1,5 @@
 import { tmdbApi, GENRES } from "./tmdb";
-import { withPoster, heroFrom, settleList } from "../lib/utils";
+import { withPoster, heroFrom, isKidsMedia, settleList } from "../lib/utils";
 import type { Movie, TVShow } from "../types/types";
 
 export type Media = Movie | TVShow;
@@ -47,6 +47,18 @@ export const TV_CATS: Cat[] = [
   { id: "10764", label: GENRES[10764], genre: 10764 },
 ];
 
+export const KIDS_MOVIE_CATS: Cat[] = [
+  { id: "all", label: "Tümü", genre: null },
+  { id: "10751", label: "Aile", genre: 10751 },
+  { id: "16", label: "Animasyon", genre: 16 },
+];
+
+export const KIDS_TV_CATS: Cat[] = [
+  { id: "all", label: "Tümü", genre: null },
+  { id: "10762", label: "Çocuk", genre: 10762 },
+  { id: "16", label: "Animasyon", genre: 16 },
+];
+
 // varsayılan satırlar
 const MOVIE_GENRE_ROWS: { title: string; genre: number | string }[] = [
   { title: "Aksiyon ve Macera", genre: 28 },
@@ -67,7 +79,28 @@ const TV_GENRE_ROWS: { title: string; genre: number | string }[] = [
   { title: "Animasyon Dizileri", genre: 16 },
 ];
 
-export async function loadAll(type: MediaType): Promise<ExploreData> {
+export async function loadAll(type: MediaType, kids = false): Promise<ExploreData> {
+  if (kids) {
+    const genre = type === "movie" ? 10751 : 10762;
+    const fetchPage = (page: number, sort?: string) => type === "movie"
+      ? tmdbApi.getMoviesByGenre(genre, page, sort)
+      : tmdbApi.getTVShowsByGenre(genre, page, sort);
+    const [popular, top, more] = await settleList([
+      fetchPage(1),
+      fetchPage(1, "vote_average.desc"),
+      fetchPage(2),
+    ]);
+    const safeItems = (items: Media[]) => withPoster(items.filter(isKidsMedia));
+    const popularItems = safeItems(popular?.results ?? []);
+    return {
+      hero: heroFrom(popularItems),
+      rows: [
+        { title: type === "movie" ? "Çocuk ve Aile Filmleri" : "Çocuk Dizileri", items: popularItems },
+        { title: "En Beğenilenler", items: safeItems(top?.results ?? []) },
+        { title: "Daha Fazla Keşfet", items: safeItems(more?.results ?? []) },
+      ],
+    };
+  }
   if (type === "movie") {
     const [trending, topRated, nowPlaying, ...genreResults] = await settleList([
       tmdbApi.getTrendingMovies(),
@@ -115,11 +148,17 @@ export async function loadCategory(
   type: MediaType,
   genre: number | string,
   label: string,
+  kids = false,
 ): Promise<Section[]> {
+  const safeGenre = kids
+    ? type === "movie"
+      ? genre === 16 ? "16,10751" : 10751
+      : genre === 16 ? "16,10762" : 10762
+    : genre;
   const byGenre = (page: number, sort?: string) =>
     type === "movie"
-      ? tmdbApi.getMoviesByGenre(genre, page, sort)
-      : tmdbApi.getTVShowsByGenre(genre, page, sort);
+      ? tmdbApi.getMoviesByGenre(safeGenre, page, sort)
+      : tmdbApi.getTVShowsByGenre(safeGenre, page, sort);
 
   const [p1, top, p2, p3] = await settleList([
     byGenre(1),
@@ -128,10 +167,13 @@ export async function loadCategory(
     byGenre(3),
   ]);
   const noun = type === "movie" ? "Filmler" : "Diziler";
+  const items = (results: Media[]) => withPoster(
+    kids ? results.filter(isKidsMedia) : results,
+  );
   return [
-    { title: `${label} - Öne Çıkan ${noun}`, items: withPoster(p1?.results ?? []) },
-    { title: `${label} - En Yüksek Puanlı ${noun}`, items: withPoster(top?.results ?? []) },
-    { title: `${label} - Daha Fazla ${noun}`, items: withPoster(p2?.results ?? []) },
-    { title: `${label} - Keşfet`, items: withPoster(p3?.results ?? []) },
+    { title: `${label} - Öne Çıkan ${noun}`, items: items(p1?.results ?? []) },
+    { title: `${label} - En Yüksek Puanlı ${noun}`, items: items(top?.results ?? []) },
+    { title: `${label} - Daha Fazla ${noun}`, items: items(p2?.results ?? []) },
+    { title: `${label} - Keşfet`, items: items(p3?.results ?? []) },
   ];
 }

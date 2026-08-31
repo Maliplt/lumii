@@ -10,7 +10,7 @@ export default function OverviewPage() {
     !/^\d+$/.test(id) ||
     Number(id) <= 0
   ) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/404" replace />;
   }
   return <OverviewContent key={`${type}-${id}`} type={type} id={id} />;
 }

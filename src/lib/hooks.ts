@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, type TouchEvent, type MouseEvent as ReactMouseEvent, type RefObject } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, selectLibrary, sameSavedItem, logout, type SavedItem } from "../store/store";
+import { toSavedItem, useAppDispatch, useAppSelector, toggleWatchlist, toggleLiked, selectLibrary, sameSavedItem, logout, type SavedItem } from "../store/store";
 import { useToast, toastText } from "./toast";
 import type { Movie, TVShow } from "../types/types";
 import { mediaTypeOf, popButton } from "./utils";
@@ -139,7 +139,7 @@ export function useLibraryActions(
   const dispatch = useAppDispatch();
   const toast = useToast();
   const mediaType = mediaTypeOf(item, type);
-  const saved = { ...item, media_type: mediaType } as SavedItem;
+  const saved = toSavedItem({ ...item, media_type: mediaType } as SavedItem);
   const isLoggedIn = useAppSelector((s) => !!s.auth.currentUser);
   const inWatchlist = useAppSelector((s) =>
     selectLibrary(s).watchlist.some((x) => sameSavedItem(x, saved)),

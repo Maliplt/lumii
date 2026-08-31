@@ -6,15 +6,17 @@ import ContentCarousel from "../components/media/ContentCarousel";
 import SpotlightContentCarousel from "../components/media/SpotlightContentCarousel";
 import ServiceErrorView from "../components/feedback/ServiceErrorView";
 import CategoryDropdown from "../components/catalog/CategoryDropdown";
-import { MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
+import { KIDS_MOVIE_CATS, KIDS_TV_CATS, MOVIE_CATS, TV_CATS, loadAll, loadCategory, type MediaType, type Section, type ExploreData } from "../services/explore";
 import { getSpotlightDefinitions } from "../services/spotlightCarousels";
 import { interleaveEvenly } from "../lib/utils";
 import { useContentAudienceKey } from "../lib/useContentAudienceKey";
 import { useFetch, useTitle, useLazyReveal } from "../helpers";
+import { selectActiveProfile, useAppSelector } from "../store/store";
 
 export default function ExplorePage() {
   const [searchParams] = useSearchParams();
   const audienceKey = useContentAudienceKey();
+  const isKids = useAppSelector(selectActiveProfile)?.kids ?? false;
   const type: MediaType = searchParams.get("type") === "tv" ? "tv" : "movie";
   const [catByType, setCatByType] = useState<Record<MediaType, string>>({
     movie: "all",
@@ -23,19 +25,23 @@ export default function ExplorePage() {
 
   useTitle(type === "tv" ? "Dizi İzle" : "Film İzle");
 
-  const cat = catByType[type];
-  const cats = type === "tv" ? TV_CATS : MOVIE_CATS;
+  const cats = isKids
+    ? type === "tv" ? KIDS_TV_CATS : KIDS_MOVIE_CATS
+    : type === "tv" ? TV_CATS : MOVIE_CATS;
+  const cat = cats.some((item) => item.id === catByType[type])
+    ? catByType[type]
+    : "all";
   const activeCat = cats.find((c) => c.id === cat) ?? cats[0];
   const setCat = (id: string) =>
     setCatByType((prev) => ({ ...prev, [type]: id }));
 
-  const base = useFetch<ExploreData>(() => loadAll(type), `base-${type}`);
+  const base = useFetch<ExploreData>(() => loadAll(type, isKids), `base-${type}-${isKids}`);
   const catFetch = useFetch<Section[]>(
     () =>
       activeCat.genre == null
         ? Promise.resolve([])
-        : loadCategory(type, activeCat.genre, activeCat.label),
-    `${type}-${cat}`,
+        : loadCategory(type, activeCat.genre, activeCat.label, isKids),
+    `${type}-${cat}-${isKids}`,
     "section",
   );
   const liveRows: Section[] | null =
@@ -59,7 +65,7 @@ export default function ExplorePage() {
       />
     ));
 
-  const spotlightCards = getSpotlightDefinitions("explore", audienceKey, type).map((definition) => (
+  const spotlightCards = (isKids ? [] : getSpotlightDefinitions("explore", audienceKey, type)).map((definition) => (
     <SpotlightContentCarousel
       key={definition.id}
       definition={definition}

@@ -218,7 +218,8 @@
         height: 72px;
     }
 
-    .player-settings-menu {
-        min-width: 170px;
+    .player-playback-settings {
+        right: -44px;
+        max-height: min(420px, 54vh);
     }
 }

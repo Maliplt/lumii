@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
-import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Spinner from "./components/ui/Spinner";
 import RootLayout from "./components/layout/RootLayout";
 import ErrorBoundary from "./components/feedback/ErrorBoundary";
@@ -61,8 +61,9 @@ function AppRoutes() {
               <Route path="/checkout/:planId" element={<CheckoutPage />} />
             </Route>
             <Route path="/404" element={<NotFoundPage />} />
-            <Route path="/:type/:id" element={<OverviewPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/movie/:id" element={<OverviewPage />} />
+            <Route path="/tv/:id" element={<OverviewPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
@@ -71,7 +72,8 @@ function AppRoutes() {
             <Route path="/profiles" element={<ProfilesPage />} />
           </Route>
           <Route path="/play/:gameId" element={<PlayGamePage />} />
-          <Route path="/:type/:id/player" element={<PlayerPage />} />
+          <Route path="/movie/:id/player" element={<PlayerPage />} />
+          <Route path="/tv/:id/player" element={<PlayerPage />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
