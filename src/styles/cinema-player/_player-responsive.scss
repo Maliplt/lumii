@@ -1,0 +1,81 @@
+@use "../base" as *;
+
+@media (max-width: 1024px) {
+    .tv-featured__player.cine-player {
+        flex: none;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        aspect-ratio: 16 / 9;
+    }
+}
+
+@media (max-width: 768px), (max-height: 500px) {
+    .cine-chrome__top { padding: 11px 12px; }
+    .cine-chrome__identity { gap: 8px; }
+    .cine-chrome__identity h1 { max-width: 58vw; font-size: 14px; }
+    .cine-chrome__identity span { margin-bottom: 2px; font-size: 8px; }
+    .cine-live { min-height: 25px; padding-inline: 8px; font-size: 8px; }
+    .cine-icon-btn--back { width: 36px; height: 36px; }
+    .cine-chrome__bottom { min-height: 108px; padding: 30px 6px 6px; }
+    .cine-progress { height: 31px; margin-bottom: 2px; }
+    .cine-progress__track { top: 0; }
+    .cine-progress__time { top: 10px; left: 12px; font-size: 11px; }
+    .cine-actions { grid-template-columns: minmax(34px, 1fr) auto minmax(0, 1fr); gap: 3px; }
+    .cine-actions__group { gap: 0; }
+    .cine-actions__left .cine-icon-btn:nth-of-type(n + 2) { display: none; }
+    .cine-actions__right { gap: 0; }
+    .cine-actions__right .cine-icon-btn { width: clamp(30px, 8vw, 35px); height: clamp(30px, 8vw, 35px); }
+    .cine-actions__left .cine-icon-btn { width: clamp(32px, 8vw, 35px); height: clamp(32px, 8vw, 35px); }
+    .cine-volume-control,
+    .cine-volume { display: none; }
+    .cine-volume-toggle { width: clamp(36px, 9vw, 40px) !important; height: clamp(36px, 9vw, 40px) !important; }
+    .cine-like { min-height: 36px; margin-left: 2px; padding-inline: 10px; }
+    .cine-like span { display: none; }
+    .cine-bottom-transport { gap: 2px; margin-right: 2px; padding-right: 3px; }
+    .cine-bottom-transport .cine-transport-seek { display: none; }
+    .cine-bottom-transport .cine-transport-play { width: clamp(56px, 14vw, 64px); height: clamp(56px, 14vw, 64px); }
+    .cine-bottom-transport .cine-transport-play svg { width: clamp(27px, 7vw, 31px); height: clamp(27px, 7vw, 31px); }
+    .cine-bottom-transport .cine-transport-episode { width: clamp(36px, 9.5vw, 42px); height: clamp(36px, 9.5vw, 42px); }
+    .cine-player__pulse { top: 50%; width: 72px; height: 72px; }
+    .cine-player__pulse.is-rewind { left: 25%; width: 60px; height: 60px; }
+    .cine-player__pulse.is-forward { left: 75%; width: 60px; height: 60px; }
+    .cine-panel { right: 8px; bottom: 57px; left: auto; width: min(340px, calc(100% - 16px)); max-height: min(68vh, 430px); }
+    .cine-panel__list { max-height: calc(min(68vh, 430px) - 55px); }
+    .cine-captions { right: 4%; bottom: 125px; left: 4%; }
+    .cine-captions span { font-size: clamp(17px, 4.8vw, 23px); }
+    .cine-next-prompt { right: 10px; bottom: 75px; width: min(350px, calc(100% - 20px)); }
+    .cine-end { right: 9px; bottom: 112px; width: min(500px, calc(100% - 18px)); padding: 9px; justify-content: flex-start; overflow-y: auto; }
+    .cine-end__heading { padding-bottom: 7px; }
+    .cine-end__grid { gap: 6px; }
+    .cine-end-card__play { width: 32px; height: 32px; }
+    .cine-end-card__copy { right: 7px; bottom: 6px; left: 7px; }
+    .cine-end-card__copy small { display: none; }
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    .cine-player { min-height: 210px; }
+    .cine-chrome__identity h1 { max-width: 48vw; }
+    .cine-next-prompt { grid-template-columns: 82px 1fr; }
+    .cine-next-prompt img { width: 82px; height: 51px; }
+    .cine-actions__left .cine-volume { display: none; }
+    .cine-actions__right .cine-icon-btn { width: 32px; }
+    .cine-end__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cine-end-card { aspect-ratio: 1.35 / 1; }
+    .cine-end-card:nth-child(n + 3) { display: block; }
+}
+
+@media (max-width: 375px) {
+    .cine-actions__right .cine-like { display: none; }
+    .cine-actions { grid-template-columns: 32px auto minmax(90px, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cine-player *,
+    .cine-player *::before,
+    .cine-player *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

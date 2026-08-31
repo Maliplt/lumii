@@ -9,7 +9,7 @@ import {
   alignSubtitleTimelines,
   subtitleTimeAt,
   subtitleTimeScale,
-} from "../src/components/player/useSubtitleTrack";
+} from "../src/components/cinema-player/subtitleTiming";
 
 function subtitle(
   id: string,

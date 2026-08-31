@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import AccessGate from "../components/access/AccessGate";
-import MediaPlayer from "../components/player/MediaPlayer";
-import { getMediaDetail } from "../services/tmdb";
+import CinemaPlayer from "../components/cinema-player/CinemaPlayer";
+import { getImageUrl, getMediaDetail, getSimilarMedia, tmdbApi } from "../services/tmdb";
 import {
   getTorboxStreams,
   DEFAULT_STREAM_API_KEY,
@@ -15,7 +15,6 @@ import {
   type TorboxStream,
 } from "../services/torbox";
 import {
-  findBestSubtitlePair,
   getSubtitleOptions,
   mergeSubtitleOptions,
   rankSubtitleOptions,
@@ -23,6 +22,7 @@ import {
 } from "../services/subtitles";
 import {
   normalizeServiceError,
+  optionalServiceRequest,
   playbackError,
   ServiceError,
 } from "../services/serviceError";
@@ -40,9 +40,13 @@ import {
   updateWatchProgress,
   selectAutoplayEnabled,
   selectLibrary,
+  sameSavedItem,
   toSavedItem,
+  toggleLiked,
+  toggleWatchlist,
   type SavedItem,
 } from "../store/store";
+import { toastText, useToast } from "../lib/toast";
 
 interface PlayerNavState {
   title?: string;
@@ -55,6 +59,7 @@ export default function PlayerPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const toast = useToast();
   const isLoggedIn = useAppSelector((state) => !!state.auth.currentUser);
   const library = useAppSelector(selectLibrary);
   const autoplayEnabled = useAppSelector(selectAutoplayEnabled);
@@ -81,7 +86,7 @@ export default function PlayerPage() {
   const episode = type === "tv"
     ? (navState.episode ?? savedProgress?.episode ?? 1)
     : undefined;
-  const [startPosition] = useState(() => {
+  const startPosition = useMemo(() => {
     const progress = savedProgress;
     if (!progress || progress.position >= progress.duration - 15) return 0;
     if (
@@ -91,12 +96,34 @@ export default function PlayerPage() {
       return 0;
     }
     return progress.position;
-  });
+  }, [episode, savedProgress, season, type]);
 
   const metadata = useFetch(async () => {
     if (!canPlay || invalidRequest) return null;
     return getMediaDetail(type, numId);
   }, `${type}-${id}-${canPlay}-${invalidRequest}`, "page");
+
+  const playbackExtras = useFetch(async () => {
+    const currentDetail = metadata.data;
+    if (!currentDetail || !canPlay || invalidRequest) return null;
+    const similarPromise = optionalServiceRequest(getSimilarMedia(currentDetail.media_type, currentDetail.id));
+    if (currentDetail.media_type === "movie" || season == null || episode == null) {
+      return { similar: await similarPromise, currentSeason: null, previousSeason: null, followingSeason: null };
+    }
+    const currentSeason = await optionalServiceRequest(tmdbApi.getTVSeasonDetails(currentDetail.id, season));
+    const currentIndex = currentSeason?.episodes.findIndex((item) => item.episode_number === episode) ?? -1;
+    const needsFollowingSeason = currentIndex >= 0 &&
+      currentIndex === (currentSeason?.episodes.length ?? 0) - 1 &&
+      season < currentDetail.number_of_seasons;
+    const needsPreviousSeason = currentIndex === 0 && season > 1;
+    const previousSeason = needsPreviousSeason
+      ? await optionalServiceRequest(tmdbApi.getTVSeasonDetails(currentDetail.id, season - 1))
+      : null;
+    const followingSeason = needsFollowingSeason
+      ? await optionalServiceRequest(tmdbApi.getTVSeasonDetails(currentDetail.id, season + 1))
+      : null;
+    return { similar: await similarPromise, currentSeason, previousSeason, followingSeason };
+  }, `player-extras-${type}-${id}-${season ?? 0}-${episode ?? 0}-${metadata.data?.id ?? 0}`, "section");
 
   const [streams, setStreams] = useState<TorboxStream[]>([]);
   const [subtitles, setSubtitles] = useState<SubtitleOption[]>([]);
@@ -110,7 +137,6 @@ export default function PlayerPage() {
   const selectedSourceRef = useRef<TorboxStream | null>(null);
   const sourceSelectionLockedRef = useRef(false);
   const subtitleContentKeyRef = useRef("");
-  const autoPairedScoreRef = useRef(Number.NEGATIVE_INFINITY);
 
   const detail = metadata.data;
   const imdbId = detail?.external_ids?.imdb_id?.trim() ?? "";
@@ -220,7 +246,6 @@ export default function PlayerPage() {
     const contentKey = `${type}:${imdbId}:${season ?? 0}:${episode ?? 0}`;
     if (subtitleContentKeyRef.current !== contentKey) {
       subtitleContentKeyRef.current = contentKey;
-      autoPairedScoreRef.current = Number.NEGATIVE_INFINITY;
       setSubtitles([]);
     }
     getSubtitleOptions({
@@ -323,30 +348,93 @@ export default function PlayerPage() {
     [selectedStream, subtitles],
   );
 
-  const recommendedSubtitle = rankedSubtitles[0] ?? null;
+  const recommendedSubtitle = rankedSubtitles.find((option) => option.language === "tur")
+    ?? rankedSubtitles.find((option) => option.language === "eng")
+    ?? null;
 
-  useEffect(() => {
-    if (!selectedStream || sourceSelectionLockedRef.current || !subtitles.length) return;
-    const pair = findBestSubtitlePair(
-      subtitles,
-      streams.filter((stream) => stream.resolution === selectedStream.resolution),
-    );
-    if (!pair || pair.score < 8_000 || pair.score <= autoPairedScoreRef.current) return;
-    autoPairedScoreRef.current = pair.score;
-    if (pair.streamId === selectedStream.id) return;
-    const nextIndex = streams.findIndex((stream) => stream.id === pair.streamId);
-    if (nextIndex < 0) return;
-    selectedSourceIdRef.current = streams[nextIndex].id;
-    selectedSourceRef.current = streams[nextIndex];
-    queueMicrotask(() => setSelectedIndex(nextIndex));
-  }, [selectedStream, streams, subtitles]);
-
-  const visibleSubtitles = rankedSubtitles;
+  const visibleSubtitles = rankedSubtitles.filter((option) => option.language === "tur" || option.language === "eng");
 
   const episodeInfo =
     type === "tv" && season != null && episode != null
       ? `${season}. Sezon · ${episode}. Bölüm`
       : "";
+  const liked = detail
+    ? library.liked.some((item) => sameSavedItem(item, { id: detail.id, media_type: detail.media_type }))
+    : false;
+  const currentSeasonEpisodes = playbackExtras.data?.currentSeason?.episodes ?? [];
+  const currentEpisodeIndex = currentSeasonEpisodes.findIndex((item) => item.episode_number === episode);
+  const previousEpisode = currentEpisodeIndex >= 0
+    ? currentSeasonEpisodes[currentEpisodeIndex - 1] ?? playbackExtras.data?.previousSeason?.episodes.at(-1)
+    : null;
+  const previousSeasonNumber = currentSeasonEpisodes[currentEpisodeIndex - 1]
+    ? season
+    : playbackExtras.data?.previousSeason?.season_number;
+  const followingEpisode = currentEpisodeIndex >= 0
+    ? currentSeasonEpisodes[currentEpisodeIndex + 1] ?? playbackExtras.data?.followingSeason?.episodes[0]
+    : null;
+  const followingSeasonNumber = currentSeasonEpisodes[currentEpisodeIndex + 1]
+    ? season
+    : playbackExtras.data?.followingSeason?.season_number;
+  const nextEpisode = type === "tv" && followingEpisode && followingSeasonNumber
+    ? {
+        title: followingEpisode.name || `${followingEpisode.episode_number}. Bölüm`,
+        eyebrow: `${followingSeasonNumber}. Sezon · ${followingEpisode.episode_number}. Bölüm`,
+        image: getImageUrl(followingEpisode.still_path || detail?.backdrop_path || null, "w780"),
+        onPlay: () => navigate(`/tv/${numId}/player`, {
+          state: {
+            title,
+            season: followingSeasonNumber,
+            episode: followingEpisode.episode_number,
+          },
+        }),
+      }
+    : undefined;
+  const playPreviousEpisode = type === "tv" && previousEpisode && previousSeasonNumber
+    ? () => navigate(`/tv/${numId}/player`, {
+        state: {
+          title,
+          season: previousSeasonNumber,
+          episode: previousEpisode.episode_number,
+        },
+      })
+    : undefined;
+  const endRecommendations = (playbackExtras.data?.similar?.results ?? [])
+    .filter((item) => item.backdrop_path || item.poster_path)
+    .slice(0, 3)
+    .map((item) => {
+      const recommendationTitle = "title" in item ? item.title : item.name;
+      const date = "release_date" in item ? item.release_date : item.first_air_date;
+      const recommendationSaved = toSavedItem({ ...item, media_type: type } as SavedItem);
+      const recommendationLiked = library.liked.some((entry) => sameSavedItem(entry, recommendationSaved));
+      const recommendationInWatchlist = library.watchlist.some((entry) => sameSavedItem(entry, recommendationSaved));
+      const requireRecommendationLogin = (message: string) => {
+        if (isLoggedIn) return true;
+        toast(message, "warning");
+        navigate("/login", { state: { returnTo: location.pathname } });
+        return false;
+      };
+      return {
+        id: `${type}-${item.id}`,
+        title: recommendationTitle,
+        image: getImageUrl(item.backdrop_path || item.poster_path, "w780"),
+        meta: date?.slice(0, 4),
+        liked: recommendationLiked,
+        inWatchlist: recommendationInWatchlist,
+        onSelect: () => navigate(`/${type}/${item.id}/player`, {
+          state: { title: recommendationTitle, ...(type === "tv" ? { season: 1, episode: 1 } : {}) },
+        }),
+        onLike: () => {
+          if (!requireRecommendationLogin(toastText.loginForLike)) return;
+          dispatch(toggleLiked(recommendationSaved));
+          toast(recommendationLiked ? toastText.unliked : toastText.liked);
+        },
+        onWatchlist: () => {
+          if (!requireRecommendationLogin(toastText.loginForWatchlist)) return;
+          dispatch(toggleWatchlist(recommendationSaved));
+          toast(recommendationInWatchlist ? toastText.watchlistRemoved : toastText.watchlistAdded);
+        },
+      };
+    });
   const openPlanOptions = () => navigate("/packages");
 
   if (invalidRequest) return <Navigate to="/404" replace />;
@@ -375,16 +463,21 @@ export default function PlayerPage() {
 
   return (
     <div className="player-page">
-      <MediaPlayer
+      <CinemaPlayer
+        key={`${type}:${numId}:${season ?? 0}:${episode ?? 0}`}
         src={selectedStream?.url}
         streamType="file"
-        title={episodeInfo ? `${title} - ${episodeInfo}` : title}
-        autoplayEnabled={autoplayEnabled}
+        mode={type === "tv" ? "episode" : "movie"}
+        title={title}
+        eyebrow={episodeInfo}
+        poster={getImageUrl(detail?.backdrop_path ?? null, "w1280")}
+        autoplay={autoplayEnabled}
         startPosition={startPosition}
         qualityLabel={selectedStream?.resolution}
         sourceOptions={sourceOptions}
         qualityOptions={qualityOptions}
         subtitleOptions={visibleSubtitles}
+        subtitleSourceOptions={subtitles}
         preferredSubtitleId={recommendedSubtitle?.id}
         subtitleSelectionKey={`${type}:${imdbId}:${season ?? 0}:${episode ?? 0}`}
         loading={metadata.loading || streamsLoading || streamRequestPending}
@@ -419,6 +512,21 @@ export default function PlayerPage() {
         onPlaybackError={handlePlaybackError}
         onBack={() => navigate(-1)}
         onProgress={handleProgress}
+        liked={liked}
+        onLike={() => {
+          if (!detail) return;
+          if (!isLoggedIn) {
+            toast(toastText.loginForLike, "warning");
+            navigate("/login", { state: { returnTo: location.pathname } });
+            return;
+          }
+          dispatch(toggleLiked(toSavedItem({ ...detail } as SavedItem)));
+          toast(liked ? toastText.unliked : toastText.liked);
+        }}
+        nextEpisode={nextEpisode}
+        onPrevious={playPreviousEpisode}
+        onNext={nextEpisode?.onPlay}
+        recommendations={endRecommendations}
       />
     </div>
   );

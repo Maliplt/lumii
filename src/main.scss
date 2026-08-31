@@ -23,5 +23,6 @@
 @use "styles/packages";     // paket secim sayfasi
 @use "styles/legal";        // yasal icerik sayfasi
 @use "styles/search";       // arama sonuclari sayfasi
-@use "styles/player-tv/index" as player-tv; // oynatici ve tv sayfalari
+@use "styles/tv/index" as tv; // canli tv sayfasi
+@use "styles/cinema-player/index" as cinema-player;
 @use "styles/account/index" as account; // hesap ve profil sayfalari

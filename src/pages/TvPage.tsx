@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Lock, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "../components/layout/PageLayout";
-import MediaPlayer from "../components/player/MediaPlayer";
+import CinemaPlayer from "../components/cinema-player/CinemaPlayer";
 import ChannelLogo, { type Channel } from "../components/media/ChannelLogo";
 import AccessGate from "../components/access/AccessGate";
 import { canAccessChannel, channelAccessLevel, getPlan, requiredPlanName, upgradeCtaLabel, useTitle } from "../helpers";
@@ -148,14 +148,15 @@ export default function TvPage() {
         </div>
 
         <div className="tv-featured">
-          <MediaPlayer
+          <CinemaPlayer
             key={selectedChannel.id}
             src={selectedChannel.url}
             streamType="hls"
+            mode="live"
             title={selectedChannel.name}
-            live
+            eyebrow={selectedChannel.category}
             startMuted
-            autoplayEnabled={autoplayEnabled}
+            autoplay={autoplayEnabled}
             className="tv-featured__player"
             maxVideoHeight={plan.capabilities.maxVideoHeight}
             qualityLabel={plan.quality}

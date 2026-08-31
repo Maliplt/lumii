@@ -44,9 +44,10 @@ function ScrollToTop() {
 
 function AppRoutes() {
   const { pathname } = useLocation();
+  const isPlayerRoute = /^\/(movie|tv)\/\d+\/player\/?$/.test(pathname);
   return (
     <ErrorBoundary resetKey={pathname}>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={isPlayerRoute ? null : <Spinner />}>
         <Routes>
           <Route element={<RootLayout />}>
             <Route path="/" element={<HomePage />} />
