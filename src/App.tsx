@@ -61,8 +61,7 @@ function AppRoutes() {
               <Route path="/checkout/:planId" element={<CheckoutPage />} />
             </Route>
             <Route path="/404" element={<NotFoundPage />} />
-            <Route path="/movie/:id" element={<OverviewPage />} />
-            <Route path="/tv/:id" element={<OverviewPage />} />
+            <Route path="/:type/:id" element={<OverviewPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
@@ -72,8 +71,7 @@ function AppRoutes() {
             <Route path="/profiles" element={<ProfilesPage />} />
           </Route>
           <Route path="/play/:gameId" element={<PlayGamePage />} />
-          <Route path="/movie/:id/player" element={<PlayerPage />} />
-          <Route path="/tv/:id/player" element={<PlayerPage />} />
+          <Route path="/:type/:id/player" element={<PlayerPage />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>

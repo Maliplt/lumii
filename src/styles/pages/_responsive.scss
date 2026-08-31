@@ -73,6 +73,14 @@
 
 // mobil baslik
 @media (max-width: $bp-lg) and (min-width: calc($bp-md + 1px)) {
+    .custom-header {
+        padding-inline: var(--space-4) !important;
+    }
+
+    .header-left {
+        min-width: 0;
+    }
+
     .header-main-nav {
         flex-shrink: 0;
         gap: var(--space-0-5) !important;
@@ -89,6 +97,27 @@
 
     .header-main-nav .nav-link {
         padding: var(--space-2) var(--space-3) !important;
+    }
+
+    .header-desktop-actions {
+        gap: var(--space-2);
+        padding-inline: var(--space-2);
+    }
+
+    .header-desktop-actions .paket-btn {
+        height: 40px !important;
+        padding-inline: var(--space-4) !important;
+        font-size: var(--fs-sm) !important;
+    }
+
+    .account-trigger {
+        max-width: 48px;
+        padding-inline: 3px;
+    }
+
+    .account-trigger__name,
+    .account-trigger__caret {
+        display: none;
     }
 }
 
