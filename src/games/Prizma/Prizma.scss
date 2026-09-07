@@ -1,0 +1,17 @@
+.prizma-game-container {
+  width: 100%;
+  height: calc(100dvh - 64px);
+  flex: 1 1 auto;
+  display: flex;
+  position: relative;
+  background: #171334;
+  overflow: hidden;
+
+  .prizma-game-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    flex: 1;
+  }
+}

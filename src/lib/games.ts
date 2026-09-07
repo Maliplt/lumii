@@ -1,3 +1,5 @@
+import prizmaImg from "../assets/images/prizma.jpg";
+import dengeImg from "../assets/images/denge.jpg";
 import sudokuImg from "../assets/images/sudoku.webp";
 import minesweepImg from "../assets/images/minesweeper.webp";
 import blockblastImg from "../assets/images/blockblast.webp";
@@ -21,6 +23,30 @@ export interface GameDef {
 
 // oyun listesi
 export const GAMES: GameDef[] = [
+  {
+    id: "prizma",
+    name: "Prizma",
+    path: "/play/prizma",
+    image: prizmaImg,
+    description: "Işık ve Enerji Bulmacası",
+    tag: "Bulmaca",
+    storageKey: "prizma_journey",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: false,
+  },
+  {
+    id: "denge",
+    name: "Denge",
+    path: "/play/denge",
+    image: dengeImg,
+    description: "Sayı ve Mantık Bulmacası",
+    tag: "Mantık",
+    storageKey: "denge_journey",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: false,
+  },
   {
     id: "doom",
     name: "Doom",
