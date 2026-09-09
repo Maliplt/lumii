@@ -18,10 +18,7 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
+  // Modül dışa aktarımı
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -292,6 +289,7 @@ class ForestWorld {
       lane.storm.visible = false;
       root.add(lane.storm);
       lane.offset = -spec.start;
+      lane.announced = true;
       if (index === spec.start || index === spec.start + spec.length - 1) {
         const edge = index === spec.start ? CELL * 0.495 : -CELL * 0.495;
         for (let x = -5; x <= 5; x++) {
@@ -348,7 +346,7 @@ class ForestWorld {
         (0, import_art.box)(root, "#677b6d", side * 7.25, 0.46, 0, 0.065, 0.07, CELL);
       }
     }
-    lane.fireflies = this.plannedNight ? (0, import_environment.nightDecor)(root, index, rng, spec.type, spec.start) : [];
+    lane.fireflies = this.plannedNight ? (0, import_environment.nightDecor)(root, index, rng, spec.type, spec.start, spec.length) : [];
     if (spec.type === "grass") {
       if (index > 1 && index % 5 === 0)
         for (let i = 0; i < 2; i++)

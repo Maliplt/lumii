@@ -7,6 +7,9 @@ Güncel WebGL 2 destekli tarayıcı ve donanım hızlandırması gerekir
 ## Dosyalar
 
 - runtime/modules/main.js oyun akışı ve girişler
+- runtime/modules/controls.js klavye dokunma ve pencere olayları
+- runtime/modules/menus.js menüler ve arayüz simgeleri
+- runtime/modules/locales.js tüm dillerin tek çeviri tablosu
 - runtime/modules/config.js denge ve süreler
 - runtime/modules/world.js sahne ve kamera
 - runtime/modules/art.js panda ve nesneler
@@ -19,7 +22,8 @@ Güncel WebGL 2 destekli tarayıcı ve donanım hızlandırması gerekir
 - save-config.js oyuncu kimliği ve veritabanı bağlantısı
 - save-schema.json kayıt alanları
 - SAVE.md kayıt entegrasyonu örnekleri
-- styles arayüz dosyaları
+- styles/interface.css arayüz yerleşimi ve animasyonlar
+- styles/fonts.css gömülü yazı tipleri
 - vendor/three.js dış 3D kütüphanesi
 - licenses.txt gerekli lisans bildirimleri
 
@@ -28,6 +32,30 @@ Dosyayı değiştirip sayfayı yenilemek yeterlidir
 Yeni bir modül eklerseniz index.html içindeki betik listesine runtime/start.js öncesinde ekleyin
 Modülün ilk satırındaki kimliği dosya adıyla aynı tutun
 Kendi kodunuz için derleme veya npm gerekmez
+
+## Kod düzeni
+
+Oyun akışı main içinde yönetilir
+Kontroller kullanıcı hareketlerini oyun akışına iletir
+Sahne çizimi world içinde modeller art içinde tutulur
+Günlük hedefler missions içinde kayıt bağlantısı save-storage içindedir
+Dosyalar arasındaki bağımlılıklar require satırlarında görünür
+Her modül bir kez yüklenir
+Çeviriler sonradan başka dosyalardan değiştirilmez
+Arayüz stilleri tek dosyadan uygulanır ve kural sırası önemlidir
+
+Modül başındaki yardımcı işlevler doğrudan dosyadan açılış için derleyici tarafından üretilir
+Bu yardımcılar oyun kuralları değildir
+vendor klasörü oyun kodundan ayrıdır ve elle düzenlenmemelidir
+
+## Kaynaklar ve lisanslar
+
+Three.js https://threejs.org MIT
+Barlow Condensed https://github.com/jpt/barlow SIL Open Font License
+esbuild derleyici yardımcıları https://esbuild.github.io MIT
+Gerekli özgün bildirimler licenses.txt içinde korunur
+Lisans metinlerini çevirmeyin veya silmeyin
+Oyun modelleri geometri ile sesler Web Audio ile üretilir
 
 ## Kontroller
 

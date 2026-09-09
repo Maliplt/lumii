@@ -18,10 +18,7 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
+  // Modül dışa aktarımı
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -163,25 +160,40 @@ function surface(type, index) {
   mesh.receiveShadow = true;
   return mesh;
 }
-function nightDecor(root, index, rng, type, start) {
+function nightDecor(root, index, rng, type, start, length = 1) {
   if (type === "water" && index === start) {
-    const path = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-11, 4.4, 0),
-      new THREE.Vector3(0, 3.25, 0),
-      new THREE.Vector3(11, 4.4, 0)
-    ]);
-    const rope = new THREE.Mesh(
-      new THREE.TubeGeometry(path, 24, 0.025, 4, false),
-      new THREE.MeshBasicMaterial({ color: "#47554b" })
-    );
-    rope.userData.ownedGeometry = true;
-    rope.userData.ownedMaterial = true;
-    root.add(rope);
-    for (let i = 1; i < 10; i++) {
-      const point = path.getPoint(i / 10);
-      const lamp = (0, import_art.ball)(root, "#ffe1a3", point.x, point.y - 0.12, 0, 0.085);
-      lamp.material = fireflyMaterial;
-      lamp.castShadow = false;
+    for (const side of [-1, 1]) {
+      const x = side * 7.25;
+      const bankStart = 1.3, bankEnd = -length * 1.3;
+      for (const z of [bankStart, bankEnd])
+        (0, import_art.box)(root, "#50675c", x, 1.35, z, 0.1, 2.7, 0.1);
+      const path = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(x, 2.65, bankStart),
+        new THREE.Vector3(x, 2.25, (bankStart + bankEnd) / 2),
+        new THREE.Vector3(x, 2.65, bankEnd)
+      ]);
+      const rope = new THREE.Mesh(
+        new THREE.TubeGeometry(path, 16, 0.025, 4, false),
+        new THREE.MeshBasicMaterial({ color: "#47554b" })
+      );
+      rope.userData.ownedGeometry = true;
+      rope.userData.ownedMaterial = true;
+      rope.userData.fenceLights = true;
+      root.add(rope);
+      const count = length * 2 + 2;
+      for (let i = 1; i < count; i++) {
+        const point = path.getPoint(i / count);
+        const lamp = (0, import_art.ball)(
+          root,
+          "#ffe1a3",
+          point.x,
+          point.y - 0.09,
+          point.z,
+          0.085
+        );
+        lamp.material = fireflyMaterial;
+        lamp.castShadow = false;
+      }
     }
   }
   if (type !== "water" && index % 4 === 0)
@@ -236,7 +248,20 @@ function windFront(rng, row) {
   ];
   const materials = /* @__PURE__ */ new Map();
   const pieces = [];
-  const kinds = ["tree", "tree", "tree", "tyre", "tyre", "tyre", "tyre", "log", "log", "log", "log", "log"];
+  const kinds = [
+    "tree",
+    "tree",
+    "tree",
+    "tyre",
+    "tyre",
+    "tyre",
+    "tyre",
+    "log",
+    "log",
+    "log",
+    "log",
+    "log"
+  ];
   for (let i = kinds.length - 1; i > 0; i--) {
     const other = Math.floor(rng() * (i + 1));
     [kinds[i], kinds[other]] = [kinds[other], kinds[i]];
@@ -262,7 +287,9 @@ function windFront(rng, row) {
         (0, import_art.box)(debris, "#789552", 0.3, 0.38, 0, 0.35, 0.12, 0.3).rotation.z = 0.5;
         (0, import_art.box)(debris, "#9ab76d", -0.25, 0.27, 0, 0.28, 0.09, 0.22).rotation.z = -0.6;
       }
-      debris.scale.setScalar((isTree ? 0.9 : isTyre ? 0.85 : 0.7) * (0.85 + rng() * 0.3));
+      debris.scale.setScalar(
+        (isTree ? 0.9 : isTyre ? 0.85 : 0.7) * (0.85 + rng() * 0.3)
+      );
       debris.userData.spin = true;
       debris.userData.kind = kinds[j];
       debris.userData.spinSpeed = (rng() < 0.5 ? -1 : 1) * (6 + rng() * 8);
@@ -308,9 +335,15 @@ function windFront(rng, row) {
     });
   }
   const span = import_storm.STORM.halfLength * 2 * 1.3 - 1.8;
-  const diameterSum = pieces.reduce((sum, piece) => sum + piece.userData.radius * 2, 0);
+  const diameterSum = pieces.reduce(
+    (sum, piece) => sum + piece.userData.radius * 2,
+    0
+  );
   const fit = Math.min(1, (span - pieces.length * 0.35) / diameterSum);
-  const weights = Array.from({ length: pieces.length + 1 }, () => 0.1 + rng() ** 2 * 3);
+  const weights = Array.from(
+    { length: pieces.length + 1 },
+    () => 0.1 + rng() ** 2 * 3
+  );
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
   const free = span - diameterSum * fit - (pieces.length - 1) * 0.35;
   let cursor = -span / 2 + free * weights[0] / weightSum;

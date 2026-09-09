@@ -1,12 +1,9 @@
 BambooModules.define("main.js", function(require, module, exports) {
-var import_mission_locales = require("./mission-locales.js");
-var import_interface_locales = require("./interface-locales.js");
-var import_touch_locales = require("./touch-locales.js");
+var import_controls = require("./controls.js");
+var import_menus = require("./menus.js");
 var import_save_storage = require("./save-storage.js");
 var import_tutorial_gesture = require("./tutorial-gesture.js");
-var import_result_locales = require("./result-locales.js");
 var import_celebrations = require("./celebrations.js");
-var import_bonus_locales = require("./bonus-locales.js");
 var import_storm = require("./storm.js");
 var import_bonuses = require("./bonuses.js");
 var import_tutorial = require("./tutorial.js");
@@ -16,7 +13,7 @@ var import_core = require("./core.js");
 var import_locales = require("./locales.js");
 var import_audio = require("./audio.js");
 var import_config = require("./config.js");
-var import_menus = require("./menus.js");
+var import_menus2 = require("./menus.js");
 var import_save = require("./save.js");
 var import_platforms = require("./platforms.js");
 var import_map = require("./map.js");
@@ -57,29 +54,6 @@ const game = {
   goals: /* @__PURE__ */ new Set()
 };
 const t = (k) => import_locales.strings[save.lang][k] || k;
-const icons = {
-  retry: '<path d="M4 9a8 8 0 1 1 0 7M4 3v6h6"/>',
-  leaf: '<path d="M20 4C11 3 4 7 5 14c1 6 10 7 13 1 2-4 2-8 2-11Z"/><path d="m4 21 11-12M9 16l-1-5m5 1 4 1"/>',
-  arrow: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
-  cup: '<path d="M8 3h8v6a4 4 0 0 1-8 0V3Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 1v6m-4 2h8"/>',
-  sound: '<path d="m11 4-6 5H2v6h3l6 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
-  mute: '<path d="m11 4-6 5H2v6h3l6 5V4Zm5 5 6 6m0-6-6 6"/>',
-  gear: '<path d="m9 3-1 3-3 1-2 3 2 3v4l4 1 3 3 3-3 4-1v-4l2-3-2-3-3-1-1-3H9Z"/><circle cx="12" cy="11" r="3"/>',
-  pause: '<path d="M8 5v14M16 5v14"/>',
-  close: '<path d="m6 6 12 12M18 6 6 18"/>',
-  back: '<path d="M19 12H5m6-6-6 6 6 6"/>',
-  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>',
-  home: '<path d="m3 11 9-8 9 8M5 10v11h14V10M10 21v-7h4v7"/>',
-  check: '<path d="m5 12 4 4L19 6"/>',
-  fullscreen: '<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/>',
-  bamboo: '<path d="M9 22V3m6 19V7M6 8h6m-6 7h6m0-4h6m-6 7h6M9 5C4 5 3 2 3 2c4-1 6 1 6 3Zm6 5c0-4 3-5 6-5-1 4-3 5-6 5Z"/>',
-  book: '<path d="M12 5C8 2 4 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-2-1-6-2-10 1Zm0 0v15"/>',
-  cabin: '<path d="m2 11 10-8 10 8M5 10v11h14V10M10 21v-7h4v7M3 21h18"/>',
-  flag: '<path d="M5 22V3m0 1c5-4 9 4 15 0v10c-6 4-10-4-15 0"/>',
-  storm: '<path d="M6 14a4 4 0 1 1 0-8 6 6 0 0 1 11-1 4.5 4.5 0 1 1 1 9M12 13l-3 5h4l-2 5 7-8h-5l2-4"/>'
-};
-const icon = (name, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.leaf}</svg>`;
-const action = (id, content, cls = "", label = "") => `<button data-action="${id}" class="${cls}" ${label ? `aria-label="${label}" title="${label}"` : ""}>${content}</button>`;
 function hydrateSave(progress) {
   Object.assign(save, progress);
   (0, import_missions.ensureDaily)(save);
@@ -107,7 +81,7 @@ function toast(message) {
   toastTimer = setTimeout(() => el.classList.remove("visible"), 3e3);
 }
 function utility() {
-  return `<div class="utility">${action("language", save.lang.toUpperCase(), "round language", t("language"))}${action("sound", icon(save.sound ? "sound" : "mute"), "round", t("sound"))}${action("settings", icon("gear"), "round", t("settings"))}</div>`;
+  return `<div class="utility">${(0, import_menus.action)("language", save.lang.toUpperCase(), "round language", t("language"))}${(0, import_menus.action)("sound", (0, import_menus.icon)(save.sound ? "sound" : "mute"), "round", t("sound"))}${(0, import_menus.action)("settings", (0, import_menus.icon)("gear"), "round", t("settings"))}</div>`;
 }
 function render() {
   document.documentElement.lang = save.lang;
@@ -125,16 +99,16 @@ function render() {
   if (modal) renderModal();
 }
 function renderMenu() {
-  app.innerHTML = (0, import_menus.menuHTML)(t, save, action, icon, utility());
+  app.innerHTML = (0, import_menus2.menuHTML)(t, save, import_menus.action, import_menus.icon, utility());
 }
 function renderGame() {
   const goal = (0, import_missions.ensureDaily)(save)[0];
   if (game.mode === "tutorial") goal.target = import_map.TUTORIAL_END;
-  app.innerHTML = `<header class="game-top"><div class="score-block"><span>${t("step")}</span><strong id="score">${game.furthest}</strong><small>${icon("cup")} ${game.mode === "daily" ? save.daily[game.seed] || 0 : save.best}</small></div>
-  <div class="game-tools"><div class="coin-counter">${icon("bamboo")}<strong id="coins">${game.coins + (game.reward || 0)}</strong><span id="bamboo-streak" aria-label="${t("bambooSeries")}"></span></div>${action("pause", icon("pause"), "round", t("pause"))}</div></header>
+  app.innerHTML = `<header class="game-top"><div class="score-block"><span>${t("step")}</span><strong id="score">${game.furthest}</strong><small>${(0, import_menus.icon)("cup")} ${game.mode === "daily" ? save.daily[game.seed] || 0 : save.best}</small></div>
+  <div class="game-tools"><div class="coin-counter">${(0, import_menus.icon)("bamboo")}<strong id="coins">${game.coins + (game.reward || 0)}</strong><span id="bamboo-streak" aria-label="${t("bambooSeries")}"></span></div>${(0, import_menus.action)("pause", (0, import_menus.icon)("pause"), "round", t("pause"))}</div></header>
   <div id="tutorial-card"></div>
   <footer class="game-bottom"><div class="desktop-instructions"><div class="key-row"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>/</span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></div><span>${t("keys")}<i>·</i> ESC ${t("pause")}</span></div>
-  <div class="run-goal">${icon("flag")}<span>${game.mode === "tutorial" ? t("tutorial") : t("dailySteps").replace("{n}", goal.target)}<b id="goal-progress">${Math.min(game.furthest, goal.target)} / ${goal.target}${game.mode === "tutorial" ? "" : ` · +${goal.reward}`}</b></span></div></footer><div id="overlay-root"></div>`;
+  <div class="run-goal">${(0, import_menus.icon)("flag")}<span>${game.mode === "tutorial" ? t("tutorial") : t("dailySteps").replace("{n}", goal.target)}<b id="goal-progress">${Math.min(game.furthest, goal.target)} / ${goal.target}${game.mode === "tutorial" ? "" : ` · +${goal.reward}`}</b></span></div></footer><div id="overlay-root"></div>`;
   updateTutorial();
   updateHud();
   const warning = document.createElement("div");
@@ -188,7 +162,7 @@ function updateTutorial() {
   const touchMode = innerWidth < 700 || matchMedia("(pointer: coarse)").matches;
   const instruction = touchMode && n <= 2 ? t(n === 1 ? "tapOnly" : "swipeOnly") : t("tut" + n + "Text");
   const hand = (0, import_tutorial_gesture.tutorialGesture)(n === 2);
-  el.innerHTML = `<section class="tutorial-panel"><div class="tutorial-top"><span>${t("tutLabel")}<b>0${n} / 07</b></span>${action("skip", t("skip"), "text-button")}</div>${n <= 2 ? hand : ""}<h3>${t("tut" + n)}</h3><p>${instruction}</p><div class="progress-track"><i style="width:${Math.min(100, progress / total * 100)}%"></i></div></section>`;
+  el.innerHTML = `<section class="tutorial-panel"><div class="tutorial-top"><span>${t("tutLabel")}<b>0${n} / 07</b></span>${(0, import_menus.action)("skip", t("skip"), "text-button")}</div>${n <= 2 ? hand : ""}<h3>${t("tut" + n)}</h3><p>${instruction}</p><div class="progress-track"><i style="width:${Math.min(100, progress / total * 100)}%"></i></div></section>`;
 }
 function panel(content, cls = "") {
   return `<div class="scrim"><section class="dialog ${cls}" role="dialog" aria-modal="true" aria-labelledby="dialog-title">${content}</section></div>`;
@@ -200,13 +174,13 @@ function focusDialog() {
 }
 function renderPause() {
   document.querySelector("#overlay-root").innerHTML = panel(
-    `<div class="dialog-emblem">${icon("leaf")}</div><p class="eyebrow centered">${t("pause")}</p><h2 id="dialog-title">${t("pauseTitle")}</h2><p>${t("pauseText")}</p><div class="dialog-buttons">${action("resume", `${t("resume")}${icon("arrow")}`, "primary")}${action("restart", t("restart"), "outline")}${action("home", t("home"), "text-button")}</div><div class="pause-options">${action("sound", icon(save.sound ? "sound" : "mute"), "round", t("sound"))}${action("settings", icon("gear"), "round", t("settings"))}${action("fullscreen", icon("fullscreen"), "round", t("fullscreen"))}</div>`
+    `<div class="dialog-emblem">${(0, import_menus.icon)("leaf")}</div><p class="eyebrow centered">${t("pause")}</p><h2 id="dialog-title">${t("pauseTitle")}</h2><p>${t("pauseText")}</p><div class="dialog-buttons">${(0, import_menus.action)("resume", `${t("resume")}${(0, import_menus.icon)("arrow")}`, "primary")}${(0, import_menus.action)("restart", t("restart"), "outline")}${(0, import_menus.action)("home", t("home"), "text-button")}</div><div class="pause-options">${(0, import_menus.action)("sound", (0, import_menus.icon)(save.sound ? "sound" : "mute"), "round", t("sound"))}${(0, import_menus.action)("settings", (0, import_menus.icon)("gear"), "round", t("settings"))}${(0, import_menus.action)("fullscreen", (0, import_menus.icon)("fullscreen"), "round", t("fullscreen"))}</div>`
   );
   focusDialog();
 }
 function renderOver() {
   document.querySelector("#overlay-root").innerHTML = panel(
-    (0, import_menus.resultsHTML)(t, save, game, action, icon),
+    (0, import_menus2.resultsHTML)(t, save, game, import_menus.action, import_menus.icon),
     game.wasRecord ? "result new-record" : "result"
   );
   focusDialog();
@@ -234,9 +208,9 @@ function renderModal() {
   const root = document.createElement("div");
   root.id = "modal-root";
   app.append(root);
-  const content = modal === "settings" ? (0, import_menus.settingsHTML)(t, save, action, icon) : (0, import_menus.wardrobeHTML)(t, save, action, icon);
+  const content = modal === "settings" ? (0, import_menus2.settingsHTML)(t, save, import_menus.action, import_menus.icon) : (0, import_menus2.wardrobeHTML)(t, save, import_menus.action, import_menus.icon);
   root.innerHTML = panel(
-    `${action("close-modal", `${icon("back")}${t("goBack")}`, "store-back")}${content}`,
+    `${(0, import_menus.action)("close-modal", `${(0, import_menus.icon)("back")}${t("goBack")}`, "store-back")}${content}`,
     modal
   );
   focusDialog();
@@ -331,8 +305,8 @@ function finish(reason, completed = false) {
         save.daily[game.seed] || 0,
         game.furthest
       );
-      const keys2 = Object.keys(save.daily).sort();
-      while (keys2.length > 30) delete save.daily[keys2.shift()];
+      const keys = Object.keys(save.daily).sort();
+      while (keys.length > 30) delete save.daily[keys.shift()];
     }
   } else {
     if (completed) {
@@ -482,7 +456,7 @@ function awardBonus(amount, label) {
   world.burst(game.x * import_world.CELL, -game.row * import_world.CELL, "#d5ef8f", 25);
   const badge = document.createElement("div");
   badge.className = "bonus-pop";
-  badge.innerHTML = `<strong>${t(label)}</strong><span>${icon("bamboo")} +${amount}</span>`;
+  badge.innerHTML = `<strong>${t(label)}</strong><span>${(0, import_menus.icon)("bamboo")} +${amount}</span>`;
   app.append(badge);
   setTimeout(() => badge.remove(), 1e3);
   updateHud();
@@ -616,11 +590,10 @@ function update(dt) {
   const nextStorm = [...world.lanes.values()].find(
     (l) => l.type === "storm" && l.index >= game.row && l.index <= game.row + 3
   );
-  if (nextStorm && !nextStorm.announced) {
+  if (nextStorm && !nextStorm.noticed) {
     for (const lane of world.lanes.values())
       if (lane.type === "storm" && lane.start === nextStorm.start) {
-        lane.offset = -world.time;
-        lane.announced = true;
+        lane.noticed = true;
       }
     audio.tone(185, 0.35, "triangle", 0.06, 120);
   }
@@ -721,7 +694,7 @@ const lerp = (a, b, t2) => a + (b - a) * t2;
 function refreshWardrobe() {
   for (const button of document.querySelectorAll('[data-action^="outfit-"]')) {
     const id = button.dataset.action.slice(7), c = (0, import_costumes.costumeById)(id);
-    button.innerHTML = save.equipped === id ? `${icon("check")}${t("equipped")}` : save.unlocked.includes(id) ? t("equip") : `${icon("bamboo")} ${c.price} · ${t("unlock")}`;
+    button.innerHTML = save.equipped === id ? `${(0, import_menus.icon)("check")}${t("equipped")}` : save.unlocked.includes(id) ? t("equip") : `${(0, import_menus.icon)("bamboo")} ${c.price} · ${t("unlock")}`;
     button.closest(".costume-card").classList.toggle("selected", save.equipped === id);
   }
   const wallet = document.querySelector(".wardrobe-wallet strong");
@@ -802,7 +775,7 @@ app.addEventListener("click", (e) => {
         button,
         document.querySelector("#total-bamboo"),
         reward,
-        icon,
+        import_menus.icon,
         audio,
         save.reduced
       );
@@ -818,7 +791,7 @@ app.addEventListener("click", (e) => {
       const confirm = document.createElement("div");
       confirm.id = "purchase-confirm";
       confirm.innerHTML = panel(
-        `<h2 id="dialog-title">${(0, import_costumes.costumeName)(outfit, save.lang)}</h2><p>${t("buyConfirm")}</p><div class="purchase-price">${icon("bamboo")} ${cost}</div><div class="dialog-buttons">${action("confirm-" + outfit, t("buy"), "primary")}${action("cancel-purchase", t("cancel"), "outline")}</div>`,
+        `<h2 id="dialog-title">${(0, import_costumes.costumeName)(outfit, save.lang)}</h2><p>${t("buyConfirm")}</p><div class="purchase-price">${(0, import_menus.icon)("bamboo")} ${cost}</div><div class="dialog-buttons">${(0, import_menus.action)("confirm-" + outfit, t("buy"), "primary")}${(0, import_menus.action)("cancel-purchase", t("cancel"), "outline")}</div>`,
         "purchase"
       );
       app.append(confirm);
@@ -876,91 +849,17 @@ window.BambooHopSave = Object.freeze({
     render();
   }
 });
-const keys = {
-  ArrowUp: [0, 1],
-  w: [0, 1],
-  ArrowDown: [0, -1],
-  s: [0, -1],
-  ArrowLeft: [-1, 0],
-  a: [-1, 0],
-  ArrowRight: [1, 0],
-  d: [1, 0],
-  " ": [0, 1]
-};
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Tab") {
-    const dialogs = document.querySelectorAll(".dialog"), dialog = dialogs[dialogs.length - 1];
-    if (!dialog) return;
-    const focusable = [
-      ...dialog.querySelectorAll('button,select,[tabindex="0"]')
-    ], first = focusable[0], last = focusable.at(-1);
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-    return;
-  }
-  if (e.key === "Escape") {
-    if (document.querySelector("#purchase-confirm"))
-      document.querySelector("#purchase-confirm").remove();
-    else if (modal) closeModal();
-    else if (game.state === "playing") {
-      game.state = "paused";
-      game.queue = null;
-      render();
-    } else if (game.state === "paused") {
-      game.state = "playing";
-      render();
-    }
-    return;
-  }
-  if (e.target.matches("select,input,textarea") || modal) return;
-  const direction = keys[e.key] || keys[e.key.toLowerCase()];
-  if (direction && game.state === "playing") {
-    e.preventDefault();
-    move(...direction);
-  }
+(0, import_controls.bindControls)({
+  canvas,
+  game,
+  move,
+  render,
+  closeModal,
+  getModal: () => modal,
+  getWorld: () => world,
+  toast,
+  t
 });
-let touch = null;
-canvas.addEventListener("pointerdown", (e) => {
-  if (game.state !== "playing") return;
-  touch = { x: e.clientX, y: e.clientY, id: e.pointerId };
-  canvas.setPointerCapture(e.pointerId);
-});
-canvas.addEventListener("pointerup", (e) => {
-  if (!touch || touch.id !== e.pointerId) return;
-  const dx = e.clientX - touch.x, dy = e.clientY - touch.y;
-  touch = null;
-  if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) move(0, 1);
-  else if (Math.abs(dx) > Math.abs(dy)) move(Math.sign(dx), 0);
-  else move(0, -Math.sign(dy));
-});
-canvas.addEventListener("pointercancel", () => touch = null);
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && game.state === "playing") {
-    game.state = "paused";
-    game.queue = null;
-    render();
-  }
-});
-window.addEventListener("blur", () => {
-  if (game.state === "playing") {
-    game.state = "paused";
-    game.queue = null;
-    render();
-  }
-});
-window.addEventListener("resize", () => world?.resize());
-canvas.addEventListener("webglcontextlost", (e) => {
-  e.preventDefault();
-  game.state = "paused";
-  render();
-  toast(t("loadingError"));
-});
-canvas.addEventListener("webglcontextrestored", () => location.reload());
 async function boot() {
   try {
     let frame = function(now) {
