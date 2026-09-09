@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f5f2e6" />
+    <meta
+      name="description"
+      content="Bamboo Hop: Küçük bir panda, kocaman bir orman. Renkli bir 3D orman macerası."
+    />
+    <title>Bamboo Hop — Küçük bir panda, kocaman bir macera.</title>
+    <style>
+      #loading {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: #e5e9c9;
+        color: #294b37;
+        font-family: "Barlow Condensed", Arial, sans-serif;
+      }
+      #loading strong {
+        font-size: clamp(42px, 9vw, 76px);
+        font-weight: 900;
+        letter-spacing: -2px;
+      }
+      #loading #loading-label {
+        font-size: 28px;
+        font-weight: 800;
+      }
+      #loading-progress {
+        width: min(540px, 82vw);
+        height: 44px;
+        padding: 6px;
+        background: #a9ba88;
+        border-radius: 5px;
+        box-sizing: border-box;
+        box-shadow:
+          inset 0 3px 0 #829765,
+          0 5px 0 #cbd5aa;
+        overflow: hidden;
+      }
+      #loading-fill {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: 2px;
+        background: repeating-linear-gradient(
+          120deg,
+          #40734a 0px,
+          #40734a 18px,
+          #65944e 18px,
+          #65944e 36px
+        );
+        box-shadow: inset 0 3px 0 #82ad62;
+      }
+    </style>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23244234'/%3E%3Ctext x='7' y='48' font-size='46'%3E🐼%3C/text%3E%3C/svg%3E"
+    />
+  <link rel="stylesheet" href="./styles/fonts.css">
+<link rel="stylesheet" href="./styles/style.css">
+<link rel="stylesheet" href="./styles/redesign.css">
+<link rel="stylesheet" href="./styles/shop-layout.css">
+<link rel="stylesheet" href="./styles/game-interface.css">
+<link rel="stylesheet" href="./styles/interface-effects.css">
+<link rel="stylesheet" href="./styles/results-layout.css">
+<link rel="stylesheet" href="./styles/touch-interface.css">
+</head>
+  <body>
+    <canvas id="world" aria-label="Bamboo Hop 3D oyun alanı"></canvas>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="loading">
+      <strong>BAMBOO HOP</strong><span id="loading-label">Yükleniyor..</span>
+      <div
+        id="loading-progress"
+        role="progressbar"
+        aria-label="Yükleniyor"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <i id="loading-fill"></i>
+      </div>
+    </div>
+    <script type="text/javascript" src="./save-config.js"></script>
+    <script defer src="./vendor/three.js"></script>
+<script defer src="./runtime/loader.js"></script>
+<script defer src="./runtime/modules/art.js"></script>
+<script defer src="./runtime/modules/atmosphere.js"></script>
+<script defer src="./runtime/modules/audio.js"></script>
+<script defer src="./runtime/modules/bonus-locales.js"></script>
+<script defer src="./runtime/modules/bonuses.js"></script>
+<script defer src="./runtime/modules/celebrations.js"></script>
+<script defer src="./runtime/modules/config.js"></script>
+<script defer src="./runtime/modules/core.js"></script>
+<script defer src="./runtime/modules/costumes.js"></script>
+<script defer src="./runtime/modules/environment.js"></script>
+<script defer src="./runtime/modules/i18n.js"></script>
+<script defer src="./runtime/modules/interface-locales.js"></script>
+<script defer src="./runtime/modules/locales.js"></script>
+<script defer src="./runtime/modules/main.js"></script>
+<script defer src="./runtime/modules/map.js"></script>
+<script defer src="./runtime/modules/menus.js"></script>
+<script defer src="./runtime/modules/mission-locales.js"></script>
+<script defer src="./runtime/modules/missions.js"></script>
+<script defer src="./runtime/modules/platforms.js"></script>
+<script defer src="./runtime/modules/random.js"></script>
+<script defer src="./runtime/modules/render-budget.js"></script>
+<script defer src="./runtime/modules/result-locales.js"></script>
+<script defer src="./runtime/modules/save-storage.js"></script>
+<script defer src="./runtime/modules/save.js"></script>
+<script defer src="./runtime/modules/shop-drag.js"></script>
+<script defer src="./runtime/modules/shop-preview.js"></script>
+<script defer src="./runtime/modules/static-batches.js"></script>
+<script defer src="./runtime/modules/storm.js"></script>
+<script defer src="./runtime/modules/touch-locales.js"></script>
+<script defer src="./runtime/modules/traffic.js"></script>
+<script defer src="./runtime/modules/tutorial-gesture.js"></script>
+<script defer src="./runtime/modules/tutorial.js"></script>
+<script defer src="./runtime/modules/world.js"></script>
+<script defer src="./runtime/start.js"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "identity": {
+    "id": "Oyuncu kimliği",
+    "subId": "Oyuncuya ait alt kayıt kimliği",
+    "localKey": "bamboo-hop:{id}:{subId}"
+  },
+  "fields": {
+    "best": "En yüksek adım",
+    "bamboo": "Harcanabilir bambu",
+    "total": "Toplam adım",
+    "runs": "Tamamlanan tur",
+    "lang": "tr | en | fr | it | ar",
+    "sound": "Ses açık",
+    "quality": "high | low",
+    "reduced": "Sakin efektler",
+    "tutorial": "Öğretici tamamlandı",
+    "equipped": "Takılı aksesuar",
+    "unlocked": "Açılan aksesuarlar",
+    "daily": "YYYYMMDD: rekor",
+    "missionDay": "Günlük hedef tarihi: YYYYMMDD",
+    "missionProgress": "steps: en iyi tur, coins: toplanan bambu, runs: tur sayısı",
+    "claimed": "Ödülü alınan hedefler: steps | coins | runs"
+  }
+}

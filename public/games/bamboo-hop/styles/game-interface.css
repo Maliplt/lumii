@@ -1,0 +1,383 @@
+/* Oyun yazıları */
+:root {
+  font-family: "Barlow Condensed", Arial, sans-serif;
+  font-weight: 800;
+}
+button,
+input {
+  font-family: inherit;
+  font-weight: 800;
+}
+p,
+.dialog p,
+.tutorial-panel p {
+  font-size: 22px;
+  line-height: 1.24;
+}
+.text-button {
+  font-size: 20px;
+}
+.setting-row {
+  font-size: 24px;
+}
+.language-choice {
+  font-size: 22px;
+}
+.game-top {
+  background: none !important;
+}
+.menu-wash {
+  background: none !important;
+}
+.score-block > span {
+  font-size: 19px;
+}
+.run-goal {
+  font-size: 20px;
+}
+.run-goal b {
+  font-size: 22px;
+}
+.home-stats small {
+  font-size: 20px;
+}
+.costume-card.selected {
+  border-color: #548c72;
+  box-shadow: 0 5px 0 #294d3a;
+}
+[data-action="play"] {
+  justify-content: center;
+  position: relative;
+  font-size: 34px;
+}
+[data-action="play"] > .icon {
+  position: absolute;
+  right: 22px;
+}
+body[data-state="intro"] #app:after {
+  display: none;
+}
+.game-top,
+.game-bottom {
+  transition: opacity 0.16s;
+}
+.store-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #dde8c8;
+  box-shadow: 0 4px 0 #829b68;
+  border: 2px solid #8b9e75;
+  border-radius: 5px;
+  padding: 11px 24px;
+  font-size: 24px;
+  min-height: 52px;
+  min-width: 126px;
+  align-self: flex-start;
+  margin: 0 0 18px;
+  flex-shrink: 0;
+}
+.store-back .icon {
+  width: 27px;
+  height: 27px;
+}
+.dialog.wardrobe {
+  background: #e7eacb;
+  border: 3px solid #769166;
+  box-shadow: 0 8px 0 #344f3c;
+  width: min(1060px, 95vw);
+  padding: 22px;
+  max-height: 94dvh;
+}
+.wardrobe-heading {
+  padding: 0 4px 15px !important;
+  background: none;
+  box-shadow: none;
+  border: 0;
+  margin-bottom: 8px;
+}
+.wardrobe-heading h2 {
+  font-size: 44px;
+}
+.wardrobe-wallet {
+  background: #d4e0b6;
+}
+.wardrobe-wallet strong {
+  font-size: 35px;
+}
+body[data-modal="wardrobe"] .scrim {
+  background: #213e32c7;
+  backdrop-filter: none;
+}
+.costume-gallery {
+  scrollbar-width: none;
+  gap: 16px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  overscroll-behavior: contain;
+  scroll-snap-type: none;
+}
+.costume-gallery::-webkit-scrollbar {
+  display: none;
+}
+.costume-gallery.dragging,
+.costume-gallery.dragging * {
+  cursor: grabbing !important;
+}
+.costume-card {
+  background: #f5efd9;
+  border: 3px solid #a2b48a;
+  box-shadow: 0 5px 0 #7f996a;
+  padding: 0 0 10px;
+  isolation: isolate;
+}
+.costume-card::after {
+  display: none;
+}
+.costume-preview {
+  height: 225px;
+  background: #d9e4c4;
+  overflow: hidden;
+  transform: none !important;
+}
+.costume-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.costume-card h3 {
+  background: #f5efd9;
+  padding: 12px 7px 9px;
+  font-family: inherit;
+  font-size: 28px;
+  line-height: 1.05;
+  min-height: 48px;
+}
+.costume-card .outfit-button {
+  background: #dce7bf;
+  font-family: inherit;
+  font-size: 23px;
+  min-height: 51px;
+  box-shadow: none;
+}
+.costume-card.selected .outfit-button {
+  background: #b5d59d;
+}
+.dialog.settings {
+  max-height: 94dvh;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.settings h2 {
+  margin-top: 0;
+}
+.dialog.result {
+  scrollbar-width: none;
+}
+.dialog.result::-webkit-scrollbar {
+  display: none;
+}
+.reward-goal {
+  font-size: 22px !important;
+}
+.reward-goal small {
+  font-size: 17px;
+}
+.reward-goal > span {
+  color: #34503a;
+}
+.reward-goals h3 {
+  font-family: inherit;
+  font-size: 29px;
+}
+.result-stats small {
+  font-size: 18px;
+}
+.new-record .result-score {
+  position: relative;
+  isolation: isolate;
+  color: #4a854e;
+  text-shadow: 0 0 24px #c5ec8a;
+}
+.record-prize:before {
+  content: "";
+  position: absolute;
+  inset: -30px 40px;
+  z-index: -1;
+  background: repeating-conic-gradient(
+    from 10deg,
+    #c3d97a55 0deg 9deg,
+    transparent 9deg 25deg
+  );
+  mask-image: radial-gradient(ellipse, #000 10%, transparent 68%);
+  animation: record-rays 9s linear infinite;
+}
+.record-prize b {
+  display: inline-block;
+  animation:
+    record-pop 0.85s ease-out,
+    record-glow 1.7s 0.85s ease-in-out infinite alternate;
+}
+.new-record #dialog-title {
+  color: #39744c;
+}
+.new-record .score-progress {
+  box-shadow: 0 0 18px #b6d86c;
+}
+.record-live {
+  animation: record-glow 0.7s infinite alternate;
+}
+.impact-ring {
+  position: fixed;
+  left: 50%;
+  top: 56%;
+  width: 36px;
+  height: 36px;
+  border: 8px solid #f4db9b;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: impact-wave 0.4s ease-out forwards;
+  box-shadow: 0 0 0 12px #8db5a244;
+}
+.impact-ring:after {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  background: repeating-conic-gradient(
+    #f8eac4 0deg 6deg,
+    transparent 6deg 45deg
+  );
+  mask-image: radial-gradient(transparent 35%, #000 40%, transparent 70%);
+}
+@keyframes impact-wave {
+  from {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(6);
+    opacity: 0;
+  }
+}
+@keyframes record-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes record-pop {
+  0% {
+    transform: scale(0.65);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes record-glow {
+  to {
+    filter: drop-shadow(0 0 14px #e0df6a);
+    transform: scale(1.035);
+  }
+}
+@media (max-width: 700px) {
+  .dialog.wardrobe {
+    padding: 14px 10px;
+    max-height: 95dvh;
+  }
+  .store-back {
+    font-size: 23px;
+    padding: 9px 18px;
+    min-height: 50px;
+    margin-bottom: 15px;
+  }
+  .wardrobe-heading h2 {
+    font-size: 34px;
+  }
+  .costume-gallery {
+    gap: 11px;
+    padding: 4px 4px 15px;
+  }
+  .costume-preview {
+    height: 170px;
+  }
+  .costume-card h3 {
+    font-size: 24px;
+    min-height: 56px;
+  }
+  .costume-card .outfit-button {
+    font-size: 21px;
+  }
+  .tutorial-panel p {
+    font-size: 20px;
+  }
+  .reward-goal {
+    font-size: 20px !important;
+  }
+  .wardrobe-wallet strong {
+    font-size: 29px;
+  }
+  .dialog p {
+    font-size: 22px;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .dialog.wardrobe {
+    padding: 12px;
+  }
+  .store-back {
+    min-height: 43px;
+    margin-bottom: 8px;
+  }
+  .wardrobe-heading {
+    padding-bottom: 5px !important;
+  }
+  .wardrobe-heading h2 {
+    font-size: 29px;
+  }
+  .costume-preview {
+    height: 165px;
+  }
+  .costume-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.prize-spark {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 9px;
+  height: 9px;
+  background: #d5d56e;
+  clip-path: polygon(
+    50% 0,
+    62% 36%,
+    100% 50%,
+    62% 62%,
+    50% 100%,
+    36% 62%,
+    0 50%,
+    36% 36%
+  );
+  animation: prize-burst 1s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes prize-burst {
+  0% {
+    transform: rotate(var(--a)) translateX(15px) scale(0.5);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--a)) translateX(var(--d)) scale(1.5);
+    opacity: 0;
+  }
+}

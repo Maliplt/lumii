@@ -2,6 +2,8 @@ import { createElement, lazy, type ComponentType, type LazyExoticComponent } fro
 
 type GameComponent = LazyExoticComponent<ComponentType>;
 const gameComponents: Record<string, GameComponent> = {
+  "bamboo-hop": lazy(() => import("../games/BambooHop/BambooHop")),
+  rota: lazy(() => import("../games/Rota/Rota")),
   prizma: lazy(() => import("../games/Prizma/Prizma")),
   denge: lazy(() => import("../games/Denge/Denge")),
   doom: lazy(() => import("../games/Doom/Doom")),

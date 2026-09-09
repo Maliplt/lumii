@@ -1,0 +1,116 @@
+BambooModules.define("mission-locales.js", function(require, module, exports) {
+var import_locales = require("./locales.js");
+const words = {
+  tr: [
+    "GÜNLÜK HEDEFLER",
+    "Bir turda {n} adım",
+    "{n} bambu topla",
+    "{n} tur oyna",
+    "Al",
+    "Alındı",
+    "Bu aksesuarı satın almak istiyor musun?",
+    "Satın al",
+    "Vazgeç",
+    "Çevir",
+    "KÜTÜĞE ATLA",
+    "Ortaya dön. Kütüklerin karelerine atla; lastikte bekleyebilirsin.",
+    "YOLU KONTROL ET",
+    "Araç geçtikten sonra karşıya atla.",
+    "BİTİŞE ULAŞ",
+    "İlerideki kemerden geçerek eğitimi tamamla."
+  ],
+  en: [
+    "DAILY GOALS",
+    "{n} steps in one run",
+    "Collect {n} bamboo",
+    "Play {n} runs",
+    "Claim",
+    "Claimed",
+    "Buy this accessory?",
+    "Buy",
+    "Cancel",
+    "Rotate",
+    "HOP ON A LOG",
+    "Return to the middle. Hop between log slots; rest on the tyre.",
+    "CHECK THE ROAD",
+    "Wait for the car to pass, then cross.",
+    "REACH THE FINISH",
+    "Pass through the arch to complete your training."
+  ],
+  fr: [
+    "OBJECTIFS DU JOUR",
+    "{n} pas en une partie",
+    "Ramasse {n} bambous",
+    "Joue {n} parties",
+    "Recevoir",
+    "Reçu",
+    "Acheter cet accessoire ?",
+    "Acheter",
+    "Annuler",
+    "Tourner",
+    "SAUTE SUR LE RONDIN",
+    "Reviens au centre. Saute entre les rondins et repose-toi sur le pneu.",
+    "OBSERVE LA ROUTE",
+    "Attends que la voiture passe avant de traverser.",
+    "REJOINS L’ARRIVÉE",
+    "Passe sous l’arche pour terminer."
+  ],
+  it: [
+    "OBIETTIVI GIORNALIERI",
+    "{n} passi in una partita",
+    "Raccogli {n} bambù",
+    "Gioca {n} partite",
+    "Riscatta",
+    "Riscattato",
+    "Comprare questo accessorio?",
+    "Compra",
+    "Annulla",
+    "Ruota",
+    "SALTA SUL TRONCO",
+    "Torna al centro. Salta sui tronchi; riposa sullo pneumatico.",
+    "CONTROLLA LA STRADA",
+    "Aspetta che passi l’auto, poi attraversa.",
+    "RAGGIUNGI IL TRAGUARDO",
+    "Passa sotto l’arco per completare il tutorial."
+  ],
+  ar: [
+    "أهداف اليوم",
+    "{n} خطوة في جولة",
+    "اجمع {n} خيزران",
+    "العب {n} جولات",
+    "استلم",
+    "تم الاستلام",
+    "هل تريد شراء هذا الإكسسوار؟",
+    "شراء",
+    "إلغاء",
+    "تدوير",
+    "اقفز على الجذع",
+    "عد إلى الوسط. اقفز بين الجذوع واسترح على الإطار.",
+    "راقب الطريق",
+    "انتظر مرور السيارة ثم اعبر.",
+    "صل إلى النهاية",
+    "اعبر القوس لإكمال التدريب."
+  ]
+};
+const keys = [
+  "dailyGoals",
+  "dailySteps",
+  "dailyCoins",
+  "dailyRuns",
+  "claim",
+  "claimed",
+  "buyConfirm",
+  "buy",
+  "cancel",
+  "rotate",
+  "tut3",
+  "tut3Text",
+  "tut4",
+  "tut4Text",
+  "tut5",
+  "tut5Text"
+];
+for (const [lang, values] of Object.entries(words))
+  keys.forEach((key, i) => import_locales.strings[lang][key] = values[i]);
+
+});

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f7f4ed" />
+    <meta
+      name="description"
+      content="Renkleri bağla, engelleri aş ve bütün alanı doldur."
+    />
+    <title>ROTA — Renklerin yolu</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="engine.js"></script>
+    <script defer src="storage.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="translations.js"></script>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <svg class="symbols" aria-hidden="true">
+      <symbol id="back" viewBox="0 0 24 24">
+        <path d="M20 12H4m6-6-6 6 6 6" />
+      </symbol>
+      <symbol id="arrow" viewBox="0 0 24 24">
+        <path d="M4 12h16m-6-6 6 6-6 6" />
+      </symbol>
+      <symbol id="sound-icon" viewBox="0 0 24 24">
+        <path d="M4 9h4l5-4v14l-5-4H4ZM17 8q5 4 0 8" />
+      </symbol>
+      <symbol id="lock" viewBox="0 0 24 24">
+        <rect x="5" y="10" width="14" height="11" rx="3" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+      </symbol>
+      <symbol id="finger" viewBox="0 0 40 48">
+        <path
+          d="M14 28V8a4 4 0 0 1 8 0v14-5a3 3 0 0 1 6 0v6-3a3 3 0 0 1 6 0v4-1a3 3 0 0 1 5 2v10c0 7-5 11-12 11-6 0-10-4-13-8L6 27c-3-4 2-8 5-4l3 5Z"
+        />
+      </symbol>
+    </svg>
+    <div class="app">
+      <header>
+        <button id="home-button" class="brand">
+          <span class="brand-mark"><i></i><i></i></span>ROTA<span
+            class="brand-sub"
+            >DOT CLUB</span
+          >
+        </button>
+        <div class="settings">
+          <button
+            id="theme"
+            class="icon"
+            aria-label="Karanlık tema"
+            aria-pressed="false"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z" />
+            </svg>
+          </button>
+          <button id="language" class="icon" aria-label="English">EN</button
+          ><button id="help" class="icon" aria-label="Nasıl oynanır?">?</button
+          ><button id="sound" class="icon" aria-label="Ses">
+            <svg><use href="#sound-icon" /></svg>
+          </button>
+        </div>
+      </header>
+      <main>
+        <section id="home" class="screen home">
+          <div class="home-copy">
+            <span class="eyebrow" data-t="tag">RENKLERİN BİR YOLU VAR.</span>
+            <h1 data-t="title">Birbirini<br /><em>bulacaklar.</em></h1>
+            <p data-t="intro">
+              Aynı renkleri bağla.<br />Yolları kesiştirmeden bütün alanı
+              doldur.
+            </p>
+            <div class="home-actions">
+              <button id="play" class="primary">
+                <span data-t="play">Oyna</span><svg><use href="#arrow" /></svg>
+              </button>
+              <div class="twins">
+                <button id="open-levels" data-t="levels">Bölümler</button
+                ><button id="learn" data-t="learn">Nasıl oynanır?</button>
+              </div>
+              <div id="home-progress"></div>
+            </div>
+          </div>
+          <div class="home-art" aria-hidden="true">
+            <div class="art-heading">
+              <span>CONNECT THE DOTS</span><span>01 / ∞</span>
+            </div>
+            <svg id="home-preview" viewBox="0 0 400 400"></svg>
+          </div>
+        </section>
+        <section id="levels" class="screen levels" hidden>
+          <div class="heading">
+            <div>
+              <span class="eyebrow" data-t="collection"
+                >BAĞLANTI KOLEKSİYONU</span
+              >
+              <h2 data-t="levels">Bölümler</h2>
+            </div>
+            <button id="levels-back">
+              <svg><use href="#back" /></svg><span data-t="menu">Menü</span>
+            </button>
+          </div>
+          <div id="level-grid"></div>
+          <nav>
+            <button id="prev-page" aria-label="Önceki">
+              <svg><use href="#back" /></svg></button
+            ><span id="page-label"></span
+            ><button id="next-page" aria-label="Sonraki">
+              <svg><use href="#arrow" /></svg>
+            </button>
+          </nav>
+        </section>
+        <section id="game" class="screen game" hidden>
+          <div class="heading game-heading">
+            <button id="game-back">
+              <svg><use href="#back" /></svg
+              ><span data-t="levels">Bölümler</span>
+            </button>
+            <div class="game-title">
+              <span id="level-label" class="eyebrow"></span>
+              <h2 id="game-title"></h2>
+            </div>
+            <button id="pause" class="icon" aria-label="Duraklat">Ⅱ</button>
+          </div>
+          <div class="play-layout">
+            <aside class="stats">
+              <div class="score-panel">
+                <span class="eyebrow" data-t="score">PUAN</span
+                ><strong id="score">0</strong
+                ><span id="score-gain" aria-hidden="true"></span>
+              </div>
+              <div class="pair-stat">
+                <b id="pair-count">0 / 3</b
+                ><span data-t="connections">bağlantı</span>
+              </div>
+
+              <div class="time-panel">
+                <span data-t="time">Süre</span><b id="timer">00:00</b>
+              </div>
+            </aside>
+            <div class="board-column">
+              <div id="board" role="group" aria-label="Bulmaca">
+                <div id="cells"></div>
+                <svg id="paths" aria-hidden="true"></svg>
+                <div id="effects" aria-hidden="true"></div>
+                <div id="idle-cue" hidden aria-hidden="true">
+                  <i></i
+                  ><svg viewBox="0 0 48 24">
+                    <path d="M5 12h34m-9-8 9 8-9 8" />
+                  </svg>
+                </div>
+                <div id="pointer" aria-hidden="true">
+                  <span class="tap-ring"></span
+                  ><svg><use href="#finger" /></svg>
+                </div>
+                <div id="board-seal" hidden>
+                  <span>✓</span><b data-t="complete">TAMAMLANDI</b>
+                </div>
+              </div>
+              <div id="status" role="status" aria-live="polite"></div>
+              <div class="tools">
+                <button id="undo" data-t="undo">↶ Geri al</button
+                ><button id="hint">
+                  <span data-t="hint">Yol göster</span
+                  ><b id="hint-count">3</b></button
+                ><button id="reset" data-t="reset">Sıfırla</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="result" class="screen result" hidden>
+          <div class="result-symbol">✓</div>
+          <span class="eyebrow" data-t="complete">TAMAMLANDI</span>
+          <h2 data-t="win">Hepsi yerli yerinde.</h2>
+          <div id="stars"></div>
+          <div class="final-score">
+            <strong id="result-score">0</strong><span data-t="score">PUAN</span>
+          </div>
+          <div class="result-details">
+            <span id="result-time"></span><span id="result-bonus"></span>
+          </div>
+          <div class="result-actions">
+            <button id="next" class="primary">
+              <span data-t="next">Sıradaki bölüm</span
+              ><svg><use href="#arrow" /></svg>
+            </button>
+            <div class="twins">
+              <button id="retry" data-t="retry">Tekrar çöz</button
+              ><button id="result-levels" data-t="levels">Bölümler</button>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer><span>ROTA / DOT CLUB</span></footer>
+    </div>
+    <dialog id="dialog">
+      <button id="close" class="icon" aria-label="Kapat">×</button>
+      <div id="dialog-content"></div>
+      <div id="dialog-actions"></div>
+    </dialog>
+  </body>
+</html>

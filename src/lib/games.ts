@@ -1,3 +1,5 @@
+import bambooHopImg from "../assets/images/bamboo-hop.jpg";
+import rotaImg from "../assets/images/rota.jpg";
 import prizmaImg from "../assets/images/prizma.jpg";
 import dengeImg from "../assets/images/denge.jpg";
 import sudokuImg from "../assets/images/sudoku.webp";
@@ -23,6 +25,30 @@ export interface GameDef {
 
 // oyun listesi
 export const GAMES: GameDef[] = [
+  {
+    id: "bamboo-hop",
+    name: "Bamboo Hop",
+    path: "/play/bamboo-hop",
+    image: bambooHopImg,
+    description: "3D Panda Orman Macerası",
+    tag: "Macera",
+    storageKey: "bamboo-hop",
+    scoreLabel: "En İyi Skor",
+    isScore: true,
+    showScore: false,
+  },
+  {
+    id: "rota",
+    name: "Rota",
+    path: "/play/rota",
+    image: rotaImg,
+    description: "Nokta ve Çizgi Bulmacası",
+    tag: "Bulmaca",
+    storageKey: "puzzle-suite.v1.rota.connect",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: false,
+  },
   {
     id: "prizma",
     name: "Prizma",
