@@ -245,7 +245,7 @@ h2 {
   text-underline-offset: 8px;
 }
 .home p {
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.7;
   color: var(--muted);
 }
@@ -276,8 +276,12 @@ h2 {
 .twins > * {
   flex: 1;
 }
+.twins button {
+  font-size: 15px;
+  min-height: 48px;
+}
 #home-progress {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 19px;
 }
@@ -404,7 +408,7 @@ footer button {
 }
 .level-card small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   margin-top: 6px;
   color: var(--muted);
@@ -762,14 +766,16 @@ nav button {
   }
 }
 #status {
-  height: 36px;
+  min-height: 44px;
+  height: auto;
   margin-top: 10px;
   display: grid;
   place-items: center;
   text-align: center;
-  font-size: 12px;
-  line-height: 1.3;
-  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
 }
 .tools {
   display: flex;
@@ -1001,12 +1007,12 @@ dialog::backdrop {
   min-height: 30px;
 }
 dialog h2 {
-  font-size: 29px;
+  font-size: 30px;
   margin: 14px 0;
 }
 dialog p {
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 16px;
+  line-height: 1.75;
   color: var(--muted);
 }
 #dialog-actions {
@@ -1014,9 +1020,13 @@ dialog p {
   gap: 10px;
   margin-top: 23px;
 }
-#dialog-actions .primary {
+#dialog-actions button {
   font-size: 16px;
-  min-height: 50px;
+  min-height: 48px;
+}
+#dialog-actions .primary {
+  font-size: 17px;
+  min-height: 52px;
   justify-content: center;
 }
 .help-visual {
@@ -1052,7 +1062,7 @@ dialog p {
     font-size: 67px;
   }
   .home p {
-    font-size: 14px;
+    font-size: 16px;
   }
   .brand-sub {
     display: none;
@@ -1138,7 +1148,7 @@ dialog p {
   }
   .home p {
     align-self: flex-start;
-    font-size: 12px;
+    font-size: 15px;
     line-height: 1.5;
   }
   .home-art {
@@ -1174,9 +1184,9 @@ dialog p {
     margin-top: 12px;
   }
   .twins button {
-    font-size: 12px;
-    min-height: 39px;
-    padding: 8px;
+    font-size: 14px;
+    min-height: 42px;
+    padding: 9px;
   }
   #home-progress {
     font-size: 9px;
@@ -1322,9 +1332,11 @@ dialog p {
   }
 
   #status {
-    height: 31px;
+    min-height: 36px;
+    height: auto;
     margin-top: 9px;
-    font-size: 11px;
+    font-size: 13px;
+    font-weight: 500;
   }
   .tools {
     gap: 6px;
@@ -1454,7 +1466,7 @@ dialog p {
     min-height: 45px;
   }
   #status {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 @media (max-height: 520px) and (min-width: 651px) {
@@ -1561,8 +1573,9 @@ dialog p {
     border-radius: 3px;
   }
   #status {
-    font-size: 9px;
-    height: 25px;
+    font-size: 12px;
+    min-height: 30px;
+    height: auto;
     margin-top: 8px;
   }
   .tools button {
