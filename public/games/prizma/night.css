@@ -1,0 +1,162 @@
+/* Gece paleti menü, tahta ve bölüm kartlarında ortaktır. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141619;
+  --ink: #f6f6eb;
+  --muted: #bdc3cb;
+  --yellow: #ffda3e;
+  --blue: #b7c6d5;
+  --panel: #25292f;
+  --surface: #25292f;
+  --line: #4b525c;
+  --purple: #949da7;
+  --pink: #ffda3e;
+}
+[data-theme="dark"] body {
+  background: #141619;
+  color: var(--ink);
+}
+[data-theme="dark"] .topbar {
+  border-color: var(--line);
+}
+[data-theme="dark"]
+  :is(
+    .brand,
+    .home-heading h1,
+    .view-heading h2,
+    .stats strong,
+    .game-title h2,
+    .level-card-top strong
+  ) {
+  color: var(--ink);
+}
+[data-theme="dark"]
+  :is(
+    .home-heading p,
+    .eyebrow,
+    .wallet,
+    .home-progress,
+    .fixed-label,
+    .level-card-caption,
+    .map-summary,
+    .unlock-banner,
+    .tool > span,
+    .scene-label,
+    .preview-caption,
+    .game-title .eyebrow
+  ) {
+  color: var(--muted);
+}
+[data-theme="dark"]
+  :is(
+    .icon,
+    .quiet,
+    .square,
+    .tool,
+    .secondary,
+    .home-secondary .button,
+    dialog,
+    .map-node,
+    .map-node.boss,
+    .map-node.done
+  ) {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 3px 0 #080a0c;
+}
+[data-theme="dark"] :is(.primary, .home-actions > .primary) {
+  background: #ffda3e;
+  border-color: #ffda3e;
+  color: #191a14;
+  box-shadow: 0 3px 0 #9d7b08;
+}
+[data-theme="dark"] .home-actions .button-sub {
+  color: #353018;
+}
+[data-theme="dark"] :is(.progress-line, .energy-track) {
+  background: #343a43;
+  border-color: #535c66;
+}
+[data-theme="dark"] :is(.progress-line i, .energy-track i) {
+  background: #ffda3e;
+}
+[data-theme="dark"]
+  :is(
+    .home-progress strong,
+    .energy-hud > span:first-child,
+    .brand svg,
+    .rating,
+    .result-burst > svg,
+    .result .eyebrow,
+    .tutorial-bar,
+    #crystals
+  ) {
+  color: #ffda3e;
+}
+[data-theme="dark"] :is(.map-node.current, .map-node:hover:not(:disabled)) {
+  background: #36321f;
+  border-color: #ffda3e;
+  box-shadow: 0 3px 0 #8a7118;
+}
+[data-theme="dark"]
+  :is(
+    .map-node.current .level-card-top strong,
+    .level-card-top small,
+    .map-node.done .level-card-top small,
+    .map-node.boss .level-card-caption
+  ) {
+  color: #ffe16b;
+}
+[data-theme="dark"] .map-node:disabled {
+  background: #202329;
+  border-color: #3b424b;
+  box-shadow: 0 3px 0 #080a0c;
+}
+[data-theme="dark"]
+  :is(.map-node:disabled .level-card-top strong, .level-locked) {
+  color: #a6afb9;
+}
+[data-theme="dark"] :is(.help-visual svg, .help-rule b, .tool small) {
+  background: #353d47;
+  color: #f5f5ec;
+}
+[data-theme="dark"] :is(#board-seal, .connection-reward) {
+  background: #29281d;
+  color: #ffe16b;
+  border-color: #9b8535;
+  box-shadow: 0 4px 20px #0004;
+}
+[data-theme="dark"] .medal {
+  background: #ffda3e;
+  color: #191a14;
+  border-color: #ffe98e;
+  box-shadow: 0 3px 0 #997a12;
+}
+[data-theme="dark"] .medal.empty {
+  background: #30363e;
+  color: #aeb7c1;
+  border-color: #535d68;
+  box-shadow: 0 3px 0 #080a0c;
+}
+[data-theme="dark"] dialog::backdrop {
+  background: #000a;
+}
+[data-theme="dark"] .tool:hover:not(:disabled) {
+  background: #383f48;
+}
+[data-theme="dark"] .pointer > span {
+  border-color: #ffda3e;
+}
+@media (max-width: 650px) {
+  .top-right {
+    gap: 6px;
+  }
+  .top-right .icon {
+    min-width: 35px;
+    width: 35px;
+  }
+  .top-right .wallet {
+    margin-right: 0;
+  }
+}

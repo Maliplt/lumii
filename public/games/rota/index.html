@@ -11,8 +11,14 @@
       name="description"
       content="Renkleri bağla, engelleri aş ve bütün alanı doldur."
     />
-    <title>ROTA — Renklerin yolu</title>
+    <title>KATMAN — Renklerin yolu</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="language.css" />
+    <script defer src="connection-config.js"></script>
+<script defer src="api-adapter.js"></script>
+<script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="language.js"></script>
     <script defer src="engine.js"></script>
     <script defer src="storage.js"></script>
     <script defer src="audio.js"></script>
@@ -20,6 +26,7 @@
     <script defer src="script.js"></script>
   </head>
   <body>
+    <div id="language-panel" class="language-panel" hidden></div>
     <svg class="symbols" aria-hidden="true">
       <symbol id="back" viewBox="0 0 24 24">
         <path d="M20 12H4m6-6-6 6 6 6" />
@@ -43,7 +50,7 @@
     <div class="app">
       <header>
         <button id="home-button" class="brand">
-          <span class="brand-mark"><i></i><i></i></span>ROTA<span
+          <span class="brand-mark"><i></i><i></i></span>KATMAN<span
             class="brand-sub"
             >DOT CLUB</span
           >
@@ -69,9 +76,11 @@
       <main>
         <section id="home" class="screen home">
           <div class="home-copy">
-            <h1 data-t="title">Noktaları<br /><em>birleştir.</em></h1>
+            <span class="eyebrow" data-t="tag">RENKLERİN BİR YOLU VAR.</span>
+            <h1 data-t="title">Renkleri<br /><em>bağla</em></h1>
             <p data-t="intro">
-              Aynı renkleri eşleştir, yolları kesiştirmeden tüm alanı doldur.
+              Aynı renkleri bağla.<br />Yolları kesiştirmeden bütün alanı
+              doldur.
             </p>
             <div class="home-actions">
               <button id="play" class="primary">
@@ -86,7 +95,7 @@
           </div>
           <div class="home-art" aria-hidden="true">
             <div class="art-heading">
-              <span></span><span>01 / ∞</span>
+              <span>CONNECT THE DOTS</span><span>01 / ∞</span>
             </div>
             <svg id="home-preview" viewBox="0 0 400 400"></svg>
           </div>
@@ -194,7 +203,7 @@
           </div>
         </section>
       </main>
-      <footer><span>ROTA / DOT CLUB</span></footer>
+      <footer><span>KATMAN / DOT CLUB</span></footer>
     </div>
     <dialog id="dialog">
       <button id="close" class="icon" aria-label="Kapat">×</button>

@@ -1,35 +1,402 @@
 <!doctype html>
 <html lang="tr">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ece8dd"><meta name="description" content="PRİZMA — Parçaları döndür, enerjiyi bağla. Sonsuz ışık bulmacaları."><title>PRİZMA — Enerjiyi bağla!</title><link rel="stylesheet" href="style.css">
-</head>
-<body>
-<svg class="svg-library" aria-hidden="true"><defs>
-<symbol id="bolt" viewBox="0 0 32 32"><path d="M18 2 5 19h10l-1 11L28 12H18Z" fill="currentColor"/></symbol>
-<symbol id="gem" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="16" cy="16" r="4" fill="currentColor"/></symbol>
-<symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="back" viewBox="0 0 24 24"><path d="M20 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="speaker" viewBox="0 0 24 24"><path d="M3 9h5l5-4v14l-5-4H3Zm13-1c3 2 3 6 0 8m3-11c5 4 5 10 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
-<symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.5"/></symbol>
-<symbol id="hand" viewBox="0 0 48 60"><path d="M17 29V9c0-7 10-7 10 0v16c0-6 8-6 8 0 1-4 8-3 8 3v12c0 7-5 10-5 15H18c0-7-8-13-11-20-3-7 4-10 8-4l2 3" fill="#fff5e2" stroke="#514b3e" stroke-width="3" stroke-linejoin="round"/><path d="M27 25v9m8-9v9" fill="none" stroke="#c6a98f" stroke-width="2" stroke-linecap="round"/></symbol>
-</defs></svg>
-<div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
-<div class="app">
-<header class="topbar"><button id="home" class="brand" aria-label="Ana menü"><svg><use href="#bolt"/></svg>PRİZMA</button><div class="top-right"><span id="total-gems" class="wallet"></span><button id="language" class="icon" aria-label="Switch language">EN</button><button id="help" class="icon" aria-label="Nasıl oynanır?">?</button><button id="sound" class="icon" aria-label="Ses"><svg><use href="#speaker"/></svg></button></div></header>
-<main>
-<section id="menu" class="screen menu" aria-labelledby="menu-title">
-<div class="home-heading"><span class="eyebrow" data-text="introLabel">BİR DÖNÜŞLE HER ŞEY DEĞİŞİR</span><h1 id="menu-title">PRİZMA<span>!</span></h1><p data-text="tagline">Döndür. Bağla. Parla.</p></div>
-<div class="home-scene" aria-hidden="true"><canvas id="hero"></canvas></div>
-<div class="home-actions"><button id="play" class="button primary"><svg><use href="#bolt"/></svg><span data-text="play">OYNA</span><span id="menu-level" class="button-sub"></span></button><div class="home-secondary"><button id="levels" class="button secondary"><svg aria-hidden="true" viewBox="0 0 28 28"><path d="M7 21V10a5 5 0 0 1 10 0v8a4 4 0 0 0 4 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="7" cy="22" r="3" fill="currentColor"/><circle cx="21" cy="22" r="3" fill="currentColor"/></svg><span data-text="levels">Bölümler</span></button><button id="learn" class="button quiet" data-text="learn">Nasıl oynanır?</button></div><div class="home-progress"><div><span id="home-progress-label"></span><strong id="home-progress-score"></strong></div><span class="progress-line"><i id="home-progress-fill"></i></span></div></div>
-</section>
-<section id="map" class="screen level-screen" hidden aria-labelledby="map-title"><div class="view-heading"><div><span class="eyebrow" data-text="journey">HER BAĞLANTI BİR ADIM</span><h2 id="map-title" data-text="mapTitle">Enerji yolculuğu</h2></div><button id="map-home" class="button quiet back-button"><svg><use href="#back"/></svg><span data-text="menu">Ana menü</span></button></div><div class="map-summary"><span id="map-sector"></span><span id="map-record"></span></div><div id="map-window" tabindex="0" aria-label="Bölüm yolu"><svg id="map-road" aria-hidden="true"></svg><div id="map-nodes"></div><div class="map-horizon" aria-hidden="true">∞</div></div><div class="map-nav"><button id="map-prev" class="button square" aria-label="Önceki bölümler"><svg><use href="#back"/></svg></button><button id="map-current" class="button quiet" data-text="myLevel">Bölümüme dön</button><button id="map-next" class="button square" aria-label="Sonraki bölümler"><svg><use href="#arrow"/></svg></button></div><button id="map-play" class="button primary"><svg><use href="#bolt"/></svg><span></span><svg><use href="#arrow"/></svg></button></section>
-<section id="game" class="screen game" hidden aria-labelledby="game-title">
-<div class="game-heading"><button id="game-back" class="button quiet back-button"><svg><use href="#back"/></svg><span data-text="levels">Bölümler</span></button><div class="game-title"><span id="level-label" class="eyebrow"></span><h2 id="game-title"></h2></div><button id="pause" class="button square" aria-label="Duraklat">Ⅱ</button></div>
-<div class="game-body"><aside class="game-left"><div class="level-stamp"><span data-text="level">BÖLÜM</span><strong id="level-stamp"></strong><span id="difficulty-label"></span></div><div class="stats"><div><span data-text="time">SÜRE</span><strong id="time">00:00</strong></div><div><span data-text="moves">HAMLE</span><strong id="moves">0</strong></div></div><div class="chapter-progress" id="chapter-progress" aria-label="Bölüm ilerlemesi"></div></aside>
-<div class="board-column"><div id="connection-reward" class="connection-reward" aria-live="polite"></div><div class="energy-hud"><span><svg><use href="#bolt"/></svg><strong id="power">0</strong><small>%</small></span><div class="energy-track"><i id="energy-fill"></i></div><span id="crystals"></span></div><div id="fixed-label" class="fixed-label" hidden></div><div class="board-slot"><div id="board" class="board"><canvas id="field" aria-hidden="true"></canvas><div id="tiles" role="group" aria-label="Döndürülebilir yollar"></div><div id="pointer" class="pointer" hidden aria-hidden="true"><svg><use href="#hand"/></svg><span></span></div><div id="board-seal" aria-hidden="true"><svg><use href="#bolt"/></svg><strong data-text="connected">TAM GÜÇ!</strong></div></div></div><div id="tutorial-bar" class="tutorial-bar" hidden><span id="tutorial-step"></span><strong id="tutorial-copy"></strong></div><div class="board-controls"><button id="undo" class="button tool"><span>↶</span><b data-text="undo">Geri al</b></button><button id="hint" class="button tool"><svg class="hint-hand" aria-hidden="true"><use href="#hand"/></svg><b data-text="hint">Yol göster</b><small id="hint-count">3</small></button><button id="reset" class="button tool"><span>↻</span><b data-text="reset">Sıfırla</b></button></div></div>
-<aside class="game-right"><div class="objective"><svg><use href="#gem"/></svg><strong data-text="objective">Hepsini uyandır.</strong><span data-text="objectiveSmall">Tek kaynak. Tam bağlantı.</span></div><div id="chain-feedback" class="chain-feedback" aria-live="polite"><strong></strong><span></span></div><div class="next-milestone"><svg><use href="#bolt"/></svg><span id="milestone-label"></span></div></aside></div>
-</section>
-<section id="result" class="screen result" hidden aria-labelledby="result-title"><div class="result-burst" aria-hidden="true"><svg><use href="#bolt"/></svg><i></i><i></i><i></i></div><span class="eyebrow" id="result-level"></span><h1 id="result-title" data-text="resultTitle">Müthiş bağlantı!</h1><div id="rating" class="rating"></div><div class="result-stats"><div><span data-text="time">SÜRE</span><strong id="result-time"></strong></div><div><span data-text="moves">HAMLE</span><strong id="result-moves"></strong></div><div><span data-text="score">PUAN</span><strong id="result-score"></strong></div></div><div class="unlock-banner"><svg><use href="#lock"/></svg><span id="unlock-label"></span></div><button id="next" class="button primary"><span data-text="next">DEVAM ET</span><svg><use href="#arrow"/></svg></button><div class="result-actions"><button id="retry" class="button secondary" data-text="retry">Tekrar çöz</button><button id="result-map" class="button quiet" data-text="levels">Bölümler</button></div></section>
-</main>
-</div>
-<canvas id="effects" aria-hidden="true"></canvas><dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-inner"><span class="eyebrow">PRİZMA</span><h2 id="dialog-title"></h2><div id="dialog-body"></div><div id="dialog-actions"></div></div></dialog><div id="announce" class="sr-only" aria-live="polite"></div><script src="script.js"></script></body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ece8dd" />
+    <meta
+      name="description"
+      content="PRİZMA — Parçaları döndür, enerjiyi bağla. Sonsuz ışık bulmacaları."
+    />
+    <title>PRİZMA — Enerjiyi bağla!</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="language.css" />
+    <link rel="stylesheet" href="night.css" />
+  </head>
+  <body>
+    <svg class="svg-library" aria-hidden="true">
+      <defs>
+        <symbol id="bolt" viewBox="0 0 32 32">
+          <path d="M18 2 5 19h10l-1 11L28 12H18Z" fill="currentColor" />
+        </symbol>
+        <symbol id="gem" viewBox="0 0 32 32">
+          <circle
+            cx="16"
+            cy="16"
+            r="11"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          />
+          <circle cx="16" cy="16" r="4" fill="currentColor" />
+        </symbol>
+        <symbol id="arrow" viewBox="0 0 24 24">
+          <path
+            d="M4 12h15m-6-6 6 6-6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </symbol>
+        <symbol id="back" viewBox="0 0 24 24">
+          <path
+            d="M20 12H5m6-6-6 6 6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </symbol>
+        <symbol id="speaker" viewBox="0 0 24 24">
+          <path
+            d="M3 9h5l5-4v14l-5-4H3Zm13-1c3 2 3 6 0 8m3-11c5 4 5 10 0 14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        </symbol>
+        <symbol id="lock" viewBox="0 0 24 24">
+          <rect
+            x="5"
+            y="10"
+            width="14"
+            height="11"
+            rx="3"
+            fill="currentColor"
+          />
+          <path
+            d="M8 10V7a4 4 0 0 1 8 0v3"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          />
+        </symbol>
+        <symbol id="hand" viewBox="0 0 48 60">
+          <path
+            d="M17 29V9c0-7 10-7 10 0v16c0-6 8-6 8 0 1-4 8-3 8 3v12c0 7-5 10-5 15H18c0-7-8-13-11-20-3-7 4-10 8-4l2 3"
+            fill="#fff5e2"
+            stroke="#514b3e"
+            stroke-width="3"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M27 25v9m8-9v9"
+            fill="none"
+            stroke="#c6a98f"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </symbol>
+      </defs>
+    </svg>
+    <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="app">
+      <header class="topbar">
+        <button id="home" class="brand" aria-label="Ana menü">
+          <svg><use href="#bolt" /></svg>PRİZMA
+        </button>
+        <div class="top-right">
+          <span id="total-gems" class="wallet"></span>
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button
+            id="theme"
+            class="icon"
+            aria-label="Gece modu"
+            aria-pressed="false"
+          >
+            ◐
+          </button>
+          <button id="help" class="icon" aria-label="Nasıl oynanır?">?</button
+          ><button id="sound" class="icon" aria-label="Ses">
+            <svg><use href="#speaker" /></svg>
+          </button>
+        </div>
+      </header>
+      <main>
+        <section id="menu" class="screen menu" aria-labelledby="menu-title">
+          <div class="home-heading">
+            <span class="eyebrow" data-text="introLabel"
+              >BİR DÖNÜŞLE HER ŞEY DEĞİŞİR</span
+            >
+            <h1 id="menu-title">PRİZMA<span>!</span></h1>
+            <p data-text="tagline">Döndür. Bağla. Parla.</p>
+          </div>
+          <div class="home-scene" aria-hidden="true">
+            <canvas id="hero"></canvas>
+          </div>
+          <div class="home-actions">
+            <button id="play" class="button primary">
+              <svg><use href="#bolt" /></svg><span data-text="play">OYNA</span
+              ><span id="menu-level" class="button-sub"></span>
+            </button>
+            <div class="home-secondary">
+              <button id="levels" class="button secondary">
+                <svg aria-hidden="true" viewBox="0 0 28 28">
+                  <path
+                    d="M7 21V10a5 5 0 0 1 10 0v8a4 4 0 0 0 4 4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="7" cy="22" r="3" fill="currentColor" />
+                  <circle cx="21" cy="22" r="3" fill="currentColor" /></svg
+                ><span data-text="levels">Bölümler</span></button
+              ><button id="learn" class="button quiet" data-text="learn">
+                Nasıl oynanır?
+              </button>
+            </div>
+            <div class="home-progress">
+              <div>
+                <span id="home-progress-label"></span
+                ><strong id="home-progress-score"></strong>
+              </div>
+              <span class="progress-line"><i id="home-progress-fill"></i></span>
+            </div>
+          </div>
+        </section>
+        <section
+          id="map"
+          class="screen level-screen"
+          hidden
+          aria-labelledby="map-title"
+        >
+          <div class="view-heading">
+            <div>
+              <span class="eyebrow" data-text="journey"
+                >HER BAĞLANTI BİR ADIM</span
+              >
+              <h2 id="map-title" data-text="mapTitle">Enerji yolculuğu</h2>
+            </div>
+            <button id="map-home" class="button quiet back-button">
+              <svg><use href="#back" /></svg
+              ><span data-text="menu">Ana menü</span>
+            </button>
+          </div>
+          <div class="map-summary">
+            <span id="map-sector"></span><span id="map-record"></span>
+          </div>
+          <div id="map-window" tabindex="0" aria-label="Bölüm yolu">
+            <svg id="map-road" aria-hidden="true"></svg>
+            <div id="map-nodes"></div>
+            <div class="map-horizon" aria-hidden="true">∞</div>
+          </div>
+          <div class="map-nav">
+            <button
+              id="map-prev"
+              class="button square"
+              aria-label="Önceki bölümler"
+            >
+              <svg><use href="#back" /></svg></button
+            ><button id="map-current" class="button quiet" data-text="myLevel">
+              Bölümüme dön</button
+            ><button
+              id="map-next"
+              class="button square"
+              aria-label="Sonraki bölümler"
+            >
+              <svg><use href="#arrow" /></svg>
+            </button>
+          </div>
+          <button id="map-play" class="button primary">
+            <svg><use href="#bolt" /></svg><span></span
+            ><svg><use href="#arrow" /></svg>
+          </button>
+        </section>
+        <section
+          id="game"
+          class="screen game"
+          hidden
+          aria-labelledby="game-title"
+        >
+          <div class="game-heading">
+            <button id="game-back" class="button quiet back-button">
+              <svg><use href="#back" /></svg
+              ><span data-text="levels">Bölümler</span>
+            </button>
+            <div class="game-title">
+              <span id="level-label" class="eyebrow"></span>
+              <h2 id="game-title"></h2>
+            </div>
+            <button id="pause" class="button square" aria-label="Duraklat">
+              Ⅱ
+            </button>
+          </div>
+          <div class="game-body">
+            <aside class="game-left">
+              <div class="level-stamp">
+                <span data-text="level">BÖLÜM</span
+                ><strong id="level-stamp"></strong
+                ><span id="difficulty-label"></span>
+              </div>
+              <div class="stats">
+                <div>
+                  <span data-text="time">SÜRE</span
+                  ><strong id="time">00:00</strong>
+                </div>
+                <div>
+                  <span data-text="moves">HAMLE</span
+                  ><strong id="moves">0</strong>
+                </div>
+              </div>
+              <div
+                class="chapter-progress"
+                id="chapter-progress"
+                aria-label="Bölüm ilerlemesi"
+              ></div>
+            </aside>
+            <div class="board-column">
+              <div
+                id="connection-reward"
+                class="connection-reward"
+                aria-live="polite"
+              ></div>
+              <div class="energy-hud">
+                <span
+                  ><svg><use href="#bolt" /></svg><strong id="power">0</strong
+                  ><small>%</small></span
+                >
+                <div class="energy-track"><i id="energy-fill"></i></div>
+                <span id="crystals"></span>
+              </div>
+              <div id="fixed-label" class="fixed-label" hidden></div>
+              <div class="board-slot">
+                <div id="board" class="board">
+                  <canvas id="field" aria-hidden="true"></canvas>
+                  <div
+                    id="tiles"
+                    role="group"
+                    aria-label="Döndürülebilir yollar"
+                  ></div>
+                  <div id="pointer" class="pointer" hidden aria-hidden="true">
+                    <svg><use href="#hand" /></svg><span></span>
+                  </div>
+                  <div id="board-seal" aria-hidden="true">
+                    <svg><use href="#bolt" /></svg
+                    ><strong data-text="connected">TAM GÜÇ!</strong>
+                  </div>
+                </div>
+              </div>
+              <div id="tutorial-bar" class="tutorial-bar" hidden>
+                <span id="tutorial-step"></span
+                ><strong id="tutorial-copy"></strong>
+              </div>
+              <div class="board-controls">
+                <button id="undo" class="button tool">
+                  <span>↶</span><b data-text="undo">Geri al</b></button
+                ><button id="hint" class="button tool">
+                  <svg class="hint-hand" aria-hidden="true">
+                    <use href="#hand" /></svg
+                  ><b data-text="hint">Yol göster</b
+                  ><small id="hint-count">3</small></button
+                ><button id="reset" class="button tool">
+                  <span>↻</span><b data-text="reset">Sıfırla</b>
+                </button>
+              </div>
+            </div>
+            <aside class="game-right">
+              <div class="objective">
+                <svg><use href="#gem" /></svg
+                ><strong data-text="objective">Hepsini uyandır.</strong
+                ><span data-text="objectiveSmall"
+                  >Tek kaynak. Tam bağlantı.</span
+                >
+              </div>
+              <div
+                id="chain-feedback"
+                class="chain-feedback"
+                aria-live="polite"
+              >
+                <strong></strong><span></span>
+              </div>
+              <div class="next-milestone">
+                <svg><use href="#bolt" /></svg
+                ><span id="milestone-label"></span>
+              </div>
+            </aside>
+          </div>
+        </section>
+        <section
+          id="result"
+          class="screen result"
+          hidden
+          aria-labelledby="result-title"
+        >
+          <div class="result-burst" aria-hidden="true">
+            <svg><use href="#bolt" /></svg><i></i><i></i><i></i>
+          </div>
+          <span class="eyebrow" id="result-level"></span>
+          <h1 id="result-title" data-text="resultTitle">Müthiş bağlantı!</h1>
+          <div id="rating" class="rating"></div>
+          <div class="result-stats">
+            <div>
+              <span data-text="time">SÜRE</span
+              ><strong id="result-time"></strong>
+            </div>
+            <div>
+              <span data-text="moves">HAMLE</span
+              ><strong id="result-moves"></strong>
+            </div>
+            <div>
+              <span data-text="score">PUAN</span
+              ><strong id="result-score"></strong>
+            </div>
+          </div>
+          <div class="unlock-banner">
+            <svg><use href="#lock" /></svg><span id="unlock-label"></span>
+          </div>
+          <button id="next" class="button primary">
+            <span data-text="next">DEVAM ET</span
+            ><svg><use href="#arrow" /></svg>
+          </button>
+          <div class="result-actions">
+            <button id="retry" class="button secondary" data-text="retry">
+              Tekrar çöz</button
+            ><button id="result-map" class="button quiet" data-text="levels">
+              Bölümler
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <canvas id="effects" aria-hidden="true"></canvas>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <div class="dialog-inner">
+        <span class="eyebrow">PRİZMA</span>
+        <h2 id="dialog-title"></h2>
+        <div id="dialog-body"></div>
+        <div id="dialog-actions"></div>
+      </div>
+    </dialog>
+    <div id="announce" class="sr-only" aria-live="polite"></div>
+    <script defer src="connection-config.js"></script>
+<script defer src="api-adapter.js"></script>
+<script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="game-data.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="translations.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="language.js"></script>
+    <script defer src="theme.js"></script>
+    <script defer src="script.js"></script>
+  </body>
+</html>

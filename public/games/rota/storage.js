@@ -1,10 +1,10 @@
 "use strict";
 // Eski katlama oyununun kayıtlarına dokunulmaz.
 const DotStorage = (() => {
-  const KEY = "puzzle-suite.v1.rota.connect";
+  const KEY = "puzzle-suite.v1.katman.connect";
   let data = {
     schemaVersion: 1,
-    gameId: "rota",
+    gameId: "katman",
     modeId: "connect",
     generatorVersion: "dots-2",
     next: 1,
@@ -15,7 +15,7 @@ const DotStorage = (() => {
   };
   let readOnly = false;
   try {
-    const old = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("puzzle-suite.v1.katman.connect"));
+    const old = JSON.parse(GameSave.storage.getItem(KEY));
     readOnly = old != null && old.schemaVersion !== 1;
     if (
       old?.schemaVersion === 1 &&
@@ -28,7 +28,11 @@ const DotStorage = (() => {
       data.seed = old.seed;
       data.session = old.session || null;
       data.settings = {
-        language: old.settings?.language === "en" ? "en" : "tr",
+        language: ["tr", "en", "es", "fr", "ar", "de"].includes(
+          old.settings?.language,
+        )
+          ? old.settings.language
+          : "tr",
         theme: old.settings?.theme === "dark" ? "dark" : "light",
         muted: old.settings?.muted === true,
         learned: old.settings?.learned === true,
@@ -56,7 +60,7 @@ const DotStorage = (() => {
     if (readOnly) return false;
     data.updatedAt = new Date().toISOString();
     try {
-      localStorage.setItem(KEY, JSON.stringify(data));
+      GameSave.storage.setItem(KEY, JSON.stringify(data));
       return true;
     } catch {
       return false;
@@ -75,7 +79,7 @@ const DotStorage = (() => {
       ),
       link = document.createElement("a");
     link.href = url;
-    link.download = "rota-save.json";
+    link.download = "katman-save.json";
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }

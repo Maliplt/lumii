@@ -133,12 +133,12 @@ const DotEngine = (() => {
       if (gaps[color]) walls.push(full[cursor++]);
     }
     return {
-      gameId: "rota",
+      gameId: "katman",
       generatorVersion: version,
       pattern,
       level,
       seed,
-      levelId: `rota:connect:${version}:${seed}:${level}`,
+      levelId: `katman:connect:${version}:${seed}:${level}`,
       size: n,
       boss: config.boss,
       routes,
@@ -152,11 +152,11 @@ const DotEngine = (() => {
       [5, 6, 7, 11, 10, 14, 15],
     ];
     return {
-      gameId: "rota",
+      gameId: "katman",
       generatorVersion: "dots-1",
       level: 0,
       seed: 0,
-      levelId: "rota:tutorial",
+      levelId: "katman:tutorial",
       size: 4,
       boss: false,
       walls: [9],

@@ -1,0 +1,357 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  background: #152f30;
+  color: #fff4ce;
+  font-family: monospace;
+}
+
+img,
+canvas {
+  image-rendering: pixelated;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: none;
+  border: 6px solid transparent;
+  border-image: url("assets/button.png") 6 fill stretch;
+  background: transparent;
+  padding: calc(2 * var(--unit)) calc(4 * var(--unit));
+  font-size: calc(3.4 * var(--unit));
+  line-height: 1.35;
+  min-height: calc(10 * var(--unit));
+  text-shadow: 1px 1px #314738;
+}
+
+button:focus-visible,
+canvas:focus-visible {
+  outline: 3px solid #ffdc81;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+button:hover:enabled {
+  filter: brightness(1.14);
+}
+
+button:active:enabled {
+  transform: translateY(2px);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#stage {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  --unit: min(1vw, 0.75dvh);
+  isolation: isolate;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: manipulation;
+}
+
+.overlay {
+  width: min(100%, 75dvh);
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: calc(3 * var(--unit));
+  padding: calc(6 * var(--unit));
+  text-align: center;
+}
+
+#menu {
+  background: #153c2514;
+  gap: calc(1.5 * var(--unit));
+  padding: calc(4 * var(--unit));
+}
+
+.title {
+  width: 72%;
+  height: auto;
+  margin-bottom: calc(1 * var(--unit));
+}
+
+.hero-egg {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(40 * var(--unit));
+  height: calc(25 * var(--unit));
+}
+
+.hero-egg img {
+  position: absolute;
+}
+
+.basket-back,
+.basket-front {
+  width: 100%;
+  left: 0;
+  bottom: 0;
+}
+
+.hero-egg .egg {
+  width: 37.5%;
+  left: 31.25%;
+  bottom: 12.5%;
+  z-index: 1;
+}
+
+.basket-back {
+  z-index: 0;
+}
+
+.basket-front {
+  z-index: 2;
+}
+
+#menu > button {
+  width: 70%;
+  border-width: 4px;
+  padding: calc(1 * var(--unit)) calc(4 * var(--unit));
+  min-height: calc(9 * var(--unit));
+  font-size: calc(3 * var(--unit));
+}
+
+.primary {
+  border-image-source: url("assets/button-primary.png");
+  color: #fff5d2;
+  font-weight: bold;
+}
+
+small {
+  font-size: calc(2.8 * var(--unit));
+  text-shadow: 1px 2px #203f31;
+}
+
+.languages {
+  display: flex;
+  justify-content: center;
+  gap: calc(1.4 * var(--unit));
+  direction: ltr;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.languages button {
+  width: calc(11 * var(--unit));
+  min-height: calc(9 * var(--unit));
+  padding: calc(1.5 * var(--unit));
+  border: 2px solid #a1b78a;
+  background: #234b40e8;
+  display: grid;
+  place-items: center;
+}
+
+.languages button[aria-pressed="true"] {
+  border-color: #ffe6a1;
+  background: #6a814b;
+}
+
+.languages img {
+  width: calc(6 * var(--unit));
+  height: auto;
+}
+
+.overlay h3 {
+  font-size: calc(5.5 * var(--unit));
+  line-height: 1.45;
+  margin: 0 0 calc(2 * var(--unit));
+}
+
+.overlay p {
+  font-size: calc(3.4 * var(--unit));
+  line-height: 1.65;
+  margin: calc(1 * var(--unit)) 0 calc(3 * var(--unit));
+}
+
+#dialog {
+  background: #153c32ef;
+  box-shadow: 0 0 0 100vmax #153c32df;
+  overflow-y: auto;
+}
+
+#dialog .dialog-icon {
+  width: calc(15 * var(--unit));
+  object-fit: contain;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: calc(2.5 * var(--unit));
+  margin-top: calc(2 * var(--unit));
+}
+
+.dialog-actions button {
+  width: 80%;
+}
+
+.step {
+  font-size: calc(3 * var(--unit));
+  color: #cfddb5;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(2 * var(--unit));
+  width: 100%;
+}
+
+.shop-card {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: calc(2 * var(--unit));
+  background: #416249;
+  border: 2px solid #71875a;
+  padding: calc(2.5 * var(--unit)) calc(1 * var(--unit));
+}
+
+.shop-card.selected {
+  border-color: #f5ce7b;
+  background: #5b7447;
+}
+
+.shop-card img {
+  width: calc(12 * var(--unit));
+}
+
+.shop-card span {
+  font-size: calc(2.8 * var(--unit));
+}
+
+.shop-card button {
+  width: 100%;
+  font-size: calc(2.6 * var(--unit));
+  padding: calc(1 * var(--unit)) 0;
+  min-height: calc(9 * var(--unit));
+  border-width: 4px;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(2 * var(--unit));
+}
+
+.balance img {
+  width: calc(6 * var(--unit));
+}
+
+.balance b {
+  font-size: calc(4 * var(--unit));
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#pause {
+  position: absolute;
+  right: calc(4 * var(--unit));
+  top: calc(4 * var(--unit));
+  width: calc(11 * var(--unit));
+  height: calc(11 * var(--unit));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: calc(1.5 * var(--unit));
+  padding: calc(2 * var(--unit));
+  pointer-events: auto;
+}
+
+#pause span {
+  width: calc(1.5 * var(--unit));
+  height: calc(4 * var(--unit));
+  background: #fff0bf;
+}
+
+#hint {
+  position: absolute;
+  bottom: calc(7 * var(--unit));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(84%, 63dvh);
+  padding: calc(3 * var(--unit));
+  color: #fff1c6;
+  background: #234b40df;
+  text-align: center;
+  font-size: calc(3.2 * var(--unit));
+  pointer-events: none;
+}
+
+#dialog:not([hidden]) ~ #hint {
+  display: none;
+}
+
+html[lang="ar"] .overlay {
+  direction: rtl;
+}
+
+html[lang="ar"] button,
+html[lang="ar"] p,
+html[lang="ar"] h3 {
+  font-family: Tahoma, sans-serif;
+}
+
+#menu .title {
+  width: 60%;
+  margin-bottom: 0;
+}
+
+#menu .hero-egg {
+  height: calc(20 * var(--unit));
+}
+
+#menu .hero-egg .egg {
+  bottom: 31.25%;
+}

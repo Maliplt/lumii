@@ -1,23 +1,327 @@
 <!doctype html>
-<html lang="tr"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f5f4ef"><meta name="description" content="Denge: Sonsuz sayı bulmacaları. Satırları ve sütunları dengele, kendi yolunda ilerle."><title>Denge — Her sayının bir yeri var.</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script>
-</head><body><main class="app">
-<header class="topbar"><button class="brand" id="brand" data-label="mainMenu"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>denge<span class="brand-dot">.</span></button><div class="top-actions">
-<button class="icon-button language-button" id="language" aria-label="Switch to English">EN</button><button class="icon-button" id="theme" data-label="night" aria-pressed="false">☾</button><button class="icon-button" id="help" data-label="help">?</button><button class="icon-button" id="sound" data-label="mute" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-off" d="m16 9 5 6m0-6-5 6"/></svg></button></div></header>
-<section id="welcome" class="screen intro" aria-labelledby="intro-title"><div class="eyebrow"><span></span><b data-i18n="introEyebrow">KÜÇÜK BİR ZİHİN MOLASI</b></div><h1 id="intro-title" data-html="introTitle">Her sayının<br>bir <em>yeri var.</em></h1><p class="lead" data-html="introLead">Doğru sayıları seç.<br>Satırları ve sütunları dengeye getir.</p>
-<div class="demo hero-tiles" data-label="demo"><span class="demo-cell active">2</span><span class="hero-plus" aria-hidden="true">+</span><span class="demo-cell active">5</span><span class="demo-equal">=</span><span class="demo-target">7<small data-i18n="demoDone">✓ DENGEDE</small></span></div>
-<p class="intro-foot chapter-preview" id="chapter-preview"></p><button class="primary" id="start"><b data-i18n="explore">Bölümleri keşfet</b><span aria-hidden="true">↗</span></button><button class="secondary chaos-entry" id="chaos-start" data-i18n="chaosMode">Sonsuz Kaos</button><button id="welcome-help" class="secondary" data-i18n="help">Nasıl oynanır?</button><p class="intro-foot" data-i18n="introFoot">Tek çözüm. İki yönde denge. Sonsuz bir yol.</p></section>
-<section id="map" class="screen level-map" hidden aria-labelledby="map-title"><div class="map-heading"><div><div class="eyebrow" id="map-eyebrow"></div><h1 id="map-title" data-i18n="mapTitle">Kendi yolunda.</h1></div><button class="icon-button" id="map-home" data-label="difficulty">↶</button></div><p class="map-lead" data-i18n="mapLead">Her durak yeni bir denge. Yıldızlarını topla, yoluna devam et.</p><div class="map-summary"><span id="map-progress"></span><span id="map-stars"></span></div>
-<div class="map-window" id="map-window" tabindex="0" data-label="mapTitle"><div class="map-landscape" id="map-landscape"><svg id="map-road" viewBox="0 0 1200 500" preserveAspectRatio="none" aria-hidden="true"></svg><div id="map-nodes"></div><span class="map-horizon" aria-hidden="true">∞</span></div></div><div class="map-pagination"><button id="map-prev" class="icon-button" data-label="previousPage">←</button><div class="map-navigation-copy"><span id="map-range" aria-live="off"></span><button id="map-current" class="text-button" data-i18n="backToCurrent">Bulunduğum bölüme dön</button></div><button id="map-next" class="icon-button" data-label="nextPage">→</button></div><button class="primary" id="map-play"><b id="map-play-label"></b><span aria-hidden="true">↗</span></button><p class="intro-foot" data-i18n="mapNote">Tamamladığın bölümlere dönüp yıldızını yükseltebilirsin.</p></section>
-<section id="game" class="screen game" hidden aria-labelledby="game-title"><div class="game-heading"><div><div class="eyebrow" id="level-label"></div><h1 id="game-title" data-i18n="gameTitle">Dengeyi bul.</h1></div><button id="pause" class="icon-button" data-label="pause">Ⅱ</button></div><div class="stats"><div><span data-i18n="time">SÜRE</span><strong id="timer">00:00</strong></div><div><span data-i18n="moves">HAMLE</span><strong id="moves">0</strong></div><div><span data-i18n="balance">DENGE</span><strong><b id="balanced">0</b><small id="line-total"> / 8</small></strong></div></div><div class="board-caption"><span data-i18n="boardCaption">Seçilen sayılar toplanır.</span><span><i></i><b data-i18n="target">Hedef</b></span></div><div id="board" class="board" role="group" data-label="board"></div><div class="progress-track" aria-hidden="true"><div id="progress"></div></div><p id="status" class="status" role="status" aria-live="polite"></p><div class="controls"><button id="undo" disabled><span aria-hidden="true">↶</span><b data-i18n="undo">Geri al</b></button><button id="reset"><span aria-hidden="true">↻</span><b data-i18n="reset">Sıfırla</b></button><button id="hint"><span aria-hidden="true">?</span><b data-i18n="hint">İpucu</b></button></div><p class="keyboard-note" data-i18n="keyboard">Yön tuşlarıyla gezin · Boşluk ile seç · Ctrl / ⌘ + Z ile geri al</p></section>
-<section id="result" class="screen result" hidden aria-labelledby="result-title"><div class="victory-symbol" aria-hidden="true">✓</div><div class="eyebrow" id="result-chapter"></div><h1 id="result-title" data-i18n="resultTitle">Tam dengede.</h1><p class="lead" id="next-chapter"></p><div id="stars" class="stars"></div><p id="rating-note" class="rating-note"></p><div class="result-stats"><div><span data-i18n="time">SÜRE</span><strong id="final-time"></strong></div><div><span data-i18n="moves">HAMLE</span><strong id="final-moves"></strong></div><div><span data-i18n="hints">İPUCU</span><strong id="final-hints"></strong></div></div><p id="best" class="best"></p><button class="primary" id="again"><b data-i18n="nextLevel">Sonraki bölüm</b><span aria-hidden="true">↗</span></button><div class="result-actions"><button class="secondary" id="retry"><span aria-hidden="true">↻</span><b data-i18n="retry">Tekrar dene</b></button><button class="secondary" id="home"><span aria-hidden="true">⌁</span><b data-i18n="levelMap">Bölüm haritası</b></button></div></section>
-<section id="atlas" class="screen chaos-screen" hidden aria-labelledby="atlas-title">
-<div class="map-heading"><div><div class="eyebrow" id="atlas-chapter"></div><h1 id="atlas-title" data-i18n="chaosMode">Sonsuz Kaos</h1></div><button class="icon-button" id="atlas-home" data-label="mainMenu">↶</button></div>
-<div class="atlas-hud"><strong id="atlas-progress">0 / 9</strong><div class="zoom-controls"><button id="zoom-out" class="icon-button" data-label="zoomOut">−</button><button id="zoom-fit" class="icon-button" data-label="zoomFit">⊡</button><button id="zoom-in" class="icon-button" data-label="zoomIn">+</button></div></div>
-<div class="atlas-window" id="atlas-window" tabindex="0" data-label="chaosMode"><div class="atlas-world" id="atlas-world"></div></div>
-<div class="atlas-rewards" id="atlas-rewards" aria-live="polite"></div>
-<p id="chaos-flow" class="chaos-flow"></p>
-<button class="primary" id="atlas-final" data-i18n="finalPuzzle" disabled>Son denge</button>
-</section>
-<footer class="footer"><span data-i18n="footer">MANTIKLA BUL. DENGEYLE BİTİR.</span><span>01 / DENGE</span></footer></main>
-<dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-content"><div class="eyebrow" data-i18n="guide">DENGE REHBERİ</div><h2 id="dialog-title"></h2><div id="dialog-body"></div><div id="dialog-actions"></div></div></dialog><div id="particles" aria-hidden="true"></div></body></html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f4ef" />
+    <meta
+      name="description"
+      content="Denge: Sonsuz sayı bulmacaları. Satırları ve sütunları dengele, kendi yolunda ilerle."
+    />
+    <title>Denge — Her sayının bir yeri var.</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="connection-config.js"></script>
+<script defer src="api-adapter.js"></script>
+<script defer src="profile-config.js"></script>
+<script defer src="save-client.js"></script>
+<script defer src="game-data.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="translations.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="language.js"></script>
+    <script defer src="script.js"></script>
+    <link rel="stylesheet" href="language.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <button class="brand" id="brand" data-label="mainMenu">
+          <span class="brand-mark" aria-hidden="true"
+            ><i></i><i></i><i></i><i></i></span
+          >denge<span class="brand-dot">.</span>
+        </button>
+        <div class="top-actions">
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button
+            class="icon-button"
+            id="theme"
+            data-label="night"
+            aria-pressed="false"
+          >
+            ☾</button
+          ><button class="icon-button" id="help" data-label="help">?</button
+          ><button
+            class="icon-button"
+            id="sound"
+            data-label="mute"
+            aria-pressed="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              aria-hidden="true"
+            >
+              <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+              <path
+                class="sound-waves"
+                d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"
+              />
+              <path class="sound-off" d="m16 9 5 6m0-6-5 6" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <section id="welcome" class="screen intro" aria-labelledby="intro-title">
+        <div class="eyebrow">
+          <span></span><b data-i18n="introEyebrow">KÜÇÜK BİR ZİHİN MOLASI</b>
+        </div>
+        <h1 id="intro-title" data-html="introTitle">
+          Her sayının<br />bir <em>yeri var.</em>
+        </h1>
+        <p class="lead" data-html="introLead">
+          Doğru sayıları seç.<br />Satırları ve sütunları dengeye getir.
+        </p>
+        <div class="demo hero-tiles" data-label="demo">
+          <span class="demo-cell active">2</span
+          ><span class="hero-plus" aria-hidden="true">+</span
+          ><span class="demo-cell active">5</span
+          ><span class="demo-equal">=</span
+          ><span class="demo-target"
+            >7<small data-i18n="demoDone">✓ DENGEDE</small></span
+          >
+        </div>
+        <p class="intro-foot chapter-preview" id="chapter-preview"></p>
+        <button class="primary" id="start">
+          <b data-i18n="explore">Bölümleri keşfet</b
+          ><span aria-hidden="true">↗</span></button
+        ><button
+          class="secondary chaos-entry"
+          id="chaos-start"
+          data-i18n="chaosMode"
+        >
+          Sonsuz Kaos</button
+        ><button id="welcome-help" class="secondary" data-i18n="help">
+          Nasıl oynanır?
+        </button>
+        <p class="intro-foot" data-i18n="introFoot">
+          Tek çözüm. İki yönde denge. Sonsuz bir yol.
+        </p>
+      </section>
+      <section
+        id="map"
+        class="screen level-map"
+        hidden
+        aria-labelledby="map-title"
+      >
+        <div class="map-heading">
+          <div>
+            <div class="eyebrow" id="map-eyebrow"></div>
+            <h1 id="map-title" data-i18n="mapTitle">Kendi yolunda.</h1>
+          </div>
+          <button class="icon-button" id="map-home" data-label="difficulty">
+            ↶
+          </button>
+        </div>
+        <p class="map-lead" data-i18n="mapLead">
+          Her durak yeni bir denge. Yıldızlarını topla, yoluna devam et.
+        </p>
+        <div class="map-summary">
+          <span id="map-progress"></span><span id="map-stars"></span>
+        </div>
+        <div
+          class="map-window"
+          id="map-window"
+          tabindex="0"
+          data-label="mapTitle"
+        >
+          <div class="map-landscape" id="map-landscape">
+            <svg
+              id="map-road"
+              viewBox="0 0 1200 500"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            ></svg>
+            <div id="map-nodes"></div>
+            <span class="map-horizon" aria-hidden="true">∞</span>
+          </div>
+        </div>
+        <div class="map-pagination">
+          <button id="map-prev" class="icon-button" data-label="previousPage">
+            ←
+          </button>
+          <div class="map-navigation-copy">
+            <span id="map-range" aria-live="off"></span
+            ><button
+              id="map-current"
+              class="text-button"
+              data-i18n="backToCurrent"
+            >
+              Bulunduğum bölüme dön
+            </button>
+          </div>
+          <button id="map-next" class="icon-button" data-label="nextPage">
+            →
+          </button>
+        </div>
+        <button class="primary" id="map-play">
+          <b id="map-play-label"></b><span aria-hidden="true">↗</span>
+        </button>
+        <p class="intro-foot" data-i18n="mapNote">
+          Tamamladığın bölümlere dönüp yıldızını yükseltebilirsin.
+        </p>
+      </section>
+      <section
+        id="game"
+        class="screen game"
+        hidden
+        aria-labelledby="game-title"
+      >
+        <div class="game-heading">
+          <div>
+            <div class="eyebrow" id="level-label"></div>
+            <h1 id="game-title" data-i18n="gameTitle">Dengeyi bul.</h1>
+          </div>
+          <button id="pause" class="icon-button" data-label="pause">Ⅱ</button>
+        </div>
+        <div class="stats">
+          <div>
+            <span data-i18n="time">SÜRE</span><strong id="timer">00:00</strong>
+          </div>
+          <div>
+            <span data-i18n="moves">HAMLE</span><strong id="moves">0</strong>
+          </div>
+          <div>
+            <span data-i18n="balance">DENGE</span
+            ><strong
+              ><b id="balanced">0</b><small id="line-total"> / 8</small></strong
+            >
+          </div>
+        </div>
+        <div class="board-caption">
+          <span data-i18n="boardCaption">Seçilen sayılar toplanır.</span
+          ><span><i></i><b data-i18n="target">Hedef</b></span>
+        </div>
+        <div id="board" class="board" role="group" data-label="board"></div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progress"></div>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <div class="controls">
+          <button id="undo" disabled>
+            <span aria-hidden="true">↶</span
+            ><b data-i18n="undo">Geri al</b></button
+          ><button id="reset">
+            <span aria-hidden="true">↻</span
+            ><b data-i18n="reset">Sıfırla</b></button
+          ><button id="hint">
+            <span aria-hidden="true">?</span><b data-i18n="hint">İpucu</b>
+          </button>
+        </div>
+        <p class="keyboard-note" data-i18n="keyboard">
+          Yön tuşlarıyla gezin · Boşluk ile seç · Ctrl / ⌘ + Z ile geri al
+        </p>
+      </section>
+      <section
+        id="result"
+        class="screen result"
+        hidden
+        aria-labelledby="result-title"
+      >
+        <div class="victory-symbol" aria-hidden="true">✓</div>
+        <div class="eyebrow" id="result-chapter"></div>
+        <h1 id="result-title" data-i18n="resultTitle">Tam dengede.</h1>
+        <p class="lead" id="next-chapter"></p>
+        <div id="stars" class="stars"></div>
+        <p id="rating-note" class="rating-note"></p>
+        <div class="result-stats">
+          <div>
+            <span data-i18n="time">SÜRE</span><strong id="final-time"></strong>
+          </div>
+          <div>
+            <span data-i18n="moves">HAMLE</span
+            ><strong id="final-moves"></strong>
+          </div>
+          <div>
+            <span data-i18n="hints">İPUCU</span
+            ><strong id="final-hints"></strong>
+          </div>
+        </div>
+        <p id="best" class="best"></p>
+        <button class="primary" id="again">
+          <b data-i18n="nextLevel">Sonraki bölüm</b
+          ><span aria-hidden="true">↗</span>
+        </button>
+        <div class="result-actions">
+          <button class="secondary" id="retry">
+            <span aria-hidden="true">↻</span
+            ><b data-i18n="retry">Tekrar dene</b></button
+          ><button class="secondary" id="home">
+            <span aria-hidden="true">⌁</span
+            ><b data-i18n="levelMap">Bölüm haritası</b>
+          </button>
+        </div>
+      </section>
+      <section
+        id="atlas"
+        class="screen chaos-screen"
+        hidden
+        aria-labelledby="atlas-title"
+      >
+        <div class="map-heading">
+          <div>
+            <div class="eyebrow" id="atlas-chapter"></div>
+            <h1 id="atlas-title" data-i18n="chaosMode">Sonsuz Kaos</h1>
+          </div>
+          <button class="icon-button" id="atlas-home" data-label="mainMenu">
+            ↶
+          </button>
+        </div>
+        <div class="atlas-hud">
+          <strong id="atlas-progress">0 / 9</strong>
+          <div class="zoom-controls">
+            <button id="zoom-out" class="icon-button" data-label="zoomOut">
+              −</button
+            ><button id="zoom-fit" class="icon-button" data-label="zoomFit">
+              ⊡</button
+            ><button id="zoom-in" class="icon-button" data-label="zoomIn">
+              +
+            </button>
+          </div>
+        </div>
+        <div
+          class="atlas-window"
+          id="atlas-window"
+          tabindex="0"
+          data-label="chaosMode"
+        >
+          <div class="atlas-world" id="atlas-world"></div>
+        </div>
+        <div class="atlas-rewards" id="atlas-rewards" aria-live="polite"></div>
+        <p id="chaos-flow" class="chaos-flow"></p>
+        <button
+          class="primary"
+          id="atlas-final"
+          data-i18n="finalPuzzle"
+          disabled
+        >
+          Son denge
+        </button>
+      </section>
+      <footer class="footer">
+        <span data-i18n="footer">MANTIKLA BUL. DENGEYLE BİTİR.</span
+        ><span>01 / DENGE</span>
+      </footer>
+    </main>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <div class="dialog-content">
+        <div class="eyebrow" data-i18n="guide">DENGE REHBERİ</div>
+        <h2 id="dialog-title"></h2>
+        <div id="dialog-body"></div>
+        <div id="dialog-actions"></div>
+      </div>
+    </dialog>
+    <div id="particles" aria-hidden="true"></div>
+  </body>
+</html>

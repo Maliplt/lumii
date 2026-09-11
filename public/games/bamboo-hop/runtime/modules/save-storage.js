@@ -45,10 +45,30 @@ class SaveStorage {
   get key() {
     return "bamboo-hop:" + encodeURIComponent(this.identity.id) + ":" + encodeURIComponent(this.identity.subId);
   }
+  get localStorage() {
+    if (typeof window === "undefined" || !window.createSaveClient)
+      return this.storage;
+    if (this.clientIdentity !== this.key) {
+      this.clientIdentity = this.key;
+      this.client = window.createSaveClient(
+        {
+          ...window.GameSaveConfig,
+          gameId: "bamboo-hop",
+          userId: this.identity.id,
+          profileId: this.identity.subId,
+          slots: { [this.key]: "progress" },
+          migrateLegacy: true
+        },
+        this.storage
+      );
+      window.GameSave = this.client;
+    }
+    return this.client.storage;
+  }
   read() {
     let raw = null;
     try {
-      raw = this.storage.getItem(this.key);
+      raw = this.localStorage.getItem(this.key);
       const record = JSON.parse(raw);
       if (record && (record.version !== 2 || record.game !== "Bamboo Hop" || record.identity?.id !== this.identity.id || record.identity?.subId !== this.identity.subId))
         throw Error("Geçersiz kayıt");
@@ -68,7 +88,7 @@ class SaveStorage {
   }
   write(progress) {
     const record = this.record(progress);
-    this.storage.setItem(this.key, JSON.stringify(record));
+    this.localStorage.setItem(this.key, JSON.stringify(record));
     if (this.autoSync && this.adapter) {
       const adapter = this.adapter;
       this.pending = this.pending.catch(() => {

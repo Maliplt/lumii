@@ -31,7 +31,11 @@ try {
     }
   };
 }
-const saves = new import_save_storage.SaveStorage(storage, window.BambooHopConfig || {});
+const saves = new import_save_storage.SaveStorage(storage, {
+  ...window.BambooHopConfig,
+  id: window.GameSaveConfig?.userId ?? window.BambooHopConfig?.id,
+  subId: window.GameSaveConfig?.profileId ?? window.BambooHopConfig?.subId
+});
 const save = saves.read(), audio = new import_audio.ForestAudio();
 (0, import_missions.ensureDaily)(save);
 audio.enabled = save.sound;
@@ -806,7 +810,7 @@ app.addEventListener("click", (e) => {
 });
 window.BambooHopSave = Object.freeze({
   identity: () => ({ ...saves.identity }),
-  storageKey: () => saves.key,
+  storageKey: () => saves.client?.key || saves.key,
   schemaVersion: 2,
   useIdentity(id, subId) {
     if (game.state !== "menu" || modal)

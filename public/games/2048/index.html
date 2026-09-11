@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f4f1e9" />
+    <meta name="description" content="2048 — slide, merge, repeat." />
+    <title>2048</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="language.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <button class="brand" id="home-button" aria-label="2048">
+          20<span>48</span>
+        </button>
+        <div class="settings">
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+              aria-label="Dil / Language"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button id="theme" class="icon" aria-label="Tema"></button
+          ><button id="help" class="icon" aria-label="Help">?</button
+          ><button id="sound" class="icon" aria-label="Sound">
+            <svg viewBox="0 0 24 24">
+              <path d="M11 4 6 8H3v8h3l5 4zM15 8q5 4 0 8M18 5q8 7 0 14" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <main>
+        <section id="menu" class="screen menu">
+          <div class="menu-copy">
+            <div class="edition">2048 / <span data-t="puzzle"></span></div>
+            <h1>2048</h1>
+            <p data-t="intro"></p>
+            <button id="play" class="primary">
+              <span data-t="play"></span>
+              <svg class="play-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button
+            ><button id="new-game" class="text-button" data-t="restart"></button
+            ><button id="menu-help" class="text-button" data-t="how"></button>
+            <div class="menu-best">
+              <svg class="record-icon" viewBox="0 0 32 32" aria-hidden="true">
+                <path
+                  d="M10 5h12v7c0 5-3 8-6 8s-6-3-6-8ZM10 8H5v4c0 4 3 5 6 5m11-9h5v4c0 4-3 5-6 5M16 20v7m-5 0h10"
+                />
+              </svg>
+              <span data-t="best"></span><strong id="menu-best">0</strong>
+            </div>
+          </div>
+          <div class="hero" aria-hidden="true">
+            <div id="demo-board">
+              <div class="demo-slots">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+                ><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <div id="demo-tiles"></div>
+            </div>
+          </div>
+        </section>
+        <section id="game" class="screen game" hidden>
+          <div class="game-top">
+            <button id="back" class="text-button">
+              ← <span data-t="menu"></span>
+            </button>
+            <div class="scoreboard">
+              <div>
+                <span data-t="score"></span><strong id="score">0</strong
+                ><b id="gain"></b>
+              </div>
+              <div><span data-t="best"></span><strong id="best">0</strong></div>
+            </div>
+            <span class="header-spacer" aria-hidden="true"></span>
+          </div>
+          <div class="playfield">
+            <div class="board-wrap">
+              <div id="tutorial-guide" hidden>
+                <div>
+                  <b id="lesson-label"></b><span id="lesson-text"></span>
+                </div>
+                <svg class="guide-hand" viewBox="0 0 48 58" aria-hidden="true">
+                  <path
+                    d="M17 30V9a5 5 0 0 1 10 0v17-6a4 4 0 0 1 8 0v5a4 4 0 0 1 7 3v13c0 9-6 13-14 13-6 0-9-3-12-8L6 33c-3-5 3-9 7-5l4 4Z"
+                  />
+                </svg>
+              </div>
+              <div class="combo-line">
+                <span id="combo"></span><span id="moves">0</span>
+              </div>
+              <div id="board" role="application" aria-label="2048" tabindex="0">
+                <div class="slots" aria-hidden="true"></div>
+                <div id="tiles" aria-hidden="true"></div>
+                <div id="particles" aria-hidden="true"></div>
+              </div>
+              <div class="controls">
+                <span data-t="control"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <span>2048</span><span id="footer-label" data-t="saved"></span>
+      </footer>
+    </div>
+    <dialog id="dialog">
+      <button id="close" class="icon close" aria-label="Close">×</button>
+      <div id="dialog-content"></div>
+      <div id="dialog-actions"></div>
+    </dialog>
+    <div id="announcement" class="sr-only" aria-live="polite"></div>
+    <script defer src="connection-config.js"></script>
+    <script defer src="api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="translations.js"></script>
+    <script defer src="storage.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="language.js"></script>
+    <script defer src="demo.js"></script>
+    <script defer src="script.js"></script>
+  </body>
+</html>

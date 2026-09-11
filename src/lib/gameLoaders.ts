@@ -13,6 +13,7 @@ const gameComponents: Record<string, GameComponent> = {
   minesweeper: lazy(() => import("../games/Minesweeper/Minesweeper")),
   blockbloom: lazy(() => import("../games/BlockBloomPuzzle/BlockBloomPuzzle")),
   mahjong: lazy(() => import("../games/MahjongSanctuary/MahjongSanctuary")),
+  "egg-hop": lazy(() => import("../games/EggHop/EggHop")),
 };
 
 export function hasGameComponent(gameId: string): boolean {

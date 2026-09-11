@@ -6,7 +6,8 @@ import sudokuImg from "../assets/images/sudoku.webp";
 import minesweepImg from "../assets/images/minesweeper.webp";
 import blockblastImg from "../assets/images/blockblast.webp";
 import mahjongImg from "../assets/images/mahjong.webp";
-import game2048Img from "../assets/images/2048.webp";
+import game2048Img from "../assets/images/2048.jpg";
+import eggHopImg from "../assets/images/egg-hop.jpg";
 import kelimezinciriImg from "../assets/images/kelimezinciri.webp";
 import doomImg from "../assets/images/doom.svg";
 
@@ -26,6 +27,30 @@ export interface GameDef {
 // oyun listesi
 export const GAMES: GameDef[] = [
   {
+    id: "2048",
+    name: "2048",
+    path: "/play/2048",
+    image: game2048Img,
+    description: "Sayıları Birleştir",
+    tag: "Strateji",
+    storageKey: "puzzle-suite.v1.2048",
+    scoreLabel: "En İyi Skor",
+    isScore: true,
+    showScore: true,
+  },
+  {
+    id: "egg-hop",
+    name: "Egg Hop",
+    path: "/play/egg-hop",
+    image: eggHopImg,
+    description: "Yumurtayı Zıplat & Puan Topla",
+    tag: "Arcade",
+    storageKey: "egg-hop-v1",
+    scoreLabel: "En İyi Skor",
+    isScore: true,
+    showScore: true,
+  },
+  {
     id: "bamboo-hop",
     name: "Bamboo Hop",
     path: "/play/bamboo-hop",
@@ -35,7 +60,7 @@ export const GAMES: GameDef[] = [
     storageKey: "bamboo-hop",
     scoreLabel: "En İyi Skor",
     isScore: true,
-    showScore: false,
+    showScore: true,
   },
   {
     id: "rota",
@@ -44,10 +69,10 @@ export const GAMES: GameDef[] = [
     image: rotaImg,
     description: "Nokta ve Çizgi Bulmacası",
     tag: "Bulmaca",
-    storageKey: "puzzle-suite.v1.rota.connect",
+    storageKey: "puzzle-suite.v1.katman.connect",
     scoreLabel: "İlerleme",
     isScore: false,
-    showScore: false,
+    showScore: true,
   },
   {
     id: "prizma",
@@ -56,10 +81,10 @@ export const GAMES: GameDef[] = [
     image: prizmaImg,
     description: "Işık ve Enerji Bulmacası",
     tag: "Bulmaca",
-    storageKey: "prizma_journey",
+    storageKey: "puzzle-suite.v1.prizma",
     scoreLabel: "İlerleme",
     isScore: false,
-    showScore: false,
+    showScore: true,
   },
   {
     id: "denge",
@@ -68,10 +93,10 @@ export const GAMES: GameDef[] = [
     image: dengeImg,
     description: "Sayı ve Mantık Bulmacası",
     tag: "Mantık",
-    storageKey: "denge_journey",
+    storageKey: "puzzle-suite.v1.denge",
     scoreLabel: "İlerleme",
     isScore: false,
-    showScore: false,
+    showScore: true,
   },
   {
     id: "doom",
@@ -83,18 +108,7 @@ export const GAMES: GameDef[] = [
     storageKey: "doom_session",
     scoreLabel: "İlerleme",
     isScore: false,
-    showScore: false,
-  },
-  {
-    id: "2048",
-    name: "2048",
-    path: "/play/2048",
-    image: game2048Img,
-    description: "Sayıları Birleştir",
-    tag: "Strateji",
-    storageKey: "game2048_best_score",
-    scoreLabel: "En İyi Skor",
-    isScore: true,
+    showScore: true,
   },
   {
     id: "kelimezinciri",
@@ -106,6 +120,7 @@ export const GAMES: GameDef[] = [
     storageKey: "kelimezinciri_best",
     scoreLabel: "En İyi Skor",
     isScore: true,
+    showScore: true,
   },
   {
     id: "sudoku",
@@ -117,6 +132,7 @@ export const GAMES: GameDef[] = [
     storageKey: "sudoku_best_time",
     scoreLabel: "En İyi Süre",
     isScore: false,
+    showScore: true,
   },
   {
     id: "minesweeper",
@@ -128,6 +144,7 @@ export const GAMES: GameDef[] = [
     storageKey: "minesweeper_best_time",
     scoreLabel: "En İyi Süre",
     isScore: false,
+    showScore: true,
   },
   {
     id: "blockbloom",
@@ -139,6 +156,7 @@ export const GAMES: GameDef[] = [
     storageKey: "blockbloom_best_score",
     scoreLabel: "En İyi Skor",
     isScore: true,
+    showScore: true,
   },
   {
     id: "mahjong",
@@ -150,6 +168,7 @@ export const GAMES: GameDef[] = [
     storageKey: "mahjong_best_score",
     scoreLabel: "En İyi Skor",
     isScore: true,
+    showScore: true,
   },
 ];
 

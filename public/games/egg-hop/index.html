@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Egg Hop</title>
+    <link rel="icon" href="assets/egg-cream.png" />
+    <link rel="stylesheet" href="style.css?v=2" />
+  </head>
+  <body>
+    <main id="stage">
+      <canvas
+        id="game"
+        width="240"
+        height="440"
+        tabindex="0"
+        aria-label="Egg Hop"
+      ></canvas>
+      <div id="hud" hidden>
+        <span id="score" class="sr-only" aria-live="polite">0</span
+        ><button id="pause" aria-label="Duraklat">
+          <span></span><span></span>
+        </button>
+      </div>
+      <section id="menu" class="overlay">
+        <img class="title" src="assets/title.png" alt="Egg Hop" />
+        <div class="hero-egg">
+          <img class="basket-back" src="assets/basket-back.png" alt="" /><img
+            class="egg"
+            src="assets/egg-cream.png"
+            alt=""
+          /><img class="basket-front" src="assets/basket-front.png" alt="" />
+        </div>
+        <button id="play" class="primary" data-i18n="play"></button>
+        <button id="shop" data-i18n="shop"></button>
+        <button id="tutorial" data-i18n="tutorial"></button>
+        <small><span data-i18n="best"></span> <b class="best">0</b></small>
+        <div id="menu-languages" class="languages" aria-label="Language"></div>
+      </section>
+      <section id="dialog" class="overlay" hidden></section>
+      <div id="hint" hidden></div>
+    </main>
+    <script src="connection-config.js"></script>
+<script src="api-adapter.js"></script>
+<script src="profile-config.js"></script>
+    <script src="save-client.js"></script>
+    <script src="locales.js"></script>
+    <script src="background.js?v=2"></script>
+    <script src="game.js?v=2"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -7,7 +7,16 @@
     audio = createDotAudio(settings),
     NS = "http://www.w3.org/2000/svg";
   const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const t = (key) => DotText[key]?.[settings.language === "en" ? 1 : 0] ?? key;
+  const languages = ["tr", "en", "es", "fr", "ar", "de"];
+  const t = (key) =>
+    DotText[key]?.[languages.indexOf(settings.language)] ??
+    DotText[key]?.[1] ??
+    key;
+  const picker = createLanguagePicker((language) => {
+    settings.language = language;
+    store.save();
+    labels();
+  });
   let state = "home",
     transitioning = false,
     board = null,
@@ -107,11 +116,12 @@
   }
   function labels() {
     applyTheme();
-    document.documentElement.lang = settings.language === "en" ? "en" : "tr";
+    document.documentElement.lang = settings.language;
+    document.documentElement.dir = settings.language === "ar" ? "rtl" : "ltr";
     document
       .querySelectorAll("[data-t]")
       .forEach((el) => (el.innerHTML = t(el.dataset.t)));
-    $("language").textContent = settings.language === "en" ? "TR" : "EN";
+    picker.update(settings.language);
     $("sound").classList.toggle("muted", settings.muted);
     $("sound").setAttribute(
       "aria-label",
@@ -924,7 +934,7 @@
       const old = store.data.records[board.levelId];
       store.data.records[board.levelId] = {
         levelId: board.levelId,
-        gameId: "rota",
+        gameId: "katman",
         modeId: "connect",
         levelNumber: String(board.level),
         seed: board.seed,
@@ -1053,13 +1063,9 @@
     for (let i = 1; i <= 12; i++) {
       const level = page * 12 + i,
         config = E.difficulty(level),
-        id = `rota:connect:dots-2:${store.data.seed}:${level}`,
+        id = `katman:connect:dots-2:${store.data.seed}:${level}`,
         record =
           store.data.records[id] ||
-          store.data.records[`katman:connect:dots-2:${store.data.seed}:${level}`] ||
-          store.data.records[
-            `rota:connect:dots-1:${store.data.seed}:${level}`
-          ] ||
           store.data.records[
             `katman:connect:dots-1:${store.data.seed}:${level}`
           ],
@@ -1136,11 +1142,6 @@
   $("next-page").onclick = () => {
     page++;
     renderLevels();
-  };
-  $("language").onclick = () => {
-    settings.language = settings.language === "en" ? "tr" : "en";
-    store.save();
-    labels();
   };
   $("theme").onclick = () => {
     settings.theme = settings.theme === "dark" ? "light" : "dark";
