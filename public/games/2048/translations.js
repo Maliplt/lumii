@@ -57,12 +57,12 @@ const Text2048 = (() => {
       "Wischen oder Pfeiltasten",
     ],
     saved: [
-      "İlerleme otomatik kaydedilir",
-      "Progress saved automatically",
-      "Progreso guardado automáticamente",
-      "Progression enregistrée automatiquement",
-      "يُحفظ التقدم تلقائيًا",
-      "Fortschritt wird automatisch gespeichert",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
     ],
     rules: [
       "Taşları dört yönde kaydır. Aynı iki sayı birleşir. Her hamleden sonra yeni bir taş gelir. 2048’e ulaş; boş yer bırakmaya çalış.",

@@ -68,7 +68,7 @@
   const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   function save() {
     Store2048.save();
-    $("footer-label").textContent = Store2048.writable ? tr("saved") : "";
+    if ($("footer-label")) $("footer-label").textContent = "";
   }
   function persist() {
     if (tutorial) return;
@@ -111,7 +111,7 @@
       .querySelectorAll("[data-dir]")
       .forEach((b) => b.setAttribute("aria-label", tr(b.dataset.dir)));
     $("menu-best").textContent = number(data.best);
-    $("footer-label").textContent = Store2048.writable ? tr("saved") : "";
+    if ($("footer-label")) $("footer-label").textContent = "";
     hud();
     if (dialogKind) renderDialog();
   }
