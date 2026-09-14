@@ -4,7 +4,7 @@
   let board = [],
     step = 0,
     timer;
-  const moves = ["left", "down", "right"];
+  const moves = ["left", "down", "right", "up", "left", "down"];
   function paint(merged = []) {
     container.replaceChildren();
     board.forEach((value, i) => {
@@ -20,7 +20,7 @@
     });
   }
   function reset() {
-    board = [32, 32, 64, 0, 0, 0, 0, 0, 64, 64, 0, 0, 0, 0, 0, 0];
+    board = [2, 2, 4, 8, 4, 4, 8, 16, 8, 8, 16, 32, 16, 16, 32, 64];
     step = 0;
     paint();
   }

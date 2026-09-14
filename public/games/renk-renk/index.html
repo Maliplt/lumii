@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#fff7e8" />
+    <title>Renk Renk</title>
+    <link rel="stylesheet" href="language.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <button id="home" class="brand" data-label="back">
+          <span class="brand-drops" aria-hidden="true"
+            ><i></i><i></i><i></i></span
+          ><span data-t="title">Renk Renk</span>
+        </button>
+        <div class="settings">
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button id="theme" class="icon"></button>
+          <button id="help" class="icon" data-label="how">?</button>
+          <button
+            id="sound"
+            class="icon"
+            data-label="sound"
+            aria-pressed="true"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9h4l5-4v14l-5-4H3ZM16 8q4 4 0 8m3-11q7 7 0 14" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <main>
+        <section id="menu" class="screen menu">
+          <div class="menu-title">
+            <h1 id="hero-title"><span>Renk</span> <span>Renk</span></h1>
+          </div>
+          <div class="hero-scene" aria-hidden="true">
+            <i class="color-spot spot-one"></i
+            ><i class="color-spot spot-two"></i>
+            <div id="demo" class="tubes demo-tubes"></div>
+          </div>
+          <div class="menu-actions">
+            <button id="play" class="primary play">
+              <span data-t="play"></span
+              ><span class="play-arrow" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path d="M5 12h14m-6-6 6 6-6 6" /></svg
+              ></span>
+            </button>
+            <div class="menu-secondary">
+              <button id="levels" data-t="levels"></button
+              ><button id="learn" data-t="how"></button>
+            </div>
+          </div>
+          <div class="menu-record">
+            <span data-t="best"></span><strong id="total">0</strong
+            ><span class="record-divider"></span
+            ><strong id="completed-count">0</strong
+            ><span data-t="completed"></span>
+          </div>
+        </section>
+        <section id="map" class="screen map" hidden>
+          <div class="view-heading">
+            <div>
+              <small id="range"></small>
+              <h1 data-t="levels"></h1>
+            </div>
+            <button id="map-home" class="back">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 12H5m6-6-6 6 6 6" /></svg
+              ><span data-t="back"></span>
+            </button>
+          </div>
+          <div id="level-list"></div>
+          <nav class="pages">
+            <button id="previous" class="icon" data-label="previous">←</button
+            ><span id="page-number"></span
+            ><button id="next-page" class="icon" data-label="next">→</button>
+          </nav>
+        </section>
+        <section id="game" class="screen game" hidden>
+          <div class="game-heading">
+            <button id="back" class="back">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 12H5m6-6-6 6 6 6" /></svg
+              ><span data-t="back"></span>
+            </button>
+            <h1 id="level-title"></h1>
+            <span id="lesson-step"></span>
+          </div>
+          <div class="scoreboard">
+            <div>
+              <span data-t="score"></span><strong id="score">0</strong
+              ><b id="gain" aria-hidden="true"></b>
+            </div>
+            <div><span data-t="moves"></span><strong id="moves">0</strong></div>
+          </div>
+          <div class="play-area">
+            <div id="tubes" class="tubes"></div>
+            <div id="lesson-hand" hidden aria-hidden="true">
+              <i></i
+              ><svg viewBox="0 0 48 64">
+                <path
+                  d="M17 31V9a5 5 0 0 1 10 0v17a4 4 0 0 1 8-1v3a4 4 0 0 1 8 1v13c0 7-4 11-6 16H20c-1-6-5-10-9-15l-6-9a4 4 0 0 1 6-5l6 6Z"
+                />
+                <path class="hand-fold" d="M27 27v9m8-7v8" />
+              </svg>
+            </div>
+          </div>
+          <p id="status" aria-live="polite"></p>
+          <div class="game-actions">
+            <button id="undo">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 5 3 11l6 6M3 11h10a7 7 0 0 1 7 7" /></svg
+              ><span data-t="undo"></span></button
+            ><button id="hint">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 18h6m-5 3h4M8 14a6 6 0 1 1 8 0l-1 2H9Z" /></svg
+              ><span data-t="hint"></span></button
+            ><button id="restart">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5v6h6M4 11a8 8 0 1 1 1 7" /></svg
+              ><span data-t="restart"></span>
+            </button>
+          </div>
+        </section>
+        <section id="result" class="screen result" hidden>
+          <div class="result-art" aria-hidden="true">
+            <i></i><i></i><i></i
+            ><svg viewBox="0 0 48 48"><path d="m12 25 8 8 17-20" /></svg>
+          </div>
+          <small id="result-level"></small>
+          <h1 id="result-title"></h1>
+          <div id="stars"></div>
+          <div class="result-score">
+            <span data-t="score"></span><strong id="final-score"></strong
+            ><span id="result-moves"></span>
+          </div>
+          <button id="next-level" class="primary" data-t="next"></button
+          ><button id="result-map" data-t="levels"></button>
+        </section>
+      </main>
+    </div>
+    <dialog id="dialog">
+      <h2 id="dialog-title"></h2>
+      <div id="dialog-body"></div>
+      <div id="dialog-actions"></div>
+    </dialog>
+    <script defer src="connection-config.js"></script>
+    <script defer src="api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="text.js"></script>
+    <script defer src="storage.js"></script>
+    <script defer src="language.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="renderer.js"></script>
+    <script defer src="level-pager.js"></script>
+    <script defer src="app.js"></script>
+  </body>
+</html>

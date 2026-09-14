@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#153f35" />
+    <title>Satranç</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23153f35'/%3E%3Cpath d='M28 8h8v9h8v7H20v-7h8zm-7 22h22l-5 17 8 9H18l8-9z' fill='%23f5ebd5'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="language.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="journey.css" />
+    <link rel="stylesheet" href="interaction.css" />
+    <script defer src="connection-config.js"></script>
+    <script defer src="api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="engine.js"></script>
+    <script defer src="opponents.js"></script>
+    <script defer src="ai.js"></script>
+    <script defer src="pieces.js"></script>
+    <script defer src="text.js"></script>
+    <script defer src="journey-text.js"></script>
+    <script defer src="lessons.js"></script>
+    <script defer src="advanced-lessons.js"></script>
+    <script defer src="lesson-lines.js"></script>
+    <script defer src="puzzles.js"></script>
+    <script defer src="puzzle-rules.js"></script>
+    <script defer src="tactics.js"></script>
+    <script defer src="tactic-guides.js"></script>
+    <script defer src="storage.js"></script>
+    <script defer src="progress.js"></script>
+    <script defer src="journey-art.js"></script>
+    <script defer src="language.js"></script>
+    <script defer src="audio.js"></script>
+    <script defer src="board.js"></script>
+    <script defer src="pause.js"></script>
+    <script defer src="challenges.js"></script>
+    <script defer src="hub.js"></script>
+    <script defer src="app.js"></script>
+    <script defer src="interface.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <button class="brand" id="brand" aria-label="Menü">
+          <span class="brand-mark"></span><span data-t="title">Satranç</span>
+        </button>
+        <div class="header-tools">
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button id="theme" class="icon"></button
+          ><button id="sound" class="icon"></button>
+        </div>
+      </header>
+      <main>
+        <section id="home" class="screen chess-hub"></section>
+        <section id="setup" class="screen" hidden>
+          <div class="section-heading">
+            <button class="back" data-home>
+              <span data-icon="back"></span><span data-t="back"></span></button
+            ><span class="eyebrow" id="setup-caption"></span>
+          </div>
+          <div class="setup-layout">
+            <div>
+              <h2 id="setup-title"></h2>
+              <div id="opponents" class="opponents"></div>
+              <div id="local-art" class="local-art" hidden></div>
+            </div>
+            <div class="setup-options">
+              <div class="option-group">
+                <h3 data-t="time"></h3>
+                <div class="time-options" id="time-options"></div>
+              </div>
+              <div class="option-group" id="color-group">
+                <h3 data-t="color"></h3>
+                <div class="color-options" id="color-options"></div>
+              </div>
+              <p class="clock-note" data-t="pausedNote"></p>
+              <button id="start" class="primary">
+                <span data-t="play"></span><span data-icon="next"></span>
+              </button>
+            </div>
+          </div>
+        </section>
+        <section id="school" class="screen" hidden>
+          <div class="section-heading">
+            <button class="back" data-home>
+              <span data-icon="back"></span><span data-t="back"></span></button
+            ><button id="rules" class="quiet" data-t="rules"></button>
+          </div>
+          <h2 data-t="academy"></h2>
+          <div id="lesson-list" class="lesson-list"></div>
+        </section>
+        <section id="game" class="screen" hidden>
+          <div class="game-toolbar">
+            <button id="game-menu" class="back">
+              <span data-icon="back"></span><span data-t="menu"></span></button
+            ><span id="game-label" class="eyebrow"></span
+            ><button id="flip" class="icon" data-icon="flip"></button>
+          </div>
+          <div class="game-layout">
+            <div class="board-column">
+              <div class="player-row" id="player-top">
+                <div class="player-info">
+                  <span class="player-mark"></span>
+                  <div><strong></strong><small></small></div>
+                </div>
+                <div class="clock" id="clock-top">10:00</div>
+              </div>
+              <div class="board-rim">
+                <div id="board" class="board" role="group"></div>
+                <div id="board-effects" aria-hidden="true"></div>
+              </div>
+              <div class="player-row" id="player-bottom">
+                <div class="player-info">
+                  <span class="player-mark"></span>
+                  <div><strong></strong><small></small></div>
+                </div>
+                <div class="clock" id="clock-bottom">10:00</div>
+              </div>
+            </div>
+            <aside class="game-aside">
+              <div id="normal-tools">
+                <div class="status-line">
+                  <i></i><span id="status" aria-live="polite"></span>
+                </div>
+                <h3 data-t="moves"></h3>
+                <div id="move-list" class="move-list" dir="ltr"></div>
+                <div class="game-actions">
+                  <button
+                    id="game-result"
+                    class="quiet"
+                    data-t="result"
+                    hidden
+                  ></button>
+                  <button id="draw-offer" class="quiet" data-t="offer"></button
+                  ><button
+                    id="claim"
+                    class="quiet"
+                    data-t="claim"
+                    hidden
+                  ></button
+                  ><button id="resign" class="quiet">
+                    <span data-icon="flag"></span><span data-t="resign"></span>
+                  </button>
+                </div>
+              </div>
+              <div id="lesson-tools" hidden>
+                <span id="lesson-number" class="eyebrow"></span>
+                <h2 id="lesson-title"></h2>
+                <p id="lesson-text"></p>
+                <div id="lesson-feedback" role="status"></div>
+                <button id="lesson-hint" class="quiet" data-t="hint"></button
+                ><button id="lesson-next" class="primary" hidden>
+                  <span data-t="next"></span
+                  ><span data-icon="next"></span></button
+                ><button
+                  id="lesson-retry"
+                  class="quiet"
+                  data-t="retry"
+                ></button>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+    <dialog id="dialog"><div id="dialog-body"></div></dialog>
+  </body>
+</html>

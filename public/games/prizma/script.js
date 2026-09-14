@@ -475,8 +475,8 @@ if (typeof document !== "undefined")
       if (el.hidden || !board) return;
       const tile = $("tiles").children[hinted];
       if (!tile) return;
-      el.style.left = `${tile.offsetLeft + tile.offsetWidth * 0.56}px`;
-      el.style.top = `${tile.offsetTop + tile.offsetHeight * 0.56}px`;
+      el.style.left = `${tile.offsetLeft + tile.offsetWidth / 2}px`;
+      el.style.top = `${tile.offsetTop + tile.offsetHeight / 2}px`;
     }
     function win() {
       change("celebrating");
@@ -934,7 +934,7 @@ if (typeof document !== "undefined")
             c.lineTo(...portXY(d, w * 0.52));
           }
       };
-      paintPipe(c, route, w * 0.17, on);
+      paintPipe(c, route, w * 0.19, on);
       // Kenar halkaları komşu boruların birleşimini gösterir.
       for (const d of ends) {
         c.save();
@@ -1201,6 +1201,19 @@ if (typeof document !== "undefined")
       branches.forEach((points) =>
         paintPipe(hc, () => trace(points), 19, true),
       );
+      if (!reduce()) {
+        hc.save();
+        hc.setLineDash([5, 75]);
+        hc.lineDashOffset = -at / 24;
+        hc.lineWidth = 3;
+        hc.lineCap = "round";
+        hc.strokeStyle = PrizmaTheme.color("#fffaf0");
+        branches.forEach((points) => {
+          trace(points);
+          hc.stroke();
+        });
+        hc.restore();
+      }
       for (const [x, y] of [
         [-153, 0],
         [27, -82],
@@ -1260,7 +1273,7 @@ if (typeof document !== "undefined")
           vy: Math.sin(a) * v,
           age: 0,
           life: 0.35 + Math.random() * 0.35,
-          color,
+          color: PrizmaTheme.color(color),
           r: 2 + Math.random() * 3,
           spin: Math.random() * 6,
         });

@@ -8,6 +8,9 @@ import blockblastImg from "../assets/images/blockblast.webp";
 import mahjongImg from "../assets/images/mahjong.webp";
 import game2048Img from "../assets/images/2048.jpg";
 import eggHopImg from "../assets/images/egg-hop.jpg";
+import satrancImg from "../assets/images/satranc.jpg";
+import renkRenkImg from "../assets/images/renk-renk.jpg";
+import siyrilImg from "../assets/images/siyril.jpg";
 import kelimezinciriImg from "../assets/images/kelimezinciri.webp";
 import doomImg from "../assets/images/doom.svg";
 
@@ -36,6 +39,42 @@ export const GAMES: GameDef[] = [
     storageKey: "puzzle-suite.v1.2048",
     scoreLabel: "En İyi Skor",
     isScore: true,
+    showScore: true,
+  },
+  {
+    id: "satranc",
+    name: "Satranç",
+    path: "/play/satranc",
+    image: satrancImg,
+    description: "Zeka ve Taktik Düellosu",
+    tag: "Strateji",
+    storageKey: "satranc.v1",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "renk-renk",
+    name: "Renk Renk",
+    path: "/play/renk-renk",
+    image: renkRenkImg,
+    description: "Tüpleri Renklerine Göre Ayır",
+    tag: "Bulmaca",
+    storageKey: "renk-renk.v1",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "siyril",
+    name: "Sıyrıl",
+    path: "/play/siyril",
+    image: siyrilImg,
+    description: "Ok Çıkmazından Kurtul",
+    tag: "Bulmaca",
+    storageKey: "siyril.v1",
+    scoreLabel: "İlerleme",
+    isScore: false,
     showScore: true,
   },
   {

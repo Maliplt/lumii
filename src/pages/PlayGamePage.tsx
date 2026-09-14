@@ -115,6 +115,45 @@ function readBestScore(gameId: string): string {
     return "Bölüm 1";
   }
 
+  if (gameId === "satranc") {
+    const suite = getSuiteProgress("satranc");
+    const direct = parseJsonSafe(localStorage.getItem("satranc.v1"));
+    const data = suite ?? direct;
+    if (data) {
+      const wins = data.wins
+        ? Object.values(data.wins).reduce((a: number, b: any) => a + (Number(b) || 0), 0)
+        : 0;
+      if (wins > 0) return `${wins} Galibiyet`;
+      const lessons = Array.isArray(data.lessons) ? data.lessons.length : 0;
+      if (lessons > 0) return `${lessons} Ders Tamamlandı`;
+    }
+    return "0 Galibiyet";
+  }
+
+  if (gameId === "renk-renk") {
+    const suite = getSuiteProgress("renk-renk");
+    const direct = parseJsonSafe(localStorage.getItem("renk-renk.v1"));
+    const data = suite ?? direct;
+    if (data) {
+      const recordsCount = data.records ? Object.keys(data.records).length : 0;
+      if (recordsCount > 0) return `${recordsCount} Bölüm Tamamlandı`;
+      if (data.next) return `Bölüm ${data.next}`;
+    }
+    return "Bölüm 1";
+  }
+
+  if (gameId === "siyril") {
+    const suite = getSuiteProgress("siyril");
+    const direct = parseJsonSafe(localStorage.getItem("siyril.v1"));
+    const data = suite ?? direct;
+    if (data) {
+      const recordsCount = data.records ? Object.keys(data.records).length : 0;
+      if (recordsCount > 0) return `${recordsCount} Bölüm Tamamlandı`;
+      if (data.next) return `Bölüm ${data.next}`;
+    }
+    return "Bölüm 1";
+  }
+
   const raw = localStorage.getItem(game.storageKey);
   if (!raw) return game.isScore ? "0 puan" : "Henüz skor yok";
   const val = parseInt(raw, 10);

@@ -88,7 +88,7 @@
       tr(data.theme === "dark" ? "light" : "dark"),
     );
     document.querySelector('meta[name="theme-color"]').content =
-      data.theme === "dark" ? "#151613" : "#f2f5f7";
+      data.theme === "dark" ? "#141516" : "#f4f6f9";
     if (tutorial) updateTutorial();
     document.documentElement.lang = data.language;
     document.documentElement.dir = data.language === "ar" ? "rtl" : "ltr";
@@ -144,6 +144,7 @@
         (merges.includes(i) ? " merge" : "");
       tile.dataset.index = i;
       tile.dataset.value = value;
+      tile.dataset.digits = String(value).length;
       tile.style.setProperty("--x", i % 4);
       tile.style.setProperty("--y", Math.floor(i / 4));
       tile.textContent = String(value);
