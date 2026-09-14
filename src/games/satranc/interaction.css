@@ -692,3 +692,192 @@ button {
     animation: none !important;
   }
 }
+
+/* Home hub: keep actions in flow and reserve a stable place for resume. */
+.feature-copy {
+  padding-bottom: 76px;
+}
+.feature-copy .resume-inline {
+  position: absolute;
+  left: 32px;
+  right: auto;
+  bottom: 16px;
+  width: 176px;
+  min-height: 46px;
+  margin: 0;
+  transform: none;
+  justify-content: center;
+  border-color: #ffffff55;
+  background: #ffffff24;
+  box-shadow: 0 3px 0 #07141f30;
+}
+.feature-copy .resume-inline:hover {
+  background: #ffffff32;
+  border-color: #ffffff88;
+}
+
+.hub-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.hub-stats > div {
+  position: relative;
+  min-height: 96px;
+  padding: 15px 18px 13px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom: 4px solid #3c91bc;
+  border-radius: 6px;
+  box-shadow: 0 5px 12px var(--shadow);
+}
+.hub-stats > div:nth-child(2) { border-bottom-color: #38a58d; }
+.hub-stats > div:nth-child(3) { border-bottom-color: #e27c4c; }
+.hub-stats > div::after {
+  content: "";
+  position: absolute;
+  top: -24px;
+  right: -18px;
+  width: 70px;
+  height: 70px;
+  transform: rotate(24deg);
+  background: #3c91bc18;
+}
+.hub-stats > div:nth-child(2)::after { background: #38a58d18; }
+.hub-stats > div:nth-child(3)::after { background: #e27c4c18; }
+.hub-stats strong {
+  position: relative;
+  z-index: 1;
+  font-size: 31px;
+}
+
+@media (max-width: 700px) {
+  .chess-hub {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hub-heading,
+  .hub-feature,
+  .hub-mode-heading,
+  .mode-carousel,
+  .hub-bottom,
+  .hub-play {
+    flex: 0 0 auto;
+  }
+  .feature-copy {
+    min-height: 200px;
+    padding-bottom: 70px;
+  }
+  .feature-copy .resume-inline {
+    left: 22px;
+    bottom: 16px;
+    width: 168px;
+    min-height: 44px;
+  }
+  .hub-stats {
+    gap: 7px;
+    padding: 0;
+  }
+  .hub-stats > div {
+    min-height: 78px;
+    padding: 11px 12px 10px;
+    box-shadow: 0 3px 8px var(--shadow);
+  }
+  .hub-stats strong { font-size: 25px; }
+  .hub-stats span { margin-top: 3px; font-size: 12px; }
+  .hub-play {
+    position: static;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0;
+    padding: 8px;
+    transform: none;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 700px) and (max-height: 750px) {
+  .feature-copy {
+    min-height: 190px;
+    padding: 16px 16px 66px;
+  }
+  .feature-copy .resume-inline {
+    left: 16px;
+    bottom: 12px;
+  }
+  .hub-stats { padding: 0; }
+}
+
+@media (max-width: 420px) {
+  .hub-stats > div { padding-inline: 9px; }
+  .hub-stats strong { font-size: 23px; }
+  .feature-copy .resume-inline { width: 154px; }
+}
+
+/* Resume follows the XP meter so neither element can overlap. */
+.hub-feature { min-height: 236px; }
+.feature-copy {
+  min-height: 236px;
+  padding-bottom: 22px;
+}
+.feature-copy .resume-inline {
+  position: relative;
+  inset: auto;
+  width: 176px;
+  min-height: 44px;
+  margin: 16px 0 0;
+  transform: none;
+}
+
+/* Statistics use structure and spacing only. */
+.hub-stats > div {
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+}
+.hub-stats > div:nth-child(1),
+.hub-stats > div:nth-child(2),
+.hub-stats > div:nth-child(3) {
+  border-bottom-color: var(--line);
+}
+.hub-stats > div::after { display: none; }
+
+@media (max-width: 700px) {
+  .hub-feature { min-height: 0; }
+  .feature-copy {
+    min-height: 224px;
+    padding-bottom: 18px;
+  }
+  .feature-copy .resume-inline {
+    position: relative;
+    inset: auto;
+    width: 168px;
+    margin: 14px 0 0;
+  }
+}
+
+@media (max-width: 700px) and (max-height: 750px) {
+  .feature-copy {
+    min-height: 210px;
+    padding: 16px;
+  }
+  .feature-copy .resume-inline {
+    inset: auto;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .feature-copy { min-height: 218px; }
+  .feature-copy .resume-inline { width: 154px; }
+}
