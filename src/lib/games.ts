@@ -67,10 +67,10 @@ export const GAMES: GameDef[] = [
   },
   {
     id: "siyril",
-    name: "Sıyrıl",
+    name: "Ok Çıkmazı",
     path: "/play/siyril",
     image: siyrilImg,
-    description: "Ok Çıkmazından Kurtul",
+    description: "Önü Açık Olan Oku Çıkar",
     tag: "Bulmaca",
     storageKey: "siyril.v1",
     scoreLabel: "İlerleme",

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f5f2e9" />
+    <title>ROTA — Tek çizgi. Bütün yollar.</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="language.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <button id="homeButton" class="logo" aria-label="Ana menü">
+          <span class="logo-mark"></span>ROTA<span class="logo-dot">.</span>
+        </button>
+        <div class="settings">
+          <div class="language-picker">
+            <button
+              id="lang"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button id="help" aria-label="Nasıl oynanır">?</button
+          ><button id="sound" aria-label="Ses">♪</button>
+        </div>
+      </header>
+      <main>
+        <section id="home" class="screen home">
+          <div class="intro">
+            <span class="eyebrow" data-t="tag">YOLU SEN ÇİZ.</span>
+            <h1 data-t="title">Bir çizgi.<br /><em>Bin ihtimal.</em></h1>
+            <p data-t="intro">
+              Bütün duraklardan geç.<br />Hiçbirine iki kez uğrama.
+            </p>
+            <div class="actions">
+              <button class="primary" id="play">
+                <span data-t="play">Yola çık</span><span>↗</span>
+              </button>
+              <div class="twins">
+                <button id="levelsButton" data-t="levels">Bölümler</button
+                ><button id="tutorialButton" data-t="how">
+                  Nasıl oynanır?
+                </button>
+              </div>
+              <small id="saved"></small>
+            </div>
+          </div>
+          <div class="cover" aria-hidden="true">
+            <div class="cover-top"><span>ROTA / 001</span><span>●</span></div>
+            <svg viewBox="0 0 400 400">
+              <path
+                class="cover-shadow"
+                d="M70 70H250Q330 70 330 150V250Q330 330 250 330H150Q70 330 70 250V200Q70 150 120 150H220Q250 150 250 180V220Q250 250 220 250H150"
+              />
+              <path
+                class="cover-path"
+                d="M70 70H250Q330 70 330 150V250Q330 330 250 330H150Q70 330 70 250V200Q70 150 120 150H220Q250 150 250 180V220Q250 250 220 250H150"
+              />
+              <circle cx="70" cy="70" r="20" fill="#eb683e" />
+              <circle cx="70" cy="70" r="6" fill="#fffaf0" />
+              <rect
+                x="132"
+                y="232"
+                width="36"
+                height="36"
+                rx="8"
+                fill="#172e62"
+              />
+              <path
+                d="m142 250 7 7 13-15"
+                fill="none"
+                stroke="#fffaf0"
+                stroke-width="4"
+              />
+            </svg>
+            <div class="cover-bottom">
+              <span data-t="cover">BAŞLANGIÇTAN BİTİŞE.</span><span>↗</span>
+            </div>
+          </div>
+        </section>
+        <section id="levels" class="screen levels" hidden>
+          <div class="heading">
+            <div>
+              <span class="eyebrow" data-t="choose">BİR YOL SEÇ.</span>
+              <h2 data-t="levels">Bölümler</h2>
+            </div>
+            <button id="backHome" data-t="menu">← Menü</button>
+          </div>
+          <div id="levelGrid"></div>
+          <nav>
+            <button id="prev" aria-label="Önceki">←</button
+            ><span id="page"></span
+            ><button id="forward" aria-label="Sonraki">→</button>
+          </nav>
+        </section>
+        <section id="game" class="screen game" hidden>
+          <div class="heading">
+            <button id="backLevels" data-t="back">← Bölümler</button>
+            <div class="game-title">
+              <span class="eyebrow" id="levelLabel"></span>
+              <h2 id="gameTitle"></h2>
+            </div>
+            <button id="pause" aria-label="Duraklat">Ⅱ</button>
+          </div>
+          <div class="play-layout">
+            <aside>
+              <span class="eyebrow" data-t="visited">GEÇİLEN DURAK</span>
+              <div class="counter">
+                <strong id="count">0</strong><span id="total">/ 0</span>
+              </div>
+              <div class="timer" id="timer">00:00</div>
+              <div class="legend">
+                <i class="start-dot"></i><span data-t="start">Başlangıç</span
+                ><i class="finish-dot"></i><span data-t="finish">Bitiş</span>
+              </div>
+            </aside>
+            <div class="board-column">
+              <div id="board">
+                <svg id="route" aria-hidden="true">
+                  <path id="routeShadow" />
+                  <path id="routeLine" />
+                </svg>
+                <div id="cells"></div>
+                <div id="particles" aria-hidden="true"></div>
+                <div id="hand" aria-hidden="true">☝</div>
+              </div>
+              <div class="progress"><i id="progress"></i></div>
+              <div id="status" role="status"></div>
+              <div class="tools">
+                <button id="undo" data-t="undo">↶ Geri al</button
+                ><button id="hint">
+                  <span data-t="hint">İpucu</span><b id="hints">3</b></button
+                ><button id="reset" data-t="reset">Sıfırla</button>
+              </div>
+            </div>
+            <aside class="right">
+              <span class="giant-arrow">↗</span>
+              <p data-t="rule">Tek çizgi.<br />Her durak bir kez.</p>
+              <span id="checkpointNote"></span>
+            </aside>
+          </div>
+        </section>
+        <section id="result" class="screen result" hidden>
+          <div class="finish-seal">✓</div>
+          <span class="eyebrow" data-t="complete">BÜTÜN DURAKLAR TAMAM.</span>
+          <h2 data-t="win">Yolunu buldun.</h2>
+          <div id="stars"></div>
+          <div class="result-stats">
+            <div><small data-t="time">Süre</small><b id="resultTime"></b></div>
+            <div>
+              <small data-t="steps">Geri dönüş</small><b id="resultMoves"></b>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button id="next" class="primary" data-t="next">
+              Sıradaki yol →
+            </button>
+            <div class="twins">
+              <button id="retry" data-t="retry">Tekrar çöz</button
+              ><button id="resultLevels" data-t="levels">Bölümler</button>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <span>ROTA / PATH PUZZLE</span
+        ><span data-t="footer">ACELE ETME. YOLUNU BUL.</span>
+      </footer>
+    </div>
+    <dialog id="dialog">
+      <button id="close" aria-label="Kapat">×</button>
+      <h2 id="dialogTitle"></h2>
+      <p id="dialogText"></p>
+      <div id="dialogActions"></div>
+    </dialog>
+    <script defer src="connection-config.js"></script>
+<script defer src="api-adapter.js"></script>
+<script defer src="profile-config.js"></script>
+<script defer src="save-client.js"></script>
+<script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

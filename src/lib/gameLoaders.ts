@@ -33,7 +33,7 @@ export function LoadedGame({ gameId }: { gameId: string }) {
       "div",
       { className: "public-game-container" },
       createElement("iframe", {
-        src: `/games/${gameId}/index.html`,
+        src: `/src/games/${gameId}/index.html`,
         title: `${gameId} Oyunu`,
         className: "public-game-frame",
         allow: "autoplay; fullscreen",

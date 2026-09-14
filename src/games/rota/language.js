@@ -1,6 +1,6 @@
 "use strict";
 function createLanguagePicker(onSelect) {
-  const toggle = document.getElementById("language"),
+  const toggle = document.getElementById("lang"),
     panel = document.getElementById("language-panel");
   document.body.append(panel);
   function position() {

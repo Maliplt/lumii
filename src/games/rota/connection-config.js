@@ -14,7 +14,7 @@
     },
   };
   const shared = window.GameSuiteConfig || {};
-  const own = shared.games?.["katman"] || {};
+  const own = shared.games?.["rota"] || {};
   window.GameSuiteConfig = {
     ...local,
     ...shared,
