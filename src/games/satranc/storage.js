@@ -3,7 +3,7 @@ const ChessStore = (() => {
   const data = {
     version: 1,
     language: "tr",
-    theme: "light",
+    theme: "dark",
     muted: false,
     lessons: [],
     wins: {},

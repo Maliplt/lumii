@@ -72,7 +72,7 @@
       confirm(t("newAsk"), newGame);
     },
     rules() {
-      $("rules").click();
+      $("rules")?.click();
     },
     home() {
       persist();
@@ -884,10 +884,12 @@
     if (lesson + 1 < ChessLessons.length) startLesson(lesson + 1);
     else show("school");
   };
-  $("rules").onclick = () =>
-    openDialog(
-      `<h2>${t("rules")}</h2><p>${t("drawRules")}</p><p>${t("pausedNote")}</p><div class="dialog-actions"><button data-cancel>${t("close")}</button></div>`,
-    );
+  const rulesButton = $("rules");
+  if (rulesButton)
+    rulesButton.onclick = () =>
+      openDialog(
+        `<h2>${t("rules")}</h2><p>${t("drawRules")}</p><p>${t("pausedNote")}</p><div class="dialog-actions"><button data-cancel>${t("close")}</button></div>`,
+      );
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       pausePlay();

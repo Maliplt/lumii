@@ -40,7 +40,7 @@ function createChessHub(actions) {
   for (const [id, html] of [
     [
       "puzzle-map",
-      '<div class="section-heading"><button class="back" data-hub-back></button><h2 id="map-title"></h2><span id="map-progress"></span></div><div id="chapter-scroll" class="chapter-scroll"><span class="map-scroll-cue" aria-hidden="true">↑</span></div>',
+      '<div class="section-heading"><button class="back" data-hub-back></button><h2 id="map-title"></h2><span id="map-progress"></span></div><div id="chapter-scroll" class="chapter-scroll"><span class="map-scroll-cue" aria-hidden="true">↓</span></div>',
     ],
     [
       "profile-screen",
@@ -176,12 +176,11 @@ function createChessHub(actions) {
     );
     $("map-title").textContent = t("journey");
     $("map-progress").textContent = Object.keys(j.puzzles).length + " / 100";
-    $("chapter-scroll").innerHTML = Array.from({ length: 10 }, (_, reverse) => {
-      const c = 9 - reverse;
+    $("chapter-scroll").innerHTML = Array.from({ length: 10 }, (_, c) => {
       return `<article class="map-chapter" data-chapter="${c}" style="--chapter:${JourneyArt.palettes[c][0]};--chapter-light:${JourneyArt.palettes[c][1]}"><div class="chapter-art">${JourneyArt.landscape(c)}<div><small>${t("chapter")} ${c + 1}</small><h3>${t("chapterNames")[c]}</h3></div></div><div class="chapter-path">${Array.from(
         { length: 10 },
         (_, r) => {
-          const id = c * 10 + 10 - r,
+          const id = c * 10 + r + 1,
             record = j.puzzles[id],
             locked = id > next;
           return `<button class="puzzle-node ${locked ? "locked" : ""} ${record ? "completed-node" : ""} ${id === next ? "current" : ""}" data-puzzle="${id}" ${locked ? "disabled" : ""} style="--offset:${Math.sin(r * 1.35) * 150}px" aria-label="${t("puzzles")} ${id}${locked ? " · " + t("locked") : ""}"><span>${String(id).padStart(2, "0")}</span><small class="node-stars">${record ? "★".repeat(record.stars) + "☆".repeat(3 - record.stars) : "···"}</small></button>`;
@@ -191,7 +190,7 @@ function createChessHub(actions) {
     const cue = document.createElement("span");
     cue.className = "map-scroll-cue";
     cue.setAttribute("aria-hidden", "true");
-    cue.textContent = "↑";
+    cue.textContent = "↓";
     $("chapter-scroll").append(cue);
     $("chapter-scroll")
       .querySelectorAll("[data-puzzle]")
@@ -199,9 +198,7 @@ function createChessHub(actions) {
         (el) => (el.onclick = () => actions.puzzle(Number(el.dataset.puzzle))),
       );
     requestAnimationFrame(() => {
-      $("chapter-scroll")
-        .querySelector(".current")
-        ?.scrollIntoView({ block: "center", behavior: "instant" });
+      $("chapter-scroll").scrollTop = 0;
     });
   }
   function renderSchool() {
