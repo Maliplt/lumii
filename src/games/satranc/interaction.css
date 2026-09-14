@@ -147,6 +147,15 @@ main {
 .hub-play {
   width: min(440px, calc(100% - 40px));
 }
+.feature-copy .resume-inline {
+  position: absolute;
+  right: 26px;
+  bottom: 24px;
+  width: 168px;
+  min-height: 48px;
+  margin: 0;
+  font-size: 18px;
+}
 .icon,
 .hub-mode-heading .icon {
   display: flex;
