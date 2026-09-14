@@ -148,13 +148,15 @@ main {
   width: min(440px, calc(100% - 40px));
 }
 .feature-copy .resume-inline {
-  position: absolute;
-  right: 26px;
-  bottom: 24px;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
   width: 168px;
   min-height: 48px;
-  margin: 0;
+  margin: 14px 0 0;
   font-size: 18px;
+  transform: translateY(-8px);
 }
 .icon,
 .hub-mode-heading .icon {
