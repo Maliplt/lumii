@@ -1,5 +1,11 @@
 "use strict";
 (() => {
+  window.addEventListener("load", () => {
+    const boot = document.getElementById("boot-screen");
+    if (!boot) return;
+    boot.classList.add("is-ready");
+    setTimeout(() => boot.remove(), 420);
+  }, { once: true });
   const $ = (id) => document.getElementById(id),
     data = ChessStore.data;
   const opponents = ChessOpponents;

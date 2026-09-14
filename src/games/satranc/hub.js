@@ -40,7 +40,7 @@ function createChessHub(actions) {
   for (const [id, html] of [
     [
       "puzzle-map",
-      '<div class="section-heading"><button class="back" data-hub-back></button><h2 id="map-title"></h2><span id="map-progress"></span></div><div id="chapter-scroll" class="chapter-scroll"></div>',
+      '<div class="section-heading"><button class="back" data-hub-back></button><h2 id="map-title"></h2><span id="map-progress"></span></div><div id="chapter-scroll" class="chapter-scroll"><span class="map-scroll-cue" aria-hidden="true">↑</span></div>',
     ],
     [
       "profile-screen",
@@ -188,6 +188,11 @@ function createChessHub(actions) {
         },
       ).join("")}</div></article>`;
     }).join("");
+    const cue = document.createElement("span");
+    cue.className = "map-scroll-cue";
+    cue.setAttribute("aria-hidden", "true");
+    cue.textContent = "↑";
+    $("chapter-scroll").append(cue);
     $("chapter-scroll")
       .querySelectorAll("[data-puzzle]")
       .forEach(

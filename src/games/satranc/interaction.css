@@ -30,6 +30,27 @@ body {
   height: 100%;
   overflow: hidden;
 }
+#boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: #101b27;
+  color: #f7f1df;
+  transition: opacity .32s ease, visibility .32s ease;
+}
+#boot-screen.is-ready { opacity: 0; visibility: hidden; }
+#boot-screen > strong { font-size: 28px; letter-spacing: -.02em; }
+.boot-label { color: #aebdca; font-size: 13px; }
+.boot-mark { display: grid; grid-template-columns: repeat(2, 14px); grid-template-rows: repeat(2, 14px); gap: 3px; }
+.boot-mark span { display: block; background: #f1ca63; }
+.boot-mark span:nth-child(2), .boot-mark span:nth-child(3) { background: #2d9b84; }
+.boot-progress { width: 164px; height: 4px; overflow: hidden; background: #ffffff20; border-radius: 3px; }
+.boot-progress i { display: block; width: 45%; height: 100%; background: #f1ca63; border-radius: inherit; animation: boot-load 1s ease-in-out infinite; }
+@keyframes boot-load { 0% { transform: translateX(-120%); } 100% { transform: translateX(360%); } }
 .app {
   height: 100dvh;
   min-height: 0;
@@ -42,9 +63,11 @@ main {
   min-height: 0;
   max-height: 100%;
   overflow: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   overscroll-behavior: contain;
 }
+.screen::-webkit-scrollbar,
+.chapter-scroll::-webkit-scrollbar { display: none; }
 .screen:not([hidden]) {
   flex: 1;
 }
@@ -54,6 +77,47 @@ main {
 .chess-hub {
   padding-inline: 5px;
   scrollbar-width: none;
+}
+#puzzle-map,
+#school { overflow: hidden; }
+#school { display: flex; flex-direction: column; }
+#puzzle-map .chapter-scroll,
+#school #lesson-list { overflow-y: auto; scrollbar-width: none; }
+#school #lesson-list { min-height: 0; flex: 1; }
+#puzzle-map .chapter-scroll { position: relative; }
+.map-scroll-cue {
+  position: sticky;
+  bottom: 10px;
+  z-index: 4;
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 8px auto -42px;
+  border: 1px solid var(--chapter-light);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--chapter);
+  text-align: center;
+  font-size: 25px;
+  line-height: 30px;
+  pointer-events: none;
+  animation: map-cue 1.5s ease-in-out infinite;
+}
+@keyframes map-cue { 0%,100% { transform: translateY(3px); opacity: .45; } 50% { transform: translateY(-4px); opacity: 1; } }
+@media (min-width: 701px) and (max-height: 900px) {
+  .hub-play {
+    position: static;
+    transform: none;
+    grid-column: 1 / -1;
+    margin: 14px auto 0;
+  }
+  .chess-hub { padding-bottom: 18px; }
+  .hub-feature { min-height: 200px; }
+  .mode-carousel { min-height: 145px; }
+  .mode-card { min-height: 145px; }
+  .mode-illustration { height: 52px; }
+  .mode-illustration > .piece { height: 52px; }
+  .bot-portraits .avatar-art { width: 49px; height: 49px; }
 }
 .hub-play {
   width: min(440px, calc(100% - 40px));
