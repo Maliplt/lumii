@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "prizma",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/data/game-data.js",
+    "src/core/rules/engine.js",
+    "src/i18n/translations.js",
+    "src/audio/audio.js",
+    "src/i18n/language.js",
+    "src/ui/controllers/theme.js",
+    "src/ui/controllers/dialog-controller.js",
+    "src/ui/render/canvas-primitives.js",
+    "src/ui/render/screen-renderers.js",
+    "src/ui/controllers/game-controller.js"
+  ],
+  "styles": [
+    "styles/style.css",
+    "styles/language.css",
+    "styles/night.css"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "rota",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/services/storage.js",
+    "src/i18n/translations.js",
+    "src/i18n/language-picker.js",
+    "src/core/route-engine.js",
+    "src/audio/sound.js",
+    "src/ui/game-controller.js"
+  ],
+  "styles": [
+    "styles/game.css",
+    "styles/language.css"
+  ]
+}

@@ -1,0 +1,1393 @@
+@font-face {
+  font-family: SudokuSans;
+  src: url("../assets/fonts/Barlow-Medium.ttf") format("truetype");
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: SudokuSans;
+  src: url("../assets/fonts/Barlow-SemiBold.ttf") format("truetype");
+  font-weight: 600 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: SudokuArabic;
+  src: url("../assets/fonts/NotoSansArabic.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  --page: #fff1da;
+  --surface: #fffaf0;
+  --surface-2: #ffe5b3;
+  --surface-3: #edd1af;
+  --ink: #302437;
+  --muted: #796975;
+  --line: #d6bbab;
+  --strong-line: #302437;
+  --primary: #b73555;
+  --primary-dark: #84253e;
+  --player: #a1284b;
+  --focus: #fff0d0;
+  --same: #ffdfa0;
+  --selected: #ffcd55;
+  --reward: #b35925;
+  --error: #b34743;
+  --error-soft: #f9e2dd;
+  --teal: #ad3754;
+  --teal-soft: #ffe0cc;
+  --teal-ink: #883d35;
+  --amber: #ba8d3d;
+  --amber-soft: #f1e9d5;
+  --amber-ink: #6d5427;
+  --violet: #696b86;
+  --violet-soft: #e5e5ec;
+  --violet-ink: #51516a;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --shadow: none;
+  --shadow-sm: none;
+  font-family: SudokuSans, SudokuArabic, sans-serif;
+  font-synthesis: none;
+}
+:root[data-theme="dark"] {
+  --page: #231d2a;
+  --surface: #302738;
+  --surface-2: #403046;
+  --surface-3: #533c57;
+  --ink: #fff3dc;
+  --muted: #c9b9ca;
+  --line: #745d79;
+  --strong-line: #d8bad2;
+  --primary: #ffce56;
+  --primary-dark: #e5a947;
+  --player: #ffcf7a;
+  --focus: #42313e;
+  --same: #665032;
+  --selected: #ffce56;
+  --reward: #ffcc63;
+  --error: #ed9690;
+  --error-soft: #492e2b;
+  --teal-soft: #50313f;
+  --teal-ink: #ffc1d0;
+  --amber-soft: #3e3828;
+  --amber-ink: #dac086;
+  --violet-soft: #30323e;
+  --violet-ink: #c2c2d9;
+}
+html[dir="rtl"] {
+  font-family: SudokuArabic, SudokuSans, sans-serif;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+button {
+  font-weight: 600;
+}
+.app {
+  max-width: 1140px;
+  margin: auto;
+  padding: 0 30px;
+}
+.topbar {
+  background: none;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+  height: 77px;
+}
+.brand {
+  letter-spacing: 1px;
+  font-size: 25px;
+  font-weight: 600;
+}
+.brand-mark {
+  background: var(--ink);
+  color: var(--page);
+  border-radius: 2px;
+  box-shadow: none;
+  width: 32px;
+  height: 32px;
+  font-size: 23px;
+}
+.brand-dot {
+  color: var(--primary);
+}
+.screen {
+  padding: 22px 0 16px;
+}
+.icon-button,
+.round-button,
+.back-button {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: none;
+  background: var(--surface);
+}
+button:active {
+  transform: translateY(1px);
+}
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+.home-game {
+  display: grid;
+  grid-template-rows: minmax(290px, 1fr) auto auto;
+  gap: 18px;
+}
+.home-stage {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+  padding: 36px 42px;
+  gap: 26px 40px;
+  grid-template-columns: 1fr 1fr;
+  min-height: 310px;
+}
+.home-stage:before,
+.home-stage:after {
+  display: none;
+}
+.home-copy h1 {
+  font-size: clamp(34px, 4vw, 54px);
+  font-weight: 500;
+  letter-spacing: -1.2px;
+  line-height: 1.06;
+  color: var(--ink);
+}
+.home-copy p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 260px;
+  margin-top: 17px;
+}
+.home-copy .eyebrow {
+  color: var(--primary);
+}
+.home-board-art {
+  transform: none;
+  justify-self: center;
+  max-width: 260px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border: 0;
+}
+.art-badge {
+  display: none;
+}
+.mini-board {
+  transform: none;
+  border: 2px solid var(--strong-line);
+  border-radius: 0;
+  box-shadow: 10px 10px 0 var(--surface-2);
+  background: var(--surface);
+  opacity: 1;
+}
+.mini-board i {
+  font:
+    500 18px SudokuSans,
+    sans-serif;
+  color: var(--primary);
+  border-color: var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+.mini-board i.given {
+  color: var(--ink);
+}
+.mini-board i:nth-child(3n) {
+  border-right-color: var(--strong-line);
+}
+.mini-board i:nth-child(n + 19):nth-child(-n + 27),
+.mini-board i:nth-child(n + 46):nth-child(-n + 54) {
+  border-bottom-color: var(--strong-line);
+}
+.play-card {
+  border: 0;
+  border-radius: 2px;
+  background: var(--primary);
+  color: var(--page);
+  box-shadow: none;
+  min-height: 86px;
+  padding: 18px 22px;
+  gap: 16px;
+}
+.play-card small,
+.play-card i {
+  color: inherit;
+  opacity: 0.85;
+}
+.play-card strong {
+  font-size: 26px;
+  letter-spacing: 0;
+}
+.play-icon {
+  border-radius: 2px;
+  background: #ffffff14;
+  box-shadow: none;
+}
+.play-card em {
+  height: 3px;
+  background: #ffffff30;
+}
+.game-mode-grid {
+  gap: 12px;
+}
+.game-mode {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+  min-height: 108px;
+  padding: 20px;
+  text-align: start;
+}
+.game-mode > span {
+  border: 0;
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--primary);
+  box-shadow: none;
+  width: 34px;
+  height: 34px;
+}
+.game-mode b {
+  font-size: 17px;
+  font-weight: 600;
+}
+.game-mode small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.app-nav {
+  height: 52px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  width: 100%;
+  padding-top: 6px;
+}
+.nav-button {
+  border-radius: 2px;
+  font-size: 12px;
+  gap: 7px;
+  background: transparent;
+  color: var(--muted);
+}
+.nav-button.active {
+  color: var(--primary);
+  background: var(--surface-2);
+  box-shadow: none;
+}
+.nav-button svg {
+  width: 17px;
+  height: 17px;
+}
+.screen-heading {
+  margin-bottom: 18px;
+}
+.screen-heading h1 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+.setup-hero,
+.journey-hero,
+.learn-map-hero {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  box-shadow: none;
+  padding: 23px;
+  color: var(--ink);
+}
+.setup-hero h2,
+.journey-hero h2,
+.learn-map-hero h2 {
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+.setup-hero p,
+.journey-hero p,
+.learn-map-hero p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.setup-emblem,
+.learn-emblem {
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--primary);
+  box-shadow: none;
+}
+.difficulty-card-v2 {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: none;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 23px;
+  min-height: 105px;
+}
+.difficulty-symbol {
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--primary);
+}
+.difficulty-card-v2 h3 {
+  font-size: 22px;
+  font-weight: 500;
+}
+.difficulty-card-v2 small {
+  color: var(--muted);
+}
+.difficulty-action {
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--primary);
+  box-shadow: none;
+}
+.custom-link {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: none;
+  background: var(--surface);
+}
+.chapter-switch {
+  gap: 7px;
+}
+.chapter-switch button {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--muted);
+  box-shadow: none;
+  padding: 12px 8px;
+  font-size: 12px;
+  min-height: 57px;
+}
+.chapter-switch button.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--page);
+}
+.chapter-switch button span {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.level-grid-v2 {
+  gap: 10px;
+}
+.level-node {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  box-shadow: none;
+  min-height: 88px;
+  color: var(--ink);
+}
+.level-node b {
+  font-size: 27px;
+  font-weight: 500;
+}
+.level-node small {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.level-node.current {
+  background: var(--primary);
+  color: var(--page);
+  border-color: var(--primary);
+  box-shadow: none;
+}
+.level-node.finished {
+  background: var(--teal-soft);
+  color: var(--teal-ink);
+}
+.level-node:disabled {
+  opacity: 0.55;
+}
+.level-node span {
+  color: inherit;
+}
+.journey-progress i,
+.journey-progress em {
+  border-radius: 0;
+}
+.map-chapter,
+.map-stop,
+.map-node,
+.learn-score {
+  border-radius: 3px;
+  box-shadow: none;
+}
+.map-stop {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.map-node {
+  color: var(--primary);
+  background: var(--surface-2);
+}
+.game-screen-v2 {
+  gap: 12px;
+}
+.game-bar {
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  height: 62px;
+  padding: 0 0 12px;
+}
+.game-title h1 {
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+.game-status b {
+  font-size: 19px;
+  font-weight: 500;
+}
+.progress-track {
+  height: 4px;
+  border-radius: 0;
+  background: var(--line);
+}
+.progress-track i {
+  background: var(--primary);
+  border-radius: 0;
+}
+.progress-shell > div:first-child {
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+.board {
+  border: 2px solid var(--strong-line);
+  border-radius: 0;
+  box-shadow: 0 8px 24px #00000008;
+}
+.cell {
+  font-family: SudokuSans, sans-serif;
+  border-radius: 0;
+  font-weight: 500;
+  color: var(--player);
+}
+.cell.given {
+  font-weight: 600;
+  color: var(--ink);
+}
+.cell.selected {
+  background: var(--same);
+  box-shadow: inset 0 0 0 2px var(--primary);
+  color: var(--ink);
+}
+.cell.box-right {
+  border-right: 2px solid var(--strong-line);
+}
+.cell.box-bottom {
+  border-bottom: 2px solid var(--strong-line);
+}
+.pencil-grid {
+  font-family: SudokuSans, sans-serif;
+}
+.numpad button {
+  background: var(--surface);
+  color: var(--player);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  box-shadow: none;
+}
+.numpad button span {
+  font-family: SudokuSans, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+}
+.numpad button small {
+  color: var(--muted);
+}
+.numpad button.active {
+  background: var(--same);
+  border-color: var(--primary);
+}
+.tool {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  box-shadow: none;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+}
+.tool.active {
+  background: var(--same);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.control-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+.board.won {
+  box-shadow: 0 0 0 3px var(--same);
+}
+.cell.placed .digit {
+  animation: ink-in 180ms ease-out;
+}
+.cell.unit {
+  animation: region-complete 600ms ease-out;
+}
+.cell.shake {
+  animation: cell-shake 220ms ease-out;
+}
+.game-message {
+  font-size: 12px;
+}
+.progress-track i {
+  transition: width 350ms ease;
+}
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 20px 80px #0003;
+  background: var(--surface);
+  color: var(--ink);
+}
+dialog::backdrop {
+  background: #101b1677;
+  backdrop-filter: blur(4px);
+}
+.dialog-head {
+  border-radius: 0;
+}
+.dialog-head h2 {
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+.settings-group,
+.setting-row,
+.select-setting,
+.setting-glyph,
+.button,
+.primary,
+.chip,
+.pill {
+  border-radius: 3px;
+  box-shadow: none;
+}
+.button.primary,
+.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--page);
+}
+.switch {
+  border-radius: 3px;
+}
+.switch em {
+  border-radius: 1px;
+}
+.toast {
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--page);
+}
+.screen {
+  animation: sheet-in 200ms ease-out;
+}
+@keyframes ink-in {
+  from {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes region-complete {
+  0% {
+    background: var(--same);
+  }
+  100% {
+    background: var(--surface);
+  }
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 700px) {
+  .app {
+    padding: 0 18px;
+  }
+  .topbar {
+    height: 60px;
+    padding: 9px 0;
+  }
+  .brand {
+    font-size: 22px;
+  }
+  .screen {
+    padding: 15px 0 10px;
+  }
+  .home-game {
+    gap: 12px;
+    grid-template-rows: minmax(280px, 1fr) auto auto;
+  }
+  .home-stage {
+    padding: 24px 22px;
+    grid-template-columns: 1fr 105px;
+    gap: 20px 10px;
+    min-height: 285px;
+  }
+  .home-copy h1 {
+    font-size: 34px;
+    max-width: 210px;
+  }
+  .home-copy p {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  .home-board-art {
+    width: 110px;
+    align-self: start;
+    margin-top: 15px;
+    opacity: 0.85;
+  }
+  .mini-board i {
+    font-size: 9px;
+  }
+  .home-stage .play-card {
+    grid-column: 1/-1;
+    min-height: 75px;
+    width: 100%;
+    padding: 15px;
+  }
+  .play-card strong {
+    font-size: 23px;
+  }
+  .game-mode {
+    min-height: 98px;
+    padding: 12px 9px;
+  }
+  .game-mode b {
+    font-size: 14px;
+  }
+  .game-mode small {
+    font-size: 10px;
+  }
+  .game-mode > span {
+    width: 28px;
+    height: 28px;
+  }
+  .game-mode-grid {
+    gap: 7px;
+  }
+  .app-nav {
+    height: 48px;
+  }
+  .game-screen-v2 {
+    gap: 8px;
+  }
+  .game-bar {
+    height: 53px;
+  }
+  .game-title h1 {
+    font-size: 19px;
+  }
+  .game-status {
+    gap: 12px;
+  }
+  .game-status b {
+    font-size: 16px;
+  }
+  .game-title span,
+  .game-status small {
+    font-size: 9px;
+  }
+  .board {
+    box-shadow: none;
+  }
+  .numpad button span {
+    font-size: 27px;
+  }
+  .tool {
+    min-height: 43px;
+    font-size: 10px;
+  }
+  .chapter-switch button {
+    font-size: 10px;
+    padding: 8px 4px;
+  }
+  .level-grid-v2 {
+    gap: 7px;
+  }
+  .level-node {
+    min-height: 77px;
+  }
+  .setup-hero,
+  .journey-hero,
+  .learn-map-hero {
+    padding: 18px;
+  }
+  .setup-hero h2,
+  .journey-hero h2,
+  .learn-map-hero h2 {
+    font-size: 25px;
+  }
+  .difficulty-card-v2 {
+    padding: 16px;
+    min-height: 95px;
+  }
+  .home-stage .home-board-art {
+    transform: none;
+  }
+  .home-stage .mini-board {
+    transform: none;
+  }
+  .board .cell {
+    font-size: clamp(20px, 6vw, 30px);
+  }
+}
+@media (max-width: 360px) {
+  .app {
+    padding: 0 12px;
+  }
+  .home-stage {
+    padding: 18px 15px;
+    grid-template-columns: 1fr 90px;
+  }
+  .home-copy h1 {
+    font-size: 29px;
+  }
+  .home-board-art {
+    width: 90px;
+  }
+  .game-mode b {
+    font-size: 12px;
+  }
+  .home-copy p {
+    font-size: 11px;
+  }
+  .screen-heading h1 {
+    font-size: 23px;
+  }
+}
+@media (max-height: 700px) and (max-width: 700px) {
+  .home-stage {
+    min-height: 240px;
+    padding-block: 17px;
+  }
+  .home-game {
+    grid-template-rows: minmax(230px, 1fr) auto auto;
+  }
+  .home-copy h1 {
+    font-size: 29px;
+  }
+  .home-copy p {
+    margin-top: 8px;
+  }
+  .game-mode {
+    min-height: 82px;
+  }
+  .game-mode > span {
+    width: 23px;
+    height: 23px;
+  }
+  .home-stage .play-card {
+    min-height: 62px;
+  }
+  .screen {
+    padding-top: 10px;
+  }
+  .home-game {
+    gap: 9px;
+  }
+}
+.home-stage {
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  background-image: radial-gradient(var(--line) 0.7px, transparent 0.7px);
+  background-size: 9px 9px;
+}
+.home-copy h1 {
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+.home-copy p {
+  background: var(--surface);
+}
+.play-card {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  color: #fff9ee;
+}
+.play-card em {
+  display: none;
+}
+.game-mode {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.game-mode > span {
+  background: #ffcd55;
+  color: #302437;
+}
+.screen-heading {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 15px;
+}
+.screen-heading .back-button {
+  width: auto;
+  min-width: 44px;
+  padding: 10px;
+}
+.screen-heading h1 {
+  text-align: start;
+}
+.level-grid-v2 {
+  width: 100%;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  margin-top: 20px;
+}
+.level-grid-v2 .level-node {
+  aspect-ratio: auto;
+  min-height: 106px;
+  translate: none;
+  border: 2px solid var(--line);
+  box-shadow: none;
+}
+.level-node.current {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  color: var(--surface);
+}
+.chapter-map {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.map-chapter {
+  padding: 20px;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  align-self: start;
+}
+.map-chapter-title {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.map-chapter-title h3 {
+  font-size: 23px;
+}
+.map-path {
+  gap: 8px;
+  margin-top: 14px;
+}
+.map-path:before {
+  display: none;
+}
+.map-path .map-stop {
+  width: 100%;
+  margin: 0;
+  min-height: 70px;
+  padding: 12px;
+  gap: 10px;
+  text-align: start;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  transform: none;
+}
+.map-node {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: var(--surface-2);
+  color: var(--primary);
+}
+.map-stop b {
+  font-size: 16px;
+}
+.map-stop > i {
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.map-stop.mastered .map-node {
+  background: var(--same);
+  box-shadow: none;
+}
+.learn-map-hero {
+  margin-bottom: 20px;
+  border: 2px solid var(--ink);
+}
+.learn-emblem {
+  background: #ffcd55;
+  color: #302437;
+}
+.learn-score {
+  border: 0;
+  background: var(--surface-2);
+}
+.language-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+.language-choices button,
+.theme-choices button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+}
+.language-choices img {
+  object-fit: cover;
+  border: 1px solid #0002;
+}
+.language-choices button[aria-pressed="true"],
+.theme-choices button[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--focus);
+}
+.theme-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+.theme-choices button {
+  font-size: 17px;
+  min-height: 52px;
+}
+.theme-swatch {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--ink);
+  background: #fff1da;
+}
+.theme-swatch.dark {
+  background: #302738;
+}
+.settings-body .setting-row {
+  min-height: 62px;
+}
+.settings-body .setting-row > i,
+.settings-body .setting-row > i em {
+  border-radius: 2px;
+}
+.settings-head {
+  margin-bottom: 14px;
+}
+.settings-body {
+  gap: 12px;
+}
+.settings-body .settings-label {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.settings-body .setting-glyph {
+  background: var(--surface-2);
+  color: var(--primary);
+}
+:root[data-theme="dark"] .play-card {
+  color: #302437;
+}
+.board {
+  box-shadow: 4px 4px 0 var(--line);
+}
+.tool:hover,
+.numpad button:hover {
+  border-color: var(--primary);
+}
+@media (max-width: 700px) {
+  .chapter-map {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .map-chapter {
+    padding: 14px;
+  }
+  .level-grid-v2 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+  }
+  .level-grid-v2 .level-node {
+    min-height: 84px;
+  }
+  .chapter-switch {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .chapter-switch button {
+    overflow-wrap: anywhere;
+  }
+  .learn-map-hero {
+    gap: 12px;
+  }
+  .learn-map-hero p {
+    font-size: 12px;
+  }
+  .learn-emblem {
+    width: 40px;
+    height: 40px;
+  }
+  .learn-score {
+    display: none;
+  }
+  .home-stage {
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .game-mode-grid {
+    margin-top: 3px;
+  }
+  .language-choices {
+    gap: 6px;
+  }
+  .language-choices button {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    min-height: 60px;
+  }
+  .settings-body .setting-row {
+    min-height: 55px;
+  }
+  .settings-body .setting-row > span:nth-child(2) small {
+    font-size: 11px;
+  }
+  .settings-body .setting-row > span:nth-child(2) b {
+    font-size: 14px;
+  }
+  dialog {
+    padding: 15px;
+  }
+  .theme-choices button {
+    font-size: 15px;
+  }
+  .screen-heading h1 {
+    font-size: 24px;
+  }
+}
+body {
+  font-family: SudokuSans, SudokuArabic, sans-serif;
+}
+.home-stage {
+  grid-template-rows: auto auto;
+  align-content: center;
+}
+.home-copy {
+  align-self: center;
+}
+.home-board-art {
+  rotate: 0;
+}
+.play-icon svg {
+  color: inherit;
+}
+.learn-map-hero .eyebrow,
+.learn-map-hero p,
+.learn-map-hero .learn-score small {
+  color: var(--muted);
+}
+.learn-map-hero .learn-emblem {
+  color: #302437;
+  box-shadow: none;
+}
+.learn-map-screen > .app-nav {
+  position: static;
+  margin-top: 20px;
+  background: var(--page);
+}
+.learn-map-screen {
+  padding-bottom: 20px;
+}
+.chapter-map {
+  width: 100%;
+}
+.nav-button.active:after {
+  display: none;
+}
+.home-game {
+  grid-template-rows: auto auto auto;
+  align-content: center;
+}
+.home-stage {
+  min-height: 400px;
+}
+.home-stage .home-board-art,
+.home-stage .mini-board {
+  animation: none;
+  rotate: 0;
+}
+.play-card .play-icon {
+  color: inherit;
+}
+.hint-panel {
+  border-radius: 3px;
+  border: 2px solid var(--line);
+}
+.hint-panel .button {
+  box-shadow: none;
+  border-radius: 2px;
+}
+.hint-panel-head button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.hint-panel p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hint-actions .button {
+  min-height: 44px;
+}
+@media (max-width: 700px) {
+  .home-stage {
+    min-height: 340px;
+  }
+  .home-game {
+    align-content: center;
+  }
+  .hint-panel {
+    min-height: 200px;
+  }
+  .hint-panel p {
+    margin: 10px 0;
+  }
+  .hint-panel .text-button {
+    min-height: 40px;
+  }
+}
+.game-mode-grid .game-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  text-align: start;
+}
+.game-mode-grid .game-mode small {
+  position: static;
+  align-self: auto;
+  margin: 0;
+}
+.game-mode-grid .game-mode b {
+  margin: 0;
+}
+.home-game {
+  align-content: start;
+  padding-top: clamp(24px, 5vh, 54px);
+}
+.home-stage {
+  min-height: 320px;
+}
+.home-stage .home-board-art {
+  rotate: 0;
+  transform: none;
+  animation: none;
+}
+.home-game > .app-nav {
+  margin-top: 4px;
+}
+.journey-screen-v2 .journey-hero {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 130px;
+}
+.journey-hero .eyebrow {
+  display: block;
+}
+.journey-hero h2 {
+  margin: 6px 0;
+}
+.journey-continue {
+  min-height: 48px;
+  white-space: nowrap;
+}
+.chapter-pager {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+.chapter-pager > span {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.chapter-pager b {
+  color: var(--ink);
+  margin-inline-start: 8px;
+  font-size: 18px;
+}
+.chapter-pager button {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 2px;
+}
+.chapter-pager button:disabled {
+  opacity: 0.3;
+}
+.journey-guide {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin: 14px 0 0;
+}
+.journey-screen-v2 .level-grid-v2 {
+  margin-top: 14px;
+}
+.difficulty-card-v2 small {
+  display: block !important;
+  margin-top: 5px;
+  font-size: 12px;
+}
+.settings-body .setting-row:last-child {
+  border-bottom: 0;
+}
+.settings-body .compact-toggles {
+  padding-bottom: 3px;
+}
+.custom-link small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.custom-grid {
+  font-family: SudokuSans, monospace;
+  letter-spacing: 4px;
+  line-height: 1.7;
+  border-radius: 2px;
+}
+@media (max-width: 700px) {
+  .home-stage {
+    min-height: 300px;
+  }
+  .game-mode-grid .game-mode {
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+  .journey-screen-v2 .journey-hero {
+    align-items: flex-start;
+    gap: 14px;
+    min-height: 0;
+    padding: 18px;
+    flex-direction: column;
+  }
+  .journey-continue {
+    width: 100%;
+    justify-content: center;
+  }
+  .chapter-pager {
+    margin-top: 14px;
+  }
+  .difficulty-grid {
+    gap: 10px;
+  }
+  .difficulty-card-v2 {
+    gap: 10px;
+  }
+  .difficulty-card-v2 h3 {
+    font-size: 20px;
+  }
+  .difficulty-card-v2 small {
+    font-size: 11px;
+  }
+  .difficulty-symbol {
+    width: 38px;
+    height: 38px;
+  }
+  .difficulty-action {
+    width: 30px;
+    height: 38px;
+  }
+  .home-game {
+    padding-top: 24px;
+  }
+  .settings-body .setting-row > span:nth-child(2) {
+    min-width: 0;
+  }
+}
+@media (max-width: 380px) {
+  .difficulty-grid {
+    grid-template-columns: 1fr;
+  }
+  .difficulty-card-v2 {
+    min-height: 76px;
+  }
+  .setup-hero {
+    min-height: 110px;
+    padding: 14px;
+  }
+  .setup-emblem {
+    width: 44px;
+    height: 44px;
+  }
+  .setup-hero h2 {
+    font-size: 24px;
+  }
+  .journey-hero h2 {
+    font-size: 25px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.level-grid-v2 .level-node.current small,
+.level-grid-v2 .level-node.current span {
+  color: var(--page);
+}

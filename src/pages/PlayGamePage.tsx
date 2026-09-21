@@ -29,6 +29,7 @@ function getSuiteProgress(gameId: string) {
 function readBestScore(gameId: string): string {
   const game = findGame(gameId);
   if (!game) return "";
+  gameId = game.id;
 
   if (gameId === "egg-hop") {
     const suite = getSuiteProgress("egg-hop");
@@ -76,9 +77,9 @@ function readBestScore(gameId: string): string {
   }
 
   if (gameId === "rota") {
-    const suite = getSuiteProgress("katman");
+    const suite = getSuiteProgress("rota");
     const direct =
-      parseJsonSafe(localStorage.getItem("puzzle-suite.v1.katman.connect")) ||
+      parseJsonSafe(localStorage.getItem("rota.progress")) ||
       parseJsonSafe(localStorage.getItem("puzzle-suite.v1.rota.connect"));
     const data = suite ?? direct;
     if (data) {
@@ -87,6 +88,64 @@ function readBestScore(gameId: string): string {
       if (data.next) return `Bölüm ${data.next}`;
     }
     return "Bölüm 1";
+  }
+
+  if (gameId === "katman") {
+    const suite = getSuiteProgress("katman");
+    const direct = parseJsonSafe(localStorage.getItem("puzzle-suite.v1.katman.connect"));
+    const data = suite ?? direct;
+    if (data) {
+      const recordsCount = data.records ? Object.keys(data.records).length : 0;
+      if (recordsCount > 0) return `${recordsCount} Bölüm Tamamlandı`;
+      if (data.next) return `Bölüm ${data.next}`;
+    }
+    return "Bölüm 1";
+  }
+
+  if (gameId === "fuzyon") {
+    const suite = getSuiteProgress("fuzyon");
+    const direct = parseJsonSafe(localStorage.getItem("puzzle-suite.v1.fuzyon.reactor"));
+    const data = suite ?? direct;
+    if (typeof data?.best === "number") {
+      return `${data.best.toLocaleString("tr-TR")} puan`;
+    }
+    return "0 puan";
+  }
+
+  if (gameId === "onluk") {
+    const suite = getSuiteProgress("onluk");
+    const direct = parseJsonSafe(localStorage.getItem("puzzle-suite.v1.onluk.arcade"));
+    const data = suite ?? direct;
+    if (typeof data?.best === "number") {
+      return `${data.best.toLocaleString("tr-TR")} puan`;
+    }
+    return "0 puan";
+  }
+
+  if (gameId === "orgu") {
+    const suite = getSuiteProgress("orgu");
+    const direct = parseJsonSafe(localStorage.getItem("puzzle-suite.v1.orgu.weave"));
+    const data = suite ?? direct;
+    if (data) {
+      const recordsCount = data.records ? Object.keys(data.records).length : 0;
+      if (recordsCount > 0) return `${recordsCount} Bölüm Tamamlandı`;
+      if (data.next) return `Bölüm ${data.next}`;
+    }
+    return "Bölüm 1";
+  }
+
+  if (gameId === "sudoku") {
+    const direct = parseJsonSafe(localStorage.getItem("sudoku.v1"));
+    if (direct) {
+      if (typeof direct.wins === "number" && direct.wins > 0) {
+        return `${direct.wins} Galibiyet`;
+      }
+      const levelsCount = direct.levels ? Object.keys(direct.levels).length : 0;
+      if (levelsCount > 0) return `${levelsCount} Bölüm Tamamlandı`;
+    }
+    const legacy = localStorage.getItem("sudoku_best_time");
+    if (legacy) return `${legacy} saniye`;
+    return "0 Galibiyet";
   }
 
   if (gameId === "prizma") {
@@ -142,7 +201,7 @@ function readBestScore(gameId: string): string {
     return "Bölüm 1";
   }
 
-  if (gameId === "siyril") {
+  if (gameId === "ok-cikmazi") {
     const suite = getSuiteProgress("siyril");
     const direct = parseJsonSafe(localStorage.getItem("siyril.v1"));
     const data = suite ?? direct;
@@ -152,6 +211,14 @@ function readBestScore(gameId: string): string {
       if (data.next) return `Bölüm ${data.next}`;
     }
     return "Bölüm 1";
+  }
+
+  if (gameId === "zar-izi") {
+    const data = getSuiteProgress("zar-izi") ??
+      parseJsonSafe(localStorage.getItem(game.storageKey));
+    const count = data?.records ? Object.keys(data.records).length : 0;
+    if (count > 0) return `${count} Bölüm Tamamlandı`;
+    return `Bölüm ${data?.next ?? 1}`;
   }
 
   const raw = localStorage.getItem(game.storageKey);

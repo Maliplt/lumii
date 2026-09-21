@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "renk-renk",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/rules/engine.js",
+    "src/i18n/text.js",
+    "src/services/storage.js",
+    "src/i18n/language.js",
+    "src/audio/audio.js",
+    "src/ui/render/renderer.js",
+    "src/ui/controllers/level-pager.js",
+    "src/ui/controllers/app.js"
+  ],
+  "styles": [
+    "styles/language.css",
+    "styles/style.css"
+  ]
+}

@@ -1,18 +1,23 @@
-import bambooHopImg from "../assets/images/bamboo-hop.jpg";
+import bambooHopImg from "../assets/images/games/bamboo-hop.svg";
 import rotaImg from "../assets/images/rota.jpg";
-import prizmaImg from "../assets/images/prizma.jpg";
-import dengeImg from "../assets/images/denge.jpg";
-import sudokuImg from "../assets/images/sudoku.webp";
+import prizmaImg from "../assets/images/games/prizma.svg";
+import dengeImg from "../assets/images/games/denge.svg";
+import sudokuImg from "../assets/images/games/sudoku.svg";
 import minesweepImg from "../assets/images/minesweeper.webp";
 import blockblastImg from "../assets/images/blockblast.webp";
 import mahjongImg from "../assets/images/mahjong.webp";
-import game2048Img from "../assets/images/2048.jpg";
-import eggHopImg from "../assets/images/egg-hop.jpg";
-import satrancImg from "../assets/images/satranc.jpg";
-import renkRenkImg from "../assets/images/renk-renk.jpg";
-import siyrilImg from "../assets/images/siyril.jpg";
+import game2048Img from "../assets/images/games/2048.svg";
+import eggHopImg from "../assets/images/games/egg-hop.svg";
+import satrancImg from "../assets/images/games/satranc.svg";
+import renkRenkImg from "../assets/images/games/renk-renk.svg";
+import siyrilImg from "../assets/images/games/ok-cikmazi.svg";
 import kelimezinciriImg from "../assets/images/kelimezinciri.webp";
 import doomImg from "../assets/images/doom.svg";
+import fuzyonImg from "../assets/images/games/fuzyon.svg";
+import katmanImg from "../assets/images/games/katman.svg";
+import onlukImg from "../assets/images/games/onluk.svg";
+import zarIziImg from "../assets/images/games/zar-izi.svg";
+import orguImg from "../assets/images/games/orgu.svg";
 
 export interface GameDef {
   id: string;
@@ -66,9 +71,9 @@ export const GAMES: GameDef[] = [
     showScore: true,
   },
   {
-    id: "siyril",
+    id: "ok-cikmazi",
     name: "Ok Çıkmazı",
-    path: "/play/siyril",
+    path: "/play/ok-cikmazi",
     image: siyrilImg,
     description: "Önü Açık Olan Oku Çıkar",
     tag: "Bulmaca",
@@ -108,7 +113,55 @@ export const GAMES: GameDef[] = [
     image: rotaImg,
     description: "Nokta ve Çizgi Bulmacası",
     tag: "Bulmaca",
+    storageKey: "rota.progress",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "katman",
+    name: "Katman",
+    path: "/play/katman",
+    image: katmanImg,
+    description: "Renklerin Yolu Nokta Bulmacası",
+    tag: "Bulmaca",
     storageKey: "puzzle-suite.v1.katman.connect",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "fuzyon",
+    name: "Füzyon",
+    path: "/play/fuzyon",
+    image: fuzyonImg,
+    description: "Sayı Reaktörü & Birleştirme",
+    tag: "Bulmaca",
+    storageKey: "puzzle-suite.v1.fuzyon.reactor",
+    scoreLabel: "En İyi Skor",
+    isScore: true,
+    showScore: true,
+  },
+  {
+    id: "onluk",
+    name: "Onluk",
+    path: "/play/onluk",
+    image: onlukImg,
+    description: "Toplamı 10 Yap & Zincir Kur",
+    tag: "Bulmaca",
+    storageKey: "puzzle-suite.v1.onluk.arcade",
+    scoreLabel: "En İyi Skor",
+    isScore: true,
+    showScore: true,
+  },
+  {
+    id: "orgu",
+    name: "Örgü",
+    path: "/play/orgu",
+    image: orguImg,
+    description: "Kesişen Eşitlikler Bulmacası",
+    tag: "Mantık",
+    storageKey: "puzzle-suite.v1.orgu.weave",
     scoreLabel: "İlerleme",
     isScore: false,
     showScore: true,
@@ -133,6 +186,18 @@ export const GAMES: GameDef[] = [
     description: "Sayı ve Mantık Bulmacası",
     tag: "Mantık",
     storageKey: "puzzle-suite.v1.denge",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "zar-izi",
+    name: "Zar İzi",
+    path: "/play/zar-izi",
+    image: zarIziImg,
+    description: "Renkleri Birleştir, Sayıların İzini Sür",
+    tag: "Bulmaca",
+    storageKey: "puzzle-suite.v1.zar-izi.chains",
     scoreLabel: "İlerleme",
     isScore: false,
     showScore: true,
@@ -168,8 +233,8 @@ export const GAMES: GameDef[] = [
     image: sudokuImg,
     description: "Zeka ve Mantık Oyunu",
     tag: "Bulmaca",
-    storageKey: "sudoku_best_time",
-    scoreLabel: "En İyi Süre",
+    storageKey: "sudoku.v1",
+    scoreLabel: "İlerleme",
     isScore: false,
     showScore: true,
   },
@@ -212,5 +277,6 @@ export const GAMES: GameDef[] = [
 ];
 
 export function findGame(id: string | undefined): GameDef | undefined {
-  return GAMES.find((g) => g.id === id);
+  // Keep previously shared URLs working after the folder/name correction.
+  return GAMES.find((g) => g.id === (id === "siyril" ? "ok-cikmazi" : id));
 }

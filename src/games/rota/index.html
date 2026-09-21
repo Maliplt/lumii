@@ -8,8 +8,8 @@
     />
     <meta name="theme-color" content="#f5f2e9" />
     <title>ROTA — Tek çizgi. Bütün yollar.</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="language.css" />
+    <link rel="stylesheet" href="styles/game.css" />
+    <link rel="stylesheet" href="styles/language.css" />
   </head>
   <body>
     <div class="app">
@@ -182,12 +182,15 @@
       <p id="dialogText"></p>
       <div id="dialogActions"></div>
     </dialog>
-    <script defer src="connection-config.js"></script>
-<script defer src="api-adapter.js"></script>
-<script defer src="profile-config.js"></script>
-<script defer src="save-client.js"></script>
-<script src="translations.js"></script>
-    <script src="language.js"></script>
-    <script src="script.js"></script>
+    <script src="connection-config.js"></script>
+    <script src="src/services/api-adapter.js"></script>
+    <script src="profile-config.js"></script>
+    <script src="src/services/save-client.js"></script>
+    <script src="src/services/storage.js"></script>
+    <script src="src/i18n/translations.js"></script>
+    <script src="src/i18n/language-picker.js"></script>
+    <script src="src/core/route-engine.js"></script>
+    <script src="src/audio/sound.js"></script>
+    <script src="src/ui/game-controller.js"></script>
   </body>
 </html>

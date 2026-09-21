@@ -9,18 +9,21 @@
       content="Denge: Sonsuz sayı bulmacaları. Satırları ve sütunları dengele, kendi yolunda ilerle."
     />
     <title>Denge — Her sayının bir yeri var.</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles/style.css" />
     <script defer src="connection-config.js"></script>
-<script defer src="api-adapter.js"></script>
-<script defer src="profile-config.js"></script>
-<script defer src="save-client.js"></script>
-<script defer src="game-data.js"></script>
-    <script defer src="engine.js"></script>
-    <script defer src="translations.js"></script>
-    <script defer src="audio.js"></script>
-    <script defer src="language.js"></script>
-    <script defer src="script.js"></script>
-    <link rel="stylesheet" href="language.css" />
+    <script defer src="src/services/api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/core/engine.js"></script>
+    <script defer src="src/services/campaigns.js"></script>
+    <script defer src="src/i18n/translations.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/ui/level-map.js"></script>
+    <script defer src="src/ui/tutorial.js"></script>
+    <script defer src="src/ui/controller.js"></script>
+    <link rel="stylesheet" href="styles/language.css" />
   </head>
   <body>
     <main class="app">
@@ -30,7 +33,7 @@
             ><i></i><i></i><i></i><i></i></span
           >denge<span class="brand-dot">.</span>
         </button>
-        <div class="top-actions">
+        <div class="top-actions" id="settings-controls">
           <div class="language-picker">
             <button
               id="language"
@@ -318,6 +321,7 @@
       <div class="dialog-content">
         <div class="eyebrow" data-i18n="guide">DENGE REHBERİ</div>
         <h2 id="dialog-title"></h2>
+        <div id="pause-settings" hidden></div>
         <div id="dialog-body"></div>
         <div id="dialog-actions"></div>
       </div>

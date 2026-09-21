@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "fuzyon",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/engine.js",
+    "src/services/storage.js",
+    "src/i18n/translations.js",
+    "src/i18n/language.js",
+    "src/audio/audio.js",
+    "src/ui/menu-demo.js",
+    "src/ui/controller.js"
+  ],
+  "styles": [
+    "styles/style.css",
+    "styles/language.css",
+    "styles/play.css",
+    "styles/home.css"
+  ]
+}

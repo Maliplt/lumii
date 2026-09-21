@@ -12,9 +12,9 @@
       content="PRİZMA — Parçaları döndür, enerjiyi bağla. Sonsuz ışık bulmacaları."
     />
     <title>PRİZMA — Enerjiyi bağla!</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="language.css" />
-    <link rel="stylesheet" href="night.css" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <link rel="stylesheet" href="styles/night.css" />
   </head>
   <body>
     <svg class="svg-library" aria-hidden="true">
@@ -388,15 +388,18 @@
     </dialog>
     <div id="announce" class="sr-only" aria-live="polite"></div>
     <script defer src="connection-config.js"></script>
-    <script defer src="api-adapter.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
     <script defer src="profile-config.js"></script>
-    <script defer src="save-client.js"></script>
-    <script defer src="game-data.js"></script>
-    <script defer src="engine.js"></script>
-    <script defer src="translations.js"></script>
-    <script defer src="audio.js"></script>
-    <script defer src="language.js"></script>
-    <script defer src="theme.js"></script>
-    <script defer src="script.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/data/game-data.js"></script>
+    <script defer src="src/core/rules/engine.js"></script>
+    <script defer src="src/i18n/translations.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+<script defer src="src/i18n/language.js"></script>
+<script defer src="src/ui/controllers/theme.js"></script>
+<script defer src="src/ui/controllers/dialog-controller.js"></script>
+<script defer src="src/ui/render/canvas-primitives.js"></script>
+<script defer src="src/ui/render/screen-renderers.js"></script>
+<script defer src="src/ui/controllers/game-controller.js"></script>
   </body>
 </html>

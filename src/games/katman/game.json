@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "katman",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/i18n/language.js",
+    "src/core/engine.js",
+    "src/services/storage.js",
+    "src/audio/audio.js",
+    "src/i18n/translations.js",
+    "src/ui/view-helpers.js",
+    "src/ui/app-shell.js",
+    "src/ui/level-browser.js",
+    "src/ui/dialog-controller.js",
+    "src/ui/celebration.js",
+    "src/ui/controller.js"
+  ],
+  "styles": [
+    "styles/style.css",
+    "styles/language.css"
+  ]
+}

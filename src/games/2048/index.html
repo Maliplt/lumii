@@ -12,8 +12,9 @@
       content="2048 sayı bulmacası. Kaydır ve aynı sayıları birleştir."
     />
     <title>2048</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="language.css" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <link rel="stylesheet" href="styles/arcade.css" />
   </head>
   <body>
     <div class="app">
@@ -42,6 +43,11 @@
             </svg>
           </button>
         </div>
+        <button id="pause" class="icon" hidden aria-label="Durdur">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14M16 5v14" />
+          </svg>
+        </button>
       </header>
       <main>
         <section id="menu" class="screen menu">
@@ -84,17 +90,16 @@
         </section>
         <section id="game" class="screen game" hidden>
           <div class="game-top">
-            <button id="back" class="text-button">
-              ← <span data-t="menu"></span>
-            </button>
+            <button id="tutorial-back" class="text-button" data-t="back" hidden></button>
             <div class="scoreboard">
               <div>
+                <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-8z"/></svg>
                 <span data-t="score"></span><strong id="score">0</strong
                 ><b id="gain"></b>
               </div>
-              <div><span data-t="best"></span><strong id="best">0</strong></div>
+              <div><svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v3a4 4 0 0 0 5 4m7-7h4v3a4 4 0 0 1-5 4M12 13v6m-4 2h8"/></svg><span data-t="best"></span><strong id="best">0</strong></div>
+              <div><svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6m-3 0v3m6 1 2-2"/></svg><span data-t="time"></span><strong id="time" dir="ltr">00:00</strong></div>
             </div>
-            <span class="header-spacer" aria-hidden="true"></span>
           </div>
           <div class="playfield">
             <div class="board-wrap">
@@ -109,7 +114,7 @@
                 </svg>
               </div>
               <div class="combo-line">
-                <span id="combo"></span><span id="moves">0</span>
+                <span id="combo"></span>
               </div>
               <div id="board" role="application" aria-label="2048" tabindex="0">
                 <div class="slots" aria-hidden="true"></div>
@@ -117,32 +122,32 @@
                 <div id="particles" aria-hidden="true"></div>
               </div>
               <div class="controls">
+                <div class="target-track"><div class="target-caption"><span data-t="target"></span><strong>2048</strong></div><div class="target-meter" role="progressbar" aria-label="2048" aria-valuemin="0" aria-valuemax="2048" aria-valuenow="0"><i id="target-fill"></i></div></div>
                 <span data-t="control"></span>
               </div>
             </div>
           </div>
         </section>
       </main>
-      <footer>
-        <span>2048</span><span id="footer-label"></span>
-      </footer>
     </div>
     <dialog id="dialog">
-      <button id="close" class="icon close" aria-label="Close">×</button>
+      <button id="close" class="icon close" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+      </button>
       <div id="dialog-content"></div>
       <div id="dialog-actions"></div>
     </dialog>
     <div id="announcement" class="sr-only" aria-live="polite"></div>
     <script defer src="connection-config.js"></script>
-    <script defer src="api-adapter.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
     <script defer src="profile-config.js"></script>
-    <script defer src="save-client.js"></script>
-    <script defer src="engine.js"></script>
-    <script defer src="translations.js"></script>
-    <script defer src="storage.js"></script>
-    <script defer src="audio.js"></script>
-    <script defer src="language.js"></script>
-    <script defer src="demo.js"></script>
-    <script defer src="script.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/core/engine.js"></script>
+    <script defer src="src/i18n/translations.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/ui/demo.js"></script>
+    <script defer src="src/ui/controller.js"></script>
   </body>
 </html>

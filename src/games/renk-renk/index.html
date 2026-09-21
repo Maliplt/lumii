@@ -8,8 +8,8 @@
     />
     <meta name="theme-color" content="#fff7e8" />
     <title>Renk Renk</title>
-    <link rel="stylesheet" href="language.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <link rel="stylesheet" href="styles/style.css" />
   </head>
   <body>
     <div class="app">
@@ -163,16 +163,16 @@
       <div id="dialog-actions"></div>
     </dialog>
     <script defer src="connection-config.js"></script>
-    <script defer src="api-adapter.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
     <script defer src="profile-config.js"></script>
-    <script defer src="save-client.js"></script>
-    <script defer src="engine.js"></script>
-    <script defer src="text.js"></script>
-    <script defer src="storage.js"></script>
-    <script defer src="language.js"></script>
-    <script defer src="audio.js"></script>
-    <script defer src="renderer.js"></script>
-    <script defer src="level-pager.js"></script>
-    <script defer src="app.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/core/rules/engine.js"></script>
+    <script defer src="src/i18n/text.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/ui/render/renderer.js"></script>
+    <script defer src="src/ui/controllers/level-pager.js"></script>
+    <script defer src="src/ui/controllers/app.js"></script>
   </body>
 </html>

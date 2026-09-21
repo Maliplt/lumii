@@ -1,0 +1,48 @@
+#loading {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: #e5e9c9;
+  color: #294b37;
+  font-family: "Barlow Condensed", Arial, sans-serif;
+}
+#loading strong {
+  font-size: clamp(42px, 9vw, 76px);
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+#loading #loading-label {
+  font-size: 28px;
+  font-weight: 800;
+}
+#loading-progress {
+  width: min(540px, 82vw);
+  height: 44px;
+  padding: 6px;
+  background: #a9ba88;
+  border-radius: 5px;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 3px 0 #829765,
+    0 5px 0 #cbd5aa;
+  overflow: hidden;
+}
+#loading-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    120deg,
+    #40734a 0px,
+    #40734a 18px,
+    #65944e 18px,
+    #65944e 36px
+  );
+  box-shadow: inset 0 3px 0 #82ad62;
+}

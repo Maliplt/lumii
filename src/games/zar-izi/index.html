@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Zar İzi — Renkleri birleştir, sayıların izini sür. 48 özgün zar bulmacası ve her gün yeni bir bölüm."
+    />
+    <title>Zar İzi — Renk ve sayı bulmacası</title>
+    <link rel="icon" href="assets/medal.png" type="image/png" />
+    <link
+      rel="preload"
+      href="assets/fonts/Barlow-SemiBold.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="connection-config.js"></script>
+    <script defer src="api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="save-client.js"></script>
+    <script defer src="src/engine.js"></script>
+    <script defer src="src/levels.js"></script>
+    <script defer src="src/i18n.js"></script>
+    <script defer src="src/storage.js"></script>
+    <script defer src="src/audio.js"></script>
+    <script defer src="assets/manifest.js"></script>
+    <script defer src="src/motion.js"></script>
+    <script defer src="src/app.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <button class="brand" id="brand">
+          <span class="brand-art" aria-hidden="true"></span
+          ><span data-t="title">Zar İzi</span><span class="edition">01—48</span>
+        </button>
+        <div class="top-actions">
+          <button
+            class="icon-button"
+            id="language"
+            data-label="language"
+          ></button>
+          <button class="icon-button" id="help" data-label="help">
+            <i class="icon" data-icon="help"></i>
+          </button>
+          <button class="icon-button" id="settings" data-label="settings">
+            <i class="icon" data-icon="settings"></i>
+          </button>
+        </div>
+      </header>
+      <section id="home" class="home" aria-labelledby="home-title">
+        <div class="home-art" aria-hidden="true"></div>
+        <h1 id="home-title" data-t="title"></h1>
+        <div class="home-actions">
+          <button id="play" class="primary" data-t="gotIt"></button
+          ><button id="home-daily" class="menu-button" data-t="daily"></button
+          ><button
+            id="home-levels"
+            class="menu-button"
+            data-t="levels"
+          ></button>
+        </div>
+        <button
+          id="home-settings"
+          class="home-settings"
+          data-t="settings"
+        ></button>
+        <p id="home-progress"></p>
+      </section>
+      <main id="game-screen" hidden>
+        <header class="game-header">
+          <button id="game-back" class="round-button" data-label="mainMenu">
+            <span class="back-chevron" aria-hidden="true"></span>
+          </button>
+          <h1 id="game-title"></h1>
+          <button id="reset" class="round-button" data-label="reset">
+            <i class="icon" data-icon="reset"></i>
+          </button>
+        </header>
+        <div class="game-meta">
+          <span class="clock-readout"
+            ><span class="clock-icon" aria-hidden="true"></span
+            ><time id="elapsed">00:00</time></span
+          ><button id="hint" class="hint-count" data-label="hint"></button>
+        </div>
+        <section class="play-layout">
+          <div class="play-center">
+            <div class="board-frame">
+              <div
+                id="board"
+                class="board"
+                role="group"
+                aria-label="Oyun tahtası"
+              ></div>
+            </div>
+
+            <section class="reserve-section" aria-labelledby="reserve-heading">
+              <div class="reserve-heading">
+                <h2 id="reserve-heading" data-t="reserve">ZAR REZERVİ</h2>
+              </div>
+              <div
+                id="reserve"
+                class="reserve"
+                role="group"
+                aria-labelledby="reserve-heading"
+              ></div>
+            </section>
+          </div>
+        </section>
+
+        <div id="tutorial-navigation" hidden>
+          <p id="tutorial-instruction"></p>
+          <button id="tutorial-next" class="primary" hidden></button>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </main>
+      <footer>
+        <span hidden></span><span id="save-status" data-t="saved"></span>
+      </footer>
+    </div>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <div id="dialog-content"></div>
+    </dialog>
+    <div id="drag-ghost" aria-hidden="true" hidden></div>
+    <noscript
+      >Bu oyun için JavaScript etkin olmalıdır. JavaScript is required to
+      play.</noscript
+    >
+  </body>
+</html>

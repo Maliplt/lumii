@@ -1,0 +1,339 @@
+/* Home composition. The only illustration is the actual running game. */
+body[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #fff;
+  --bay: #eef0f4;
+  --scene: #eef0f4;
+  --line: #dce0e7;
+  --scene-line: #dce0e7;
+  --ink: #293143;
+  --muted: #70788a;
+}
+.studio:has(.menu-state) {
+  width: min(100% - 32px, 720px);
+}
+.menu-state {
+  grid-template-rows: 64px minmax(0, 1fr);
+}
+.menu-state header {
+  border: 0;
+}
+.start-cover {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  justify-items: center;
+  gap: 12px;
+  padding: 16px 0 24px;
+  min-height: 0;
+  height: 100%;
+  max-height: 760px;
+  align-self: center;
+  width: 100%;
+}
+.menu-copy {
+  grid-row: 1;
+  grid-column: 1;
+  text-align: center;
+  align-self: center;
+}
+.menu-copy h1 {
+  font-size: 76px;
+  font-weight: 850;
+  letter-spacing: -5px;
+  line-height: 1.05;
+}
+.menu-copy p {
+  max-width: none;
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+.menu-scene {
+  display: block;
+  grid-row: 2;
+  grid-column: 1;
+  align-self: stretch;
+  width: min(100%, 460px);
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.menu-scene .hero-board {
+  width: min(95cqw, 112cqh);
+}
+.menu-scene .hero-cell {
+  filter: drop-shadow(0 3px 1px #252d4218);
+}
+.menu-scene .hero-cell:empty {
+  opacity: 0.48;
+}
+.menu-scene .hero-cell .core {
+  font-size: clamp(22px, 6cqh, 32px);
+}
+.menu-actions {
+  grid-row: 3;
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  width: min(100%, 440px);
+  max-width: none;
+  margin: 0;
+  gap: 12px;
+  align-self: end;
+}
+.menu-state .start-button,
+.menu-state .learn {
+  min-height: 56px;
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 15px;
+  border-radius: var(--radius);
+  justify-content: space-between;
+  box-shadow: none;
+}
+.menu-state .start-button {
+  background: #293143;
+  border: 1px solid #293143;
+  color: #fff;
+}
+.menu-state .start-button:hover {
+  background: #3b4861;
+  filter: none;
+}
+.menu-state .learn {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.menu-state .learn:hover {
+  background: var(--bay);
+  border-color: var(--muted);
+}
+.menu-state .menu-record {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  margin: 8px 0 0;
+  padding: 16px 0 0;
+}
+.menu-record svg {
+  width: 20px;
+  height: 20px;
+  color: #ba8732;
+}
+.menu-state .menu-record strong {
+  margin: 0 0 0 8px;
+  font-size: 21px;
+  color: var(--ink);
+}
+.menu-record span {
+  font-size: 11px;
+  letter-spacing: 0.8px;
+}
+/* Buttons vary by role, sharing their geometry and interaction treatment. */
+.settings .icon,
+.settings .language-toggle {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: none;
+  color: var(--ink);
+}
+.settings .icon:hover,
+.settings .language-toggle:hover {
+  background: var(--bay);
+  border-color: var(--muted);
+}
+.settings button:active {
+  transform: scale(0.94);
+}
+.display .pause {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.lower-controls {
+  gap: 12px;
+}
+.lower-controls button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 650;
+}
+.lower-controls button:hover:not(:disabled) {
+  background: var(--bay);
+  border-color: var(--muted);
+}
+.lower-controls button:disabled {
+  opacity: 0.35;
+}
+#modal-actions button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-height: 48px;
+  box-shadow: none;
+}
+#modal-actions button.primary,
+.tutorial-win .start-button {
+  background: #293143;
+  color: #fff !important;
+  border: 1px solid #293143;
+  box-shadow: none;
+}
+#modal-actions button:hover {
+  filter: brightness(0.96);
+}
+body[data-theme="dark"] .menu-state .start-button,
+body[data-theme="dark"] #modal-actions button.primary,
+body[data-theme="dark"] .tutorial-win .start-button {
+  background: #eceaf1;
+  color: #282331 !important;
+  border-color: #eceaf1;
+}
+button:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 3px;
+}
+@media (max-width: 700px), (max-height: 500px) {
+  .menu-scene {
+    display: none;
+  }
+  .start-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+    max-height: none;
+    padding: 20px 8px;
+  }
+  .menu-copy h1 {
+    font-size: clamp(64px, 15vw, 84px);
+  }
+  .menu-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: min(100%, 340px);
+    gap: 12px;
+    align-self: center;
+  }
+  .menu-state .menu-record {
+    grid-column: 1;
+  }
+}
+@media (max-width: 360px) {
+  .settings {
+    gap: 4px;
+  }
+  .settings .icon,
+  .settings .language-toggle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .wordmark {
+    font-size: 19px;
+  }
+}
+@media (max-height: 570px) {
+  .menu-state {
+    grid-template-rows: 48px minmax(0, 1fr);
+  }
+  .start-cover {
+    gap: 20px;
+    padding: 8px 0;
+  }
+  .menu-copy h1 {
+    font-size: 52px;
+  }
+  .menu-copy p {
+    margin-top: 8px;
+  }
+  .menu-state .start-button,
+  .menu-state .learn {
+    min-height: 44px;
+    padding-block: 10px;
+  }
+  .menu-state .menu-record {
+    padding-top: 10px;
+    margin-top: 0;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .menu-actions {
+    grid-template-columns: 1.25fr 1fr;
+    width: min(100%, 440px);
+  }
+  .menu-state .menu-record {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Same neutral surfaces in the menu and the playing screen. */
+.menu-actions {
+  grid-template-columns: 1fr;
+}
+.menu-state .menu-record {
+  grid-column: 1;
+}
+body[data-theme="light"] .menu-state .start-button {
+  color: #fff;
+}
+body[data-theme="dark"] .menu-state .start-button {
+  color: #282331;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .menu-actions {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .menu-state .menu-record {
+    grid-column: 1;
+    padding-top: 6px;
+  }
+  .start-cover {
+    gap: 10px;
+  }
+  .menu-state .start-button,
+  .menu-state .learn {
+    min-height: 38px;
+    padding-block: 7px;
+  }
+  .menu-copy h1 {
+    font-size: 40px;
+  }
+}
+/* Keep menu labels truly centered, independently of trailing icons. */
+.menu-state .menu-actions > button {
+  position: relative;
+  justify-content: center;
+  padding-inline: 48px;
+  text-align: center;
+}
+.menu-state .menu-actions > button > svg {
+  position: absolute;
+  inset-inline-end: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}

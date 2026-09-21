@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Egg Hop</title>
     <link rel="icon" href="assets/egg-cream.png" />
-    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="styles/game.css?v=2" />
   </head>
   <body>
     <main id="stage">
@@ -41,12 +41,13 @@
       <div id="hint" hidden></div>
     </main>
     <script src="connection-config.js"></script>
-<script src="api-adapter.js"></script>
-<script src="profile-config.js"></script>
-    <script src="save-client.js"></script>
-    <script src="locales.js"></script>
-    <script src="background.js?v=2"></script>
-    <script src="game.js?v=2"></script>
-    <script src="app.js"></script>
+    <script src="src/services/api-adapter.js"></script>
+    <script src="profile-config.js"></script>
+    <script src="src/services/save-client.js"></script>
+    <script src="src/i18n/locales.js"></script>
+    <script src="src/ui/background.js?v=2"></script>
+    <script src="src/data/assets.js"></script>
+    <script src="src/core/game.js?v=2"></script>
+    <script src="src/ui/app.js"></script>
   </body>
 </html>

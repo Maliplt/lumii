@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f7f5ef" />
+    <title>Ok Çıkmazı</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <button id="home" class="brand" aria-label="Menü">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M5 25V9h16M15 3l7 6-7 6M12 25h15V17" /></svg
+          ><span data-t="title">Ok Çıkmazı</span>
+        </button>
+        <div class="settings">
+          <div class="language-picker">
+            <button
+              id="language"
+              class="icon language-toggle"
+              aria-expanded="false"
+              aria-controls="language-panel"
+            >
+              TR
+            </button>
+            <div id="language-panel" hidden></div>
+          </div>
+          <button id="theme" class="icon"></button
+          ><button id="help" class="icon" data-label="how">?</button
+          ><button
+            id="sound"
+            class="icon"
+            data-label="sound"
+            aria-pressed="true"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9h4l5-4v14l-5-4H3ZM16 8q4 4 0 8m3-11q7 7 0 14" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <main>
+        <section id="menu" class="screen menu">
+          <div class="menu-copy">
+            <h1 data-t="title">Ok Çıkmazı</h1>
+            <p data-t="tagline"></p>
+            <button id="play" class="primary">
+              <span></span
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </button>
+            <div class="secondary-actions">
+              <button id="levels" data-t="levels"></button
+              ><button id="learn" data-t="how"></button>
+            </div>
+            <div class="record">
+              <span data-t="best"></span><strong id="total">0</strong>
+            </div>
+          </div>
+          <div class="menu-art" aria-hidden="true">
+            <svg id="demo"></svg
+            ><span class="art-label">01 <i></i> 02 <i></i> 03</span>
+          </div>
+        </section>
+        <section id="map" class="screen map" hidden>
+          <div class="view-heading">
+            <div>
+              <small id="range"></small>
+              <h2 data-t="levels"></h2>
+            </div>
+            <button id="map-home" class="back-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 12H5m6-6-6 6 6 6" /></svg
+              ><span data-t="back"></span>
+            </button>
+          </div>
+          <div id="level-list"></div>
+          <div class="pagination">
+            <button id="prev" class="icon" aria-label="Previous">←</button
+            ><span id="page-number"></span
+            ><button id="next-page" class="icon" aria-label="Next">→</button>
+          </div>
+        </section>
+        <section id="game" class="screen game" hidden>
+          <div class="game-heading">
+            <button id="back" class="back-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 12H5m6-6-6 6 6 6" /></svg
+              ><span data-t="back"></span>
+            </button>
+            <div>
+              <small id="level-kind"></small>
+              <h2 id="level-title"></h2>
+            </div>
+            <div id="lives" role="img"></div>
+          </div>
+          <div class="hud">
+            <div>
+              <span data-t="score"></span><strong id="score">0</strong
+              ><b id="gain"></b>
+            </div>
+            <div>
+              <span data-t="time"></span><strong id="time">00:00</strong>
+            </div>
+          </div>
+          <div id="tutorial-progress" hidden aria-live="polite">
+            <span id="tutorial-count"></span>
+            <div id="tutorial-steps" aria-hidden="true"></div>
+          </div>
+          <div class="board-shell">
+            <svg id="board" aria-label="Puzzle"></svg>
+            <div id="finger" hidden aria-hidden="true">
+              <span class="touch-ring"></span>
+              <svg class="touch-hand" viewBox="0 0 48 64">
+                <path
+                  d="M17 31V9a5 5 0 0 1 10 0v17a4 4 0 0 1 8-1v3a4 4 0 0 1 8 1v13c0 7-4 11-6 16H20c-1-6-5-10-9-15l-6-9a4 4 0 0 1 6-5l6 6Z"
+                />
+                <path class="hand-fold" d="M27 27v9m8-7v8M20 52h16" />
+              </svg>
+            </div>
+          </div>
+          <div id="status" aria-live="polite"></div>
+          <div class="game-actions">
+            <button id="hint">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M9 18h6m-5 3h4M8 14a6 6 0 1 1 8 0c-1 1-1 2-1 2H9s0-1-1-2Z"
+                /></svg
+              ><span data-t="hint"></span></button
+            ><button id="reset">
+              <span aria-hidden="true">↻</span><span data-t="reset"></span>
+            </button>
+          </div>
+        </section>
+        <section id="result" class="screen result" hidden>
+          <div class="result-mark" aria-hidden="true">↗</div>
+          <small id="result-level"></small>
+          <h1 id="result-title"></h1>
+          <div id="stars" aria-label="Rating"></div>
+          <div class="result-stats">
+            <div>
+              <span data-t="score"></span><strong id="final-score"></strong>
+            </div>
+            <div>
+              <span data-t="time"></span><strong id="final-time"></strong>
+            </div>
+          </div>
+          <button id="next-level" class="primary" data-t="next"></button
+          ><button id="result-map" data-t="levels"></button>
+        </section>
+      </main>
+    </div>
+    <dialog id="dialog">
+      <h2 id="dialog-title"></h2>
+      <div id="dialog-body"></div>
+      <div id="dialog-actions"></div>
+    </dialog>
+    <script defer src="connection-config.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/core/rules/engine.js"></script>
+    <script defer src="src/i18n/text.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/ui/render/renderer.js"></script>
+    <script defer src="src/core/rules/rewards.js"></script>
+    <script defer src="src/ui/controllers/app.js"></script>
+  </body>
+</html>

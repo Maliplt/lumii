@@ -1,0 +1,112 @@
+.language-picker {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.language-toggle {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 6px 9px !important;
+  background: var(--surface, #fffcf4);
+  color: var(--ink, #263c51);
+  border: 2px solid var(--line, #d1dce4);
+  border-radius: 12px;
+  font:
+    700 14px "Segoe UI",
+    Arial,
+    sans-serif;
+  box-shadow: 0 3px 0 var(--line, #d1dce4);
+  cursor: pointer;
+}
+.language-toggle[aria-expanded="true"] {
+  background: var(--ink, #263c51);
+  color: var(--bg, var(--paper, #fff));
+  border-color: var(--ink, #263c51);
+}
+#language-panel {
+  position: fixed;
+  inset: auto;
+  z-index: 10000;
+  width: min(310px, calc(100vw - 24px));
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface, #fffcf4);
+  border: 2px solid var(--line, #d1dce4);
+  border-radius: 20px;
+  box-shadow:
+    0 7px 0 var(--line, #d1dce4),
+    0 20px 40px #0002;
+  animation: language-open 0.2s ease-out;
+  direction: ltr;
+}
+#language-panel[hidden] {
+  display: none !important;
+}
+#language-panel button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 48px;
+  height: auto;
+  padding: 10px 8px;
+  background: var(--bg, var(--paper, #f2f5f7));
+  color: var(--ink, #263c51);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font:
+    700 14px "Segoe UI",
+    Arial,
+    sans-serif;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+#language-panel button[aria-pressed="true"] {
+  border-color: var(--ink, #263c51);
+}
+#language-panel button:hover {
+  transform: translateY(-2px);
+}
+#language-panel .flag {
+  width: 30px;
+  height: 21px;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #0001;
+}
+#language-panel button:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.board,
+#board,
+#map-window,
+#atlas-window,
+.atlas-grid,
+#tutorial-board {
+  direction: ltr;
+}
+@keyframes language-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #language-panel {
+    animation: none;
+  }
+}

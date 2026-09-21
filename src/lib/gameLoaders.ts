@@ -1,10 +1,10 @@
 import { createElement, lazy, type ComponentType, type LazyExoticComponent } from "react";
+import { findGame } from "./games";
 
 type GameComponent = LazyExoticComponent<ComponentType>;
 
 const gameComponents: Record<string, GameComponent> = {
   kelimezinciri: lazy(() => import("../games/KelimeZinciri/KelimeZinciri")),
-  sudoku: lazy(() => import("../games/Sudoku/Sudoku")),
   minesweeper: lazy(() => import("../games/Minesweeper/Minesweeper")),
   blockbloom: lazy(() => import("../games/BlockBloomPuzzle/BlockBloomPuzzle")),
   mahjong: lazy(() => import("../games/MahjongSanctuary/MahjongSanctuary")),
@@ -20,21 +20,29 @@ const PUBLIC_GAMES = new Set([
   "egg-hop",
   "renk-renk",
   "satranc",
-  "siyril",
+  "ok-cikmazi",
+  "fuzyon",
+  "katman",
+  "onluk",
+  "orgu",
+  "sudoku",
+  "zar-izi",
 ]);
 
 export function hasGameComponent(gameId: string): boolean {
+  gameId = findGame(gameId)?.id ?? gameId;
   return PUBLIC_GAMES.has(gameId) || Boolean(gameComponents[gameId]);
 }
 
 export function LoadedGame({ gameId }: { gameId: string }) {
+  gameId = findGame(gameId)?.id ?? gameId;
   if (PUBLIC_GAMES.has(gameId)) {
     return createElement(
       "div",
       { className: "public-game-container" },
       createElement("iframe", {
-        src: `/src/games/${gameId}/index.html`,
-        title: `${gameId} Oyunu`,
+        src: `${import.meta.env.BASE_URL}src/games/${gameId}/index.html`,
+        title: `${findGame(gameId)?.name ?? gameId} Oyunu`,
         className: "public-game-frame",
         allow: "autoplay; fullscreen",
       })

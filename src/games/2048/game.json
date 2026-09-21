@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "2048",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/engine.js",
+    "src/i18n/translations.js",
+    "src/services/storage.js",
+    "src/audio/audio.js",
+    "src/i18n/language.js",
+    "src/ui/demo.js",
+    "src/ui/controller.js"
+  ],
+  "styles": [
+    "styles/style.css",
+    "styles/language.css"
+  ]
+}

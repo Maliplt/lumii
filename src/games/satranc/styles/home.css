@@ -1,0 +1,85 @@
+/* Loaded after interaction.css; owns the home screen's final layout. */
+.hub-feature { min-height: 236px; }
+.feature-copy { min-height: 236px; padding-bottom: 22px; }
+.feature-copy .resume-inline {
+  position: relative;
+  inset: auto;
+  width: 176px;
+  min-height: 44px;
+  margin: 16px 0 0;
+  transform: none;
+  justify-content: center;
+  border-color: #ffffff55;
+  background: #ffffff24;
+  box-shadow: 0 3px 0 #07141f30;
+}
+.feature-copy .resume-inline:hover {
+  background: #ffffff32;
+  border-color: #ffffff88;
+}
+.hub-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.hub-stats > div {
+  position: relative;
+  min-height: 96px;
+  padding: 15px 18px 13px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: none;
+}
+.hub-stats strong { position: relative; z-index: 1; font-size: 31px; }
+@media (max-width: 700px) {
+  .chess-hub {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hub-heading, .hub-feature, .hub-mode-heading,
+  .mode-carousel, .hub-bottom, .hub-play { flex: 0 0 auto; }
+  .hub-feature { min-height: 0; }
+  .feature-copy { min-height: 224px; padding-bottom: 18px; }
+  .feature-copy .resume-inline {
+    position: relative;
+    inset: auto;
+    width: 168px;
+    min-height: 44px;
+    margin: 14px 0 0;
+  }
+  .hub-stats { gap: 7px; padding: 0; }
+  .hub-stats > div { min-height: 78px; padding: 11px 12px 10px; }
+  .hub-stats strong { font-size: 25px; }
+  .hub-stats span { margin-top: 3px; font-size: 12px; }
+  .hub-play {
+    position: static;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0;
+    padding: 8px;
+    transform: none;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    box-shadow: none;
+  }
+}
+@media (max-width: 700px) and (max-height: 750px) {
+  .feature-copy { min-height: 210px; padding: 16px; }
+  .feature-copy .resume-inline { inset: auto; margin-top: 12px; }
+}
+@media (max-width: 420px) {
+  .hub-stats > div { padding-inline: 9px; }
+  .hub-stats strong { font-size: 23px; }
+  .feature-copy { min-height: 218px; }
+  .feature-copy .resume-inline { width: 154px; }
+}

@@ -1,0 +1,808 @@
+.setup-v2,
+.learn-screen,
+.stats-screen-v2,
+.journey-screen-v2 {
+  overflow: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+.setup-v2::-webkit-scrollbar,
+.learn-screen::-webkit-scrollbar,
+.stats-screen-v2::-webkit-scrollbar,
+.journey-screen-v2::-webkit-scrollbar {
+  display: none;
+}
+.setup-hero,
+.learn-hero,
+.journey-hero {
+  width: min(880px, 100%);
+  min-height: 126px;
+  margin: 0 auto 12px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: 21px;
+  background: var(--ink);
+  color: var(--surface);
+}
+.setup-hero .eyebrow,
+.learn-hero .eyebrow,
+.journey-hero .eyebrow {
+  color: color-mix(in srgb, var(--surface), transparent 35%);
+}
+.setup-hero h2,
+.learn-hero h2,
+.journey-hero h2 {
+  margin-top: 3px;
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -1.2px;
+}
+.setup-hero p,
+.learn-hero p,
+.journey-hero p {
+  margin-top: 6px;
+  color: color-mix(in srgb, var(--surface), transparent 25%);
+  font-size: 11px;
+}
+.setup-number {
+  min-width: 72px;
+  color: var(--amber);
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -4px;
+}
+.difficulty-grid {
+  width: min(880px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.difficulty-card-v2 {
+  position: relative;
+  min-height: 112px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 15px;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.difficulty-card-v2::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 5px;
+  background: var(--teal);
+}
+.difficulty-card-v2.d1::after {
+  background: var(--amber);
+}
+.difficulty-card-v2.d2::after {
+  background: var(--coral);
+}
+.difficulty-card-v2.d3::after {
+  background: var(--violet);
+}
+.difficulty-index {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+.difficulty-card-v2 h3 {
+  font-size: 21px;
+}
+.difficulty-card-v2 small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+}
+.difficulty-action {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--primary);
+}
+.difficulty-action svg {
+  width: 17px;
+}
+.difficulty-card-v2:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+.custom-link {
+  width: min(880px, 100%);
+  min-height: 62px;
+  margin: 10px auto 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 13px;
+  padding: 10px 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: left;
+}
+.custom-link b,
+.custom-link small {
+  display: block;
+}
+.custom-link small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.learn-hero {
+  background: #164c46;
+}
+.learn-emblem {
+  width: 65px;
+  height: 65px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #91e4d4;
+}
+.learn-emblem svg {
+  width: 30px;
+  height: 30px;
+}
+.learn-score {
+  margin-left: auto;
+  text-align: right;
+}
+.learn-score b,
+.learn-score small {
+  display: block;
+}
+.learn-score b {
+  font-size: 36px;
+}
+.learn-score small {
+  color: #aee6db;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.technique-list {
+  width: min(880px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.technique-group {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.technique-heading {
+  min-height: 52px;
+  padding: 11px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--teal-soft);
+}
+.technique-group.g1 .technique-heading {
+  background: var(--amber-soft);
+}
+.technique-group.g2 .technique-heading {
+  background: var(--coral-soft);
+}
+.technique-group.g3 .technique-heading {
+  background: var(--violet-soft);
+}
+.technique-heading > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+}
+.technique-heading h3 {
+  font-size: 14px;
+}
+.technique-heading small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.technique-row {
+  width: calc(100% - 22px);
+  min-height: 57px;
+  margin: 0 11px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+}
+.technique-row:last-child {
+  border-bottom: 0;
+}
+.technique-row small,
+.technique-row b {
+  display: block;
+}
+.technique-row small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.technique-row > svg {
+  width: 16px;
+  color: var(--muted);
+}
+.mastery-ring {
+  --p: 0%;
+  width: 37px;
+  height: 37px;
+  padding: 3px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--primary) var(--p), var(--line) 0);
+}
+.mastery-ring::before {
+  content: "";
+  grid-area: 1/1;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.mastery-ring b {
+  grid-area: 1/1;
+  z-index: 1;
+  font-size: 10px;
+}
+.learn-screen > .app-nav,
+.stats-screen-v2 > .app-nav {
+  position: sticky;
+  z-index: 5;
+  bottom: 0;
+  margin-top: 12px;
+}
+.journey-hero {
+  justify-content: space-between;
+  background: #312a5a;
+}
+.journey-progress {
+  min-width: 170px;
+  text-align: right;
+}
+.journey-progress b {
+  display: block;
+  font-size: 28px;
+}
+.journey-progress i {
+  width: 170px;
+  height: 7px;
+  margin-top: 8px;
+  display: block;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.16);
+}
+.journey-progress em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #a99bff;
+}
+.chapter-switch {
+  width: min(880px, 100%);
+  margin: 0 auto 10px;
+  display: flex;
+  gap: 7px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.chapter-switch::-webkit-scrollbar {
+  display: none;
+}
+.chapter-switch button {
+  min-width: 140px;
+  min-height: 45px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface);
+  font-size: 11px;
+  box-shadow: var(--shadow-sm);
+}
+.chapter-switch button span {
+  margin-right: 7px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.chapter-switch button.active {
+  border-color: var(--violet);
+  background: var(--violet-soft);
+  color: var(--violet-ink);
+}
+.level-grid-v2 {
+  width: min(880px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 9px;
+}
+.level-node {
+  aspect-ratio: 1;
+  min-height: 84px;
+  padding: 11px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.level-node small {
+  grid-column: 1/-1;
+  align-self: start;
+  color: var(--muted);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.level-node b {
+  font-size: 25px;
+}
+.level-node span {
+  color: var(--amber-ink);
+  font-size: 10px;
+}
+.level-node span svg {
+  width: 16px;
+}
+.level-node.current {
+  border-color: var(--violet);
+  background: var(--violet);
+  color: white;
+}
+.level-node.current small,
+.level-node.current span {
+  color: #ded9ff;
+}
+.level-node.finished {
+  border-bottom: 5px solid var(--teal);
+}
+.level-node:disabled {
+  opacity: 0.38;
+  box-shadow: none;
+}
+
+.profile-hero {
+  min-height: 142px;
+  padding: 23px 26px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 22px;
+  border-radius: 22px;
+  background: #172a4d;
+  color: white;
+}
+.profile-mark {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  background: #2459b5;
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.13);
+}
+.profile-mark span {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.profile-intro .eyebrow {
+  color: #9fb9e5;
+}
+.profile-intro h2 {
+  margin-top: 3px;
+  font-size: clamp(26px, 3vw, 36px);
+  letter-spacing: -1.3px;
+}
+.profile-intro p {
+  margin-top: 6px;
+  color: #bdcbe4;
+  font-size: 11px;
+}
+.profile-streak {
+  min-width: 115px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.profile-streak > svg {
+  width: 28px;
+  height: 28px;
+  color: var(--amber);
+}
+.profile-streak b,
+.profile-streak small {
+  display: block;
+}
+.profile-streak b {
+  font-size: 28px;
+  line-height: 1;
+}
+.profile-streak small {
+  margin-top: 3px;
+  color: #bdcbe4;
+  font-size: 9px;
+}
+.profile-dashboard,
+.profile-lower {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 10px;
+}
+.activity-card,
+.weekly-goals,
+.mastery-panel,
+.achievement-panel {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.profile-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.profile-card-title h3 {
+  margin-top: 3px;
+  font-size: 16px;
+}
+.profile-card-title > b {
+  color: var(--primary);
+  font-size: 25px;
+}
+.activity-calendar {
+  grid-template-columns: repeat(14, 1fr);
+  margin-top: 16px;
+  gap: 5px;
+}
+.activity-calendar .activity-day i {
+  max-width: 29px;
+}
+.activity-legend {
+  margin-top: 11px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 13px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.activity-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.activity-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.activity-legend i.on {
+  border-color: var(--teal);
+  background: var(--teal);
+}
+.goal-row {
+  margin-top: 13px;
+}
+.goal-row > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+.goal-row > div b {
+  color: var(--muted);
+}
+.goal-row > i {
+  height: 7px;
+  margin-top: 6px;
+  display: block;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--surface-3);
+}
+.goal-row em {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.goal-row i.amber em {
+  background: var(--amber);
+}
+.goal-row i.teal em {
+  background: var(--teal);
+}
+.profile-section-title {
+  margin: 18px 2px 8px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+}
+.profile-section-title h2 {
+  margin-top: 2px;
+  font-size: 21px;
+}
+.profile-section-title > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+.performance-card {
+  position: relative;
+  min-height: 118px;
+  overflow: hidden;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--teal);
+  border-radius: 17px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.performance-card.d1 {
+  border-top-color: var(--amber);
+}
+.performance-card.d2 {
+  border-top-color: var(--coral);
+}
+.performance-card.d3 {
+  border-top-color: var(--violet);
+}
+.performance-rank {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: var(--surface-3);
+  font-size: 32px;
+  font-weight: 900;
+}
+.performance-card h3 {
+  position: relative;
+  font-size: 15px;
+}
+.performance-card > div {
+  position: relative;
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.performance-card small,
+.performance-card b {
+  display: block;
+}
+.performance-card small {
+  color: var(--muted);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.performance-card b {
+  margin-top: 3px;
+  font-size: 16px;
+}
+.profile-lower {
+  grid-template-columns: 1.25fr 0.75fr;
+}
+.mastery-list {
+  margin-top: 12px;
+  display: grid;
+  gap: 9px;
+}
+.mastery-list > div {
+  display: grid;
+  grid-template-columns: 145px 1fr 32px;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+}
+.mastery-list i {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--surface-3);
+}
+.mastery-list i b {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.mastery-list strong {
+  text-align: right;
+}
+.mastery-list p {
+  padding: 18px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.achievement-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.achievement {
+  min-height: 67px;
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.achievement span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+}
+.achievement svg {
+  width: 16px;
+}
+.achievement b {
+  font-size: 9px;
+}
+.achievement.unlocked {
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+}
+.achievement.unlocked span {
+  color: var(--amber-ink);
+}
+
+@media (max-width: 720px) {
+  .setup-hero,
+  .learn-hero,
+  .journey-hero {
+    min-height: 108px;
+    padding: 17px;
+    border-radius: 18px;
+  }
+  .setup-number {
+    min-width: 52px;
+    font-size: 40px;
+  }
+  .setup-hero h2,
+  .learn-hero h2,
+  .journey-hero h2 {
+    font-size: 23px;
+  }
+  .difficulty-grid,
+  .technique-list {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+  .difficulty-card-v2 {
+    min-height: 83px;
+    padding: 12px;
+  }
+  .difficulty-card-v2 small {
+    display: none;
+  }
+  .learn-score {
+    display: none;
+  }
+  .learn-screen,
+  .stats-screen-v2 {
+    padding-bottom: 70px;
+  }
+  .learn-screen > .app-nav,
+  .stats-screen-v2 > .app-nav {
+    position: fixed;
+    right: 12px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 12px;
+  }
+  .journey-progress {
+    min-width: 90px;
+  }
+  .journey-progress i {
+    width: 90px;
+  }
+  .level-grid-v2 {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+  .level-node {
+    min-height: 70px;
+  }
+  .profile-hero {
+    min-height: 120px;
+    padding: 16px;
+    gap: 12px;
+  }
+  .profile-mark {
+    width: 67px;
+    height: 67px;
+    border-radius: 18px;
+    font-size: 25px;
+  }
+  .profile-intro p {
+    display: none;
+  }
+  .profile-streak {
+    min-width: 0;
+  }
+  .profile-streak small {
+    display: none;
+  }
+  .profile-dashboard,
+  .profile-lower {
+    grid-template-columns: 1fr;
+  }
+  .activity-calendar {
+    gap: 3px;
+  }
+  .activity-calendar .activity-day:nth-child(-n + 7) small {
+    display: none;
+  }
+  .performance-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 430px) {
+  .profile-intro h2 {
+    font-size: 22px;
+  }
+  .profile-streak > svg {
+    width: 21px;
+  }
+  .profile-streak b {
+    font-size: 22px;
+  }
+  .activity-card,
+  .weekly-goals,
+  .mastery-panel,
+  .achievement-panel {
+    padding: 14px;
+  }
+  .activity-calendar .activity-day i {
+    border-radius: 4px;
+  }
+  .mastery-list > div {
+    grid-template-columns: 115px 1fr 28px;
+  }
+}

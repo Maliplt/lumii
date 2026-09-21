@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta
+      name="description"
+      content="Füzyon — Üçü birleştir. Zinciri başlat."
+    />
+    <title>Füzyon</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <link rel="stylesheet" href="styles/play.css" />
+    <link rel="stylesheet" href="styles/home.css" />
+    <script defer src="connection-config.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
+    <script defer src="profile-config.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/core/engine.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/i18n/translations.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/ui/menu-demo.js"></script>
+    <script defer src="src/ui/controller.js"></script>
+  </head>
+  <body data-theme="light">
+    <main class="studio">
+      <section class="machine menu-state" aria-label="Füzyon">
+        <header>
+          <button id="menu" class="wordmark" data-label="menu">
+            <span class="brand-symbol" aria-hidden="true"></span> füzyon
+          </button>
+          <div class="settings">
+            <div class="language-picker">
+              <button
+                id="language"
+                class="language-toggle"
+                aria-controls="language-panel"
+                aria-expanded="false"
+              >
+                TR
+              </button>
+              <div id="language-panel" hidden></div>
+            </div>
+            <button id="theme" class="icon" data-label="theme">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z" />
+              </svg></button
+            ><button id="sound" class="icon" data-label="sound">♪</button
+            ><button id="help" class="icon" data-label="help">?</button>
+          </div>
+        </header>
+
+        <section id="start-cover" class="start-cover">
+          <div class="menu-copy">
+            <h1>füzyon</h1>
+            <p data-t="tagline"></p>
+          </div>
+          <div class="menu-scene" aria-hidden="true">
+            <div class="hero-board"></div>
+          </div>
+          <div class="menu-actions">
+            <button id="play" class="start-button">
+              <span data-t="play"></span
+              ><svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m9 5 7 7-7 7" />
+              </svg>
+            </button>
+            <button id="new-game" class="learn">
+              <span data-t="newGame"></span
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <button id="learn" class="learn">
+              <span data-t="help"></span
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 9a3 3 0 1 1 5 2c-1.5 1-2 1.5-2 3m0 3h.01" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </button>
+            <div class="menu-record">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M8 3h8v7a4 4 0 0 1-8 0Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v5m-4 2h8"
+                />
+              </svg>
+              <span data-t="best"></span><strong id="menu-best">0</strong>
+            </div>
+          </div>
+        </section>
+        <div class="play-surface">
+          <div class="display">
+            <div class="main-score">
+              <span data-t="score"></span><strong id="score">0</strong
+              ><span id="streak-badge" class="streak-badge" hidden></span>
+            </div>
+            <div class="best-score">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M8 3h8v7a4 4 0 0 1-8 0Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v5m-4 2h8"
+                />
+              </svg>
+              <div><span data-t="best"></span><strong id="best">0</strong></div>
+            </div>
+            <button id="pause" class="pause" data-label="pause">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14M16 5v14" />
+              </svg>
+            </button>
+          </div>
+          <div class="stage-hud">
+            <div class="stage-caption">
+              <span id="reactor-label"></span><b id="progress-caption"></b>
+            </div>
+            <div
+              class="score-progress"
+              id="score-progress"
+              role="progressbar"
+              aria-label="Puan"
+            >
+              <span id="progress-fill"></span>
+            </div>
+            <span id="space-label" hidden></span>
+          </div>
+          <div class="reactor" id="reactor">
+            <div id="board" class="board" role="group"></div>
+            <div id="effects" class="effects" aria-hidden="true"></div>
+            <div class="tutorial-pointer" aria-hidden="true">
+              <span class="tap-ripple"></span
+              ><svg viewBox="0 0 64 76">
+                <path
+                  d="M23 39V12c0-8 12-8 12 0v20c0-7 11-7 11 0v3c0-6 10-6 10 1v17c0 12-8 19-20 19-9 0-14-5-18-12L6 42c-4-7 4-13 9-7l8 9"
+                />
+              </svg>
+            </div>
+            <div id="tutorial-win" class="tutorial-win" hidden>
+              <div class="win-sequence" aria-hidden="true">
+                <span class="core" data-value="1">2</span><b>→</b
+                ><span class="core" data-value="2">4</span><b>→</b
+                ><span class="core" data-value="3">8</span>
+              </div>
+              <button
+                id="tutorial-play"
+                class="start-button"
+                data-t="play"
+              ></button>
+            </div>
+          </div>
+          <div class="reaction-strip">
+            <p id="status" role="status" aria-live="polite"></p>
+            <span id="peak"></span>
+          </div>
+          <div class="console" id="console">
+            <div class="hand-area">
+              <span class="label" data-t="choose"></span>
+              <div id="hand" class="hand"></div>
+            </div>
+            <div class="queue-area">
+              <span class="label" data-t="next"></span>
+              <div id="queue" class="queue"></div>
+            </div>
+          </div>
+          <div class="lower-controls">
+            <button id="undo">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m8 4-5 5 5 5M3 9h10a6 6 0 0 1 0 12" /></svg
+              ><span data-t="undo"></span>
+            </button>
+
+            <button id="restart">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 10a9 9 0 1 1 1 8M3 3v7h7" /></svg
+              ><span data-t="restart"></span>
+            </button>
+          </div>
+          <div class="machine-foot"><span id="move-count"></span></div>
+        </div>
+      </section>
+    </main>
+    <dialog id="modal" aria-labelledby="modal-title">
+      <div class="modal-body">
+        <span id="modal-kicker" class="label"></span>
+        <h2 id="modal-title"></h2>
+        <div id="modal-content"></div>
+        <div id="modal-actions"></div>
+      </div>
+    </dialog>
+  </body>
+</html>

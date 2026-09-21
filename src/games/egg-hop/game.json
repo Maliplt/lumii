@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "egg-hop",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/i18n/locales.js",
+    "src/ui/background.js?v=2",
+    "src/data/assets.js",
+    "src/core/game.js?v=2",
+    "src/ui/app.js"
+  ],
+  "styles": [
+    "styles/game.css?v=2"
+  ]
+}

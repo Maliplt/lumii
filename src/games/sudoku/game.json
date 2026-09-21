@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "sudoku",
+  "entry": "index.html",
+  "scripts": [
+    "connection-config.js?v=sudoku-20260916-2",
+    "src/services/api-adapter.js?v=sudoku-20260916-2",
+    "profile-config.js?v=sudoku-20260916-2",
+    "src/services/save-client.js?v=sudoku-20260916-2",
+    "src/core/engine.js?v=sudoku-20260918-11",
+    "src/core/techniques.js?v=sudoku-20260918-11",
+    "src/core/session.js?v=sudoku-20260918-11",
+    "src/i18n/text.js?v=sudoku-20260916-2",
+    "src/i18n/enhancements.js?v=sudoku-20260918-11",
+    "src/services/storage.js?v=sudoku-20260918-11",
+    "src/services/puzzles.js?v=sudoku-20260918-11",
+    "src/content/practice.js?v=sudoku-20260918-11",
+    "src/content/journey.js?v=sudoku-20260918-11",
+    "src/audio/audio.js?v=sudoku-20260918-11",
+    "src/feedback/feedback.js?v=sudoku-20260918-11",
+    "src/ui/icons.js?v=sudoku-20260918-11",
+    "src/ui/board.js?v=sudoku-20260918-11",
+    "src/ui/screens.js?v=sudoku-20260918-11",
+    "src/ui/app.js?v=sudoku-20260918-11"
+  ],
+  "styles": [
+    "styles/base.css?v=sudoku-20260918-11",
+    "styles/menu.css?v=sudoku-20260918-11",
+    "styles/home.css?v=sudoku-20260918-11",
+    "styles/board.css?v=sudoku-20260918-11"
+  ]
+}

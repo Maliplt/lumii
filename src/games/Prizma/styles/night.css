@@ -1,0 +1,27 @@
+/* Gece paleti bütün ekranlarda aynı değişkenleri kullanır. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141619;
+  --ink: #f6f6eb;
+  --muted: #bdc3cb;
+  --yellow: #ffda3e;
+  --blue: #b7c6d5;
+  --panel: #25292f;
+  --surface: #25292f;
+  --line: #424b56;
+  --depth: #a8840f;
+  --purple: #949da7;
+  --pink: #ffda3e;
+}
+[data-theme="dark"]
+  :is(.primary, .medal:not(.empty), .result-burst, .connection-reward) {
+  color: #191b16;
+}
+[data-theme="dark"] .home-scene {
+  box-shadow:
+    0 6px 0 #0a0c0e,
+    0 22px 40px #0003;
+}
+[data-theme="dark"] dialog::backdrop {
+  background: #000a;
+}

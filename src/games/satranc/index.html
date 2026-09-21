@@ -12,38 +12,42 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23153f35'/%3E%3Cpath d='M28 8h8v9h8v7H20v-7h8zm-7 22h22l-5 17 8 9H18l8-9z' fill='%23f5ebd5'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="language.css" />
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="journey.css" />
-    <link rel="stylesheet" href="interaction.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/journey.css" />
+    <link rel="stylesheet" href="styles/interaction.css" />
+    <link rel="stylesheet" href="styles/home.css" />
     <script defer src="connection-config.js"></script>
-    <script defer src="api-adapter.js"></script>
+    <script defer src="src/services/api-adapter.js"></script>
     <script defer src="profile-config.js"></script>
-    <script defer src="save-client.js"></script>
-    <script defer src="engine.js"></script>
-    <script defer src="opponents.js"></script>
-    <script defer src="ai.js"></script>
-    <script defer src="pieces.js"></script>
-    <script defer src="text.js"></script>
-    <script defer src="journey-text.js"></script>
-    <script defer src="lessons.js"></script>
-    <script defer src="advanced-lessons.js"></script>
-    <script defer src="lesson-lines.js"></script>
-    <script defer src="puzzles.js"></script>
-    <script defer src="puzzle-rules.js"></script>
-    <script defer src="tactics.js"></script>
-    <script defer src="tactic-guides.js"></script>
-    <script defer src="storage.js"></script>
-    <script defer src="progress.js"></script>
-    <script defer src="journey-art.js"></script>
-    <script defer src="language.js"></script>
-    <script defer src="audio.js"></script>
-    <script defer src="board.js"></script>
-    <script defer src="pause.js"></script>
-    <script defer src="challenges.js"></script>
-    <script defer src="hub.js"></script>
-    <script defer src="app.js"></script>
-    <script defer src="interface.js"></script>
+    <script defer src="src/services/save-client.js"></script>
+    <script defer src="src/core/engine.js"></script>
+    <script defer src="src/data/opponents.js"></script>
+    <script defer src="src/core/ai.js"></script>
+    <script defer src="src/ui/pieces.js"></script>
+    <script defer src="src/i18n/text.js"></script>
+    <script defer src="src/i18n/journey-text.js"></script>
+    <script defer src="src/data/lessons.js"></script>
+    <script defer src="src/data/advanced-lessons.js"></script>
+    <script defer src="src/data/lesson-lines.js"></script>
+    <script defer src="src/data/puzzles.js"></script>
+    <script defer src="src/core/puzzle-rules.js"></script>
+    <script defer src="src/core/tactics.js"></script>
+    <script defer src="src/data/tactic-guides.js"></script>
+    <script defer src="src/services/storage.js"></script>
+    <script defer src="src/services/progress.js"></script>
+    <script defer src="src/ui/journey-art.js"></script>
+    <script defer src="src/i18n/language.js"></script>
+    <script defer src="src/audio/audio.js"></script>
+    <script defer src="src/ui/board.js"></script>
+    <script defer src="src/ui/pause.js"></script>
+    <script defer src="src/ui/challenges.js"></script>
+    <script defer src="src/ui/hub.js"></script>
+    <script defer src="src/services/search.js"></script>
+    <script defer src="src/ui/screens.js"></script>
+    <script defer src="src/ui/player-panel.js"></script>
+    <script defer src="src/ui/app.js"></script>
+    <script defer src="src/ui/interface.js"></script>
   </head>
   <body>
     <div id="boot-screen" role="status" aria-live="polite">
