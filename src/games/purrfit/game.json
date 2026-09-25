@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "purrfit",
+  "entry": "index.html",
+  "scripts": [
+    "save-config.js",
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/namespace.js",
+    "src/core/random.js",
+    "src/puzzle/solver.js",
+    "src/puzzle/grader.js",
+    "src/puzzle/generator.js",
+    "src/puzzle/levels.js",
+    "src/i18n/translations.js",
+    "src/i18n/language.js",
+    "src/services/storage.js",
+    "src/audio/audio.js",
+    "src/render/palette.js",
+    "src/render/paint.js",
+    "src/ui/dom.js",
+    "src/ui/dialogs.js",
+    "src/ui/coach.js",
+    "src/ui/board.js",
+    "src/ui/screens/menu.js",
+    "src/ui/screens/windows.js",
+    "src/ui/screens/play.js",
+    "src/ui/screens/settings.js",
+    "src/ui/app.js",
+    "src/ui/bootstrap.js"
+  ],
+  "styles": [
+    "styles/fonts.css",
+    "styles/base.css",
+    "styles/ui.css",
+    "styles/screens.css"
+  ]
+}

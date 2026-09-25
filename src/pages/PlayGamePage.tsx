@@ -76,20 +76,6 @@ function readBestScore(gameId: string): string {
     return "0 puan";
   }
 
-  if (gameId === "rota") {
-    const suite = getSuiteProgress("rota");
-    const direct =
-      parseJsonSafe(localStorage.getItem("rota.progress")) ||
-      parseJsonSafe(localStorage.getItem("puzzle-suite.v1.rota.connect"));
-    const data = suite ?? direct;
-    if (data) {
-      const recordsCount = data.records ? Object.keys(data.records).length : 0;
-      if (recordsCount > 0) return `${recordsCount} Bölüm Tamamlandı`;
-      if (data.next) return `Bölüm ${data.next}`;
-    }
-    return "Bölüm 1";
-  }
-
   if (gameId === "katman") {
     const suite = getSuiteProgress("katman");
     const direct = parseJsonSafe(localStorage.getItem("puzzle-suite.v1.katman.connect"));
@@ -219,6 +205,24 @@ function readBestScore(gameId: string): string {
     const count = data?.records ? Object.keys(data.records).length : 0;
     if (count > 0) return `${count} Bölüm Tamamlandı`;
     return `Bölüm ${data?.next ?? 1}`;
+  }
+
+  if (["wellbloom", "blockhaven", "knotwise", "purrfit", "yirmibir-hani"].includes(gameId)) {
+    const data = getSuiteProgress(gameId) ?? parseJsonSafe(localStorage.getItem(game.storageKey));
+    const done = Object.keys(data?.levels ?? data?.stars ?? data?.seals ?? {}).length;
+    if (done > 0) return `${done} Bölüm Tamamlandı`;
+    if (typeof data?.best === "number" && data.best > 0) return `${data.best.toLocaleString("tr-TR")} puan`;
+    return "Bölüm 1";
+  }
+
+  if (gameId === "mines98") {
+    const data = getSuiteProgress(gameId) ?? parseJsonSafe(localStorage.getItem(game.storageKey));
+    const levels: [string, string][] = [["expert", "Uzman"], ["intermediate", "Orta"], ["beginner", "Başlangıç"]];
+    for (const [key, label] of levels) {
+      const time = data?.best?.[key];
+      if (typeof time === "number") return `${label} · ${time} saniye`;
+    }
+    return "Henüz rekor yok";
   }
 
   const raw = localStorage.getItem(game.storageKey);

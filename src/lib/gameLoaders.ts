@@ -13,7 +13,6 @@ const gameComponents: Record<string, GameComponent> = {
 
 const PUBLIC_GAMES = new Set([
   "bamboo-hop",
-  "rota",
   "prizma",
   "denge",
   "2048",
@@ -27,6 +26,12 @@ const PUBLIC_GAMES = new Set([
   "orgu",
   "sudoku",
   "zar-izi",
+  "wellbloom",
+  "blockhaven",
+  "knotwise",
+  "purrfit",
+  "yirmibir-hani",
+  "mines98",
 ]);
 
 export function hasGameComponent(gameId: string): boolean {

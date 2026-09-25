@@ -1,0 +1,94 @@
+:root {
+  --face: #c0c0c0;
+  --light: #ffffff;
+  --soft: #dfdfdf;
+  --shade: #808080;
+  --dark: #000000;
+  --desk: #008080;
+  --title: #000080;
+  --title-end: #1084d0;
+  --title-off: #808080;
+  --title-off-end: #b5b5b5;
+  --select: #000080;
+  --ink: #000000;
+  --font: "Pixelify Sans", "Rubik", "Tahoma", sans-serif;
+  --raised: inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shade), inset 2px 2px var(--soft);
+  --pressed: inset -1px -1px var(--light), inset 1px 1px var(--dark), inset -2px -2px var(--soft), inset 2px 2px var(--shade);
+  --sunken: inset -1px -1px var(--light), inset 1px 1px var(--shade), inset -2px -2px var(--soft), inset 2px 2px var(--dark);
+  --thin: inset -1px -1px var(--light), inset 1px 1px var(--shade);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+}
+
+:root:lang(ar) {
+  --font: "Rubik", "Tahoma", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--desk);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+body {
+  opacity: 0;
+  transition: opacity 0.2s steps(3);
+}
+
+body.is-ready {
+  opacity: 1;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: default;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.pixel-icon {
+  flex: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.noscript {
+  margin: 40px auto;
+  max-width: 320px;
+  padding: 16px;
+  background: var(--face);
+  box-shadow: var(--raised);
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#3469f0" />
+    <meta name="description" content="Blockhaven: place blocks on the board, fill rows and columns, and clear 120 hand-tuned levels." />
+    <title>Blockhaven</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='13' height='13' rx='3' fill='%23ff3b4e'/%3E%3Crect x='17' y='2' width='13' height='13' rx='3' fill='%23ffd000'/%3E%3Crect x='2' y='17' width='13' height='13' rx='3' fill='%2310cfff'/%3E%3Crect x='17' y='17' width='13' height='13' rx='3' fill='%2322d65b'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/ui.css" />
+    <link rel="stylesheet" href="styles/screens.css" />
+  </head>
+  <body>
+    <canvas id="backdrop" aria-hidden="true"></canvas>
+
+    <main id="app">
+      <section id="screen-menu" class="screen menu" hidden></section>
+      <section id="screen-levels" class="screen levels" hidden></section>
+      <section id="screen-play" class="screen play" hidden></section>
+    </main>
+
+    <div class="coach" hidden></div>
+    <div id="dialogs"></div>
+    <div id="toasts" aria-live="polite"></div>
+    <div id="veil" aria-hidden="true"></div>
+
+    <noscript><p class="noscript">Blockhaven needs JavaScript.</p></noscript>
+
+    <script src="save-config.js"></script>
+    <script src="connection-config.js"></script>
+    <script src="src/services/api-adapter.js"></script>
+    <script src="profile-config.js"></script>
+    <script src="src/services/save-client.js"></script>
+    <script src="src/core/namespace.js"></script>
+    <script src="src/core/random.js"></script>
+    <script src="src/game/pieces.js"></script>
+    <script src="src/game/grid.js"></script>
+    <script src="src/game/session.js"></script>
+    <script src="src/game/bot.js"></script>
+    <script src="src/game/levels.js"></script>
+    <script src="src/i18n/translations.js"></script>
+    <script src="src/i18n/language.js"></script>
+    <script src="src/services/storage.js"></script>
+    <script src="src/audio/audio.js"></script>
+    <script src="src/render/art.js"></script>
+    <script src="src/render/backdrop.js"></script>
+    <script src="src/render/stage.js"></script>
+    <script src="src/ui/dom.js"></script>
+    <script src="src/ui/dialogs.js"></script>
+    <script src="src/ui/coach.js"></script>
+    <script src="src/ui/screens/menu.js"></script>
+    <script src="src/ui/screens/levels.js"></script>
+    <script src="src/ui/screens/play.js"></script>
+    <script src="src/ui/screens/settings.js"></script>
+    <script src="src/ui/app.js"></script>
+    <script src="src/ui/bootstrap.js"></script>
+  </body>
+</html>

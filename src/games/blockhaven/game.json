@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "blockhaven",
+  "entry": "index.html",
+  "scripts": [
+    "save-config.js",
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/namespace.js",
+    "src/core/random.js",
+    "src/game/pieces.js",
+    "src/game/grid.js",
+    "src/game/session.js",
+    "src/game/bot.js",
+    "src/game/levels.js",
+    "src/i18n/translations.js",
+    "src/i18n/language.js",
+    "src/services/storage.js",
+    "src/audio/audio.js",
+    "src/render/art.js",
+    "src/render/backdrop.js",
+    "src/render/stage.js",
+    "src/ui/dom.js",
+    "src/ui/dialogs.js",
+    "src/ui/coach.js",
+    "src/ui/screens/menu.js",
+    "src/ui/screens/levels.js",
+    "src/ui/screens/play.js",
+    "src/ui/screens/settings.js",
+    "src/ui/app.js",
+    "src/ui/bootstrap.js"
+  ],
+  "styles": [
+    "styles/fonts.css",
+    "styles/base.css",
+    "styles/ui.css",
+    "styles/screens.css"
+  ]
+}

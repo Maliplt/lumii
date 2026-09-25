@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1f1a2e" />
+    <meta name="description" content="Wellbloom is a calm pixel-art puzzle: turn the channels, bring water to every flower and grow a garden." />
+    <title>Wellbloom</title>
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Noto+Kufi+Arabic:wght@500;700&display=swap" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/ui.css" />
+    <link rel="stylesheet" href="styles/screens.css" />
+    <script src="save-config.js"></script>
+    <script src="connection-config.js"></script>
+    <script src="src/services/api-adapter.js"></script>
+    <script src="profile-config.js"></script>
+    <script src="src/services/save-client.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </head>
+  <body>
+    <canvas id="scenery" class="scenery" aria-hidden="true"></canvas>
+
+    <div id="app" class="app">
+      <!-- main menu -->
+      <section id="screen-menu" class="screen screen-menu" hidden>
+        <div class="menu-hero">
+          <img class="mascot" data-sprite="mascot" alt="" />
+          <h1 class="logo" aria-label="Wellbloom"><span class="logo-letters" aria-hidden="true"></span></h1>
+          <p class="tagline" data-i18n="menu.tagline"></p>
+        </div>
+
+        <nav class="menu-actions">
+          <button class="btn btn-primary btn-large" data-action="play">
+            <span class="icon" data-icon="play"></span>
+            <span class="btn-stack">
+              <span data-slot="play-label"></span>
+              <small class="btn-sub" data-slot="play-sub"></small>
+            </span>
+          </button>
+          <button class="btn btn-wide" data-action="daily">
+            <span class="icon" data-icon="sun"></span>
+            <span class="btn-stack">
+              <span data-i18n="menu.daily"></span>
+              <small class="btn-sub" data-slot="daily-sub"></small>
+            </span>
+            <span class="badge badge-new" data-slot="daily-badge" data-i18n="menu.new" hidden></span>
+          </button>
+          <button class="btn btn-wide" data-action="zen">
+            <span class="icon" data-icon="leaf"></span>
+            <span class="btn-stack">
+              <span data-i18n="menu.zen"></span>
+              <small class="btn-sub" data-slot="zen-sub"></small>
+            </span>
+          </button>
+          <div class="menu-row">
+            <button class="btn btn-square" data-action="herbarium" data-i18n-label="menu.herbarium">
+              <span class="icon" data-icon="flower"></span>
+            </button>
+            <button class="btn btn-square" data-action="settings" data-i18n-label="menu.settings">
+              <span class="icon" data-icon="gear"></span>
+            </button>
+          </div>
+        </nav>
+
+        <canvas class="menu-garden" data-slot="garden" aria-hidden="true"></canvas>
+
+        <footer class="menu-stats">
+          <span class="pill" data-i18n-label="common.stars"><span class="icon icon-small" data-icon="star"></span><span data-slot="stars"></span></span>
+          <span class="pill" data-i18n-label="common.dewdrops"><span class="icon icon-small" data-icon="dewdrop"></span><span data-slot="dewdrops"></span></span>
+        </footer>
+      </section>
+
+      <!-- world map -->
+      <section id="screen-map" class="screen screen-map" hidden>
+        <header class="topbar">
+          <button class="btn btn-square" data-action="back" data-i18n-label="common.back">
+            <span class="icon icon-flip" data-icon="back"></span>
+          </button>
+          <div class="topbar-title">
+            <h2 data-slot="world-name"></h2>
+            <p data-slot="world-info"></p>
+          </div>
+          <span class="pill" data-i18n-label="common.stars"><span class="icon icon-small" data-icon="star"></span><span data-slot="world-stars"></span></span>
+        </header>
+
+        <div class="map-stage">
+          <div class="map-board" data-slot="map-board">
+            <canvas class="map-canvas" data-slot="map-canvas"></canvas>
+            <div class="map-nodes" data-slot="map-nodes"></div>
+            <div class="map-lock panel" data-slot="map-lock" hidden>
+              <span class="icon icon-large" data-icon="lock"></span>
+              <p data-slot="map-lock-text"></p>
+            </div>
+          </div>
+        </div>
+
+        <nav class="map-nav">
+          <button class="btn btn-square map-arrow" data-action="prev-world" data-i18n-label="map.previous">
+            <span class="icon icon-flip" data-icon="back"></span>
+          </button>
+          <div class="map-dots" data-slot="world-dots"></div>
+          <button class="btn btn-square map-arrow" data-action="next-world" data-i18n-label="map.next">
+            <span class="icon icon-flip" data-icon="next"></span>
+          </button>
+        </nav>
+      </section>
+
+      <!-- puzzle -->
+      <section id="screen-game" class="screen screen-game" hidden>
+        <header class="hud">
+          <button class="btn btn-square" data-action="pause" data-i18n-label="game.pause">
+            <span class="icon" data-icon="pause"></span>
+          </button>
+          <div class="hud-title">
+            <h2 data-slot="level-title"></h2>
+            <div class="star-meter" data-slot="star-meter"></div>
+          </div>
+          <div class="hud-counters">
+            <div class="counter counter-moves">
+              <span class="counter-label" data-i18n="game.moves"></span>
+              <span class="counter-value" data-slot="moves">0</span>
+            </div>
+            <div class="counter" data-i18n-label="game.flowers">
+              <span class="icon icon-small" data-icon="flower"></span>
+              <span class="counter-value" data-slot="flowers">0/0</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="board-wrap" data-slot="board-wrap">
+          <canvas class="board" data-slot="board"></canvas>
+        </div>
+
+        <footer class="toolbar" data-own-sounds>
+          <button class="btn btn-square" data-action="undo" data-i18n-label="game.undo">
+            <span class="icon" data-icon="undo"></span>
+          </button>
+          <button class="btn btn-hint" data-action="hint" data-i18n-label="game.hint">
+            <span class="icon" data-icon="dewdrop"></span>
+            <span class="badge" data-slot="dewdrops">0</span>
+          </button>
+          <button class="btn btn-square" data-action="restart" data-i18n-label="game.restart">
+            <span class="icon" data-icon="restart"></span>
+          </button>
+        </footer>
+
+        <div class="level-banner panel" data-slot="banner" hidden>
+          <strong data-slot="banner-title"></strong>
+          <span data-slot="banner-goal"></span>
+        </div>
+      </section>
+
+      <!-- herbarium -->
+      <section id="screen-herbarium" class="screen screen-herbarium" hidden>
+        <header class="topbar">
+          <button class="btn btn-square" data-action="back" data-i18n-label="common.back">
+            <span class="icon icon-flip" data-icon="back"></span>
+          </button>
+          <div class="topbar-title">
+            <h2 data-i18n="herbarium.title"></h2>
+            <p data-slot="found"></p>
+          </div>
+          <span class="topbar-spacer"></span>
+        </header>
+        <div class="herbarium-grid" data-slot="grid"></div>
+      </section>
+    </div>
+
+    <div id="coach" class="coach" hidden>
+      <div class="coach-ripple"></div>
+      <img class="coach-hand" data-sprite="hand" alt="" />
+      <div class="coach-bubble panel" role="status">
+        <p class="coach-text"></p>
+        <button class="btn btn-small btn-primary coach-ok" data-i18n="coach.ok"></button>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+    <canvas id="wipe" class="wipe" aria-hidden="true"></canvas>
+
+    <noscript>
+      <p class="noscript">Wellbloom needs JavaScript to run.</p>
+    </noscript>
+  </body>
+</html>

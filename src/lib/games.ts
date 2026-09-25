@@ -1,5 +1,4 @@
 import bambooHopImg from "../assets/images/games/bamboo-hop.svg";
-import rotaImg from "../assets/images/rota.jpg";
 import prizmaImg from "../assets/images/games/prizma.svg";
 import dengeImg from "../assets/images/games/denge.svg";
 import sudokuImg from "../assets/images/games/sudoku.svg";
@@ -18,6 +17,12 @@ import katmanImg from "../assets/images/games/katman.svg";
 import onlukImg from "../assets/images/games/onluk.svg";
 import zarIziImg from "../assets/images/games/zar-izi.svg";
 import orguImg from "../assets/images/games/orgu.svg";
+import wellbloomImg from "../assets/images/games/wellbloom.svg";
+import blockhavenImg from "../assets/images/games/blockhaven.svg";
+import mines98Img from "../assets/images/games/mines98.svg";
+import knotwiseImg from "../assets/images/games/knotwise.svg";
+import purrfitImg from "../assets/images/games/purrfit.svg";
+import yirmibirHaniImg from "../assets/images/games/yirmibir-hani.svg";
 
 export interface GameDef {
   id: string;
@@ -107,18 +112,6 @@ export const GAMES: GameDef[] = [
     showScore: true,
   },
   {
-    id: "rota",
-    name: "Rota",
-    path: "/play/rota",
-    image: rotaImg,
-    description: "Nokta ve Çizgi Bulmacası",
-    tag: "Bulmaca",
-    storageKey: "rota.progress",
-    scoreLabel: "İlerleme",
-    isScore: false,
-    showScore: true,
-  },
-  {
     id: "katman",
     name: "Katman",
     path: "/play/katman",
@@ -199,6 +192,78 @@ export const GAMES: GameDef[] = [
     tag: "Bulmaca",
     storageKey: "puzzle-suite.v1.zar-izi.chains",
     scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "wellbloom",
+    name: "Wellbloom",
+    path: "/play/wellbloom",
+    image: wellbloomImg,
+    description: "Kanalları Çevir, Bahçeyi Sula",
+    tag: "Bulmaca",
+    storageKey: "wellbloom.save",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "blockhaven",
+    name: "Blockhaven",
+    path: "/play/blockhaven",
+    image: blockhavenImg,
+    description: "Blokları Yerleştir, Satırları Patlat",
+    tag: "Bulmaca",
+    storageKey: "blockhaven.v1.progress",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "knotwise",
+    name: "Knotwise",
+    path: "/play/knotwise",
+    image: knotwiseImg,
+    description: "İpleri Çöz, Resmi Ortaya Çıkar",
+    tag: "Bulmaca",
+    storageKey: "knotwise.v1.progress",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "purrfit",
+    name: "Purrfit",
+    path: "/play/purrfit",
+    image: purrfitImg,
+    description: "Her Kediye Tam Boy Kutu",
+    tag: "Bulmaca",
+    storageKey: "purrfit.v1.progress",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "yirmibir-hani",
+    name: "Yirmibir Hanı",
+    path: "/play/yirmibir-hani",
+    image: yirmibirHaniImg,
+    description: "Kartları Diz, 21'i Tuttur",
+    tag: "Kart",
+    storageKey: "yirmibir-hani.v1.progress",
+    scoreLabel: "İlerleme",
+    isScore: false,
+    showScore: true,
+  },
+  {
+    id: "mines98",
+    name: "Mines98",
+    path: "/play/mines98",
+    image: mines98Img,
+    description: "Tahminsiz Klasik Mayın Bulmacası",
+    tag: "Klasik",
+    storageKey: "mines98.v1.progress",
+    scoreLabel: "En İyi Süre",
     isScore: false,
     showScore: true,
   },

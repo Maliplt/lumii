@@ -1,0 +1,20 @@
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("../assets/fonts/PixelifySans.ttf") format("truetype");
+  font-weight: 400 700;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Jacquard 12";
+  src: url("../assets/fonts/Jacquard12.ttf") format("truetype");
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "YB Digits";
+  src: url("../assets/fonts/Digits.ttf") format("truetype");
+  font-display: block;
+  unicode-range: U+0030-0039;
+}

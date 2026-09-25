@@ -7,6 +7,7 @@ import { hasGameComponent, LoadedGame } from "../src/lib/gameLoaders";
 const importedGames = [
   "2048", "bamboo-hop", "denge", "egg-hop", "fuzyon", "katman", "onluk",
   "orgu", "prizma", "renk-renk", "satranc", "ok-cikmazi", "sudoku", "zar-izi",
+  "wellbloom", "blockhaven", "knotwise", "purrfit", "yirmibir-hani", "mines98",
 ];
 
 describe("Tenet standalone game integration", () => {
@@ -43,7 +44,7 @@ describe("Tenet standalone game integration", () => {
   });
 
   test("existing games outside the imported suite remain available", () => {
-    for (const id of ["rota", "doom", "kelimezinciri", "minesweeper", "blockbloom", "mahjong"]) {
+    for (const id of ["doom", "kelimezinciri", "minesweeper", "blockbloom", "mahjong"]) {
       expect(findGame(id), id).toBeDefined();
       expect(hasGameComponent(id), id).toBe(true);
     }

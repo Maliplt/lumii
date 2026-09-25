@@ -1,0 +1,111 @@
+/* design tokens, reset and page-level layers */
+
+:root {
+  --ink: #1f1a2e;
+  --ink-soft: #3b3250;
+  --cream: #fff4dc;
+  --paper: #f7e6c4;
+  --paper-light: #fff8e8;
+  --paper-dark: #d9bc8a;
+  --leaf: #72c451;
+  --leaf-light: #a3e27f;
+  --leaf-dark: #3f8f45;
+  --water: #3f9be0;
+  --water-light: #9ee0ff;
+  --water-dark: #2a6db5;
+  --gold: #ffd447;
+  --gold-dark: #e0a526;
+  --rose: #f0648c;
+  --shadow: rgba(20, 14, 34, 0.35);
+  --accent: #4f9a3c;
+
+  /* one art pixel on screen */
+  --px: 3px;
+  --font: 'Pixelify Sans', 'Noto Kufi Arabic', 'Segoe UI', system-ui, sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 360px), (max-height: 560px) {
+  :root {
+    --px: 2px;
+  }
+}
+
+@media (min-width: 1000px) and (min-height: 760px) {
+  :root {
+    --px: 4px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+[dir='rtl'] body {
+  --font: 'Noto Kufi Arabic', 'Pixelify Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.scenery {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.app {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+.wipe {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--cream);
+  font-size: 20px;
+}

@@ -1,0 +1,19 @@
+Yirmibir Hanı – üçüncü taraf lisansları
+
+Pixelify Sans yazı tipi (assets/fonts/PixelifySans.ttf)
+SIL Open Font License 1.1 – tam metin: assets/fonts/PixelifySans-OFL.txt
+
+Jacquard 12 yazı tipi (assets/fonts/Jacquard12.ttf)
+SIL Open Font License 1.1 – tam metin: assets/fonts/Jacquard12-OFL.txt
+
+Yazı tipleri oyunla birlikte dağıtılabilir; tek başlarına satılamaz.
+
+assets/fonts/Digits.ttf, kartlardaki pixel rakamlardan tools/make-digits.cjs ile
+bu oyun için üretilmiştir.
+
+Kartlar, meyhane, maskot ve bütün çizimler, müzik ve ses efektleri bu oyun
+için kodla üretilmiştir; dış kaynaklı görsel ya da ses dosyası yoktur.
+
+save-config.js, connection-config.js, profile-config.js,
+src/services/api-adapter.js ve src/services/save-client.js oyun paketinin
+ortak kayıt altyapısındandır.

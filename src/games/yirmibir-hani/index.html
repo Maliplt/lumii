@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="tr" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#231726" />
+    <meta name="description" content="Yirmibir Hanı: ortaçağ meyhanesinde kartları masalara diz, 21'i tuttur." />
+    <title>Yirmibir Hanı</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='3' y='1' width='10' height='14' fill='%23231726'/%3E%3Crect x='4' y='2' width='8' height='12' fill='%23fff3da'/%3E%3Crect x='5' y='5' width='2' height='1' fill='%23e8424f'/%3E%3Crect x='9' y='5' width='2' height='1' fill='%23e8424f'/%3E%3Crect x='5' y='6' width='6' height='2' fill='%23e8424f'/%3E%3Crect x='6' y='8' width='4' height='1' fill='%23e8424f'/%3E%3Crect x='7' y='9' width='2' height='1' fill='%23e8424f'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/ui.css" />
+    <link rel="stylesheet" href="styles/screens.css" />
+    <link rel="stylesheet" href="styles/market.css" />
+  </head>
+  <body>
+    <canvas id="stage" aria-hidden="true"></canvas>
+
+    <main id="app">
+      <section id="screen-menu" class="screen menu" hidden></section>
+      <section id="screen-map" class="screen map" hidden></section>
+      <section id="screen-shop" class="screen shop" hidden></section>
+      <section id="screen-ledger" class="screen ledger-screen" hidden></section>
+      <section id="screen-play" class="screen play" hidden></section>
+    </main>
+
+    <div class="coach" hidden></div>
+    <div id="dialogs"></div>
+    <div id="toasts" aria-live="polite"></div>
+    <canvas id="wipe" aria-hidden="true"></canvas>
+
+    <noscript><p class="noscript">Yirmibir Hanı için JavaScript gerekli.</p></noscript>
+
+    <script src="save-config.js"></script>
+    <script src="connection-config.js"></script>
+    <script src="src/services/api-adapter.js"></script>
+    <script src="profile-config.js"></script>
+    <script src="src/services/save-client.js"></script>
+    <script src="src/core/namespace.js"></script>
+    <script src="src/core/random.js"></script>
+    <script src="src/core/cards.js"></script>
+    <script src="src/core/lane.js"></script>
+    <script src="src/core/patrons.js"></script>
+    <script src="src/core/round.js"></script>
+    <script src="src/core/bot.js"></script>
+    <script src="src/data/levels.js"></script>
+    <script src="src/data/shop.js"></script>
+    <script src="src/data/quests.js"></script>
+    <script src="src/i18n/translations.js"></script>
+    <script src="src/i18n/language.js"></script>
+    <script src="src/services/storage.js"></script>
+    <script src="src/audio/audio.js"></script>
+    <script src="src/render/palette.js"></script>
+    <script src="src/render/pixels.js"></script>
+    <script src="src/render/font.js"></script>
+    <script src="src/render/sprites.js"></script>
+    <script src="src/render/cardArt.js"></script>
+    <script src="src/render/patronArt.js"></script>
+    <script src="src/render/cloth.js"></script>
+    <script src="src/render/particles.js"></script>
+    <script src="src/render/scenery.js"></script>
+    <script src="src/render/table.js"></script>
+    <script src="src/ui/dom.js"></script>
+    <script src="src/ui/stage.js"></script>
+    <script src="src/ui/dialogs.js"></script>
+    <script src="src/ui/coach.js"></script>
+    <script src="src/ui/screens/menu.js"></script>
+    <script src="src/ui/screens/map.js"></script>
+    <script src="src/ui/screens/shop.js"></script>
+    <script src="src/ui/screens/ledger.js"></script>
+    <script src="src/ui/screens/play.js"></script>
+    <script src="src/ui/screens/settings.js"></script>
+    <script src="src/ui/app.js"></script>
+    <script src="src/ui/bootstrap.js"></script>
+  </body>
+</html>

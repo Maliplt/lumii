@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "mines98",
+  "entry": "index.html",
+  "scripts": [
+    "save-config.js",
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/core/namespace.js",
+    "src/core/random.js",
+    "src/game/board.js",
+    "src/game/solver.js",
+    "src/game/generator.js",
+    "src/game/game.js",
+    "src/i18n/translations.js",
+    "src/i18n/language.js",
+    "src/services/storage.js",
+    "src/audio/audio.js",
+    "src/render/pixel.js",
+    "src/ui/dom.js",
+    "src/ui/dialogs.js",
+    "src/ui/field.js",
+    "src/ui/app.js",
+    "src/ui/bootstrap.js"
+  ],
+  "styles": [
+    "styles/fonts.css",
+    "styles/base.css",
+    "styles/win98.css"
+  ]
+}

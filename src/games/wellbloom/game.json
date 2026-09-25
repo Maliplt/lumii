@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "wellbloom",
+  "entry": "index.html",
+  "scripts": [
+    "save-config.js",
+    "connection-config.js",
+    "src/services/api-adapter.js",
+    "profile-config.js",
+    "src/services/save-client.js",
+    "src/main.js"
+  ],
+  "styles": [
+    "styles/base.css",
+    "styles/ui.css",
+    "styles/screens.css"
+  ]
+}

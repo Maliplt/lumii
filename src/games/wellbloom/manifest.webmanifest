@@ -1,0 +1,13 @@
+{
+  "name": "Wellbloom",
+  "short_name": "Wellbloom",
+  "description": "Turn the channels. Wake the flowers.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1f1a2e",
+  "theme_color": "#1f1a2e",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
