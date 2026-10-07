@@ -31,9 +31,11 @@ interface MediaPlayerProps {
   startPosition?: number;
   qualityLabel?: string;
   maxVideoHeight?: number;
+  topRightAction?: React.ReactNode;
   onBack?: () => void;
   onUpgrade?: () => void;
   onProgress?: (position: number, duration: number) => void;
+  onError?: (error: MediaError | null) => void;
   onPrevious?: () => void;
   onNext?: () => void;
   className?: string;
@@ -48,9 +50,11 @@ export default function MediaPlayer({
   startPosition = 0,
   qualityLabel = "",
   maxVideoHeight = 1080,
+  topRightAction,
   onBack,
   onUpgrade,
   onProgress,
+  onError: onErrorProp,
   onPrevious,
   onNext,
   className = "",
@@ -108,7 +112,32 @@ export default function MediaPlayer({
       }
     };
 
-    if (Hls.isSupported()) {
+    const isHls =
+      live ||
+      /\.m3u8($|\?)/i.test(src) ||
+      src.includes("turknet.ercdn.net");
+
+    const onCanPlay = () => {
+      if (cancelled) return;
+      if (readyTimer) {
+        clearTimeout(readyTimer);
+        readyTimer = null;
+      }
+      setStreamReady(true);
+      tryPlay();
+    };
+
+    const onError = (e: Event) => {
+      if (cancelled) return;
+      const target = e.target as HTMLVideoElement;
+      if (onErrorProp) {
+        onErrorProp(target?.error || null);
+      } else {
+        setStreamError(true);
+      }
+    };
+
+    if (isHls && Hls.isSupported()) {
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: live,
@@ -176,12 +205,22 @@ export default function MediaPlayer({
           setStreamError(true);
         }
       });
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    } else if (isHls && video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       setStreamReady(true);
       tryPlay();
     } else {
-      setStreamError(true);
+      // Doğrudan video akışı (MP4 / WebM / Real-Debrid / HTTP akışı)
+      video.src = src;
+      readyTimer = setTimeout(() => {
+        if (!cancelled && (!video.readyState || video.readyState === 0)) {
+          setStreamError(true);
+        }
+      }, 15000);
+
+      video.addEventListener("loadedmetadata", onCanPlay);
+      video.addEventListener("canplay", onCanPlay);
+      video.addEventListener("error", onError);
     }
 
     return () => {
@@ -189,6 +228,9 @@ export default function MediaPlayer({
       if (readyTimer) clearTimeout(readyTimer);
       hls?.destroy();
       hlsRef.current = null;
+      video.removeEventListener("loadedmetadata", onCanPlay);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("error", onError);
     };
   }, [src, startMuted, autoplayEnabled, live, maxVideoHeight, streamAttempt]);
 
@@ -239,33 +281,44 @@ export default function MediaPlayer({
   const onProgressRef = useRef(onProgress);
   useEffect(() => {
     onProgressRef.current = onProgress;
-  });
+  }, [onProgress]);
+
+  const startPositionRef = useRef(startPosition);
+  useEffect(() => {
+    startPositionRef.current = startPosition;
+  }, [startPosition]);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video || live) return;
 
     let seeked = false;
     const trySeek = () => {
-      if (seeked || startPosition <= 0) return;
-      if (isFinite(video.duration) && startPosition < video.duration - 5) {
-        video.currentTime = startPosition;
+      if (seeked) return;
+      const targetPos = startPositionRef.current;
+      if (targetPos > 0 && isFinite(video.duration) && targetPos < video.duration - 5) {
+        video.currentTime = targetPos;
       }
       seeked = true;
     };
+
     video.addEventListener("loadedmetadata", trySeek);
     if (video.readyState >= 1) trySeek();
 
     const report = () => {
       const dur = video.duration;
-      if (isFinite(dur) && dur > 0) onProgressRef.current?.(video.currentTime, dur);
+      if (isFinite(dur) && dur > 0 && !video.paused) {
+        onProgressRef.current?.(video.currentTime, dur);
+      }
     };
+
     const poll = setInterval(report, 5000);
+
     return () => {
       video.removeEventListener("loadedmetadata", trySeek);
       clearInterval(poll);
-      report(); // son pozisyonu kaydet
     };
-  }, [src, startPosition, live]);
+  }, [src, live]);
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
@@ -450,6 +503,11 @@ export default function MediaPlayer({
           <div className="player-controls__title">
             <span>{title}</span>
           </div>
+          {topRightAction && (
+            <div className="player-controls__top-right" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+              {topRightAction}
+            </div>
+          )}
         </div>
 
         <div className="player-controls__bottom">

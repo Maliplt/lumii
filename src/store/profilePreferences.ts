@@ -3,6 +3,8 @@ export interface ProfilePreferences {
   previews: boolean;
   showContinueWatching: boolean;
   emailNotifications: boolean;
+  realDebridApiKey?: string;
+  preferredStreamProvider?: "auto" | "torrentio" | "vidfast";
 }
 
 export const DEFAULT_PROFILE_PREFERENCES: Readonly<ProfilePreferences> = {

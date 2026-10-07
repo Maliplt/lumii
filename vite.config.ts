@@ -7,6 +7,20 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
+  server: {
+    proxy: {
+      "/api/torrentio": {
+        target: "https://torrentio.strem.fun",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/torrentio/, ""),
+      },
+      "/api/realdebrid": {
+        target: "https://api.real-debrid.com/rest/1.0",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/realdebrid/, ""),
+      },
+    },
+  },
   build: {
     chunkSizeWarningLimit: 1500,
   },

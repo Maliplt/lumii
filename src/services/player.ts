@@ -1,10 +1,15 @@
+import type { StreamSource } from "../types/types";
 import { playbackError } from "./serviceError";
 
 const VIDFAST_BASE_URL = "https://vidfast.vc";
 
+export type PlaybackSourceKind = "vidfast" | "direct" | "torrentio";
+
 export interface PlaybackSource {
-  kind: "vidfast";
+  kind: PlaybackSourceKind;
   url: string;
+  source?: StreamSource;
+  availableSources?: StreamSource[];
 }
 
 export interface PlaybackRequest {

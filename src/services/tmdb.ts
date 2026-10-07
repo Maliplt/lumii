@@ -302,18 +302,29 @@ export const tmdbApi = {
 
   getMovieDetail: async (id: number): Promise<MovieDetail> => {
     const data = await tmdbFetch<Omit<MovieDetail, "media_type">>(`/movie/${id}`, {
-      append_to_response: "credits,videos",
+      append_to_response: "credits,videos,external_ids",
       include_video_language: "tr,en,null",
     });
-    return { ...data, media_type: "movie" };
+    const imdbId =
+      data.external_ids?.imdb_id ||
+      (data as { imdb_id?: string | null }).imdb_id ||
+      null;
+    return { ...data, imdb_id: imdbId, media_type: "movie" };
   },
 
   getTVShowDetail: async (id: number): Promise<TVShowDetail> => {
     const data = await tmdbFetch<Omit<TVShowDetail, "media_type">>(`/tv/${id}`, {
-      append_to_response: "credits,videos",
+      append_to_response: "credits,videos,external_ids",
       include_video_language: "tr,en,null",
     });
-    if (data.overview?.trim()) return { ...data, media_type: "tv" };
+    const imdbId =
+      data.external_ids?.imdb_id ||
+      (data as { imdb_id?: string | null }).imdb_id ||
+      null;
+
+    if (data.overview?.trim()) {
+      return { ...data, imdb_id: imdbId, media_type: "tv" };
+    }
 
     const fallback = await optionalServiceRequest(
       tmdbFetch<Omit<TVShowDetail, "media_type">>(`/tv/${id}`, {
@@ -322,6 +333,7 @@ export const tmdbApi = {
     );
     return {
       ...data,
+      imdb_id: imdbId,
       overview: data.overview?.trim() || fallback?.overview || "",
       tagline: data.tagline?.trim() || fallback?.tagline || "",
       episode_run_time: data.episode_run_time?.length
@@ -336,6 +348,13 @@ export const tmdbApi = {
 
   getSimilarTVShows: (id: number): Promise<TMDBResponse<TVShow>> =>
     tmdbFetch<TMDBResponse<TVShow>>(`/tv/${id}/similar`),
+
+  getExternalIds: async (
+    type: "movie" | "tv",
+    id: number,
+  ): Promise<{ imdb_id?: string | null }> => {
+    return tmdbFetch<{ imdb_id?: string | null }>(`/${type}/${id}/external_ids`);
+  },
 
   getTVSeasonDetails: async (
     tvId: number,

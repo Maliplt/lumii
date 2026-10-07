@@ -89,12 +89,22 @@ export interface Credits {
   crew: CrewMember[];
 }
 
+export interface ExternalIds {
+  imdb_id?: string | null;
+  facebook_id?: string | null;
+  instagram_id?: string | null;
+  twitter_id?: string | null;
+  id?: number;
+}
+
 export interface MovieDetail extends Movie {
   media_type: "movie";
   genres: Genre[];
   runtime: number | null;
   tagline: string;
   status: string;
+  imdb_id?: string | null;
+  external_ids?: ExternalIds;
   credits?: Credits;
   videos?: VideosResponse;
 }
@@ -105,6 +115,8 @@ export interface TVShowDetail extends TVShow {
   episode_run_time: number[];
   tagline: string;
   status: string;
+  imdb_id?: string | null;
+  external_ids?: ExternalIds;
   number_of_seasons: number;
   number_of_episodes: number;
   credits?: Credits;
@@ -176,3 +188,36 @@ export interface PlanCapabilities {
   hasAds: boolean;
   canDownload: boolean;
 }
+
+export interface TorrentioStream {
+  name: string;
+  title: string;
+  url?: string;
+  infoHash?: string;
+  fileIdx?: number;
+  behaviorHints?: {
+    bingeGroup?: string;
+    filename?: string;
+  };
+}
+
+export interface TorrentioResponse {
+  streams?: TorrentioStream[];
+}
+
+export interface StreamSource {
+  id: string;
+  title: string;
+  quality: "4K" | "1080p" | "720p" | "480p" | "SD" | "Bilinmeyen";
+  size?: string;
+  codec?: string;
+  audio?: string;
+  tracker?: string;
+  format?: "mp4" | "mkv" | "webm" | "other";
+  isBrowserFriendly: boolean;
+  isRealDebrid: boolean;
+  url: string;
+  originalName: string;
+  originalTitle: string;
+}
+
