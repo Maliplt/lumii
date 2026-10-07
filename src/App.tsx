@@ -6,6 +6,15 @@ import ErrorBoundary from "./components/feedback/ErrorBoundary";
 import ProtectedRoute from "./components/access/ProtectedRoute";
 import TrailerPreviewProvider from "./components/media/TrailerPreviewProvider";
 
+// Tenett Kurumsal Web Sitesi Sayfaları
+const CorporateLayout = lazy(() => import("./corporate/components/CorporateLayout"));
+const CorporateHomePage = lazy(() => import("./corporate/pages/CorporateHomePage"));
+const CorporateAboutPage = lazy(() => import("./corporate/pages/CorporateAboutPage"));
+const CorporateProductsPage = lazy(() => import("./corporate/pages/CorporateProductsPage"));
+const CorporateInvestorsPage = lazy(() => import("./corporate/pages/CorporateInvestorsPage"));
+const CorporateContactPage = lazy(() => import("./corporate/pages/CorporateContactPage"));
+
+// Tenet Medya & Oynatıcı Platformu Sayfaları
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ExplorePage = lazy(() => import("./pages/ExplorePage"));
 const PlayGamePage = lazy(() => import("./pages/PlayGamePage"));
@@ -48,8 +57,18 @@ function AppRoutes() {
     <ErrorBoundary resetKey={pathname}>
       <Suspense fallback={<Spinner />}>
         <Routes>
+          {/* 1. Tenett Kurumsal Şirket Web Sitesi */}
+          <Route element={<CorporateLayout />}>
+            <Route path="/" element={<CorporateHomePage />} />
+            <Route path="/about" element={<CorporateAboutPage />} />
+            <Route path="/products" element={<CorporateProductsPage />} />
+            <Route path="/investors" element={<CorporateInvestorsPage />} />
+            <Route path="/contact" element={<CorporateContactPage />} />
+          </Route>
+
+          {/* 2. Tenet Canlı Medya & Oynatıcı Platformu */}
           <Route element={<RootLayout />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/app" element={<HomePage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/packages" element={<PackagesPage />} />
@@ -65,6 +84,7 @@ function AppRoutes() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
 
+          {/* Tam Ekran & Özel İstemci Rotaları */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<ProtectedRoute />}>
