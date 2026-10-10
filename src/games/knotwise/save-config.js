@@ -1,4 +1,4 @@
-// oyuncu ve alt kayıt kimliği
+// oyuncu ve alt kayıt kimliğ
 window.KnotwiseConfig = {
   id: "guest",
   subId: "main",
