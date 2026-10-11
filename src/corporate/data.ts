@@ -1,5 +1,5 @@
-// kurumsal site icerigi
-// tum metinler burada; sayfalar sadece bu veriyi cizer
+// kurumsal site içeriği,
+// tüm metinler burada; sayfalar sadece bu veriyi çizer.
 
 export const company = {
   name: "Tenett",
