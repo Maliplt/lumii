@@ -62,7 +62,7 @@ export default function Header() {
         className={`custom-header${scrolled ? " scrolled" : ""}${searchVisible ? " searching" : ""}`}
       >
         <Navbar.Content className="header-left">
-          <Navbar.Brand as={Link} to="/" className="header-brand-link">
+          <Navbar.Brand as={Link} to="/app" className="header-brand-link">
             <Logo />
           </Navbar.Brand>
           <HeaderNav pathname={location.pathname} />

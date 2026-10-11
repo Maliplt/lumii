@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Spinner from "./components/ui/Spinner";
 import RootLayout from "./components/layout/RootLayout";
 import ErrorBoundary from "./components/feedback/ErrorBoundary";
@@ -57,8 +57,27 @@ function AppRoutes() {
     <ErrorBoundary resetKey={pathname}>
       <Suspense fallback={isPlayerRoute ? null : <Spinner />}>
         <Routes>
+          {/* Tenett Kurumsal Şirket Web Sitesi (Ana Sayfa) */}
+          <Route element={<CorporateLayout />}>
+            <Route path="/" element={<CorporateHomePage />} />
+            <Route path="/hakkimizda" element={<CorporateAboutPage />} />
+            <Route path="/tenet" element={<CorporateProjectPage />} />
+            <Route path="/yapay-zeka" element={<CorporateAiPage />} />
+            <Route path="/iletisim" element={<CorporateContactPage />} />
+
+            {/* Alternatif / İngilizce / Eski alias rotalar */}
+            <Route path="/about" element={<CorporateAboutPage />} />
+            <Route path="/products" element={<CorporateProjectPage />} />
+            <Route path="/investors" element={<CorporateAboutPage />} />
+            <Route path="/ai" element={<CorporateAiPage />} />
+            <Route path="/contact" element={<CorporateContactPage />} />
+            <Route path="/kurumsal" element={<Navigate to="/" replace />} />
+            <Route path="/kurumsal/*" element={<Navigate to="/" replace />} />
+          </Route>
+
+          {/* Tenet Medya & Eğlence Platformu */}
           <Route element={<RootLayout />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/app" element={<HomePage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/packages" element={<PackagesPage />} />
@@ -81,19 +100,12 @@ function AppRoutes() {
           </Route>
           <Route path="/play/:gameId" element={<PlayGamePage />} />
           <Route path="/:type/:id/player" element={<PlayerPage />} />
-
-          <Route path="/kurumsal" element={<CorporateLayout />}>
-            <Route index element={<CorporateHomePage />} />
-            <Route path="hakkimizda" element={<CorporateAboutPage />} />
-            <Route path="tenet" element={<CorporateProjectPage />} />
-            <Route path="yapay-zeka" element={<CorporateAiPage />} />
-            <Route path="iletisim" element={<CorporateContactPage />} />
-          </Route>
         </Routes>
       </Suspense>
     </ErrorBoundary>
   );
 }
+
 
 function App() {
   return (

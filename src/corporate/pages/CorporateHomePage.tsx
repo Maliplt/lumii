@@ -33,10 +33,10 @@ export default function CorporateHomePage() {
               çalışıyor.
             </p>
             <div className="tn-hero__cta">
-              <Button as={Link} to="/kurumsal/tenet" className="tn-btn tn-btn--solid">
+              <Button as={Link} to="/tenet" className="tn-btn tn-btn--solid">
                 Projeyi inceleyin <ArrowRight size={16} />
               </Button>
-              <Button as={Link} to="/kurumsal/hakkimizda" className="tn-btn tn-btn--line">
+              <Button as={Link} to="/hakkimizda" className="tn-btn tn-btn--line">
                 Hakkımızda
               </Button>
             </div>
@@ -90,7 +90,7 @@ export default function CorporateHomePage() {
           />
           <div className="tn-modules">
             {productModules.map((m, i) => (
-              <Link key={m.key} to="/kurumsal/tenet" className="tn-module">
+              <Link key={m.key} to="/tenet" className="tn-module">
                 <span className="tn-module__no">{String(i + 1).padStart(2, "0")}</span>
                 <h3>{m.label}</h3>
                 <p>{m.title}</p>
@@ -131,7 +131,7 @@ export default function CorporateHomePage() {
                 </li>
               ))}
               <li className="tn-ai-index__more">
-                <Link to="/kurumsal/yapay-zeka">
+                <Link to="/yapay-zeka">
                   Tüm kullanım alanları <ArrowRight size={15} />
                 </Link>
               </li>
@@ -155,7 +155,7 @@ export default function CorporateHomePage() {
               </li>
             ))}
           </ul>
-          <Link to="/kurumsal/hakkimizda#yatirimcilar" className="tn-textlink">
+          <Link to="/hakkimizda#yatirimcilar" className="tn-textlink">
             Yatırım turları <ArrowRight size={15} />
           </Link>
         </div>
@@ -164,7 +164,7 @@ export default function CorporateHomePage() {
       <section className="tn-band">
         <div className="tn-wrap tn-band__row">
           <h2>Ortaklık, yatırım ya da basın için doğrudan bize yazın.</h2>
-          <Button as={Link} to="/kurumsal/iletisim" className="tn-btn tn-btn--paper">
+          <Button as={Link} to="/iletisim" className="tn-btn tn-btn--paper">
             İletişime geçin <ArrowRight size={16} />
           </Button>
         </div>

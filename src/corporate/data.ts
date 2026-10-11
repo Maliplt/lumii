@@ -16,11 +16,11 @@ export const company = {
 };
 
 export const navLinks = [
-  { to: "/kurumsal", label: "Şirket", end: true },
-  { to: "/kurumsal/hakkimizda", label: "Hakkımızda" },
-  { to: "/kurumsal/tenet", label: "TENET Projesi" },
-  { to: "/kurumsal/yapay-zeka", label: "Yapay Zekâ" },
-  { to: "/kurumsal/iletisim", label: "İletişim" },
+  { to: "/", label: "Şirket", end: true },
+  { to: "/hakkimizda", label: "Hakkımızda" },
+  { to: "/tenet", label: "TENET Projesi" },
+  { to: "/yapay-zeka", label: "Yapay Zekâ" },
+  { to: "/iletisim", label: "İletişim" },
 ];
 
 export const keyFigures = [

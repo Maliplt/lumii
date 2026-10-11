@@ -45,7 +45,7 @@ export default function CorporateProjectPage() {
         title={<>TENET: tek hesapla film, dizi, canlı TV ve oyun.</>}
         lead={`${company.product}, Tenett'in ilk ve ana ürünüdür. ${company.operatingSince}'ten beri ücretli paketlerle hizmet veriyor; web ve mobil tarayıcılarda çalışıyor.`}
         aside={
-          <Button as={Link} to="/" className="tn-btn tn-btn--solid">
+          <Button as={Link} to="/app" className="tn-btn tn-btn--solid">
             Platformu açın <ArrowRight size={16} />
           </Button>
         }
@@ -133,7 +133,7 @@ export default function CorporateProjectPage() {
       <section className="tn-band">
         <div className="tn-wrap tn-band__row">
           <h2>Yapay zekâyı hangi işlerde, hangi modelle kullandığımızı ayrıntılı anlattık.</h2>
-          <Button as={Link} to="/kurumsal/yapay-zeka" className="tn-btn tn-btn--paper">
+          <Button as={Link} to="/yapay-zeka" className="tn-btn tn-btn--paper">
             Yapay zekâ sayfası <ArrowRight size={16} />
           </Button>
         </div>

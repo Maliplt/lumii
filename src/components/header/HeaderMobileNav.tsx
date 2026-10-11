@@ -68,7 +68,7 @@ export default function HeaderMobileNav({ open, onClose }: Props) {
       >
         <div className="mobile-nav-head">
           <Link
-            to="/"
+            to="/app"
             className="mobile-nav-brand"
             onClick={onClose}
             aria-label="TENET ana sayfa"

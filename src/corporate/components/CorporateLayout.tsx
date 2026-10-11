@@ -18,8 +18,12 @@ export function Wordmark({ className = "" }: { className?: string }) {
 function activeKeyFor(pathname: string) {
   const match = [...navLinks]
     .sort((a, b) => b.to.length - a.to.length)
-    .find((link) => pathname === link.to || pathname.startsWith(`${link.to}/`));
-  return match?.to ?? "/kurumsal";
+    .find((link) =>
+      link.to === "/"
+        ? pathname === "/"
+        : pathname === link.to || pathname.startsWith(`${link.to}/`),
+    );
+  return match?.to ?? "/";
 }
 
 function CorporateHeader() {
@@ -51,7 +55,7 @@ function CorporateHeader() {
   return (
     <header className={`tn-header${scrolled ? " is-scrolled" : ""}`}>
       <div className="tn-wrap tn-header__row">
-        <Link to="/kurumsal" className="tn-header__brand">
+        <Link to="/" className="tn-header__brand">
           <Wordmark />
           <span className="tn-header__legal">Teknoloji A.Ş.</span>
         </Link>
@@ -61,7 +65,7 @@ function CorporateHeader() {
         </Nav>
 
         <div className="tn-header__actions">
-          <Button as={Link} to="/" className="tn-btn tn-btn--ghost tn-header__product">
+          <Button as={Link} to="/app" className="tn-btn tn-btn--ghost tn-header__product">
             TENET'e git <ArrowUpRight size={15} />
           </Button>
           <button
@@ -98,7 +102,7 @@ function CorporateHeader() {
           <Nav vertical className="tn-drawer__nav" activeKey={activeKey}>
             {links}
           </Nav>
-          <Button as={Link} to="/" block className="tn-btn tn-btn--solid">
+          <Button as={Link} to="/app" block className="tn-btn tn-btn--solid">
             TENET platformuna git
           </Button>
         </Drawer.Body>

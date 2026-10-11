@@ -60,8 +60,8 @@ export default function Footer() {
               <h4 className="site-footer__col-title">Keşfet</h4>
               <ul className="site-footer__links">
                 <li>
-                  <Link className="site-footer__link" to="/">
-                    Anasayfa
+                  <Link className="site-footer__link" to="/app">
+                    Platform
                   </Link>
                 </li>
                 <li>
@@ -95,7 +95,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="site-footer__link" to="/kurumsal">
+                  <Link className="site-footer__link" to="/">
                     Kurumsal
                   </Link>
                 </li>
