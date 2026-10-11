@@ -1,0 +1,9 @@
+/* kurumsal sitede kullanilan ek RSuite stilleri (sadece /kurumsal rotalarinda yuklenir) */
+@import 'rsuite/Drawer/styles/index.css';
+@import 'rsuite/Timeline/styles/index.css';
+@import 'rsuite/Panel/styles/index.css';
+@import 'rsuite/Accordion/styles/index.css';
+@import 'rsuite/Tabs/styles/index.css';
+@import 'rsuite/Tag/styles/index.css';
+@import 'rsuite/Divider/styles/index.css';
+@import 'rsuite/SelectPicker/styles/index.css';

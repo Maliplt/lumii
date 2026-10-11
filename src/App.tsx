@@ -22,6 +22,14 @@ const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PlayerPage = lazy(() => import("./pages/PlayerPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
+// tenett kurumsal site
+const CorporateLayout = lazy(() => import("./corporate/components/CorporateLayout"));
+const CorporateHomePage = lazy(() => import("./corporate/pages/CorporateHomePage"));
+const CorporateAboutPage = lazy(() => import("./corporate/pages/CorporateAboutPage"));
+const CorporateProjectPage = lazy(() => import("./corporate/pages/CorporateProjectPage"));
+const CorporateAiPage = lazy(() => import("./corporate/pages/CorporateAiPage"));
+const CorporateContactPage = lazy(() => import("./corporate/pages/CorporateContactPage"));
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -73,6 +81,14 @@ function AppRoutes() {
           </Route>
           <Route path="/play/:gameId" element={<PlayGamePage />} />
           <Route path="/:type/:id/player" element={<PlayerPage />} />
+
+          <Route path="/kurumsal" element={<CorporateLayout />}>
+            <Route index element={<CorporateHomePage />} />
+            <Route path="hakkimizda" element={<CorporateAboutPage />} />
+            <Route path="tenet" element={<CorporateProjectPage />} />
+            <Route path="yapay-zeka" element={<CorporateAiPage />} />
+            <Route path="iletisim" element={<CorporateContactPage />} />
+          </Route>
         </Routes>
       </Suspense>
     </ErrorBoundary>

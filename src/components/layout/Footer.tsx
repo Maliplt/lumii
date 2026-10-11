@@ -94,6 +94,11 @@ export default function Footer() {
                     Hesabım
                   </Link>
                 </li>
+                <li>
+                  <Link className="site-footer__link" to="/kurumsal">
+                    Kurumsal
+                  </Link>
+                </li>
               </ul>
             </div>
           </nav>
